@@ -5,7 +5,7 @@
   <title>The Madness Index</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <!-- Core styles -->
-  <link rel="stylesheet" href="styles2_patched.css?v=20" />
+  <link rel="stylesheet" href="styles2.css?v=21" />
   <link rel="icon" type="image/png" href="assets/img/logos/madness-index-app-logo.PNG" />
 </head>
 <body>
@@ -27,27 +27,6 @@
   <span data-copy="hero.subtitle"></span>
   <span class="hero-sub-highlight" data-copy="hero.subtitle_highlight"></span>
 </p>
-
- <!-- Compact matchup HUD (shown only when a matchup is active) -->
-  <div class="hero-matchup-hud">
-    <div class="hero-hud-team">
-      <div class="hero-hud-label">Cinderella</div>
-      <div class="hero-hud-name" id="hudCinderName">Team A</div>
-      <div class="hero-hud-pill" id="hudCinderRating">MI 00</div>
-    </div>
-
-    <div class="hero-hud-center">
-      <div class="hero-hud-delta" id="hudDeltaValue">ΔMI 0.000</div>
-      <div class="hero-hud-lean" id="hudLeanText" data-copy="summary.neutral_matchup">Neutral matchup</div>
-    </div>
-
-    <div class="hero-hud-team hero-hud-team-fav">
-      <div class="hero-hud-label">Favorite</div>
-      <div class="hero-hud-name" id="hudFavoriteName">Team B</div>
-      <div class="hero-hud-pill hero-hud-pill-fav" id="hudFavoriteRating">MI 00</div>
-    </div>
-  </div>
-
   <div class="version-badge">v3.4</div>
 </div>
 </header>
@@ -298,6 +277,96 @@
       <div id="matchupQuickB" class="matchup-quick-slot" aria-hidden="true"></div>
     </div>
 
+  </div>
+</section>
+
+<!-- ========== VERDICT (ALWAYS VISIBLE POST-MATCHUP) ========== -->
+<section id="verdictShell" class="card mi-verdict-shell hidden" aria-live="polite">
+  <div class="mi-verdict-shell-inner">
+
+    <div class="mi-verdict-grid">
+      <!-- LEFT (75%): Verdict proclamation -->
+      <div class="mi-verdict-main">
+        <div class="mi-scorebug-top">
+          <div class="mi-scorebug-kicker">THE MADNESS INDEX</div>
+          <div class="mi-scorebug-line" id="miVerdictLine" data-copy="verdict.metrics.primary_text">—</div>
+        </div>
+      </div>
+
+      <!-- RIGHT (25%): Evidence rail -->
+      <aside class="mi-verdict-rail" aria-label="Evidence rail">
+        <!-- MI Flip Tile (front: numbers, back: meaning + action) -->
+        <div class="flip-tile mi-scorebug-score mi-verdict-metrics-tile" id="miVerdictMetricsTile" aria-label="Madness Index metrics">
+          <div class="flip-tile-inner">
+
+<!-- FRONT -->
+<div class="tile-face tile-front">
+  <div class="mi-scorebug-grid" aria-label="Madness Index scorebug">
+
+    <!-- Team A (left) -->
+    <div class="mi-scorebug-team mi-scorebug-team--a">
+      <div class="mi-scorebug-team-name" id="miScorebugTeamA">—</div>
+      <div class="mi-scorebug-team-lines">
+        <div class="mi-scorebug-team-line">
+          <span class="mi-scorebug-mini-label">Base</span>
+          <span class="mi-scorebug-mini-value" id="miScorebugBaseA">—</span>
+        </div>
+        <div class="mi-scorebug-team-line">
+          <span class="mi-scorebug-mini-label">Match</span>
+          <span class="mi-scorebug-mini-value" id="miScorebugMatchA">—</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Team B (right) -->
+    <div class="mi-scorebug-team mi-scorebug-team--b">
+      <div class="mi-scorebug-team-name" id="miScorebugTeamB">—</div>
+      <div class="mi-scorebug-team-lines">
+        <div class="mi-scorebug-team-line">
+          <span class="mi-scorebug-mini-label">Base</span>
+          <span class="mi-scorebug-mini-value" id="miScorebugBaseB">—</span>
+        </div>
+        <div class="mi-scorebug-team-line">
+          <span class="mi-scorebug-mini-label">Match</span>
+          <span class="mi-scorebug-mini-value" id="miScorebugMatchB">—</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- MI GAP (full width) -->
+    <div class="mi-scorebug-gap" aria-label="Madness Index gap">
+      <div class="mi-scorebug-gap-label">MI GAP</div>
+      <div class="mi-scorebug-gap-value" id="miVerdictGapTop">—</div>
+    </div>
+
+    <!-- Footer hint -->
+    <div class="mi-scorebug-footer">
+      <div class="mi-metrics-hint">Flip for context</div>
+    </div>
+
+  </div>
+</div>
+
+            <!-- BACK -->
+            <div class="tile-face tile-back">
+              <div class="mi-metrics-back-text" data-copy="verdict.metrics.back_text">
+              </div>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <div class="mi-verdict-actions mi-verdict-actions-rail">
+      <button id="miEvidenceToggle" class="mi-evidence-toggle" type="button" aria-expanded="false">
+        View Full Scorecard <span class="mi-chev" aria-hidden="true">▾</span>
+      </button>
+    </div>
+
+    <!-- tiny footer (disclaimer) -->
+    <div class="mi-verdict-footer">
+      <span id="miVerdictDisclaimer" class="mi-verdict-disclaimer"></span>
+    </div>
   </div>
 </section>
 
@@ -807,6 +876,6 @@
 
   </div><!-- end .app-shell -->
   <!-- Core logic -->
-  <script src="madness_index_patched.js?v=20"></script>
+  <script src="madness_index.js?v=21"></script>
 </body>
 </html>

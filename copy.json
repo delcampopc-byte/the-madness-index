@@ -5,7 +5,62 @@
     "title_main": "THE MADNESS INDEX",
     "subtitle": "Head-to-head NCAA Tournament matchup engine",
     "subtitle_highlight": "powered by advanced analytics."
-  }, 
+  },
+  "verdict": {
+    "metrics": {
+      "primary_text": {
+        "tiny_gap": [
+          "{{WINNER}} vs {{LOSER}} projects as a true coin-flip by the model, with no meaningful separation between the two. {{WINNER}} and {{LOSER}} grade out closely enough that small swings can decide the outcome."
+        ],
+        "small_gap": [
+          "The model shows a slight preference for {{WINNER}} over {{LOSER}}, but the margin remains narrow. The edge for {{WINNER}} against {{LOSER}} comes from modest profile alignment, with volatility still in play."
+        ],
+        "medium_gap": [
+          "The model leans toward {{WINNER}} over {{LOSER}} with a clear, but not decisive, advantage. The separation between {{WINNER}} and {{LOSER}} is driven by stronger overall fit and steadier pressure handling."
+        ],
+        "large_gap": [
+          "The model strongly prefers {{WINNER}} over {{LOSER}}, indicating meaningful separation in this matchup. {{WINNER}} carries the cleaner path against {{LOSER}} unless the game swings sharply on high-variance outcomes."
+        ],
+        "default": [
+          "The model prefers {{WINNER}} over {{LOSER}} in this matchup. The separation between {{WINNER}} and {{LOSER}} is reflected in overall profile alignment and matchup pressure."
+        ]
+      },
+       "secondary_text": {
+         "tiny_gap": [
+          "{{WINNER}} and {{LOSER}} separate in spots, but the model doesn’t see a stable advantage."
+        ],
+         "small_gap": [
+          "{{WINNER}} and {{LOSER}} grade out close, but {{WINNER}} comes out ahead on balance."
+        ],
+         "medium_gap": [
+          "{{WINNER}} and {{LOSER}} don’t profile evenly, and {{WINNER}} wins more of the matchup lanes."
+        ],
+         "large_gap": [
+          "{{WINNER}} and {{LOSER}} profile differently enough that {{WINNER}} controls the leverage points."
+        ],
+         "default": [
+          "{{WINNER}} rates ahead of {{LOSER}} once the full profile is accounted for."
+        ]
+      },
+      "back_text": {
+        "tiny_gap": [
+          "{{WINNER}} and {{LOSER}} sit in the same tier here, so the Madness Index expects a swingy game where small runs matter."
+        ],
+        "small_gap": [
+          "{{WINNER}} grades a step ahead of {{LOSER}}, but the Madness Index still expects pressure points to decide it."
+        ],
+        "medium_gap": [
+          "{{WINNER}} rates clearly ahead of {{LOSER}}, and the Madness Index sees multiple structural lanes favoring {{WINNER}}."
+        ],
+        "large_gap": [
+          "{{WINNER}} rates well ahead of {{LOSER}}, and the Madness Index sees a meaningful edge that {{LOSER}} has to disrupt."
+        ],
+        "default": [
+          "{{WINNER}} is rated ahead of {{LOSER}} in the Madness Index for this matchup."
+        ]
+      }
+    }      
+  },
   "prematch": {
     "progress": {
     "status_label": "PROGRESS BAR",
