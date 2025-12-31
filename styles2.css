@@ -185,6 +185,45 @@ body {
   box-shadow: var(--mi-shadow-header), var(--mi-shadow-card-inset);
 }
 
+/* =========================================================
+   POST-MATCHUP: collapse the hero header tile (reduce redundancy)
+   Uses existing app-shell state class: .has-matchup
+   ========================================================= */
+
+.enhanced-header{
+  /* allow smooth collapse without layout jank */
+  overflow: hidden;
+  max-height: 320px; /* safely above its normal height */
+  transition:
+    max-height 420ms ease,
+    opacity 220ms ease,
+    transform 420ms ease,
+    margin 420ms ease,
+    padding 420ms ease,
+    border-color 220ms ease,
+    box-shadow 220ms ease;
+  transform-origin: top;
+}
+
+.app-shell.has-matchup .enhanced-header{
+  max-height: 0;
+  opacity: 0;
+  transform: translateY(-8px);
+  margin-bottom: 0 !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  border-color: transparent;
+  box-shadow: none;
+  pointer-events: none;
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce){
+  .enhanced-header{
+    transition: none !important;
+  }
+}
+
 /* Pre-matchup: slightly tighter hero to prioritize the workflow */
 .app-shell.pre-matchup .enhanced-header{
   padding: 18px 18px 16px;
@@ -6029,7 +6068,7 @@ button,
 }
 
 /* Button is centered and intentionally not full-width */
-#verdictShell #miEvidenceToggle.mi-evidence-toggle{
+#miEvidenceToggle.mi-evidence-toggle{
   width: min(520px, 100%);
   justify-content: center;
 }
@@ -6681,6 +6720,217 @@ button,
   position: static !important;
   margin: 0 !important;
   padding: 0 !important;
+}
+
+/* =========================================================
+   VERDICT LINE (Concept 1 + 3 + 6)
+   Headline + Subdeck + Team Anchoring + Lean Intensity
+   (presentation-only; verdict text generation unchanged)
+   ========================================================= */
+
+#verdictShell .mi-scorebug-line.is-structured{
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  text-wrap: pretty;
+}
+
+/* Headline (Sentence 1) */
+#verdictShell .mi-scorebug-line.is-structured .mi-verdict-headline{
+  font-size: 32px;
+  line-height: 1.06;
+  font-weight: 880;
+  letter-spacing: -0.02em;
+  color: rgba(248,250,252,0.97);
+  text-wrap: balance;
+}
+
+/* Subdeck (Sentence 2) */
+#verdictShell .mi-scorebug-line.is-structured .mi-verdict-subdeck{
+  font-size: 16px;
+  line-height: 1.34;
+  font-weight: 560;
+  letter-spacing: -0.005em;
+  color: rgba(226,232,240,0.86);
+  max-width: 62ch; /* keeps long second sentences from feeling like a wall */
+}
+
+/* Optional “breath mark” divider between headline + subdeck */
+#verdictShell .mi-scorebug-line.is-structured .mi-verdict-break{
+  display: block;
+  height: 1px;
+  width: 100%;
+  background: linear-gradient(
+    90deg,
+    rgba(var(--mi-verdict-rgb), 0.00),
+    rgba(var(--mi-verdict-rgb), 0.28),
+    rgba(var(--mi-verdict-rgb), 0.00)
+  );
+  opacity: 0.85;
+}
+
+/* Team-name anchoring (Concept 3) */
+#verdictShell .mi-team{
+  position: relative;
+  display: inline-block;
+  padding: 0 2px;
+  border-radius: 6px;
+  color: rgba(248,250,252,0.98);
+  white-space: nowrap;
+}
+
+#verdictShell .mi-team::after{
+  content: "";
+  position: absolute;
+  left: 2px;
+  right: 2px;
+  bottom: 0.06em;
+  height: 2px;
+  border-radius: 999px;
+  background: linear-gradient(
+    90deg,
+    rgba(var(--mi-verdict-rgb), 0.00),
+    rgba(var(--mi-verdict-rgb), 0.70),
+    rgba(var(--mi-verdict-rgb), 0.00)
+  );
+  opacity: 0.55;
+  transform: translateY(0);
+}
+
+/* Slightly different texture for the “other” team to reduce sameness
+   (still neutral — does NOT imply winner/loser) */
+#verdictShell .mi-team.mi-team--b{
+  color: rgba(241,245,249,0.92);
+}
+#verdictShell .mi-team.mi-team--b::after{
+  opacity: 0.40;
+}
+
+/* Lean intensity (Concept 6) — typographic confidence without numbers */
+#verdictShell.mi-lean-coin   .mi-verdict-headline{ opacity: 0.92; text-shadow: none; }
+#verdictShell.mi-lean-slight .mi-verdict-headline{ opacity: 0.96; text-shadow: 0 0 16px rgba(var(--mi-verdict-rgb), 0.10); }
+#verdictShell.mi-lean-solid  .mi-verdict-headline{ opacity: 0.99; text-shadow: 0 0 20px rgba(var(--mi-verdict-rgb), 0.18); }
+#verdictShell.mi-lean-heavy  .mi-verdict-headline{ opacity: 1.00; text-shadow: 0 0 26px rgba(var(--mi-verdict-rgb), 0.24); }
+
+#verdictShell.mi-lean-coin   .mi-verdict-subdeck{ color: rgba(226,232,240,0.82); }
+#verdictShell.mi-lean-slight .mi-verdict-subdeck{ color: rgba(226,232,240,0.85); }
+#verdictShell.mi-lean-solid  .mi-verdict-subdeck{ color: rgba(226,232,240,0.88); }
+#verdictShell.mi-lean-heavy  .mi-verdict-subdeck{ color: rgba(226,232,240,0.90); }
+
+/* Micro-reveal (confident but restrained) */
+#verdictShell .mi-scorebug-line.is-structured .mi-verdict-headline,
+#verdictShell .mi-scorebug-line.is-structured .mi-verdict-break,
+#verdictShell .mi-scorebug-line.is-structured .mi-verdict-subdeck{
+  animation: miVerdictTextIn 320ms ease-out both;
+}
+#verdictShell .mi-scorebug-line.is-structured .mi-verdict-break{ animation-delay: 70ms; }
+#verdictShell .mi-scorebug-line.is-structured .mi-verdict-subdeck{ animation-delay: 110ms; }
+
+@keyframes miVerdictTextIn{
+  from{ opacity: 0; transform: translateY(4px); filter: blur(1px); }
+  to  { opacity: 1; transform: translateY(0); filter: blur(0); }
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce){
+  #verdictShell .mi-scorebug-line.is-structured .mi-verdict-headline,
+  #verdictShell .mi-scorebug-line.is-structured .mi-verdict-break,
+  #verdictShell .mi-scorebug-line.is-structured .mi-verdict-subdeck{
+    animation: none !important;
+  }
+}
+
+/* =========================================================
+   Verdict Kicker Re-role (Brand → Context)
+   ========================================================= */
+
+.mi-scorebug-top{
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Turn THE MADNESS INDEX into a true micro-kicker */
+.mi-scorebug-kicker{
+  align-self: flex-start;
+  font-size: 11px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: rgba(148,163,184,0.65);
+  margin: 0 0 2px 0;
+  padding: 0;
+  line-height: 1;
+}
+
+.mi-scorebug-kicker{
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+
+  /* keep your micro-kicker typography */
+  font-size: 11px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: rgba(148,163,184,0.65);
+  line-height: 1;
+
+  /* subtle broadcast rule using background, not pseudo */
+  padding-bottom: 10px;
+  background-image: linear-gradient(
+    90deg,
+    rgba(148,163,184,0.45),
+    rgba(148,163,184,0.00)
+  );
+  background-repeat: no-repeat;
+  background-size: 56px 1px;
+  background-position: left calc(100% - 2px);
+}
+
+.mi-scorebug-kicker::after{
+  content: "";
+  display: block;
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+
+  background-color: rgba(3, 7, 18, 0.72);
+  background-image: url("assets/img/logos/madness-index-main-logo.PNG");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 86% auto;
+
+  border: 1px solid rgba(148,163,184,0.32);
+  box-shadow:
+    0 14px 28px rgba(0,0,0,0.45),
+    0 0 22px rgba(var(--mi-verdict-rgb), 0.16);
+
+  opacity: 0.96;
+}
+
+#verdictShell{
+  position: relative;
+
+  /* stronger glass feel */
+  background:
+    linear-gradient(
+      180deg,
+      rgba(15, 23, 42, 0.88),
+      rgba(2, 6, 23, 0.92)
+    );
+
+  backdrop-filter: blur(22px) saturate(1.18);
+  -webkit-backdrop-filter: blur(22px) saturate(1.18);
+
+  border: 1px solid rgba(148,163,184,0.28);
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.06),
+    inset 0 0 0 1px rgba(255,255,255,0.02),
+    0 20px 48px rgba(0,0,0,0.65),
+    0 0 0 1px rgba(148,163,184,0.08);
 }
 
 /* =========================================================

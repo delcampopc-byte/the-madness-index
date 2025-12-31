@@ -7,59 +7,76 @@
     "subtitle_highlight": "powered by advanced analytics."
   },
   "verdict": {
-    "metrics": {
-      "primary_text": {
+  "metrics": {
+    "primary_text": {
+      "tiny_gap": [
+        "The Madness Index suggests little separation between {{WINNER}} and {{LOSER}}, with no clear directional pull emerging."
+      ],
+      "small_gap": [
+        "The Madness Index edges {{WINNER}} ahead of {{LOSER}}, though the margin remains thin."
+      ],
+      "medium_gap": [
+        "The Madness Index establishes {{WINNER}} as the more favorable profile versus {{LOSER}}."
+      ],
+      "large_gap": [
+        "The Madness Index strongly favors {{WINNER}} over {{LOSER}}, with matchup pressure clearly aligned."
+      ],
+      "default": [
+        "The Madness Index provides context for {{WINNER}} versus {{LOSER}}, though the lean remains muted."
+      ]
+    },
+    "secondary_text": {
+      "tiny_gap": [
+        "{{WINNER}} and {{LOSER}} answer each other’s strengths cleanly enough to keep the matchup level."
+      ],
+      "small_gap": [
+        "{{WINNER}} holds small advantages in flow that {{LOSER}} does not fully counter."
+      ],
+      "medium_gap": [
+        "{{WINNER}} controls more of the game’s terms than {{LOSER}} as the matchup settles."
+      ],
+      "large_gap": [
+        "{{WINNER}} operates with a style of play that bends the game away from the strengths of {{LOSER}} for extended stretches."
+      ],
+      "default": [
+        "{{WINNER}} and {{LOSER}} trade advantages in ways that keep the game structure fluid."
+      ]
+    },
+    "back_text": {
+      "base": [
+        "The Madness Index rating represents a team’s overall profile strength after performance, efficiency, and context are considered together.",
+        "The Madness Index rating reflects a team’s full-season profile by combining results, efficiency, and contextual factors.",
+        "The Madness Index rating captures a team’s overall standing by integrating performance quality with situational context."
+      ],
+      "matchup": [
+        "The matchup-adjusted rating shows how those profiles translate when the two teams are evaluated directly against each other.",
+        "The matchup-adjusted rating accounts for how each team’s profile interacts when the two are compared in the same game context.",
+        "The matchup-adjusted rating reflects how team profiles shift when evaluated through a head-to-head lens."
+      ],
+      "gap": {
         "tiny_gap": [
-          "{{WINNER}} vs {{LOSER}} projects as a true coin-flip by the model, with no meaningful separation between the two. {{WINNER}} and {{LOSER}} grade out closely enough that small swings can decide the outcome."
+          "The gap between the ratings is minimal, indicating that the teams remain closely grouped with little clear separation.",
+          "The narrow gap suggests the ratings cluster tightly, offering limited clarity between the two profiles."
         ],
         "small_gap": [
-          "The model shows a slight preference for {{WINNER}} over {{LOSER}}, but the margin remains narrow. The edge for {{WINNER}} against {{LOSER}} comes from modest profile alignment, with volatility still in play."
+          "The gap between the ratings shows modest separation, suggesting some differentiation without a clear divide.",
+          "The ratings are separated enough to indicate a mild distinction, though the profiles remain relatively close."
         ],
         "medium_gap": [
-          "The model leans toward {{WINNER}} over {{LOSER}} with a clear, but not decisive, advantage. The separation between {{WINNER}} and {{LOSER}} is driven by stronger overall fit and steadier pressure handling."
+          "The gap between the ratings reflects meaningful separation, indicating clearer differentiation between the two profiles.",
+          "The size of the gap suggests the profiles diverge in noticeable ways rather than remaining closely aligned."
         ],
         "large_gap": [
-          "The model strongly prefers {{WINNER}} over {{LOSER}}, indicating meaningful separation in this matchup. {{WINNER}} carries the cleaner path against {{LOSER}} unless the game swings sharply on high-variance outcomes."
+          "The gap between the ratings is pronounced, indicating clear separation between the two profiles.",
+          "The size of the gap reflects strong differentiation, with the ratings no longer closely aligned."
         ],
         "default": [
-          "The model prefers {{WINNER}} over {{LOSER}} in this matchup. The separation between {{WINNER}} and {{LOSER}} is reflected in overall profile alignment and matchup pressure."
-        ]
-      },
-       "secondary_text": {
-         "tiny_gap": [
-          "{{WINNER}} and {{LOSER}} separate in spots, but the model doesn’t see a stable advantage."
-        ],
-         "small_gap": [
-          "{{WINNER}} and {{LOSER}} grade out close, but {{WINNER}} comes out ahead on balance."
-        ],
-         "medium_gap": [
-          "{{WINNER}} and {{LOSER}} don’t profile evenly, and {{WINNER}} wins more of the matchup lanes."
-        ],
-         "large_gap": [
-          "{{WINNER}} and {{LOSER}} profile differently enough that {{WINNER}} controls the leverage points."
-        ],
-         "default": [
-          "{{WINNER}} rates ahead of {{LOSER}} once the full profile is accounted for."
-        ]
-      },
-      "back_text": {
-        "tiny_gap": [
-          "{{WINNER}} and {{LOSER}} sit in the same tier here, so the Madness Index expects a swingy game where small runs matter."
-        ],
-        "small_gap": [
-          "{{WINNER}} grades a step ahead of {{LOSER}}, but the Madness Index still expects pressure points to decide it."
-        ],
-        "medium_gap": [
-          "{{WINNER}} rates clearly ahead of {{LOSER}}, and the Madness Index sees multiple structural lanes favoring {{WINNER}}."
-        ],
-        "large_gap": [
-          "{{WINNER}} rates well ahead of {{LOSER}}, and the Madness Index sees a meaningful edge that {{LOSER}} has to disrupt."
-        ],
-        "default": [
-          "{{WINNER}} is rated ahead of {{LOSER}} in the Madness Index for this matchup."
+          "The gap between the ratings provides a general sense of separation, offering context without strongly distinguishing the two profiles.",
+          "The difference between the ratings offers baseline perspective on separation, though the distinction remains broadly interpretive."
         ]
       }
-    }      
+    }
+    }
   },
   "prematch": {
     "progress": {

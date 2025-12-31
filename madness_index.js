@@ -3139,6 +3139,98 @@ function miSetVerdictCopy({ winner, loser, gapKey }) {
   // Your existing flip-tile back population remains intact.
 }
 
+/* =========================================================
+   Verdict Presentation Enhancer
+   ========================================================= */
+
+function enhanceVerdictPresentation() {
+  const line = document.getElementById('miVerdictLine');
+  if (!line) return;
+
+  const raw = (line.textContent || '').trim();
+  if (!raw || raw === '—') return;
+
+  // Avoid re-processing
+  if (line.classList.contains('is-structured')) return;
+
+  // Pull team names from existing scorebug labels
+  const teamA = (document.getElementById('miScorebugTeamA')?.textContent || '').trim();
+  const teamB = (document.getElementById('miScorebugTeamB')?.textContent || '').trim();
+
+  // --- Sentence split (Headline = sentence 1, Subdeck = sentence 2+)
+  // Split at the first sentence boundary that looks like end punctuation
+  // followed by whitespace and a capital/open-quote.
+  const split = raw.match(/^(.+?[.!?])\s+(?=[A-Z“"‘])/);
+
+  let headlineText = raw;
+  let subdeckText = '';
+
+  if (split && split[1] && split[1].length < raw.length) {
+    headlineText = split[1].trim();
+    subdeckText = raw.slice(split[0].length).trim();
+  }
+
+  // Build DOM safely (no innerHTML injection)
+  line.textContent = '';
+  line.classList.add('is-structured');
+
+  const headline = document.createElement('span');
+  headline.className = 'mi-verdict-headline';
+  headline.appendChild(highlightTeamsFragment(headlineText, teamA, teamB));
+
+  line.appendChild(headline);
+
+  if (subdeckText) {
+    const brk = document.createElement('span');
+    brk.className = 'mi-verdict-break';
+    line.appendChild(brk);
+
+    const subdeck = document.createElement('span');
+    subdeck.className = 'mi-verdict-subdeck';
+    subdeck.appendChild(highlightTeamsFragment(subdeckText, teamA, teamB));
+
+    line.appendChild(subdeck);
+  }
+}
+
+function highlightTeamsFragment(text, teamA, teamB) {
+  // If team names aren’t available yet, return plain text
+  if (!teamA && !teamB) return document.createTextNode(text);
+
+  const teams = [
+    { name: teamA, cls: 'mi-team mi-team--a' },
+    { name: teamB, cls: 'mi-team mi-team--b' }
+  ].filter(t => t.name);
+
+  // Sort by length to avoid partial overlap issues
+  teams.sort((a, b) => b.name.length - a.name.length);
+
+  const escapeRegExp = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const pattern = teams.map(t => escapeRegExp(t.name)).join('|');
+  if (!pattern) return document.createTextNode(text);
+
+  const re = new RegExp(`\\b(${pattern})\\b`, 'g');
+
+  const frag = document.createDocumentFragment();
+  let last = 0;
+
+  text.replace(re, (match, _grp, offset) => {
+    if (offset > last) frag.appendChild(document.createTextNode(text.slice(last, offset)));
+
+    const t = teams.find(x => x.name === match);
+    const span = document.createElement('span');
+    span.className = t ? t.cls : 'mi-team';
+    span.textContent = match;
+
+    frag.appendChild(span);
+    last = offset + match.length;
+    return match;
+  });
+
+  if (last < text.length) frag.appendChild(document.createTextNode(text.slice(last)));
+  return frag;
+}
+
 function renderSummary({ a, b, miA, miB, diff, predicted, interactions, round, seedMeta }) {
   const table = document.getElementById('summaryTable');
   if (!table) return;
@@ -3286,27 +3378,44 @@ function renderSummary({ a, b, miA, miB, diff, predicted, interactions, round, s
   const driverText = renderTpl(driverTpl, tokens);
   const riskText   = renderTpl(riskTpl, tokens);
 
-  // ----- Verdict metrics flip-tile (BACK) text (JSON-driven; band-aware; winner/loser-aware) -----
+  // ----- Verdict metrics flip-tile (BACK) text (JSON-driven; 3-sentence paragraph; gap-band-aware) -----
   // Source: copy.json → verdict.metrics.back_text
-  // Shape supported:
-  // - String: "..."
-  // - Object keyed by gap band: { tiny_gap:[...], small_gap:[...], ... } (arrays or strings)
-  // Templates may use {{WINNER}} and {{LOSER}} tokens (plus others in `tokens`).
-  const metricsCfg = (copy.verdict && copy.verdict.metrics) ? copy.verdict.metrics : {};
-  const backTextCfg = metricsCfg.back_text;
+  // Canonical shape:
+  // back_text: {
+  //   base:    [ "Sentence 1...", ... ],
+  //   matchup: [ "Sentence 2...", ... ],
+  //   gap:     { tiny_gap:[ "Sentence 3...", ... ], ... , default:[ ... ] }
+  // }
+  // Render requirement: ONE paragraph string = 3 consecutive sentences (no line breaks)
+  const metricsCfg   = (copy.verdict && copy.verdict.metrics) ? copy.verdict.metrics : {};
+  const backTextCfg  = metricsCfg.back_text || {};
 
   const pickOne = (arr) => (Array.isArray(arr) && arr.length ? arr[Math.floor(Math.random() * arr.length)] : "");
 
-  let backTpl = "";
-  if (typeof backTextCfg === "string") {
-    backTpl = backTextCfg;
-  } else if (backTextCfg && typeof backTextCfg === "object") {
-    const bucket = (backTextCfg[gapKey] != null) ? backTextCfg[gapKey] : backTextCfg.default;
-    if (Array.isArray(bucket)) backTpl = pickOne(bucket);
-    else if (typeof bucket === "string") backTpl = bucket;
-  }
+  const clean = (s) => String(s || "").replace(/\s+/g, " ").trim();
+  const ensureEndPunct = (s) => {
+    const t = clean(s);
+    if (!t) return "";
+    return /[.!?]$/.test(t) ? t : (t + ".");
+  };
 
-  const metricsBackText = renderTpl(backTpl, tokens).trim();
+  const baseTpl  = pickOne(backTextCfg.base);
+  const matchTpl = pickOne(backTextCfg.matchup);
+
+  const gapBucket = (backTextCfg.gap && backTextCfg.gap[gapKey] != null)
+    ? backTextCfg.gap[gapKey]
+    : (backTextCfg.gap ? backTextCfg.gap.default : null);
+
+  let gapTpl = "";
+  if (Array.isArray(gapBucket)) gapTpl = pickOne(gapBucket);
+  else if (typeof gapBucket === "string") gapTpl = gapBucket;
+
+  const s1 = ensureEndPunct(renderTpl(baseTpl, tokens));
+  const s2 = ensureEndPunct(renderTpl(matchTpl, tokens));
+  const s3 = ensureEndPunct(renderTpl(gapTpl,  tokens));
+
+  const metricsBackText = [s1, s2, s3].filter(Boolean).join(" ");
+
   const metricsBackEl =
     document.querySelector('#verdictShell .mi-verdict-metrics-tile .tile-back .mi-metrics-back-text') ||
     document.querySelector('#verdictShell .mi-metrics-back-text[data-copy="verdict.metrics.back_text"]');
@@ -3396,8 +3505,9 @@ function renderSummary({ a, b, miA, miB, diff, predicted, interactions, round, s
     window.setTimeout(() => verdictShellEl.classList.remove('mi-verdict-hit'), 1100);
   }
 
-  // Primary verdict line (JSON-driven; band-aware; winner/loser-aware)
-  // Source: copy.json → verdict.metrics.primary_text
+  // ===== Primary + Secondary verdict line (JSON-driven; gap-band-aware; winner/loser-aware) =====
+  // Source: copy.json → verdict.metrics.primary_text + verdict.metrics.secondary_text
+
   const primaryCfg = metricsCfg.primary_text;
 
   let primaryTpl = "";
@@ -3411,10 +3521,26 @@ function renderSummary({ a, b, miA, miB, diff, predicted, interactions, round, s
 
   const primaryText = renderTpl(primaryTpl, tokens).trim();
 
+  const secondaryCfg = metricsCfg.secondary_text;
+
+  let secondaryTpl = "";
+  if (typeof secondaryCfg === "string") {
+    secondaryTpl = secondaryCfg;
+  } else if (secondaryCfg && typeof secondaryCfg === "object") {
+    const bucket = (secondaryCfg[gapKey] != null) ? secondaryCfg[gapKey] : secondaryCfg.default;
+    if (Array.isArray(bucket)) secondaryTpl = pickOne(bucket);
+    else if (typeof bucket === "string") secondaryTpl = bucket;
+  }
+
+  const secondaryText = renderTpl(secondaryTpl, tokens).trim();
+
+  const combinedVerdict = [primaryText, secondaryText].filter(Boolean).join(' ');
+
   const lineEl = document.getElementById('miVerdictLine');
   if (lineEl) {
     // Prefer JSON headline; fall back to legacy leanText if JSON is missing
-    lineEl.textContent = primaryText || (leanText || '');
+    lineEl.textContent = combinedVerdict || (leanText || '');
+    enhanceVerdictPresentation();
   }
 
   const whyEl = document.getElementById('miVerdictWhy');
