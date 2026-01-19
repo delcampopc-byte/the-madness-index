@@ -10,25 +10,32 @@
 </head>
 <body>
   <div class="app-shell pre-matchup">
-    <!-- ================= HEADER ================= -->
-    <header class="app-header enhanced-header">
+   <!-- ================= HEADER ================= -->
+<header class="app-header enhanced-header">
+
   <div class="hero-logo-wrap">
-    <img src="assets/img/logos/madness-index-main-logo.PNG" alt="Madness Index Logo" class="hero-logo" />
+    <img
+      src="assets/img/logos/madness-index-main-logo.PNG"
+      alt="Madness Index Logo"
+      class="hero-logo"
+    />
   </div>
+
   <div class="hero-text-wrap">
-   <p class="hero-tagline" data-copy="hero.tagline"></p>
-<div class="hero-overline" data-copy="hero.overline"></div>
-<h1 class="hero-title">
-  <span class="hero-title-bracket hero-title-bracket-left">[</span>
-  <span data-copy="hero.title_main"></span>
-  <span class="hero-title-bracket hero-title-bracket-right">]</span>
-</h1>
-<p class="hero-subtitle">
-  <span data-copy="hero.subtitle"></span>
-  <span class="hero-sub-highlight" data-copy="hero.subtitle_highlight"></span>
-</p>
-  <div class="version-badge">v3.4</div>
-</div>
+    <h1 class="hero-title">
+      <span data-copy="hero.title_main"></span>
+    </h1>
+
+    <p class="hero-tagline" data-copy="hero.tagline"></p>
+
+    <p class="hero-subtitle">
+      <span data-copy="hero.subtitle"></span>
+      <span class="hero-sub-highlight" data-copy="hero.subtitle_highlight"></span>
+    </p>
+  </div>
+
+  <div class="version-badge">version 3.7</div>
+
 </header>
 
 <!-- PRE-MATCHUP PROGRESS BAR (moved under hero) -->
@@ -226,57 +233,58 @@
   </div>
 </section>
 
-<section id="matchupBar" class="card matchup-bar">
-  <div class="matchup-bar-main">
+<section id="matchupBar" class="matchup-bar">
+  <section class="mi-matchup-backplate" aria-label="Recent matchups" hidden>
+    <div class="mi-log-label matchup-kicker">MATCHUP LOG</div>
+    <div id="miLogTop3" class="mi-log-top3"></div>
+    <button id="miLogMoreBtn" class="mi-log-more-btn" type="button"
+            aria-haspopup="true" aria-expanded="false"
+            aria-controls="miLogMorePanel" hidden>
+      More
+    </button>
 
-    <!-- LEFT: CINDERELLA -->
-    <div class="matchup-bar-left">
-      <span class="matchup-bar-label">Cinderella</span>
+    <div id="miLogMorePanel" class="mi-log-more-panel" hidden>
+      <div id="miLogMoreList" class="mi-log-more-list"></div>
+    </div>
+  </section>
 
-      <div class="matchup-bar-team">
-        <span id="matchupCinderName">Team A</span>
-        <span id="matchupCinderSeed" class="matchup-bar-seed"></span>
+  <div class="mi-matchup-dock card">
+    <div class="matchup-bar-main">
+      <div class="matchup-controls-label matchup-kicker">MATCHUP CONTROLS</div>
+
+      <!-- LEFT: CINDERELLA -->
+      <div class="matchup-bar-left">
+        <span class="matchup-bar-label">Cinderella</span>
+        <div class="matchup-bar-team">
+          <span id="matchupCinderName">Team A</span>
+          <span id="matchupCinderSeed" class="matchup-bar-seed"></span>
+        </div>
+        <div id="matchupQuickA" class="matchup-quick-slot" aria-hidden="true"></div>
       </div>
 
-      <!-- QUICK EDIT SLOT: Team A select gets moved here -->
-      <div id="matchupQuickA" class="matchup-quick-slot" aria-hidden="true"></div>
-    </div>
+      <!-- CENTER -->
+      <div class="matchup-bar-center">
+        <div class="matchup-bar-vs">vs</div>
+        <span id="matchupRoundPill" class="summary-round-pill matchup-bar-round">Round of 64</span>
+        <button id="editMatchupBtn" class="matchup-bar-edit" type="button">Edit matchup ▾</button>
+        <div id="matchupQuickRound" class="matchup-quick-slot matchup-quick-round" aria-hidden="true"></div>
 
-    <!-- CENTER: VS / ROUND / ACTIONS -->
-    <div class="matchup-bar-center">
-      <div class="matchup-bar-vs">vs</div>
-
-      <span id="matchupRoundPill" class="summary-round-pill matchup-bar-round">
-        Round of 64
-      </span>
-
-      <button id="editMatchupBtn" class="matchup-bar-edit" type="button">
-        Edit matchup ▾
-      </button>
-
-      <!-- QUICK EDIT SLOT: round selector gets moved here -->
-      <div id="matchupQuickRound" class="matchup-quick-slot matchup-quick-round" aria-hidden="true"></div>
-
-      <!-- QUICK EDIT ACTIONS -->
-      <div class="matchup-quick-actions" aria-hidden="true">
-        <button id="matchupQuickRun" class="btn primary matchup-quick-run" type="button">Run</button>
-        <button id="matchupQuickCancel" class="btn ghost matchup-quick-cancel" type="button">Cancel</button>
-      </div>
-    </div>
-
-    <!-- RIGHT: FAVORITE -->
-    <div class="matchup-bar-right">
-      <span class="matchup-bar-label">Favorite</span>
-
-      <div class="matchup-bar-team">
-        <span id="matchupFavoriteName">Team B</span>
-        <span id="matchupFavoriteSeed" class="matchup-bar-seed"></span>
+        <div class="matchup-quick-actions" aria-hidden="true">
+          <button id="matchupQuickRun" class="btn primary matchup-quick-run" type="button">Run</button>
+          <button id="matchupQuickCancel" class="btn ghost matchup-quick-cancel" type="button">Cancel</button>
+        </div>
       </div>
 
-      <!-- QUICK EDIT SLOT: Team B select gets moved here -->
-      <div id="matchupQuickB" class="matchup-quick-slot" aria-hidden="true"></div>
+      <!-- RIGHT: FAVORITE -->
+      <div class="matchup-bar-right">
+        <span class="matchup-bar-label">Favorite</span>
+        <div class="matchup-bar-team">
+          <span id="matchupFavoriteName">Team B</span>
+          <span id="matchupFavoriteSeed" class="matchup-bar-seed"></span>
+        </div>
+        <div id="matchupQuickB" class="matchup-quick-slot" aria-hidden="true"></div>
+      </div>
     </div>
-
   </div>
 </section>
 
@@ -308,11 +316,11 @@
       <div class="mi-scorebug-team-name" id="miScorebugTeamA">—</div>
       <div class="mi-scorebug-team-lines">
         <div class="mi-scorebug-team-line">
-          <span class="mi-scorebug-mini-label">Base</span>
+          <span class="mi-scorebug-mini-label">Baseline MI</span>
           <span class="mi-scorebug-mini-value" id="miScorebugBaseA">—</span>
         </div>
         <div class="mi-scorebug-team-line">
-          <span class="mi-scorebug-mini-label">Match</span>
+          <span class="mi-scorebug-mini-label">Matchup MI</span>
           <span class="mi-scorebug-mini-value" id="miScorebugMatchA">—</span>
         </div>
       </div>
@@ -323,11 +331,11 @@
       <div class="mi-scorebug-team-name" id="miScorebugTeamB">—</div>
       <div class="mi-scorebug-team-lines">
         <div class="mi-scorebug-team-line">
-          <span class="mi-scorebug-mini-label">Base</span>
+          <span class="mi-scorebug-mini-label">Baseline MI</span>
           <span class="mi-scorebug-mini-value" id="miScorebugBaseB">—</span>
         </div>
         <div class="mi-scorebug-team-line">
-          <span class="mi-scorebug-mini-label">Match</span>
+          <span class="mi-scorebug-mini-label">Matchup MI</span>
           <span class="mi-scorebug-mini-value" id="miScorebugMatchB">—</span>
         </div>
       </div>
@@ -335,7 +343,7 @@
 
     <!-- MI GAP (full width) -->
     <div class="mi-scorebug-gap" aria-label="Madness Index gap">
-      <div class="mi-scorebug-gap-label">MI GAP</div>
+      <div class="mi-scorebug-gap-label">Madness Delta</div>
       <div class="mi-scorebug-gap-value" id="miVerdictGapTop">—</div>
     </div>
 
@@ -770,11 +778,11 @@
 <!-- ================ INTERACTION METRICS TABLE ================ -->
 <section id="interactionsSection" class="card interactions-card"><div class="legend-header legend-header--interactions">
   <div class="interactions-head interactions-head--left">
-    <div class="int-console-pill interactions-header-pill">INTERACTION METRICS</div>
+    <div class="int-console-pill interactions-header-pill matchup-kicker">INTERACTION METRICS</div>
   </div>
 
   <div class="interactions-head interactions-head--right">
-    <div class="int-console-pill interactions-header-pill">INTERACTION CONSOLE</div>
+    <div class="int-console-pill interactions-header-pill matchup-kicker">INTERACTION CONSOLE</div>
   </div>
 </div>
 

@@ -34,6 +34,31 @@ const DEFAULT_MARK_DESCRIPTIONS = {
 
 // getMarkDescription Looks up the description text for a profile mark (e.g., Offensive Rigidity), preferring copy.marks.descriptions (including severity-specific text) and falling back to DEFAULT_MARK_DESCRIPTIONS.
 
+function setSandboxMode(next) {
+  const on = !!next;
+
+  // Write BOTH (some code paths read one or the other)
+  try { window.SANDBOX_MODE = on; } catch(e) {}
+  try { SANDBOX_MODE = on; } catch(e) {}
+
+  // Pre-matchup UI hooks
+  if (typeof updateRoundOptionsForCurrentSeeds === 'function') {
+    updateRoundOptionsForCurrentSeeds();
+  }
+  if (typeof updatePreMatchupHubProgress === 'function') {
+    updatePreMatchupHubProgress();
+  }
+  if (typeof refreshCompareButtonState === 'function') {
+    refreshCompareButtonState();
+  }
+
+  // Post-matchup visual hook (header swap styling)
+  const matchupBar = document.getElementById('matchupBar');
+  if (matchupBar) matchupBar.classList.toggle('is-sandbox', on);
+
+  console.log('[MI] Sandbox mode:', on ? 'ON' : 'OFF');
+}
+
 function getMarkDescription(baseName, severity) {
   const copy = window.MI_COPY;
 
@@ -1113,16 +1138,24 @@ function updateIdentityBacksForResult(result) {
   const roundCode = result.round || CURRENT_ROUND || "R64";
 
   const buildTeam = (team, opponent) => {
-    const roleCode = getIdentityRoleForGame(team, opponent, roundCode);
+    // Force: the team we're building is always A in the resolver.
+    const ctx = resolveIdentityContext(team, opponent, roundCode);
+
+    const myRole   = ctx.roleA;
+    const myMetric = ctx.metricA;
+    const myValue  = ctx.valueA;
+
     const role =
-      roleCode === 'FAVORITE' ? 'Favorite' :
-      roleCode === 'CINDERELLA' ? 'Cinderella' : 'Neutral';
+      (ctx.mode !== "standard") ? "Neutral" :
+      (myRole === "favorite")   ? "Favorite" :
+      (myRole === "cinderella") ? "Cinderella" :
+                                  "Neutral";
 
     return {
       name: team.name,
       identity: {
-        CIS_static: (typeof team.cisStatic === 'number') ? team.cisStatic : 0,
-        FAS_static: (typeof team.fasStatic === 'number') ? team.fasStatic : 0
+        CIS_static: (myMetric === "CIS" || myMetric === "LCI") ? myValue : 0,
+        FAS_static: (myMetric === "FAS" || myMetric === "LFI") ? myValue : 0
       },
       role
     };
@@ -1155,17 +1188,17 @@ function buildIdentityBackTextForTeam(team, copy) {
   const x = copy.identity_explain;
 
   // -------- Determine identity band (CIS or FAS side) --------
-  const cisBand =
-    cis >= 8 ? "Live Cinderella" :
-    cis >= 5 ? "Potential Cinderella" :
-    cis >= 2 ? "Mild Upset Signal" :
-               "Low Cinderella Identity";
+    const cisBand =
+    cis >= 80 ? "Live Cinderella" :
+    cis >= 50 ? "Potential Cinderella" :
+    cis >= 20 ? "Mild Upset Signal" :
+                "Low Cinderella Identity";
 
   const fasBand =
-    fas >= 8 ? "True Favorite" :
-    fas >= 5 ? "Strong Favorite" :
-    fas >= 2 ? "Questionable Favorite" :
-               "Fragile Favorite";
+    fas >= 80 ? "True Favorite" :
+    fas >= 50 ? "Strong Favorite" :
+    fas >= 20 ? "Questionable Favorite" :
+                "Fragile Favorite";
 
   // Decide whether team is being treated as Cinderella or Favorite based on role
   const role = team.role;   // "Cinderella" or "Favorite"
@@ -1778,6 +1811,16 @@ function makeHeaderIndex(headers) {
   index.__norm = normed;
   return index;
 }
+
+// Live gain constants (locked “starting constants”)
+const MI_IDENTITY_V38 = {
+  capC: 98,
+  capF: 98,
+  gammaC: 1.08,
+  gammaF: 1.10,
+  kF: 0.55,
+  kC: 0.90
+};
 
 function buildTeamsFromCSV(headers, rows) {
   const H = makeHeaderIndex(headers);
@@ -2713,13 +2756,23 @@ function computeStaticIdentities() {
   });
 
   // 2) Performance percentile P via rank-percentile of MI_base
-  const sorted = [...teams].sort((a, b) => (a.mi_base || 0) - (b.mi_base || 0));
+  const sorted = teams.slice().sort((a, b) => (a.mi_base || 0) - (b.mi_base || 0));
   const perfMap = new Map();
   sorted.forEach((t, idx) => {
     // rank-percentile: lower MI_base = lower percentile
     const P = (idx + 0.5) / n;
     perfMap.set(t.name, P);
   });
+
+  console.log("[IDENTITY DBG] perfMap size:", perfMap.size, "teams:", n);
+  console.log("[IDENTITY DBG] P samples:",
+    teams.slice(0, 5).map(t => ({
+      name: t.name,
+      seed: t.seed,
+      mi_base: t.mi_base,
+      P: perfMap.get(t.name)
+    }))
+  );
 
   // 3) Compute raw CIS/FAS
   let cisRawMax = 0;
@@ -2785,17 +2838,30 @@ function computeStaticIdentities() {
     const cisRaw = team.cis_raw || 0;
     const fasRaw = team.fas_raw || 0;
 
-    const cis = (cisRawMax > EPS && cisRaw > 0)
-      ? (cisRaw / cisRawMax) * 100
-      : 0;
+    const cis = (cisRawMax > EPS && cisRaw > 0) ? (cisRaw / cisRawMax) * 100 : 0;
+    const fas = (fasRawMax > EPS && fasRaw > 0) ? (fasRaw / fasRawMax) * 100 : 0;
 
-    const fas = (fasRawMax > EPS && fasRaw > 0)
-      ? (fasRaw / fasRawMax) * 100
-      : 0;
+    team.cisStatic_raw = cis;
+    team.fasStatic_raw = fas;
 
-    team.cisStatic = cis;
-    team.fasStatic = fas;
+    // v3.8: CIS/FAS become dampened baselines with headroom
+    team.cisStatic = miDampenBaselineScore(cis, MI_IDENTITY_V38.capC, MI_IDENTITY_V38.gammaC);
+    team.fasStatic = miDampenBaselineScore(fas, MI_IDENTITY_V38.capF, MI_IDENTITY_V38.gammaF);
   });
+
+  const sample = teams
+  .filter(t => t.seed != null)
+  .slice(0, 8)
+  .map(t => ({
+    name: t.name,
+    seed: t.seed,
+    cisStatic_raw: t.cisStatic_raw,
+    fasStatic_raw: t.fasStatic_raw,
+    cisStatic: t.cisStatic,
+    fasStatic: t.fasStatic
+  }));
+
+  console.table(sample);
 }
 
 // ---------- Baseline Madness Index (MI_base) ----------
@@ -2917,6 +2983,9 @@ function compareTeams(teamAName, teamBName, roleMode = 'auto') {
     updateMadnessBacksForResult(result, window.MI_COPY, roleMode);
   }
 
+  miPushLogFromResult(result);
+  miRenderShelf();
+
   console.log(result);
   return result;
 }
@@ -2943,6 +3012,12 @@ function populateTeamDropdowns() {
     optA.value = name;
     optA.textContent = name;
     selectA.appendChild(optA);
+
+    // Mount searchable dropdown UI (drives the native selects)
+    const wrapA = document.getElementById('teamASelectWrap');
+    const wrapB = document.getElementById('teamBSelectWrap');
+    if (wrapA) ensureSearchableTeamDropdown(selectA, wrapA, 'Select Team A');
+    if (wrapB) ensureSearchableTeamDropdown(selectB, wrapB, 'Select Team B');
 
     const optB = document.createElement('option');
     optB.value = name;
@@ -2977,6 +3052,237 @@ function populateTeamDropdowns() {
   refreshCompareButtonState();
 }
 
+function miNorm(s) {
+  return (s || '').toLowerCase().trim();
+}
+
+function miEscapeHtml(str) {
+  return (str || '').replace(/[&<>"']/g, m => ({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  }[m]));
+}
+
+function miHighlight(name, q) {
+  const n = name;
+  const query = miNorm(q);
+  if (!query) return miEscapeHtml(n);
+
+  const idx = miNorm(n).indexOf(query);
+  if (idx < 0) return miEscapeHtml(n);
+
+  const a = miEscapeHtml(n.slice(0, idx));
+  const b = miEscapeHtml(n.slice(idx, idx + query.length));
+  const c = miEscapeHtml(n.slice(idx + query.length));
+  return `${a}<mark>${b}</mark>${c}`;
+}
+
+function miRankMatch(name, q) {
+  const n = miNorm(name);
+  const query = miNorm(q);
+  if (!query) return 999;
+
+  if (n.startsWith(query)) return 0;
+
+  // word-start match
+  const words = n.split(/\s+/);
+  if (words.some(w => w.startsWith(query))) return 1;
+
+  // contains
+  if (n.includes(query)) return 2;
+
+  return 999;
+}
+
+function ensureSearchableTeamDropdown(selectEl, wrapEl, placeholderText) {
+  if (!selectEl || !wrapEl) return;
+
+  // Already mounted?
+  if (wrapEl.querySelector('.mi-team-dd')) return;
+
+  // Hide the native select but keep it functional for existing code
+  selectEl.style.position = 'absolute';
+  selectEl.style.opacity = '0';
+  selectEl.style.pointerEvents = 'none';
+  selectEl.style.width = '1px';
+  selectEl.style.height = '1px';
+
+  // Build base structure
+  const root = document.createElement('div');
+  root.className = 'mi-team-dd';
+
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.className = 'mi-team-dd-btn';
+  btn.innerHTML = `<span class="mi-label">${miEscapeHtml(placeholderText)}</span><span class="mi-chev">▾</span>`;
+
+  const panel = document.createElement('div');
+  panel.className = 'mi-team-dd-panel';
+  panel.hidden = true;
+
+  const search = document.createElement('input');
+  search.className = 'mi-team-dd-search';
+  search.type = 'search';
+  search.placeholder = 'Type to search:';
+  search.autocomplete = 'off';
+  search.spellcheck = false;
+
+  const list = document.createElement('div');
+  list.className = 'mi-team-dd-list';
+
+  panel.appendChild(search);
+  panel.appendChild(list);
+  root.appendChild(btn);
+  root.appendChild(panel);
+
+  // Put our UI in the wrap (keep whatever else you already have in there)
+  wrapEl.appendChild(root);
+
+  // Pull team names from current <option> list (so it respects your population logic)
+  const getNames = () =>
+    Array.from(selectEl.options)
+      .map(o => o.value)
+      .filter(v => v && v.trim().length);
+
+  let activeIndex = -1;
+  let currentResults = [];
+  let hasKeyboardNav = false;
+
+  function renderResults(q) {
+    const names = getNames();
+
+    currentResults = names
+      .map(name => ({ name, rank: miRankMatch(name, q) }))
+      .filter(x => x.rank < 999)
+      .sort((a, b) => a.rank - b.rank || a.name.localeCompare(b.name))
+      .map(x => x.name);
+
+    // If empty query, show top alphabetical list (but don’t overwhelm)
+    if (!miNorm(q)) {
+      currentResults = names.slice().sort((a, b) => a.localeCompare(b));
+    }
+
+    // Hard cap render to keep it snappy
+    const slice = currentResults.slice(0, 80);
+
+    list.innerHTML = slice.map((name, i) => {
+      const html = miHighlight(name, q);
+      return `<button type="button" class="mi-team-dd-item" data-idx="${i}" data-name="${miEscapeHtml(name)}">${html}</button>`;
+    }).join('');
+
+    activeIndex = -1;
+    hasKeyboardNav = false;
+    syncActive();
+  }
+
+  function syncActive() {
+    const items = list.querySelectorAll('.mi-team-dd-item');
+    items.forEach((el, i) => el.classList.toggle('is-active', i === activeIndex));
+    if (activeIndex >= 0 && items[activeIndex]) {
+      // Keep highlighted item in view
+      items[activeIndex].scrollIntoView({ block: 'nearest' });
+    }
+  }
+
+  function openPanel() {
+    panel.hidden = false;
+    search.value = '';
+    renderResults('');
+    // focus after render
+    setTimeout(() => search.focus(), 0);
+  }
+
+  function closePanel() {
+    panel.hidden = true;
+  }
+
+  function setValue(name) {
+    selectEl.value = name;
+    // Update button label to selected team
+    const label = btn.querySelector('.mi-label');
+    if (label) label.textContent = name;
+
+    // Trigger your existing listeners
+    selectEl.dispatchEvent(new Event('change', { bubbles: true }));
+    closePanel();
+  }
+
+  // Open/close behavior
+  btn.addEventListener('click', () => {
+    if (panel.hidden) openPanel();
+    else closePanel();
+  });
+
+  // Click outside closes
+  document.addEventListener('mousedown', (e) => {
+    if (!root.contains(e.target)) closePanel();
+  });
+
+  // Live filter
+  search.addEventListener('input', () => {
+    renderResults(search.value);
+  });
+
+  // Keyboard nav
+  search.addEventListener('keydown', (e) => {
+    const items = list.querySelectorAll('.mi-team-dd-item');
+    if (!items.length) return;
+
+    if (e.key === 'ArrowDown') {
+     e.preventDefault();
+     if (!hasKeyboardNav) {
+       hasKeyboardNav = true;
+       activeIndex = 0;
+     } else {
+       activeIndex = Math.min(activeIndex + 1, items.length - 1);
+     }
+     syncActive();
+   } else if (e.key === 'ArrowUp') {
+     e.preventDefault();
+     if (!hasKeyboardNav) {
+       hasKeyboardNav = true;
+       activeIndex = items.length - 1;
+     } else {
+       activeIndex = Math.max(activeIndex - 1, 0);
+     }
+     syncActive();
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      const pick = (activeIndex >= 0) ? items[activeIndex] : items[0];
+      if (pick) setValue(pick.getAttribute('data-name'));
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      closePanel();
+      btn.focus();
+    }
+  });
+
+  // Click selection
+  list.addEventListener('click', (e) => {
+    const item = e.target.closest('.mi-team-dd-item');
+    if (!item) return;
+    setValue(item.getAttribute('data-name'));
+  });
+
+  // Keep button label in sync if something else sets the select value
+  selectEl.addEventListener('change', () => {
+    const val = selectEl.value;
+    const label = btn.querySelector('.mi-label');
+    if (label) label.textContent = val || placeholderText;
+  });
+
+  list.addEventListener('mousemove', (e) => {
+    const item = e.target.closest('.mi-team-dd-item');
+    if (!item) return;
+    const items = Array.from(list.querySelectorAll('.mi-team-dd-item'));
+    const idx = items.indexOf(item);
+    if (idx >= 0) {
+      activeIndex = idx;
+      hasKeyboardNav = true; // allow enter to pick hovered item
+      syncActive();
+    }
+  });
+}
+
 function getRoundLabelFromCode(code) {
   switch (code) {
     case "R64":   return "Round of 64";
@@ -2989,83 +3295,234 @@ function getRoundLabelFromCode(code) {
   }
 }
 
-// ---------- Identity Role Resolver (Favorite / Cinderella / Neutral) ----------
+/* ==========================================
+   v3.8 — Round-aware Identity (Canonical Modes + LCI/LFI)
+   - Canonical mode map is round-specific (locked)
+   - CIS/FAS become dampened baselines (0–100, headroom preserved)
+   - LCI/LFI consume headroom smoothly based on wins-to-date + opponent context
+   ========================================== */
 
-function getIdentityRoleForGame(team, opponent, roundCode) {
-  if (!team || !opponent) return 'NEUTRAL';
+function miClamp01(x) {
+  if (!Number.isFinite(x)) return 0;
+  return Math.max(0, Math.min(1, x));
+}
 
-  const s    = team.seed;
-  const sOpp = opponent.seed;
+function miClamp(x, lo, hi) {
+  if (!Number.isFinite(x)) return lo;
+  return Math.max(lo, Math.min(hi, x));
+}
 
-  if (s == null || sOpp == null) return 'NEUTRAL';
+function miSmoothstep01(t) {
+  t = miClamp01(t);
+  return t * t * (3 - 2 * t);
+}
 
-  const a = Math.min(s, sOpp);
-  const b = Math.max(s, sOpp);
-  const pairKey = `${a}-${b}`;
-  const round = roundCode || CURRENT_ROUND || "R64";
+function miNormalizeRoundCode(roundCode) {
+  const r = String(roundCode || CURRENT_ROUND || 'R64').trim();
+  if (r === 'CH' || r === 'CHAMP' || r === 'CHAMPIONSHIP' || r === 'C') return 'Champ';
+  return r;
+}
 
-  // 1) Round of 64 absolute rules for canonical pairs
-  if (round === "R64") {
-    switch (pairKey) {
-      case "1-16":
-      case "2-15":
-      case "3-14":
-      case "4-13":
-      case "5-12":
-        return (s === a) ? "FAVORITE" : "CINDERELLA";
+// Canonical wins-to-date mapping
+function miWinsToDate(roundCode) {
+  const r = miNormalizeRoundCode(roundCode);
+  switch (r) {
+    case 'R64':   return 0;
+    case 'R32':   return 1;
+    case 'S16':   return 2;
+    case 'E8':    return 3;
+    case 'F4':    return 4;
+    case 'Champ': return 5;
+    default:      return 0;
+  }
+}
 
-      case "6-11":
-        if (s === 6)  return "FAVORITE";
-        if (s === 11) return "CINDERELLA";
-        return "NEUTRAL";
+// Stage scalar: smooth across tournament; S16 already bumps (X=2 => >0)
+function miStageScalar(roundCode) {
+  const X = miWinsToDate(roundCode);
+  const t = X / 5;               // 0..1 across whole tournament
+  return miSmoothstep01(t);      // smooth, bounded, deterministic
+}
 
-      case "7-10":
-        if (s === 7)  return "FAVORITE";
-        if (s === 10) return "CINDERELLA";
-        return "NEUTRAL";
+// Dampened baseline: preserves ordering, creates headroom (raw is 0..100)
+function miDampenBaselineScore(raw, cap, gamma) {
+  const x = miClamp(raw, 0, 100) / 100;
+  const y = Math.pow(x, gamma);
+  return miClamp(cap * y, 0, 100);
+}
 
-      case "8-9":
-        // 8–9 R64 is explicitly neutral in the identity layer
-        return "NEUTRAL";
+// Opponent authority proxy (seed-only, deterministic, bounded)
+function miOpponentAuthorityFromSeed(seedOpp) {
+  const s = Number(seedOpp);
+  if (!Number.isFinite(s)) return 0.5;
+  const t = (Math.min(Math.max(s, 1), 16) - 1) / 15;  // 0..1
+  return 1 - t;                                       // 1-seed => ~1, 16 => ~0
+}
 
-      default:
-        // Non-canonical R64 matchup → fall through to general rules
-        break;
-    }
+// Cinderella “earned evidence” proxy (seed-only, continuous)
+function miDisplacementFromSeed(seed) {
+  const s = Number(seed);
+  if (!Number.isFinite(s)) return 0;
+  // D = clamp((seed - 4)/12)
+  return miClamp01((s - 4) / 12);
+}
+
+// Canonical mode map (round-specific, locked)
+function miGetCanonicalMode(roundCode, seedA, seedB) {
+  const r = miNormalizeRoundCode(roundCode);
+  const a = Number(seedA), b = Number(seedB);
+  if (!Number.isFinite(a) || !Number.isFinite(b)) return 'standard';
+
+  const lo = Math.min(a, b);
+  const hi = Math.max(a, b);
+  const pair = `${lo}-${hi}`;
+
+  // R64
+  if (r === 'R64') {
+    if (pair === '7-10' || pair === '8-9') return 'neutral_mirror';
+    return 'standard';
   }
 
-  // 2) General rules for non-R64 or custom matchups
-  if (s === sOpp) {
-    // Same seed -> treat as neutral for identity purposes
-    return "NEUTRAL";
+  // R32
+  if (r === 'R32') {
+    if (pair === '4-5') return 'chalk_mirror';
+    if (lo >= 10) return 'chaos_mirror'; // 10/15, 11/14, 12/13
+    return 'standard';
   }
 
-  const lowerSeed  = (s < sOpp) ? s    : sOpp;
-  const higherSeed = (s < sOpp) ? sOpp : s;
-
-  const teamIsFavorite = (s === lowerSeed);
-  const deepRound =
-    round === "S16" ||
-    round === "E8"  ||
-    round === "F4"  ||
-    round === "C"   || round === "Champ";
-
-  if (teamIsFavorite) {
-    // Lower seed → default favorite identity
-    return "FAVORITE";
-  } else {
-    // Team is the underdog
-    if (s >= 7) {
-      // Classic Cinderella territory (7+)
-      return "CINDERELLA";
-    }
-    if (s === 6 && deepRound) {
-      // Pivot seed becomes Cinderella only in deeper rounds vs stronger seeds
-      return "CINDERELLA";
-    }
-    // Otherwise just underdog without strong Cinderella identity
-    return "NEUTRAL";
+  // S16
+  if (r === 'S16') {
+    if (pair === '2-3') return 'chalk_mirror';
+    if (pair === '6-7') return 'chaos_mirror';
+    return 'standard';
   }
+
+  // E8
+  if (r === 'E8') {
+    if (pair === '1-2' || pair === '3-4') return 'chalk_mirror';
+    if (pair === '4-6' || pair === '5-6' || pair === '5-7') return 'chaos_mirror';
+    return 'standard';
+  }
+
+  // F4
+  if (r === 'F4') {
+    if (a === b) return 'chalk_mirror';
+    if (
+      pair === '3-4' || pair === '4-5' || pair === '5-6' ||
+      pair === '6-7' || pair === '7-8'
+    ) return 'chaos_mirror';
+    return 'standard';
+  }
+
+  // Champ
+  if (r === 'Champ') {
+    if (a === b) return 'chalk_mirror';
+    return 'standard';
+  }
+
+  return 'standard';
+}
+
+// Compute live favorite (LFI) from dampened baseline + stage + opponent authority
+function miComputeLFI(team, opponent, roundCode) {
+  const base = (typeof team.fasStatic === 'number') ? team.fasStatic : 0;
+  const stage = miStageScalar(roundCode);
+  const oppAuth = miOpponentAuthorityFromSeed(opponent?.seed);
+
+  // EF = 0.85 + 0.15 * OppAuth
+  const EF = 0.85 + 0.15 * oppAuth;
+
+  // GF = clamp01(kF * stage * EF)
+  const GF = miClamp01(MI_IDENTITY_V38.kF * stage * EF);
+
+  // LFI = base + (100 - base) * GF
+  return miClamp(base + (100 - base) * GF, 0, 100);
+}
+
+// Compute live cinderella (LCI) from dampened baseline + stage + seed displacement + opponent authority
+function miComputeLCI(team, opponent, roundCode) {
+  const base = (typeof team.cisStatic === 'number') ? team.cisStatic : 0;
+  const stage = miStageScalar(roundCode);
+  const oppAuth = miOpponentAuthorityFromSeed(opponent?.seed);
+  const D = miDisplacementFromSeed(team?.seed);
+
+  // EC = D * (0.6 + 0.4 * OppAuth)
+  const EC = D * (0.6 + 0.4 * oppAuth);
+
+  // GC = clamp01(kC * stage * EC)
+  const GC = miClamp01(MI_IDENTITY_V38.kC * stage * EC);
+
+  // LCI = base + (100 - base) * GC
+  return miClamp(base + (100 - base) * GC, 0, 100);
+}
+
+function resolveIdentityContext(teamA, teamB, roundCode) {
+  const r = miNormalizeRoundCode(roundCode);
+  const seedA = Number(teamA?.seed);
+  const seedB = Number(teamB?.seed);
+
+  const mode = miGetCanonicalMode(r, seedA, seedB);
+
+  const X = miWinsToDate(r);
+  const isLegitPhase = (X >= 2); // S16+
+
+  // Baselines (already dampened in computeStaticIdentities)
+  const cisA = (typeof teamA?.cisStatic === 'number') ? teamA.cisStatic : 0;
+  const fasA = (typeof teamA?.fasStatic === 'number') ? teamA.fasStatic : 0;
+  const cisB = (typeof teamB?.cisStatic === 'number') ? teamB.cisStatic : 0;
+  const fasB = (typeof teamB?.fasStatic === 'number') ? teamB.fasStatic : 0;
+
+  // Helper to pick live vs baseline for a role
+  const getFavValue = (t, o) => isLegitPhase ? miComputeLFI(t, o, r) : ((typeof t?.fasStatic === 'number') ? t.fasStatic : 0);
+  const getCinValue = (t, o) => isLegitPhase ? miComputeLCI(t, o, r) : ((typeof t?.cisStatic === 'number') ? t.cisStatic : 0);
+
+  // Mirrors first
+  if (mode === 'neutral_mirror') {
+    return {
+      mode,
+      roleA: 'none', roleB: 'none',
+      metricA: 'CIS', metricB: 'CIS',
+      valueA: cisA, valueB: cisB
+    };
+  }
+
+  if (mode === 'chalk_mirror') {
+    // Pre-S16: FAS/FAS; S16+: LFI/LFI
+    const metric = isLegitPhase ? 'LFI' : 'FAS';
+    return {
+      mode,
+      roleA: 'none', roleB: 'none',
+      metricA: metric, metricB: metric,
+      valueA: isLegitPhase ? miComputeLFI(teamA, teamB, r) : fasA,
+      valueB: isLegitPhase ? miComputeLFI(teamB, teamA, r) : fasB
+    };
+  }
+
+  if (mode === 'chaos_mirror') {
+    // Pre-S16: CIS/CIS; S16+: LCI/LCI
+    const metric = isLegitPhase ? 'LCI' : 'CIS';
+    return {
+      mode,
+      roleA: 'none', roleB: 'none',
+      metricA: metric, metricB: metric,
+      valueA: isLegitPhase ? miComputeLCI(teamA, teamB, r) : cisA,
+      valueB: isLegitPhase ? miComputeLCI(teamB, teamA, r) : cisB
+    };
+  }
+
+  // Standard: better seed is Favorite; worse seed is Cinderella
+  // (ties should be rare; if equal, treat as chalk mirror by later-round rules)
+  const aIsFav = (Number.isFinite(seedA) && Number.isFinite(seedB)) ? (seedA < seedB) : true;
+
+  return {
+    mode: 'standard',
+    roleA: aIsFav ? 'favorite' : 'cinderella',
+    roleB: aIsFav ? 'cinderella' : 'favorite',
+    metricA: aIsFav ? (isLegitPhase ? 'LFI' : 'FAS') : (isLegitPhase ? 'LCI' : 'CIS'),
+    metricB: aIsFav ? (isLegitPhase ? 'LCI' : 'CIS') : (isLegitPhase ? 'LFI' : 'FAS'),
+    valueA: aIsFav ? getFavValue(teamA, teamB) : getCinValue(teamA, teamB),
+    valueB: aIsFav ? getCinValue(teamB, teamA) : getFavValue(teamB, teamA)
+  };
 }
 
 // ---------- Lean band helper (for ΔMI) ----------
@@ -3085,6 +3542,359 @@ function getSummaryGapKey(diff) {
   if (d < 0.50) return 'medium_gap'; // "Clear lean"
   return 'large_gap';                // "Strong favorite"
 }
+
+/* =========================================================
+   MATCHUP LOG (v3.7) — Option A Shelf
+   - stores only 10 recent (localStorage)
+   - shelf hidden until 2+ runs
+   - shows top 3 always; "More" reveals next 7
+   ========================================================= */
+
+const MI_LOG_STORAGE_KEY = "mi.v3_7.matchupLog";
+const MI_LOG_MAX_ENTRIES = 10;
+const MI_LOG_INTRO_KEY = "MI_LOG_INTRODUCED_V1";
+const MI_LOG_LASTNEW_KEY = "MI_LOG_LASTNEW_ID_V1";
+
+function miLogIntroduced(){
+  try{ return localStorage.getItem(MI_LOG_INTRO_KEY) === "1"; }catch(e){ return false; }
+}
+function miSetLogIntroduced(){
+  try{ localStorage.setItem(MI_LOG_INTRO_KEY, "1"); }catch(e){}
+}
+function miSetLastNewId(id){
+  try{ if (id) localStorage.setItem(MI_LOG_LASTNEW_KEY, String(id)); }catch(e){}
+}
+function miGetLastNewId(){
+  try{ return localStorage.getItem(MI_LOG_LASTNEW_KEY) || ""; }catch(e){ return ""; }
+}
+
+function miSandboxOn(){
+  try{
+    if (typeof window !== "undefined" && typeof window.SANDBOX_MODE !== "undefined") return !!window.SANDBOX_MODE;
+  }catch(e){}
+  try{
+    if (typeof SANDBOX_MODE !== "undefined") return !!SANDBOX_MODE;
+  }catch(e){}
+  return false;
+}
+
+function miFormatMI(x){
+  return (typeof x === "number" && isFinite(x)) ? x.toFixed(2) : "—";
+}
+
+function miLeanTierFromDiff(diff){
+  const band = (typeof getLeanBand === "function") ? getLeanBand(diff) : "";
+  switch (band) {
+    case "Toss-Up":          return 1;
+    case "Very Slight Lean": return 1;
+    case "Lean":             return 2;
+    case "Strong Lean":      return 3;
+    case "Heavy Lean":       return 4;
+    default:                 return 1;
+  }
+}
+
+function miLoadLog(){
+  try{
+    const raw = localStorage.getItem(MI_LOG_STORAGE_KEY);
+    if (!raw) return [];
+
+    const parsed = JSON.parse(raw);
+
+    // ✅ Normal case: already an array
+    if (Array.isArray(parsed)) return parsed;
+
+    // ✅ Migration: if a single entry object was stored
+    if (parsed && typeof parsed === "object") {
+      // Keyed object-log → convert to array of entries
+      const vals = Object.values(parsed);
+
+      // If it looks like entries, use them
+      if (vals.length && typeof vals[0] === "object") {
+        return vals
+          .filter(Boolean)
+          .sort((a,b) => (b.ts || 0) - (a.ts || 0));
+      }
+
+      // Otherwise treat as one entry-like object
+      return [parsed];
+    }
+
+    return [];
+  }catch(e){
+    return [];
+  }
+}
+
+function miSaveLog(arr){
+  try{
+    const safe = Array.isArray(arr) ? arr : (arr ? [arr] : []);
+    localStorage.setItem(MI_LOG_STORAGE_KEY, JSON.stringify(safe));
+  }catch(e){}
+}
+
+function miBuildLogId(result){
+  const mode = miSandboxOn() ? "SBX" : (result.round || "NOROUND");
+  // Unique per run, but still readable
+  return `${Date.now()}__${mode}__${result.a?.name || "A"}__${result.b?.name || "B"}`;
+}
+
+function miPushLogFromResult(result){
+  if (!result || !result.a || !result.b) return;
+
+  const sandbox = miSandboxOn();
+  const round = sandbox ? null : (result.round || null);
+
+  const miA = result.miA;
+  const miB = result.miB;
+  const diff = (typeof result.diff === "number") ? result.diff : (miA - miB);
+
+  const entry = {
+    id: miBuildLogId(result),
+    ts: Date.now(),
+
+    sandbox,
+    round,
+
+    teamA: result.a.name,
+    teamB: result.b.name,
+
+    miA,
+    miB,
+
+    leanSide: diff > 0 ? "a" : (diff < 0 ? "b" : "push"),
+    leanTier: miLeanTierFromDiff(diff)
+  };
+
+  const existing = miLoadLog();
+  existing.unshift(entry);
+  miSaveLog(existing.slice(0, MI_LOG_MAX_ENTRIES));
+
+  miSetLastNewId(entry.id);
+  if (typeof miRenderShelf === "function") miRenderShelf();
+}
+
+function miArrowsHTML(tier, side){
+  const t = Math.max(1, Math.min(4, Number(tier) || 1));
+  const arrows = Array.from({ length: t })
+    .map(() => `<span class="mi-log-arrow" aria-hidden="true"></span>`)
+    .join("");
+
+  if (side === "a") return `<span class="mi-log-arrows left">${arrows}</span>`;
+  if (side === "b") return `<span class="mi-log-arrows right">${arrows}</span>`;
+  return `<span class="mi-log-arrows"></span>`;
+}
+
+function miBuildRow(entry){
+  const tag = entry.sandbox ? "SBX" : (entry.round || "—");
+
+  const leftSlot  = (entry.leanSide === "a")
+    ? miArrowsHTML(entry.leanTier, "a")
+    : `<span class="mi-log-arrows left"></span>`;
+
+  const rightSlot = (entry.leanSide === "b")
+    ? miArrowsHTML(entry.leanTier, "b")
+    : `<span class="mi-log-arrows right"></span>`;
+
+  const el = document.createElement("div");
+  el.className = "mi-log-row";
+  el.innerHTML = `
+    <span class="mi-log-tag">${tag}</span>
+
+    <span class="mi-log-name a" title="${entry.teamA}">${entry.teamA}</span>
+    <span class="mi-log-mi a">${miFormatMI(entry.miA)}</span>
+
+    ${leftSlot}
+    <span class="mi-log-lean">LEAN</span>
+    ${rightSlot}
+
+    <span class="mi-log-mi b">${miFormatMI(entry.miB)}</span>
+    <span class="mi-log-name b" title="${entry.teamB}">${entry.teamB}</span>
+  `.trim();
+
+  return el;
+}
+
+function miShelfPhaseOk(){
+  const shell = document.querySelector(".app-shell");
+  const bar = document.getElementById("matchupBar");
+  if (!shell || !bar) return false;
+
+  // must not be on landing / pre-matchup
+  if (shell.classList.contains("pre-matchup")) return false;
+
+  // must actually be in “has matchup” world (your app uses this class in DOM)
+  if (!shell.classList.contains("has-matchup")) return false;
+
+  return true;
+}
+
+function miRenderShelf(){
+  const plate = document.querySelector("#matchupBar .mi-matchup-backplate");
+  const top3 = document.getElementById("miLogTop3");
+  const moreBtn = document.getElementById("miLogMoreBtn");
+  const morePanel = document.getElementById("miLogMorePanel");
+  const moreList = document.getElementById("miLogMoreList");
+  const bar = document.getElementById("matchupBar");
+  if (!plate || !top3 || !moreBtn || !morePanel || !moreList || !bar) return;
+
+  // Hard phase gate
+  if (!miShelfPhaseOk()){
+    plate.hidden = true;
+    plate.classList.remove("is-open", "is-more-open", "is-intro");
+    morePanel.hidden = true;
+    moreBtn.hidden = true;
+    moreBtn.setAttribute("aria-expanded", "false");
+    if (bar.classList.contains("has-shelf")) bar.classList.remove("has-shelf");
+
+    return;
+  }
+
+  // Only set the class if it needs to change (prevents MutationObserver loop)
+  if (!bar.classList.contains("has-shelf")) bar.classList.add("has-shelf");
+
+  const entries = miLoadLog().slice(0, MI_LOG_MAX_ENTRIES);
+  if (entries.length < 1){
+    plate.hidden = true;
+    plate.classList.remove("is-open", "is-more-open", "is-intro");
+    morePanel.hidden = true;
+    moreBtn.hidden = true;
+    moreBtn.setAttribute("aria-expanded", "false");
+    return;
+  }
+
+  const introduced = miLogIntroduced();
+
+  // Before introduction: do NOT show in normal has-matchup view.
+  // Only reveal the first time the bar enters edit mode.
+  if (!introduced && !bar.classList.contains("is-editing")){
+    plate.hidden = true;
+    plate.classList.remove("is-open", "is-more-open", "is-intro");
+    morePanel.hidden = true;
+    moreBtn.hidden = true;
+    moreBtn.setAttribute("aria-expanded", "false");
+    return;
+  }
+
+  // If we just crossed into editing for the first time, "introduce" the log
+  if (!introduced && bar.classList.contains("is-editing")){
+    miSetLogIntroduced();
+    plate.classList.add("is-intro");
+  } else {
+    plate.classList.remove("is-intro");
+  }
+
+  // Build top 3 + rest
+  const a = entries.slice(0, 3);
+  const aRender = a.slice().reverse();
+  const b = entries.slice(3);
+
+  top3.innerHTML = "";
+  for (const e of aRender) top3.appendChild(miBuildRow(e));
+
+  // Option A shift animation: newest row (bottom) animates
+  const lastNewId = miGetLastNewId();
+  if (lastNewId && a.length && a[0].id === lastNewId){
+    const newestRow = top3.lastElementChild; // bottom-most after reverse render
+    if (newestRow){
+      newestRow.classList.add("is-new");
+      miSetLastNewId(""); // remove marker so it doesn't animate forever
+      setTimeout(() => newestRow.classList.remove("is-new"), 520);
+    }
+  }
+
+  moreList.innerHTML = "";
+  for (const e of b) moreList.appendChild(miBuildRow(e));
+
+  // More button visibility
+  if (b.length > 0){
+    moreBtn.hidden = false;
+  } else {
+    moreBtn.hidden = true;
+    morePanel.hidden = true;
+    moreBtn.setAttribute("aria-expanded", "false");
+  }
+
+  // Show plate
+  plate.hidden = false;
+  requestAnimationFrame(() => plate.classList.add("is-open"));
+}
+
+function miToggleMore(){
+  const moreBtn = document.getElementById("miLogMoreBtn");
+  const morePanel = document.getElementById("miLogMorePanel");
+  const plate = document.querySelector("#matchupBar .mi-matchup-backplate");
+  if (!moreBtn || !morePanel || !plate) return;
+
+  const willOpen = !!morePanel.hidden;
+  morePanel.hidden = !willOpen;
+  moreBtn.setAttribute("aria-expanded", willOpen ? "true" : "false");
+
+  if (willOpen) plate.classList.add("is-more-open");
+  else plate.classList.remove("is-more-open");
+}
+
+function miInitShelf(){
+  const plate = document.querySelector("#matchupBar .mi-matchup-backplate");
+  const moreBtn = document.getElementById("miLogMoreBtn");
+  if (!plate || !moreBtn) return;
+
+  // Prevent double-binding
+  if (plate.dataset.bound === "1"){
+    miRenderShelf();
+    return;
+  }
+  plate.dataset.bound = "1";
+
+  moreBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    miToggleMore();
+  });
+
+  // click outside collapses More (but leaves plate visible)
+  document.addEventListener("click", (e) => {
+    const panel = document.getElementById("miLogMorePanel");
+    const btn = document.getElementById("miLogMoreBtn");
+    if (!panel || !btn) return;
+    if (panel.hidden) return;
+    if (!plate.contains(e.target)){
+      panel.hidden = true;
+      btn.setAttribute("aria-expanded", "false");
+      plate.classList.remove("is-more-open");
+    }
+  });
+
+  // esc collapses More
+  document.addEventListener("keydown", (e) => {
+    if (e.key !== "Escape") return;
+    const panel = document.getElementById("miLogMorePanel");
+    const btn = document.getElementById("miLogMoreBtn");
+    if (!panel || !btn) return;
+    if (!panel.hidden){
+      panel.hidden = true;
+      btn.setAttribute("aria-expanded", "false");
+      plate.classList.remove("is-more-open");
+    }
+  });
+
+  miRenderShelf();
+}
+
+function miObserveShelfPhases(){
+  const shell = document.querySelector(".app-shell");
+  const bar = document.getElementById("matchupBar");
+  if (!shell || !bar) return;
+
+  const mo = new MutationObserver(() => miRenderShelf());
+  mo.observe(shell, { attributes: true, attributeFilter: ["class"] });
+  mo.observe(bar, { attributes: true, attributeFilter: ["class"] });
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  miInitShelf();
+  miObserveShelfPhases();
+});
 
 function miPickBandLine(block, gapKey) {
   // block shape:
@@ -4237,6 +5047,89 @@ function hideMatchupBar() {
   }
 }
 
+function ensureQuickEditSandboxToggle() {
+  const matchupBar = document.getElementById('matchupBar');
+  if (!matchupBar) return;
+
+  // IMPORTANT: round selector lives here (and gets moved into #matchupQuickRound in edit mode)
+  const rWrap = document.getElementById('roundSelectorWrap');
+  if (!rWrap) return;
+
+  // Helper: set sandbox in a way ALL code paths see
+  function setSandboxMode(next) {
+    const on = !!next;
+
+    // Write BOTH (some code reads window.SANDBOX_MODE, some reads SANDBOX_MODE)
+    try { window.SANDBOX_MODE = on; } catch(e) {}
+    try { SANDBOX_MODE = on; } catch(e) {}
+
+    // Visual hook for the bar (header swap + styling)
+    matchupBar.classList.toggle('is-sandbox', on);
+
+    // Mirror the pre-matchup toggle if it exists (AND trigger its listeners)
+    const hubToggle = document.getElementById('sandboxModeToggle');
+    if (hubToggle && hubToggle.checked !== on) {
+      hubToggle.checked = on;
+      // IMPORTANT: fire change so any existing constraint logic runs
+      hubToggle.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+
+    // Existing logic hooks (safe to keep)
+    if (typeof updateRoundOptionsForCurrentSeeds === 'function') {
+      updateRoundOptionsForCurrentSeeds();
+    }
+    if (typeof refreshCompareButtonState === 'function') {
+      refreshCompareButtonState();
+    }
+  }
+
+  // Create once (mounted next to #roundSelectBtn)
+  let quickToggle = document.getElementById('sandboxModeToggleQuick');
+  if (!quickToggle) {
+    const wrap = document.createElement('label');
+    wrap.id = 'miSandboxQuickLabel';
+    // Reuse the SAME classes as the pre-matchup toggle
+    wrap.className = 'sandbox-toggle enhanced-sandbox mi-sandbox-quick';
+    wrap.setAttribute('data-tooltip', 'Ignores bracket round constraints');
+
+    const input = document.createElement('input');
+    input.type = 'checkbox';
+    input.id = 'sandboxModeToggleQuick';
+
+    const text = document.createElement('span');
+    text.textContent = 'Sandbox Mode';
+
+    wrap.appendChild(input);
+    wrap.appendChild(text);
+
+    // Place immediately after the round button inside the same wrap
+    const roundBtn = document.getElementById('roundSelectBtn');
+    if (roundBtn && roundBtn.parentElement === rWrap) {
+      roundBtn.insertAdjacentElement('afterend', wrap);
+    } else {
+      rWrap.appendChild(wrap);
+    }
+
+    // Wire behavior
+    input.addEventListener('change', () => {
+      setSandboxMode(input.checked);
+    });
+
+    quickToggle = input;
+  }
+
+  // Sync state every time we enter edit mode (prefer hub toggle if present)
+  const hubToggle = document.getElementById('sandboxModeToggle');
+  const current =
+    (hubToggle ? !!hubToggle.checked :
+      (typeof window !== 'undefined' && typeof window.SANDBOX_MODE !== 'undefined'
+        ? !!window.SANDBOX_MODE
+        : !!SANDBOX_MODE));
+
+  quickToggle.checked = current;
+  setSandboxMode(current);
+}
+
 // ===== MATCHUP BAR QUICK EDIT (INLINE) =====
 let __MI_QUICK_EDIT_HOME = null;
 
@@ -4274,6 +5167,8 @@ function enterMatchupQuickEdit() {
   slotA.setAttribute('aria-hidden', 'false');
   slotB.setAttribute('aria-hidden', 'false');
   slotR.setAttribute('aria-hidden', 'false');
+
+  ensureQuickEditSandboxToggle();
 
   // Show actions container
   const actions = matchupBar.querySelector('.matchup-quick-actions');
@@ -4669,13 +5564,15 @@ function renderTeamSide(side, result) {
     const identityLabelEl = identityTile.querySelector('.context-label');
     const opponent = isA ? result.b : result.a;
     const roundCode = result.round || CURRENT_ROUND || "R64";
-    const role = getIdentityRoleForGame(team, opponent, roundCode);
+    // v3.8 identity packet (single source of truth)
+    const ctx = resolveIdentityContext(result.a, result.b, roundCode);
 
-    const cis = (typeof team.cisStatic === 'number') ? team.cisStatic : 0;
-    const fas = (typeof team.fasStatic === 'number') ? team.fasStatic : 0;
+    const myRole   = isA ? ctx.roleA   : ctx.roleB;     // "favorite" | "cinderella" | "none"
+    const myMetric = isA ? ctx.metricA : ctx.metricB;   // "CIS" | "FAS" | "LCI" | "LFI"
+    const myValue  = isA ? ctx.valueA  : ctx.valueB;
 
     let activeScore = null;
-    let label       = 'Neutral';
+    let label       = 'Mirror';
     let desc        = '';
     let tileClass   = 'identity-neutral';
     let headerText  = 'Tournament Identity';
@@ -4684,32 +5581,43 @@ function renderTeamSide(side, result) {
       ? getRoundLabelFromCode(roundCode)
       : roundCode;
 
-        if (role === 'FAVORITE') {
-    activeScore = fas;
-    label       = 'Favorite';
-    // Only show FAS in the detail line
-    desc        = `Favorite Authenticity: ${Math.round(fas)}`;
-    tileClass   = 'identity-favorite';
-    headerText  = 'Favorite Authenticity Score';
+    // Determine label + tile styling (roles only: Favorite/Cinderella/Mirror)
+    if (ctx.mode === "standard") {
+      if (myRole === "favorite") {
+        activeScore = myValue;
+        label       = 'Favorite';
+        tileClass   = 'identity-favorite';
+        desc        = `${myMetric}: ${Math.round(myValue)}`;
+      } else if (myRole === "cinderella") {
+        activeScore = myValue;
+        label       = 'Cinderella';
+        tileClass   = 'identity-cinderella';
+        desc        = `${myMetric}: ${Math.round(myValue)}`;
+      } else {
+        activeScore = myValue;
+        label       = 'Mirror';
+        tileClass   = 'identity-neutral';
+        desc        = `${myMetric}: ${Math.round(myValue)}`;
+      }
+      headerText = `Tournament Identity — ${roundLabel}`;
+    } else {
+      // Mirrors: role = Mirror (subtype reflected in header)
+      activeScore = myValue;
+      label       = 'Mirror';
+      tileClass   = 'identity-neutral';
 
-  } else if (role === 'CINDERELLA') {
-    activeScore = cis;
-    label       = 'Cinderella';
-    // Only show CIS in the detail line
-    desc        = `Cinderella Identity: ${Math.round(cis)}`;
-    tileClass   = 'identity-cinderella';
-    headerText  = 'Cinderella Identity Score';
+      const subtype =
+        (ctx.mode === "neutral_mirror") ? "Neutral Mirror" :
+        (ctx.mode === "chalk_mirror")   ? "Chalk Mirror"   :
+        (ctx.mode === "chaos_mirror")   ? "Chaos Mirror"   :
+                                          "Mirror";
 
-  } else {
-    // No clear identity → keep both as background profile metrics
-    activeScore = null; // keeps the big number as "—"
-    label       = 'Neutral';
-    desc        = `CIS: ${Math.round(cis)} • FAS: ${Math.round(fas)}`;
-    tileClass   = 'identity-neutral';
-  }
+      headerText = `${subtype} — ${roundLabel}`;
+      desc = `${myMetric}: ${Math.round(myValue)}`;
+    }
 
     identityScoreEl.textContent = (activeScore != null)
-      ? fmt(activeScore, 0)
+      ? fmt(activeScore, 1)
       : '—';
 
     identityRoleEl.textContent   = label;
@@ -4721,24 +5629,26 @@ function renderTeamSide(side, result) {
 
     identityTile.classList.remove('identity-favorite', 'identity-cinderella', 'identity-neutral');
     identityTile.classList.add('identity-tile', tileClass);
+    identityTile.dataset.identityResolved = "true";
 
+    // Back-of-card identity explanation (uses the same metric actually displayed)
     if (backIdentityEl && window.MI_COPY) {
-      const identityRole =
-        role === 'FAVORITE'   ? 'Favorite'   :
-        role === 'CINDERELLA' ? 'Cinderella' :
-                                'Neutral';
+      const roleForCopy =
+        (label === "Favorite")   ? "Favorite" :
+        (label === "Cinderella") ? "Cinderella" :
+                                   "Neutral";
 
       const identityTeam = {
         name: team.name,
         identity: {
-          CIS_static: cis,
-          FAS_static: fas
+          // Store the displayed metric in the matching slot so copy stays aligned.
+          CIS_static: (myMetric === "CIS" || myMetric === "LCI") ? myValue : 0,
+          FAS_static: (myMetric === "FAS" || myMetric === "LFI") ? myValue : 0
         },
-        role: identityRole
+        role: roleForCopy
       };
 
       const expl = buildIdentityBackTextForTeam(identityTeam, window.MI_COPY);
-
       backIdentityEl.textContent = expl || '';
     }
   }
@@ -4793,7 +5703,7 @@ function getSelectedTeams() {
 }
 
 function isRoundSelected() {
-  return !!CURRENT_ROUND;
+  return !!SANDBOX_MODE || !!CURRENT_ROUND;
 }
 
 function refreshCompareButtonState() {
@@ -4803,7 +5713,7 @@ function refreshCompareButtonState() {
 }
 
 function updatePreMatchupHubProgress() {
-  const copy = window.MI_COPY && window.MI_COPY.prematch && window.MI_COPY.prematch.progress
+  const copy = (window.MI_COPY && window.MI_COPY.prematch && window.MI_COPY.prematch.progress)
     ? window.MI_COPY.prematch.progress
     : null;
 
@@ -4811,140 +5721,108 @@ function updatePreMatchupHubProgress() {
   if (!hub) return;
 
   const els = {
+    // progress bar (top)
     statusWrap: document.querySelector('#preHubStatusWrap .pre-hub-status'),
-    statusText: document.getElementById('preStatusText'),
+    fill: document.getElementById('preStatusFill'),
+
+    // left “Start a matchup” steps
+    stepsWrap: hub.querySelector('.pre-hub-steps'),
     step1: document.getElementById('preStep1'),
     step2: document.getElementById('preStep2'),
     step3: document.getElementById('preStep3'),
+
     t1: document.getElementById('preStepText1'),
     t2: document.getElementById('preStepText2'),
     t3: document.getElementById('preStepText3'),
+
     s1: document.getElementById('preStepStatus1'),
     s2: document.getElementById('preStepStatus2'),
     s3: document.getElementById('preStepStatus3')
   };
 
-  // Inputs / state
-  const csvLoaded = Array.isArray(TEAM_LIST) && TEAM_LIST.length > 0;
-  const sel = getSelectedTeams();
+  // ----------------------------
+  // State inputs
+  // ----------------------------
+  const csvLoaded = (typeof isCSVLoaded === 'function')
+    ? isCSVLoaded()
+    : (Array.isArray(TEAM_LIST) && TEAM_LIST.length > 0);
+
+  const sel = (typeof getSelectedTeams === 'function')
+    ? getSelectedTeams()
+    : { a: '', b: '', ok: false };
+
   const hasA = !!sel.a;
   const hasB = !!sel.b && sel.b !== sel.a;
   const teamsOk = !!sel.ok;
-  const roundChosen = !!CURRENT_ROUND;
 
-  // ---- Active step visibility (show ONLY the current step) ----
-  const stepsWrap = hub.querySelector('.pre-hub-steps');
+  // ✅ Sandbox counts as “round selected”
+  const roundChosen = !!SANDBOX_MODE || !!CURRENT_ROUND;
 
-  // Decide which step is "active"
-  let activeStep = 1;
-
-  // Step 1 until a dataset is loaded
-  if (!csvLoaded) {
-    activeStep = 1;
-
-  // Step 2 until BOTH teams are valid
-  } else if (!teamsOk) {
-    activeStep = 2;
-
-  // Step 3 as soon as teams are valid (round selection happens here)
-  } else {
-    activeStep = 3;
-  }
-
-  // Force the visible step to reflect the *current* instruction
-  if (activeStep === 1 && els.t1) {
-    els.t1.textContent = (copy && copy.step1_pending) || 'Load tournament data to unlock team   selection.';
-  }
-
-  if (activeStep === 2 && els.t2) {
-    if (!hasA) els.t2.textContent = (copy && copy.step2_pending) || 'Select Team A to continue.';
-    else if (!hasB) els.t2.textContent = (copy && copy.step2_pending) || 'Select Team B to continue.';
-    else els.t2.textContent = (copy && copy.step2_ready) || 'Teams selected.';
-  }
-
-  if (activeStep === 3 && els.t3) {
-    els.t3.textContent = !roundChosen
-      ? ((copy && copy.step3_pending) || 'Choose a round to unlock Compare.')
-      : ((copy && copy.step3_ready) || 'Ready. Press Compare to generate results.');
-  }
-
-    // ---- SHOW ONLY ONE STEP (activeStep) ----
-  const steps = [
-    { el: els.step1, n: 1 },
-    { el: els.step2, n: 2 },
-    { el: els.step3, n: 3 }
-  ];
-
-  // Ensure the wrapper uses the single-column layout when only one step is visible
-  if (stepsWrap) stepsWrap.classList.add('is-single');
-
-  steps.forEach(({ el, n }) => {
-    if (!el) return;
-    const isActive = n === activeStep;
-
-    el.classList.toggle('is-hidden', !isActive);
-    el.setAttribute('aria-hidden', String(!isActive));
-
-    // Optional: keep keyboard focus out of hidden steps
-    el.querySelectorAll('button, a, input, select, textarea').forEach((node) => {
-      node.tabIndex = isActive ? 0 : -1;
-    });
-  });
-
-  // Optional styling hook: single-step layout mode (always true now)
-  if (stepsWrap) stepsWrap.classList.add('is-single');
-
-  // Progress milestones (per-click)
+  // ----------------------------
+  // Progress %
+  // ----------------------------
   let pct = 0;
   if (csvLoaded) pct = 25;
   if (csvLoaded && hasA) pct = 50;
   if (csvLoaded && hasA && hasB) pct = 75;
   if (csvLoaded && teamsOk && roundChosen) pct = 100;
 
-  // Status message (granular)
-  const fallback = {
-    waiting_csv:  'Waiting for tournament dataset.',
-    pick_team_a:  'Select Team A to continue.',
-    pick_team_b:  'Select Team B to continue.',
-    choose_round: 'Choose a round to unlock Compare.',
-    ready:        'Ready. Press Compare to generate results.'
-  };
-
-  let statusMsg = fallback.waiting_csv;
-
-  if (!csvLoaded) {
-    statusMsg = (copy && copy.status_waiting_csv) || fallback.waiting_csv;
-  } else if (!hasA) {
-    statusMsg = (copy && (copy.status_pick_team_a || copy.status_pick_teams)) || fallback.pick_team_a;
-  } else if (!hasB) {
-    statusMsg = (copy && (copy.status_pick_team_b || copy.status_pick_teams)) || fallback.pick_team_b;
-  } else if (!roundChosen) {
-    statusMsg = (copy && copy.status_choose_round) || fallback.choose_round;
-  } else {
-    statusMsg = (copy && copy.status_ready) || fallback.ready;
-  }
-
-  if (els.statusText) els.statusText.textContent = '';
-
-  // Progress bar classes (for CSS widths)
+  // Paint progress (class-driven + inline fallback)
   if (els.statusWrap) {
     els.statusWrap.classList.remove('is-idle', 'is-25', 'is-50', 'is-75', 'is-100');
+
     const cls =
       pct >= 100 ? 'is-100' :
       pct >= 75  ? 'is-75'  :
       pct >= 50  ? 'is-50'  :
       pct >= 25  ? 'is-25'  : 'is-idle';
+
     els.statusWrap.classList.add(cls);
   }
+  if (els.fill) els.fill.style.width = `${pct}%`;
 
-  // Step readiness (keep your 3-step structure, but update on partial progress)
+  // ----------------------------
+  // Single-step visibility (LEFT HUB ONLY)
+  // Rule: show only the current step
+  // 1 until csv loaded
+  // 2 until teams ok
+  // 3 after teams ok (even if “done”)
+  // ----------------------------
+  let activeStep = 1;
+  if (!csvLoaded) activeStep = 1;
+  else if (!teamsOk) activeStep = 2;
+  else activeStep = 3;
+
+  const applyHidden = (el, shouldHide) => {
+    if (!el) return;
+    el.classList.toggle('is-hidden', !!shouldHide);
+    el.setAttribute('aria-hidden', shouldHide ? 'true' : 'false');
+
+    // Keep keyboard focus out of hidden steps
+    el.querySelectorAll('button, a, input, select, textarea').forEach((node) => {
+      node.tabIndex = shouldHide ? -1 : 0;
+    });
+  };
+
+  applyHidden(els.step1, activeStep !== 1);
+  applyHidden(els.step2, activeStep !== 2);
+  applyHidden(els.step3, activeStep !== 3);
+
+  if (els.stepsWrap) els.stepsWrap.classList.add('is-single');
+
+  // ----------------------------
+  // Step state helper
+  // ----------------------------
   const setStepState = (el, state) => {
     if (!el) return;
     el.classList.remove('is-done', 'is-next', 'is-locked');
     el.classList.add(state);
   };
 
-  // Step 1
+  // ----------------------------
+  // Step 1 copy + state
+  // ----------------------------
+  if (els.t1) els.t1.textContent = (copy && copy.step1_pending) || 'Load tournament data to unlock team selection.';
   if (csvLoaded) {
     setStepState(els.step1, 'is-done');
     if (els.s1) els.s1.textContent = (copy && copy.step1_ready) || 'Field loaded and teams unlocked.';
@@ -4953,7 +5831,15 @@ function updatePreMatchupHubProgress() {
     if (els.s1) els.s1.textContent = (copy && copy.step1_pending) || 'Tournament field not loaded.';
   }
 
-  // Step 2
+  // ----------------------------
+  // Step 2 copy + state
+  // ----------------------------
+  if (els.t2) {
+    if (!hasA) els.t2.textContent = (copy && copy.step2_pending) || 'Select two teams to compare.';
+    else if (!hasB) els.t2.textContent = (copy && copy.step2_pending) || 'Select a second team to continue.';
+    else els.t2.textContent = (copy && copy.step2_ready) || 'Teams selected.';
+  }
+
   if (!csvLoaded) {
     setStepState(els.step2, 'is-locked');
     if (els.s2) els.s2.textContent = (copy && copy.status_pending) || 'Pending';
@@ -4962,13 +5848,18 @@ function updatePreMatchupHubProgress() {
     if (els.s2) els.s2.textContent = (copy && copy.step2_ready) || 'Teams selected. Matchup is queued.';
   } else {
     setStepState(els.step2, 'is-next');
-    const msg = !hasA ? ((copy && copy.step2_pending) || 'Select two teams to compare.')
-              : !hasB ? 'Select Team B to continue.'
-              : ((copy && copy.step2_pending) || 'Select two teams to compare.');
-    if (els.s2) els.s2.textContent = msg;
+    if (els.s2) els.s2.textContent = (copy && copy.step2_pending) || 'Select two different teams.';
   }
 
-  // Step 3
+  // ----------------------------
+  // Step 3 copy + state
+  // ----------------------------
+  if (els.t3) {
+    els.t3.textContent = roundChosen
+      ? ((copy && copy.step3_ready) || 'Ready. Run the comparison to begin analysis.')
+      : ((copy && copy.step3_pending) || 'Choose a round, or choose Sandbox Mode to ignore constraints.');
+  }
+
   if (!csvLoaded || !teamsOk) {
     setStepState(els.step3, 'is-locked');
     if (els.s3) els.s3.textContent = (copy && copy.status_pending) || 'Pending';
@@ -4977,8 +5868,11 @@ function updatePreMatchupHubProgress() {
     if (els.s3) els.s3.textContent = (copy && copy.step3_ready) || 'Briefing complete. Run Compare when ready.';
   } else {
     setStepState(els.step3, 'is-next');
-    if (els.s3) els.s3.textContent = (copy && copy.step3_pending) || 'Choose a round, then run Compare to generate analysis.';
+    if (els.s3) els.s3.textContent = (copy && copy.step3_pending) || 'Choose a round, then run Compare.';
   }
+
+  const step3Num = els.step3 && els.step3.querySelector('.pre-step-num');
+  if (step3Num) step3Num.textContent = (teamsOk && roundChosen) ? '4' : '3';
 }
 
 // Dynamically filter which rounds are available based on selected teams' seeds
@@ -5000,20 +5894,26 @@ function updateRoundOptionsForCurrentSeeds() {
   const teamAName = selectA?.value || '';
   const teamBName = selectB?.value || '';
 
-  const showAllRounds = () => {
+  const showAllRounds = ({ resetRound = true } = {}) => {
     roundDropdown.querySelectorAll(".round-option").forEach(opt => {
       opt.style.display = "";
     });
-    CURRENT_ROUND = null;
-    roundBtn.textContent = "Select Round";
 
-    // 🔒 No round selected → disable Compare
-    setCompareButtonEnabled(false);
+    // ✅ Only reset round selection when NOT in sandbox behavior
+    if (resetRound) {
+      CURRENT_ROUND = null;
+      roundBtn.textContent = "Select Round";
+    }
+
+    // ✅ Let the central gate decide (and it now respects SANDBOX_MODE)
+    if (typeof refreshCompareButtonState === 'function') {
+      refreshCompareButtonState();
+    }
   };
 
-  // Sandbox = no restrictions
+  // ✅ Sandbox = no restrictions + no forced round clearing + no forced disable
   if (SANDBOX_MODE) {
-    showAllRounds();
+    showAllRounds({ resetRound: false });
     return;
   }
 
@@ -5037,11 +5937,12 @@ function updateRoundOptionsForCurrentSeeds() {
     opt.style.display = allowedRounds.has(code) ? "" : "none";
   });
 
-  // Force user to pick a compatible round
+  // Force user to pick a compatible round (non-sandbox only)
   CURRENT_ROUND = null;
   roundBtn.textContent = "Select Round";
-  setCompareButtonEnabled(false);   // 🔒 reset whenever allowed-round set changes
+  setCompareButtonEnabled(false);   // reset whenever allowed-round set changes
 }
+
 
 function syncNextHalo(isCsvLoaded) {
   const datasetCard = document.querySelector('.controls-card.is-primary-entry');
@@ -5304,9 +6205,18 @@ function setupEventListeners() {
         return;
       }
 
-      if (!CURRENT_ROUND) {
+      // ✅ Round is required ONLY when Sandbox mode is OFF
+      if (!SANDBOX_MODE && !CURRENT_ROUND) {
         alert('Please select a round before comparing.');
         return;
+      }
+
+      // ✅ Provide a stable round code for downstream round-aware functions when sandbox is ON.
+      // (This avoids null round causing weirdness in getSeedRoundMeta / round labels.)
+      if (SANDBOX_MODE && !CURRENT_ROUND) {
+        CURRENT_ROUND = 'R64';
+        const roundBtn = document.getElementById('roundSelectBtn');
+        if (roundBtn) roundBtn.textContent = getRoundLabelFromCode(CURRENT_ROUND);
       }
 
       // 🔥 ONLY enforce legal rounds when Sandbox mode is OFF
@@ -5322,30 +6232,30 @@ function setupEventListeners() {
         }
       }
 
-// ----- Role routing: who goes on Cinderella vs Favorite card? -----
-// We now always auto-assign by seed.
-  const roleMode = 'auto';
+      // ----- Role routing: who goes on Cinderella vs Favorite card? -----
+      // We now always auto-assign by seed.
+      const roleMode = 'auto';
 
-  let cinderellaName;
-  let favoriteName;
+      let cinderellaName;
+      let favoriteName;
 
-  // Auto (by seed): lower seed number = Favorite
-  const seedA = Number(teamA.seed);
-  const seedB = Number(teamB.seed);
+      // Auto (by seed): lower seed number = Favorite
+      const seedA = Number(teamA.seed);
+      const seedB = Number(teamB.seed);
 
-  if (Number.isFinite(seedA) && Number.isFinite(seedB) && seedA !== seedB) {
-    if (seedA < seedB) {
-      favoriteName   = teamA.name;
-      cinderellaName = teamB.name;
-    } else {
-      favoriteName   = teamB.name;
-      cinderellaName = teamA.name;
-    }
-  } else {
-    // Same seed or weird data: fall back to dropdown order
-    cinderellaName = teamA.name;
-    favoriteName   = teamB.name;
-  }
+      if (Number.isFinite(seedA) && Number.isFinite(seedB) && seedA !== seedB) {
+        if (seedA < seedB) {
+          favoriteName   = teamA.name;
+          cinderellaName = teamB.name;
+        } else {
+          favoriteName   = teamB.name;
+          cinderellaName = teamA.name;
+        }
+      } else {
+        // Same seed or weird data: fall back to dropdown order
+        cinderellaName = teamA.name;
+        favoriteName   = teamB.name;
+      }
 
       console.log(
         `[MI] Running compareTeams (auto by seed) ` +
@@ -5553,16 +6463,13 @@ if (roundBtn && roundDropdown) {
   // ---- Sandbox Mode toggle ----
   const sandboxToggle = document.getElementById('sandboxModeToggle');
   if (sandboxToggle) {
-    SANDBOX_MODE = sandboxToggle.checked;
+    // Initialize from UI
+    setSandboxMode(!!sandboxToggle.checked);
 
     sandboxToggle.addEventListener('change', () => {
-      SANDBOX_MODE = sandboxToggle.checked;
-      console.log('[MI] Sandbox mode:', SANDBOX_MODE ? 'ON' : 'OFF');
-
-      updateRoundOptionsForCurrentSeeds();
-      updatePreMatchupHubProgress();
-      refreshCompareButtonState();
+      setSandboxMode(!!sandboxToggle.checked);
     });
+
     initInteractionConsoleSync();
   }
 }

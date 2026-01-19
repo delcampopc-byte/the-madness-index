@@ -224,16 +224,10 @@ body {
   }
 }
 
-/* Pre-matchup: slightly tighter hero to prioritize the workflow */
-.app-shell.pre-matchup .enhanced-header{
-  padding: 18px 18px 16px;
-  margin-bottom: 16px;
-}
-
 /* Pre-matchup: compact hero to prioritize setup cockpit */
 .app-shell.pre-matchup .enhanced-header{
-  padding: 10px 18px 8px;
-  margin-bottom: 10px;
+  padding: 6px 6px 6px;
+  margin-bottom: 8px;
 }
 
 .app-shell.pre-matchup .hero-logo{
@@ -244,20 +238,12 @@ body {
   font-size: 28px; /* was visually reading large */
 }
 
-.app-shell.pre-matchup .hero-subtitle{
-  margin-top: 6px;
-}
-
 .app-shell.pre-matchup .hero-logo{
   max-height: 92px;
 }
 
 .app-shell.pre-matchup .hero-logo-wrap{
-  margin-bottom: 8px;
-}
-
-.app-shell.pre-matchup .hero-title{
-  font-size: 24px; /* slightly down from var(--mi-font-size-h1) */
+  margin-bottom: 1px;
 }
 
 .app-shell.pre-matchup .hero-subtitle{
@@ -280,7 +266,6 @@ body {
 
 .hero-logo-wrap {
   flex-shrink: 0;
-  margin-bottom: 10px;
 }
 
 .hero-logo {
@@ -300,47 +285,14 @@ body {
   margin: 0;
   font-size: var(--mi-font-size-h1);
   font-weight: 800;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--mi-text-primary);
   text-align: center;
 }
 
-.hero-title-bracket {
-  font-size: 0.85em;
-  color: rgba(148, 163, 184, 0.8);
-  text-shadow: 0 0 12px rgba(15, 23, 42, 0.9);
-}
-
-.hero-title-bracket-left  { margin-right: 10px; }
-.hero-title-bracket-right { margin-left: 10px; }
-
-.hero-title::after {
-  content: "";
-  position: absolute;
-  left: 50%;
-  bottom: -10px;
-  transform: translateX(-50%);
-  width: 140px;
-  height: 3px;
-  border-radius: var(--mi-radius-pill);
-  background: linear-gradient(
-    90deg,
-    rgba(15, 23, 42, 0),
-    rgba(56, 189, 248, 0.8),
-    rgba(248, 250, 252, 0.9),
-    rgba(56, 189, 248, 0.8),
-    rgba(15, 23, 42, 0)
-  );
-  opacity: 0.85;
-}
-
 .hero-subtitle {
-  font-size: var(--mi-font-size-body-lg);
-  color: var(--mi-text-muted);
-  max-width: 640px;
-  margin-top: 14px;
-  text-align: center;
+  display: none;
 }
 
 .hero-sub-highlight {
@@ -394,7 +346,7 @@ body {
 }
 
 .version-badge {
-  margin-top: 8px;
+  margin-top: 2px;
   font-size: 13px;
   padding: 4px 12px;
   border-radius: var(--mi-radius-pill);
@@ -403,6 +355,25 @@ body {
   border: 1px solid var(--mi-accent-cyan-strong);
   text-transform: uppercase;
   letter-spacing: 0.16em;
+}
+
+.enhanced-header .version-badge {
+  position: absolute;
+  top: 18px;
+  left: 18px;
+
+  padding: 4px 10px;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.55);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+
+  color: #7dd3fc;
+  backdrop-filter: blur(6px);
+
+  pointer-events: none;
 }
 
 /* ========== PRE-MATCHUP HUB ========== */
@@ -816,6 +787,7 @@ body {
 .app-shell:not(.has-matchup) .top-bar { margin-bottom: 10px; }
 
 /* Compact hero when matchup active */
+/* CURRENTLY COMMENTED OUT
 .app-shell.has-matchup .enhanced-header {
   padding-top: 28px;
   padding-bottom: 24px;
@@ -846,6 +818,7 @@ body {
 
 .app-shell.has-matchup .hero-overline { margin-bottom: 4px; font-size: 10px; }
 .app-shell.has-matchup .hero-title    { font-size: 20px; }
+*/
 
 /* Optional HUD (if present in HTML) */
 .hero-matchup-hud {
@@ -1097,8 +1070,12 @@ body {
   gap: 0;
   border: 1px solid rgba(148, 163, 184, 0.16);
   border-radius: 14px;
-  overflow: hidden;
+  overflow: visible;
   background: rgba(15, 23, 42, 0.35);
+}
+
+.has-matchup .pre-setup-row .matchup-controls{
+  overflow: visible;
 }
 
 .pre-setup-row .mc-row{
@@ -1441,7 +1418,7 @@ select:focus {
   position: absolute;
   top: calc(100% + 6px);
   left: 0;
-  min-width: 160px;
+  max-width: 80px;
   z-index: 501;
   max-height: 260px;
   overflow-y: auto;
@@ -1499,229 +1476,477 @@ select:focus {
 /* Hide legacy "2. Select Matchup" title (if you apply this class in HTML) */
 .matchup-title-hidden { display: none; }
 
-/* ========== MATCHUP BAR (COLLAPSED SETUP) ========== */
+/* =========================================================
+   MATCHUP BAR — v3.7 CLEAN RESET (REST + QUICK EDIT)
+   Replace ALL existing matchup-bar CSS with this module.
+   ========================================================= */
+/* ================================
+   Base visibility + shell
+   ================================ */
 
-.matchup-bar {
+.matchup-bar{
   position: relative;
-  display: none;
-  margin: 18px auto 0;
-  border-radius: 18px;
-  background:
-    radial-gradient(circle at top left, rgba(56, 189, 248, 0.12), transparent 55%),
-    rgba(15, 23, 42, 0.96);
-  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.85);
-  font-size: 0.95rem;
-  opacity: 0;
-  transform: translateY(-6px);
-  transition: opacity 200ms ease-out, transform 200ms ease-out;
+  display: none;              /* collapsed by default */
   width: 100%;
+  margin: 18px auto 28px;
+  margin-bottom: 34px;
 }
 
-.matchup-bar.visible {
-  display: block;
-  opacity: 1;
-  transform: translateY(0);
+.matchup-bar.visible{
+  display: block;             /* show when ready */
 }
 
-.matchup-bar-label {
-  font-size: 0.7rem;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  opacity: 0.8;
+/* Remove base .card styling ONLY for matchup bar */
+#matchupBar.card{
+  border: none !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  padding: 0 !important;
 }
 
-.matchup-bar-team {
-  font-size: 1.1rem;
-  font-weight: 600;
+/* #matchupBar is a neutral wrapper (NOT a plate) */
+#matchupBar.matchup-bar{
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  padding: 0;
+  overflow: visible;
 }
 
-.matchup-bar-seed { font-size: 0.85rem; opacity: 0.85; margin-left: 6px; }
-
-.matchup-bar-center {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
+#matchupBar .matchup-bar-main{
+  overflow: hidden;         /* keeps the bar’s rounded hardware look */
+  border-radius: inherit;
 }
 
-.matchup-bar-vs {
-  font-size: 0.8rem;
-  text-transform: uppercase;
-  letter-spacing: 0.24em;
-  opacity: 0.7;
+/* =========================================================
+   MATCHUP BAR — "TAB" BORDER (incorporate shelf visually)
+   Adds a center bump on the top border like a folder tab.
+   ========================================================= */
+
+/* Inner rail highlight */
+#matchupBar.matchup-bar:not(.is-editing)::after{
+  content: none;
+  position:absolute;
+  inset: 8px;
+  border-radius: 22px;
+  pointer-events:none;
+
+  background: transparent;
+  box-shadow: none;
+  opacity: 0.85;
 }
 
-.matchup-bar-round {
-  font-size: 0.85rem;
-  padding-inline: 12px;
-  padding-block: 2px;
-}
+/* ================================
+   Main layout grid
+   ================================ */
 
-.matchup-bar-edit {
-  border: 1px solid rgba(148, 163, 253, 0.35);
-  background: rgba(15, 23, 42, 0.95);
-  color: #a5b4fc;
-  font-size: 0.8rem;
-  cursor: pointer;
-  padding: 3px 10px;
-  border-radius: var(--mi-radius-pill);
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  opacity: 0.9;
-  white-space: nowrap;
-}
-.matchup-bar-edit:hover {
-  background: rgba(30, 64, 175, 0.8);
-  border-color: rgba(129, 140, 248, 0.9);
-}
-
-/* =========================
-   Matchup Bar — Quick Edit
-   ========================= */
-
-.matchup-quick-slot,
-.matchup-quick-actions {
-  display: none;
-}
-
-#matchupBar.is-editing .matchup-bar-team,
-#matchupBar.is-editing #matchupRoundPill,
-#matchupBar.is-editing #editMatchupBtn {
-  display: none;
-}
-
-#matchupBar.is-editing .matchup-quick-slot,
-#matchupBar.is-editing .matchup-quick-actions {
-  display: block;
-}
-
-.matchup-quick-slot {
-  margin-top: 8px;
-  width: 100%;
-  min-width: 0px;
-  max-width: 360px;
-}
-
-.matchup-quick-slot .select-wrap label,
-.matchup-quick-slot .round-step-label,
-.matchup-quick-slot .helper-text {
-  display: none !important;
-}
-
-.matchup-quick-slot select,
-.matchup-quick-slot .round-btn {
-  width: 100%;
-  min-height: 38px;
-}
-
-.matchup-quick-actions {
-  margin-top: 8px;
-  display: flex;
-  gap: 8px;
-  justify-content: center;
-  align-items: center;
-}
-
-/* =========================
-   Matchup Bar — True Center Layout
-   ========================= */
-
-.matchup-bar {
-  width: 100%;
-  margin: 18px auto 22px;
-}
-
-.matchup-bar-main {
+#matchupBar .matchup-bar-main{
+  position: relative;
   display: grid;
-  grid-template-columns: 1fr auto 1fr;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   align-items: center;
-  column-gap: 26px;
-  padding: 6px 6px;
+  column-gap: 28px;
+
+  /* Reserve lane for kicker strip + label */
+  padding: 26px 26px 26px;
+  overflow: visible;
 }
 
-/* Make side columns behave like equal rails */
-.matchup-bar-left,
-.matchup-bar-right {
+/* Top accent rule (uses ::after — do not reuse elsewhere) */
+#matchupBar:not(.is-editing) .matchup-bar-main::after{
+  content: "";
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  top: 6px;
+  height: 3px;
+  border-radius: 999px;
+  pointer-events: none;
+  z-index: 2;
+
+  background: linear-gradient(
+    90deg,
+    rgba(64, 200, 255, 0.00),
+    rgba(64, 200, 255, 0.42),
+    rgba(90, 255, 180, 0.30),
+    rgba(64, 200, 255, 0.00)
+  );
+
+  opacity: 0.75;
+  filter: blur(0.2px);
+}
+
+/* Side rails */
+#matchupBar .matchup-bar-left,
+#matchupBar .matchup-bar-right{
   display: flex;
   flex-direction: column;
   gap: 6px;
   min-width: 0;
 }
 
-.matchup-bar-left  { align-items: flex-start; text-align: left; }
-.matchup-bar-right { align-items: flex-end;   text-align: right; }
-
-.matchup-bar-right {
+/* Rest state: hug inward toward center */
+#matchupBar:not(.is-editing) .matchup-bar-left{
+  justify-self: end;
   align-items: flex-end;
   text-align: right;
 }
 
-/* Center stack is truly centered */
-.matchup-bar-center {
+#matchupBar:not(.is-editing) .matchup-bar-right{
+  justify-self: start;
+  align-items: flex-start;
+  text-align: left;
+}
+
+/* Center stack */
+#matchupBar .matchup-bar-center{
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 4px;
+  gap: 10px;
   min-width: 240px; /* stabilizes center */
 }
 
-/* Prevent long team names from shifting layout */
-.matchup-bar-team {
-  max-width: 100%;
+/* Team typography */
+#matchupBar .matchup-bar-team{
+  max-width: 46ch;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  text-shadow: 0 14px 48px rgba(0, 0, 0, 0.58);
 }
 
-/* =========================
-   Matchup Bar — Quick Edit Polish
-   ========================= */
+#matchupBar:not(.is-editing){
+  font-size: 1rem;
+}
 
-.matchup-quick-slot {
+#matchupBar:not(.is-editing) .matchup-bar-team{
+  font-size: 1.25rem;
+  font-weight: 750;
+}
+
+/* Remove redundant elements in rest state */
+#matchupBar:not(.is-editing) .matchup-bar-vs{ display: none !important; }
+#matchupBar:not(.is-editing) .matchup-bar-label{ display: none !important; }
+#matchupBar:not(.is-editing) .matchup-bar-seed{ display: none !important; }
+
+
+/* ================================
+   Integrated Kicker Lane
+   ================================ */
+
+/* Embedded strip (uses ::before — do not reuse elsewhere) */
+#matchupBar .matchup-bar-main::before{
+  content: none;
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  top: 10px;
+  height: 32px;
+  border-radius: 12px;
+
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.01)),
+    linear-gradient(180deg, rgba(2, 6, 23, .28), rgba(2, 6, 23, .12));
+
+  opacity: .92;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Label: must be .matchup-controls-label.matchup-kicker */
+#matchupBar .matchup-controls-label.matchup-kicker{
+  position: absolute;
+  top: 12px;
+  left: 18px;
+  z-index: 2;
+}
+
+/* =========================================================
+   Reusable Kicker Skin
+   (Lets other elements inherit the MATCHUP CONTROLS kicker look)
+   ========================================================= */
+.matchup-kicker{
+  /* typography */
+  font-size: 88px;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  font-weight: 900;
+  line-height: 1;
+
+  /* surface */
+  color: rgba(148,163,184,0.65);
+  background-color: rgba(3, 7, 18, 0.55);
+  border: 1px solid rgba(148,163,184,0.18);
+  border-radius: 12px;
+
+  /* spacing + behavior */
+  padding: 10px 12px;
+  margin: 0;
+  white-space: nowrap;
+  pointer-events: none;
+  user-select: none;
+
+  /* depth */
+  box-shadow:
+    0 10px 22px rgba(0,0,0,0.45),
+    inset 0 1px 0 rgba(255,255,255,0.06),
+    inset 0 0 0 1px rgba(255,255,255,0.03);
+  text-shadow: 0 1px 0 rgba(0,0,0,0.35);
+
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+
+  /* safe default layout */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Edit state: quieter but same geometry */
+#matchupBar.is-editing .matchup-controls-label.matchup-kicker{
+  color: rgba(148,163,184,0.55);
+  background-image: linear-gradient(
+    90deg,
+    rgba(148,163,184,0.30),
+    rgba(148,163,184,0.00)
+  );
+}
+
+/* ================================
+   Round pill + Edit button (rest)
+   ================================ */
+
+#matchupBar:not(.is-editing) #matchupRoundPill{
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: linear-gradient(180deg,
+    rgba(255, 255, 255, 0.08),
+    rgba(255, 255, 255, 0.03)
+  );
+  box-shadow:
+    0 12px 30px rgba(0, 0, 0, 0.48),
+    inset 0 1px 0 rgba(255, 255, 255, 0.07);
+}
+
+#matchupBar:not(.is-editing) #editMatchupBtn{
+  border: 1px solid rgba(120, 185, 255, 0.30);
+  background: linear-gradient(180deg,
+    rgba(95, 170, 255, 0.20),
+    rgba(255, 255, 255, 0.06)
+  );
+  box-shadow:
+    0 16px 44px rgba(0, 0, 0, 0.62),
+    inset 0 1px 0 rgba(255, 255, 255, 0.10);
+  transform: translateZ(0);
+}
+
+#matchupBar:not(.is-editing) #editMatchupBtn:hover{
+  border-color: rgba(140, 215, 255, 0.44);
+  box-shadow:
+    0 18px 52px rgba(0, 0, 0, 0.66),
+    inset 0 1px 0 rgba(255, 255, 255, 0.11);
+}
+
+#matchupBar:not(.is-editing) #editMatchupBtn:focus-visible{
+  outline: none;
+  box-shadow:
+    0 0 0 3px rgba(64, 200, 255, 0.25),
+    0 18px 52px rgba(0, 0, 0, 0.66),
+    inset 0 1px 0 rgba(255, 255, 255, 0.11);
+}
+
+/* Optional: when visible and resting, slightly “present” the shell */
+section#matchupBar.card.matchup-bar.visible:not(.is-editing){
+  border: 1px solid rgba(150, 210, 255, 0.20);
+  box-shadow:
+    0 28px 92px rgba(0, 0, 0, 0.78),
+    0 0 0 1px rgba(0, 0, 0, 0.55),
+    0 0 32px rgba(56, 189, 248, 0.14),
+    inset 0 1px 0 rgba(255, 255, 255, 0.10),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+}
+
+/* ================================
+   Quick Edit (editing state)
+   ================================ */
+
+/* Default hidden until editing */
+.matchup-quick-slot,
+.matchup-quick-actions{
+  display: none;
+}
+
+/* When editing: swap content */
+#matchupBar.is-editing .matchup-bar-team,
+#matchupBar.is-editing #matchupRoundPill,
+#matchupBar.is-editing #editMatchupBtn{
+  display: none !important;
+}
+
+#matchupBar.is-editing .matchup-quick-slot,
+#matchupBar.is-editing .matchup-quick-actions{
+  display: block;
+}
+
+#matchupBar.is-editing{
+  position: relative;
+  z-index: 2000;
+  overflow: visible;
+  border-radius: 28px;
+
+  /* SAME chassis as rest state */
+  background:
+    radial-gradient(1400px 420px at 50% -18%,
+      rgba(96, 165, 250, 0.42) 0%,
+      rgba(56, 189, 248, 0.14) 38%,
+      rgba(0, 0, 0, 0) 68%
+    ),
+    radial-gradient(900px 320px at 14% 10%,
+      rgba(56, 189, 248, 0.12) 0%,
+      rgba(0, 0, 0, 0) 62%
+    ),
+    linear-gradient(180deg,
+      rgba(17, 28, 56, 0.92) 0%,
+      rgba(10, 18, 38, 0.94) 52%,
+      rgba(2, 6, 23, 0.96) 100%
+    );
+
+  border: 1px solid rgba(150, 210, 255, 0.18);
+
+  box-shadow:
+    0 22px 68px rgba(0, 0, 0, 0.72),
+    0 0 0 1px rgba(0, 0, 0, 0.55),
+    0 0 30px rgba(56, 189, 248, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.10),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.045);
+
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+#matchupBar.is-editing::after{
+  content:"";
+  position:absolute;
+  inset: 8px;
+  border-radius: 22px;
+  pointer-events:none;
+
+  background: linear-gradient(
+    180deg,
+    rgba(255,255,255,0.07),
+    rgba(255,255,255,0.02) 32%,
+    rgba(0,0,0,0.00) 60%
+  );
+
+  opacity: 0.75; /* slightly quieter than rest */
+}
+
+#matchupBar.is-editing::before{
+  content:"";
+  position:absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+
+  background: linear-gradient(
+    180deg,
+    rgba(56,189,248,0.07),
+    rgba(56,189,248,0.03) 42%,
+    rgba(0,0,0,0.00)
+  );
+
+  opacity: 1;
+}
+
+#matchupBar.is-editing .matchup-bar-main{
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  column-gap: 32px;
+  align-items: center;
+}
+
+/* In edit mode, align side columns centered (prevents jitter) */
+#matchupBar.is-editing .matchup-bar-left,
+#matchupBar.is-editing .matchup-bar-right{
+  align-items: center;
+  text-align: center;
+}
+
+/* Slots: controlled width so they don’t dominate */
+#matchupBar.is-editing .matchup-quick-slot{
   margin-top: 8px;
-  width: 100%;
-  max-width: 360px;     /* keeps the dropdown from dominating */
-  min-width: 0;         /* important: don't force the grid wider */
+  width: min(520px, 100%);
+  max-width: 520px;
+  min-width: 0;
 }
 
-.matchup-bar-right .matchup-quick-slot {
+/* Edit mode: tighten dropdown width */
+#matchupBar.is-editing .matchup-quick-slot select{
+  max-width: 380px;
+  margin-inline: auto;
+}
+
+/* Edit mode: group Round + Sandbox into a single control row */
+#matchupBar.is-editing .round-selector-wrap{
   display: flex;
-  justify-content: flex-end; /* right column stays right-aligned */
+  gap: 12px;
+  align-items: center;
+  justify-content: center;
 }
 
-.matchup-quick-round {
-  max-width: 260px;
+/* Make Sandbox toggle visually match Round selector */
+#matchupBar.is-editing .round-selector-wrap .sandbox-toggle{
+  min-height: 48px;
+  padding: 10px 16px;
+  border-radius: 14px;
+
+  border: 1px solid rgba(255,255,255,0.14);
+  background: linear-gradient(180deg,
+    rgba(255,255,255,0.08),
+    rgba(255,255,255,0.03)
+  );
+
+  box-shadow:
+    0 12px 30px rgba(0, 0, 0, 0.48),
+    inset 0 1px 0 rgba(255, 255, 255, 0.07);
+
+  font-size: 14px;
 }
 
-/* Make selects/buttons feel like "controls" not "content blocks" */
-.matchup-quick-slot select,
-.matchup-quick-slot .round-btn {
+#matchupBar.is-editing .matchup-quick-slot .select-wrap label,
+#matchupBar.is-editing .matchup-quick-slot .round-step-label,
+#matchupBar.is-editing .matchup-quick-slot .helper-text{
+  display: none !important;
+}
+
+#matchupBar.is-editing .matchup-quick-slot select,
+#matchupBar.is-editing .matchup-quick-slot .round-btn{
   width: 100%;
-  min-height: 40px;
+  min-height: 48px;
+  font-size: 15px;
+  padding: 10px 14px;
+  border-radius: 14px;
 }
 
-/* Actions sit centered and closer to controls */
-.matchup-quick-actions {
-  margin-top: 4px;
+/* Actions */
+#matchupBar.is-editing .matchup-quick-actions{
+  margin-top: 6px;
   display: flex;
   gap: 10px;
   justify-content: center;
   align-items: center;
 }
 
-.matchup-quick-actions .btn{
-  padding: 5px 14px;
-  font-size: 12px;
+#matchupBar.is-editing .matchup-quick-actions .btn{
+  min-height: 40px;
+  font-size: 13px;
+  padding: 8px 18px;
 }
 
-#matchupBar.is-editing{
-  position: relative;
-  z-index: 2000;
-}
-
-/* Make the round selector dropdown reliably float above everything */
+/* Dropdown stacking reliability */
 #matchupBar .round-selector-wrap{
   position: relative;
   z-index: 2100;
@@ -1731,199 +1956,10 @@ select:focus {
   z-index: 2200;
 }
 
-#matchupBar.is-editing .matchup-bar-label{
-  display: none;
-}
-
-#matchupBar.is-editing .matchup-bar-main{
-  grid-template-columns: 1fr auto 1fr;
-  column-gap: 32px;
-  align-items: center;
-}
-
-#matchupBar.is-editing .matchup-bar-left,
-#matchupBar.is-editing .matchup-bar-right{
-  align-items: center;
-  text-align: center;
-}
-
-#matchupBar.is-editing .matchup-quick-slot{
-  max-width: 520px;            /* pick a width that feels right */
-  width: min(520px, 100%);
-}
-
-#matchupBar.is-editing .matchup-quick-actions{
-  margin-top: 6px;
-}
-
-#matchupBar.is-editing .matchup-bar-center{
-  justify-self: center;     /* critical: centers the middle grid cell */
-  align-self: center;
-  min-width: 0;             /* remove your old stabilizer during editing */
-  width: max-content;       /* shrink-wrap the VS + round pill */
-}
-
-#matchupBar.is-editing #matchupRoundPill{
-  display: inline-flex;
-  justify-content: center;
-  text-align: center;
-}
-
-/* =========================
-   Matchup Bar — Quick Edit Typography Scaling
-   ========================= */
-
-#matchupBar.is-editing{
-  --mq-font: clamp(12px, 0.85vw, 14px);
-  --mq-pill: clamp(12px, 0.85vw, 13px);
-  --mq-btn:  clamp(12px, 0.85vw, 13px);
-}
-
-#matchupBar.is-editing .matchup-bar-vs{
-  display: none !important;
-}
-
-#matchupBar.is-editing .matchup-bar-round,
-#matchupBar.is-editing #matchupRoundPill{
-  font-size: var(--mq-pill);
-}
-
-#matchupBar.is-editing .matchup-quick-slot select{
-  font-size: var(--mq-font);
-}
-
-#matchupBar.is-editing .matchup-quick-actions .btn{
-  font-size: var(--mq-btn);
-}
-
-#matchupBar.is-editing #matchupRoundPill,
-#matchupBar.is-editing .matchup-bar-round {
-  display: none !important;
-}
-
-#matchupBar.is-editing .matchup-quick-round {
-  position: relative;
-  padding-top: 16px; /* space for the label */
-  text-align: center;
-}
-
-#matchupBar.is-editing .matchup-quick-round::before {
-  content: "ROUND";
-  position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 10px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: rgba(148, 163, 184, 0.85);
-  width: max-content;
-  pointer-events: none;
-}
-
-#matchupBar.is-editing .matchup-quick-slot select{
-  min-height: 48px !important;
-  font-size: 15px !important;
-  padding: 10px 14px !important;
-  border-radius: 14px !important;
-}
-
-#matchupBar.is-editing .matchup-quick-slot .round-btn{
-  min-height: 44px !important;
-  font-size: 14px !important;
-  padding: 8px 16px !important;
-  border-radius: 999px !important;
-}
-
-/* Run / Cancel */
-#matchupBar.is-editing .matchup-quick-actions .btn{
-  min-height: 40px !important;
-  font-size: 13px !important;
-  padding: 8px 18px !important;
-}
-
-/* 1) Remove VS */
-#matchupBar:not(.is-editing) .matchup-bar-vs{
-  display: none !important;
-}
-
-/* 2) Remove redundant Cinderella/Favorite labels */
-#matchupBar:not(.is-editing) .matchup-bar-label{
-  display: none !important;
-}
-
-/* 3) Remove redundant trailing seed like "(13)" */
-#matchupBar:not(.is-editing) .matchup-bar-seed{
-  display: none !important;
-}
-
-/* 4) True center layout: pull side columns inward toward the center */
-#matchupBar:not(.is-editing) .matchup-bar-main{
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
-  align-items: center;
-  column-gap: 28px;
-  padding: 16px 18px; /* gives the bar real presence */
-}
-
-/* Left side hugs the CENTER (instead of the far left edge) */
-#matchupBar:not(.is-editing) .matchup-bar-left{
-  justify-self: end;          /* move the whole block toward center */
-  align-items: flex-end;      /* align text to the center-facing edge */
-  text-align: right;
-  gap: 6px;
-}
-
-/* Right side hugs the CENTER (instead of the far right edge) */
-#matchupBar:not(.is-editing) .matchup-bar-right{
-  justify-self: start;        /* move the whole block toward center */
-  align-items: flex-start;    /* align text to the center-facing edge */
-  text-align: left;
-  gap: 6px;
-}
-
-/* Keep long names from pushing layout */
-#matchupBar:not(.is-editing) .matchup-bar-team{
-  max-width: 46ch;            /* prevents super long names dominating */
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* 5) Scale up typography to match the box better */
-#matchupBar:not(.is-editing){
-  font-size: 1rem;            /* base bump */
-}
-
-#matchupBar:not(.is-editing) .matchup-bar-team{
-  font-size: 1.25rem;
-  font-weight: 750;
-  letter-spacing: 0.01em;
-}
-
-#matchupBar:not(.is-editing) .matchup-bar-round{
-  font-size: 0.95rem;
-  padding: 4px 14px;
-}
-
-#matchupBar:not(.is-editing) .matchup-bar-edit{
-  font-size: 0.9rem;
-  padding: 6px 12px;
-}
-
-/* Matchup Bar: hide Cancel unless editing */
+/* In rest state: if cancel exists in DOM, hide it */
 #matchupBar:not(.is-editing) .matchup-quick-actions .btn.ghost,
-#matchupBar:not(.is-editing) .matchup-quick-actions #cancelMatchupBtn{
+#matchupBar:not(.is-editing) #cancelMatchupBtn{
   display: none !important;
-}
-
-/* Matchup Bar: make Run bigger in non-edit state */
-#matchupBar:not(.is-editing) .matchup-quick-actions .btn.primary{
-  padding: 10px 22px;
-  font-size: 14px;
-  font-weight: 800;
-  min-height: 44px;
-  border-radius: 999px;
 }
 
 /* If your app adds .has-matchup after running, use that.
@@ -1947,6 +1983,719 @@ select:focus {
 /* Start a Matchup tile no longer needs per-step status pills (status bar handles it) */
 .pre-matchup-hub .pre-step-status {
   display: none !important;
+}
+
+/* Edit mode: remove redundant role headers (Cinderella / Favorite) */
+#matchupBar.is-editing .matchup-bar-label{
+  display: none !important;
+}
+
+/* Edit mode: remove floating VS (no longer a presentation element) */
+#matchupBar.is-editing .matchup-bar-vs{
+  display: none !important;
+}
+
+#matchupBar.matchup-bar:not(.is-editing){
+  overflow: visible;
+  border-radius: 28px;
+
+  background:
+    radial-gradient(1400px 420px at 50% -18%,
+      rgba(96, 165, 250, 0.42) 0%,
+      rgba(56, 189, 248, 0.14) 38%,
+      rgba(0, 0, 0, 0) 68%
+    ),
+    radial-gradient(900px 320px at 14% 10%,
+      rgba(56, 189, 248, 0.12) 0%,
+      rgba(0, 0, 0, 0) 62%
+    ),
+    linear-gradient(180deg,
+      rgba(17, 28, 56, 0.92) 0%,
+      rgba(10, 18, 38, 0.94) 52%,
+      rgba(2, 6, 23, 0.96) 100%
+    );
+
+  border: 1px solid rgba(150, 210, 255, 0.18);
+
+  box-shadow:
+    0 22px 68px rgba(0, 0, 0, 0.72),
+    0 0 0 1px rgba(0, 0, 0, 0.55),
+    0 0 30px rgba(56, 189, 248, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.10),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.045);
+
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+/* “More” button lives to the right of the tabs */
+#matchupBar .mi-log-more-btn{
+  position: relative;
+  z-index: 3;
+
+  height: 34px;
+  padding: 0 12px;
+
+  border-radius: 10px;
+  border: 1px solid rgba(148,163,184,0.18);
+  background: rgba(2,6,23,0.30);
+
+  font-size: 12px;
+  font-weight: 850;
+  letter-spacing: 0.06em;
+  opacity: 0.92;
+  cursor: pointer;
+}
+
+#matchupBar .mi-log-more-btn:hover{
+  opacity: 1;
+  border-color: rgba(56,189,248,0.26);
+}
+
+/* Tab hover reads like “selectable history” */
+#matchupBar .mi-log-top3 .mi-log-row:hover{
+  border-color: rgba(56,189,248,0.30);
+  background: rgba(2,6,23,0.40);
+}
+
+/* Compact the internal layout so it reads like a tab */
+#matchupBar .mi-log-top3 .mi-log-tag{
+  margin: 0;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  opacity: 0.75;
+  flex: 0 0 auto;
+}
+
+#matchupBar .mi-log-top3 .mi-log-name,
+#matchupBar .mi-log-top3 .mi-log-mi,
+#matchupBar .mi-log-top3 .mi-log-lean{
+  display: inline;
+}
+
+/* MI numbers: compact, centered */
+#matchupBar .mi-log-top3 .mi-log-mi.a,
+#matchupBar .mi-log-top3 .mi-log-mi.b{
+  font-size: 12px;
+  font-weight: 900;
+  opacity: 0.90;
+}
+
+#matchupBar .mi-log-top3 .mi-log-lean{
+  margin: 0;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  opacity: 0.55;
+  text-transform: uppercase;
+}
+
+/* ==== More dropdown panel (overlay anchored to shelf) ==== */
+#matchupBar .mi-log-more-panel{
+  position: absolute;
+  right: 12px;
+  top: calc(100% + 10px);
+  width: min(860px, calc(100vw - 24px));
+  z-index: 999;
+
+  border-radius: 14px;
+  border: 1px solid rgba(56,189,248,0.22);
+  background: linear-gradient(180deg, rgba(15,23,42,0.95), rgba(2,6,23,0.96));
+  box-shadow:
+    0 28px 70px rgba(0,0,0,0.70),
+    0 0 0 1px rgba(255,255,255,0.05) inset;
+
+  padding: 10px;
+}
+
+/* More list: vertical scroll */
+#matchupBar .mi-log-more-list{
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  max-height: 360px;
+  overflow: auto;
+  padding-right: 6px;
+}
+
+/* Rows inside dropdown: keep your ticker-like detail */
+#matchupBar .mi-log-more-list .mi-log-row{
+  position: relative;
+  display: grid;
+  align-items: center;
+  gap: 6px;
+
+  padding: 8px 10px 8px 54px;
+  border-radius: 10px;
+
+  background: rgba(2,6,23,0.26);
+  border: 1px solid rgba(148,163,184,0.14);
+
+  white-space: nowrap;
+  font-size: 12px;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+#matchupBar .mi-log-more-list .mi-log-row:hover{
+  border-color: rgba(56,189,248,0.24);
+  background: rgba(2,6,23,0.36);
+}
+
+/* Tag pill on the far left */
+#matchupBar .mi-log-more-list .mi-log-tag{
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.10em;
+  opacity: 0.84;
+}
+
+/* Let dropdown rows keep arrows + center lane */
+#matchupBar .mi-log-more-list .mi-log-arrows{
+  display: inline-flex;
+  justify-content: center;
+  gap: 3px;
+  min-width: 56px;
+}
+
+#matchupBar .mi-log-more-list .mi-log-mi{
+  font-weight: 900;
+  opacity: 0.92;
+  text-align: center;
+  min-width: 64px;
+}
+#matchupBar .mi-log-more-list .mi-log-name{
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 850;
+  opacity: 0.94;
+  min-width: 0;
+}
+#matchupBar .mi-log-more-list .mi-log-name.b{ text-align:right; }
+
+/* Mobile: tabs can wrap (still looks like a rail) */
+@media (max-width: 760px){
+  #matchupBar .mi-log-top3{
+    flex-wrap: wrap;
+  }
+  #matchupBar .mi-log-top3 .mi-log-row{
+    max-width: none;
+    flex: 1 1 calc(50% - 10px);
+  }
+}
+
+#matchupBar{
+  position: relative;  /* anchors .mi-matchup-backplate absolute positioning */
+  overflow: visible;   /* prevents the upward-opening shelf from being clipped */
+  margin-bottom: 10px;
+  isolation: isolate;
+}
+
+/* Backplate = the ONE ticker plate (folder-tab mode) */
+#matchupBar .mi-matchup-backplate{
+  position: relative;
+  margin: 0;              /* no overlap / no fusion */
+  padding: 0;             /* mount only */
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  z-index: 2;
+  display: block;
+}
+
+/* When the tab is open, make the dock look like the lower folder section */
+#matchupBar .mi-matchup-backplate.is-open + .mi-matchup-dock{
+  border-top-left-radius: 18px;
+  border-top-right-radius: 18px;
+  border-top: none;
+}
+
+#matchupBar .mi-matchup-backplate > *{
+  position: relative;
+  z-index: 1;
+}
+
+#matchupBar .mi-matchup-dock,
+#matchupBar .matchup-bar-main{
+  position: relative;
+  z-index: 2;
+}
+
+/* New top-row enters like a ticker update (Option A) */
+#matchupBar .mi-log-row.is-new{
+  animation: miLogNewRow 520ms ease both;
+}
+
+@keyframes miLogNewRow{
+  from{ opacity: 0; transform: translateY(10px); }
+  to{ opacity: 1; transform: translateY(0); }
+}
+
+/* Top 3 = VERTICAL stack (ticker tabs) */
+#matchupBar .mi-log-top3{
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 860px;
+  width: 100%;
+  margin: 0 auto;
+  min-width: 0;
+}
+
+/* Each row = fixed-lane ticker layout (LEAN anchored to true center) */
+#matchupBar .mi-log-top3 .mi-log-row{
+  display: grid;
+  align-items: center;
+
+  /* Fixed lanes around the center + flexible team names */
+  grid-template-columns:
+    52px              /* tag (Champ/F4) */
+    minmax(0, 1.25fr) /* name A (flex) */
+    60px              /* MI A (fixed) */
+    52px              /* arrows left (fixed) */
+    84px              /* LEAN (fixed, true center lane) */
+    52px              /* arrows right (fixed) */
+    60px              /* MI B (fixed) */
+    minmax(0, 1.25fr)   /* name B (flex) */
+    52px;             /* RIGHT SPACER (balances tag so LEAN is true center) */
+
+  column-gap: 0;
+
+  height: 34px;
+  padding: 6px 10px;
+  border-radius: 12px;
+
+  background: rgba(2,6,23,0.34);
+  border: 1px solid rgba(56,189,248,0.20);
+  box-shadow:
+    0 10px 22px rgba(0,0,0,0.42),
+    0 0 0 1px rgba(255,255,255,0.04) inset;
+
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+/* Controlled lane spacing for symmetry */
+#matchupBar .mi-log-top3 .mi-log-row > *{
+  padding-inline: 6px;
+}
+
+/* Slightly tighter around numeric lanes */
+#matchupBar .mi-log-top3 .mi-log-row > :nth-child(3),
+#matchupBar .mi-log-top3 .mi-log-row > :nth-child(7){
+  padding-inline: 4px;
+}
+
+/* Slightly more air around team names */
+#matchupBar .mi-log-top3 .mi-log-row > :nth-child(2),
+#matchupBar .mi-log-top3 .mi-log-row > :nth-child(8){
+  padding-inline: 8px;
+}
+
+/* Lane assignments */
+#matchupBar .mi-log-top3 .mi-log-tag{ grid-column: 1; opacity: 0.75; font-size: 10px; font-weight: 900; letter-spacing: .12em; }
+
+#matchupBar .mi-log-top3 .mi-log-name.a{ grid-column: 2; text-align: right; overflow: hidden; text-overflow: ellipsis; }
+#matchupBar .mi-log-top3 .mi-log-name.b{ grid-column: 8; text-align: left;  overflow: hidden; text-overflow: ellipsis; }
+
+#matchupBar .mi-log-top3 .mi-log-mi.a{ grid-column: 3; text-align: right; font-weight: 900; }
+#matchupBar .mi-log-top3 .mi-log-mi.b{ grid-column: 7; text-align: left;  font-weight: 900; }
+
+#matchupBar .mi-log-top3 .mi-log-arrows.left { grid-column: 4; text-align: center; opacity: 0.55; }
+#matchupBar .mi-log-top3 .mi-log-lean        { grid-column: 5; text-align: center; font-weight: 900; letter-spacing: .14em; opacity: 0.60; text-transform: uppercase; }
+#matchupBar .mi-log-top3 .mi-log-arrows.right{ grid-column: 6; text-align: center; opacity: 0.55; }
+
+#matchupBar .mi-log-top3 .mi-log-arrows.left,
+#matchupBar .mi-log-top3 .mi-log-arrows.right{
+  text-align: center;
+  letter-spacing: 0;   /* critical: prevents 2 arrows from ‘stretching’ */
+  word-spacing: 0;     /* safety */
+  font-variant-ligatures: none; /* prevents glyph/ligature weirdness */
+  white-space: nowrap;
+}
+
+#matchupBar .mi-log-top3 .mi-log-arrows.left,
+#matchupBar .mi-log-top3 .mi-log-arrows.right{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 2px;            /* consistent spacing between arrows */
+}
+
+/* Safety: prevent any child from forcing width */
+#matchupBar .mi-log-top3 .mi-log-row > *{ min-width: 0; }
+
+/* Kill the “stem” — it adds height + makes them feel like tiles */
+#matchupBar .mi-log-top3 .mi-log-row::after{
+  content: none;
+}
+
+/* Ticker: keep internals on one line */
+#matchupBar .mi-log-top3 .mi-log-tag{
+  margin: 0;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  opacity: 0.75;
+  flex: 0 0 auto;
+}
+
+/* Stop forcing vertical layout */
+#matchupBar .mi-log-top3 .mi-log-name,
+#matchupBar .mi-log-top3 .mi-log-mi,
+#matchupBar .mi-log-top3 .mi-log-lean{
+  display: inline;
+}
+
+/* Names: compact, truncate */
+#matchupBar .mi-log-top3 .mi-log-name.a,
+#matchupBar .mi-log-top3 .mi-log-name.b{
+  font-size: 12px;
+  min-width: 0;
+  font-weight: 850;
+  opacity: 0.95;
+  max-width: none;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* MI + Lean: compact “right side” readout */
+#matchupBar .mi-log-top3 .mi-log-mi.a,
+#matchupBar .mi-log-top3 .mi-log-mi.b{
+  font-size: 12px;
+  font-weight: 900;
+  opacity: 0.90;
+}
+
+#matchupBar .mi-log-top3 .mi-log-lean{
+  margin: 0;
+  font-size: 14px;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  opacity: 0.90;
+  text-transform: uppercase;
+}
+
+#matchupBar #miLogTop3.mi-log-top3{
+  display: flex;
+  flex-direction: column;
+}
+
+/* TEMP: disable “More” until placement is decided */
+#matchupBar #miLogMoreBtn,
+#matchupBar #miLogMorePanel{
+  display: none !important;
+}
+
+/* The mount point must NOT look like a plate */
+#matchupBar #miLogTop3.mi-log-top3{
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  margin: 0 auto !important;
+}
+
+#matchupBar #miLogTop3.mi-log-top3::before,
+#matchupBar #miLogTop3.mi-log-top3::after{
+  content: none !important;
+}
+
+/* =========================================================
+   FORCE: log mount is neutral + in-flow (no overlap panel)
+   ========================================================= */
+#matchupBar .mi-matchup-backplate{
+  position: relative !important;
+  margin: 0 !important;          /* <-- kills the -12px overlap */
+  padding: 0 !important;
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+/* =========================================================
+   MATCHUP BAR WRAPPER — MUST BE NEUTRAL (the dock is the plate)
+   ========================================================= */
+#matchupBar.matchup-bar{
+  background: transparent !important;
+  background-image: none !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+/* =========================================================
+   MATCHUP CONTROLS — PRIMARY BLUE PLATE
+   ========================================================= */
+#matchupBar .mi-matchup-dock.card{
+  background:
+    radial-gradient(120% 140% at 20% 0%, rgba(56,189,248,0.12), transparent 60%),
+    linear-gradient(180deg, rgba(15,23,42,0.94), rgba(2,6,23,0.96));
+
+  border: 1px solid rgba(148,163,184,0.30);
+  border-radius: 18px;
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.06),
+    0 18px 44px rgba(0,0,0,0.65),
+    0 0 26px rgba(56,189,248,0.18);
+  padding: 6px 4px 6px;
+}
+
+/* =========================================================
+   Cohesion pass: make top-3 feel like an extension of the dock
+   (no new plates; just flatten + seam)
+   ========================================================= */
+
+/* Tighten the “stack” so it reads like one system */
+#matchupBar .mi-log-top3{
+  gap: 6px;                 /* was 8px */
+  margin: 0 auto 8px;       /* creates a deliberate seam space above the dock */
+}
+
+/* Make each log row feel like ticker ink (less “button tile”) */
+#matchupBar .mi-log-top3 .mi-log-row{
+  background: rgba(2,6,23,0.22);             /* slightly flatter */
+  border-color: rgba(148,163,184,0.16);      /* closer to dock edge */
+  box-shadow: none;                          /* key: remove independent “card” lift */
+  border-radius: 12px;                       /* slightly tighter than the dock */
+}
+
+/* When the shelf is present, make the dock accept the seam */
+#matchupBar .mi-matchup-backplate.is-open + .mi-matchup-dock.card{
+  border-top: 0;                             /* removes “double border” */
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.06),    /* keep your existing dock feel */
+    0 18px 44px rgba(0,0,0,0.65),
+    0 0 26px rgba(56,189,248,0.18),
+    0 -1px 0 rgba(148,163,184,0.14) inset;   /* subtle seam stitch */
+}
+
+/* Optional micro-fuse: make the bottom row corners match the dock’s top silhouette */
+#matchupBar .mi-log-top3 .mi-log-row:last-child{
+  border-bottom-left-radius: 14px;
+  border-bottom-right-radius: 14px;
+}
+
+/* =========================================================
+   Shelf cohesion: single unified outline + cap seam stitch
+   (no new plates; outline sits behind existing layers)
+   ========================================================= */
+
+/* =========================================================
+   Trapezoid cap outline (diagonal sides) — shelf cohesion
+   No JS hooks needed. No new plate layers.
+   ========================================================= */
+
+#matchupBar .mi-matchup-backplate{
+  position: relative;     /* anchor the cap */
+  isolation: isolate;     /* keeps z-index sane */
+  overflow: visible;
+}
+
+/* The trapezoid outline sits behind the log rows */
+#matchupBar .mi-matchup-backplate::before{
+  content: "";
+  position: absolute;
+
+  /* expand slightly beyond the shelf area */
+  left: 10px;
+  right: 10px;
+  top: -10px;
+  bottom: -2px;
+
+  /* A gentle trapezoid: wide top, narrower bottom */
+  clip-path: polygon(
+    3% 38%,   /* left “shoulder” */
+    12% 0%,   /* left top corner (pulled inward) */
+    88% 0%,   /* right top corner */
+    97% 38%,  /* right “shoulder” */
+    97% 100%, /* right bottom */
+    3% 100%   /* left bottom */
+  );
+
+  /* Invisible fill (just enough alpha to allow drop-shadow to render) */
+  background: rgba(2,6,23,0.22);
+
+  /* Glow that follows the clip-path (prevents “rounded rectangle” ghost) */
+  filter:
+    drop-shadow( 1px  0px 0 rgba(148,163,184,0.22))
+    drop-shadow(-1px  0px 0 rgba(148,163,184,0.22))
+    drop-shadow( 0px  1px 0 rgba(148,163,184,0.18))
+    drop-shadow( 0px -1px 0 rgba(148,163,184,0.14))
+    drop-shadow(0 0 22px rgba(56,189,248,0.12));
+
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Ensure actual shelf content stays above the cap */
+#matchupBar .mi-matchup-backplate > *{
+  position: relative;
+  z-index: 1;
+}
+
+/* Kill any leftover “unified outline” plate on the matchupBar.
+   The ONLY silhouette should be the trapezoid on .mi-matchup-backplate. */
+#matchupBar.has-shelf::before,
+#matchupBar.has-shelf::after{
+  content: none !important;
+  display: none !important;
+}
+
+/* =========================================================
+   Matchup log strength arrows (revived, broadcast-safe)
+   ========================================================= */
+.mi-log-arrows{
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  opacity: 0.95;
+}
+
+.mi-log-arrows.left{  justify-content: flex-end; }
+.mi-log-arrows.right{ justify-content: flex-start; }
+
+/* Actual arrow element produced by JS */
+.mi-log-arrows .mi-log-arrow{
+  width: 16px;
+  height: 10px;
+  display: inline-block;
+  position: relative;
+}
+
+/* TRIANGLE (points right by default) */
+.mi-log-arrows .mi-log-arrow::before{
+  content: "";
+  position: absolute;
+  inset: 0;
+
+  /* right-pointing triangle */
+  clip-path: polygon(
+    0% 0%,
+    100% 50%,
+    0% 100%
+  );
+
+  background: rgba(34, 197, 94, 0.82);
+  box-shadow: 0 0 14px rgba(34,197,94,0.34);
+}
+
+.mi-log-arrows.left  .mi-log-arrow::before{ transform: rotate(180deg); }
+.mi-log-arrows.right .mi-log-arrow::before{ transform: none; }
+
+/* Strength ladder: keep green, just increase intensity */
+.mi-log-arrows .mi-log-arrow:nth-child(2)::before{
+  background: rgba(34, 197, 94, 0.90);
+  box-shadow: 0 0 16px rgba(34,197,94,0.38);
+}
+
+.mi-log-arrows .mi-log-arrow:nth-child(3)::before{
+  background: rgba(34, 197, 94, 0.98);
+  box-shadow: 0 0 18px rgba(34,197,94,0.46);
+}
+
+.mi-log-arrows .mi-log-arrow:nth-child(4)::before{
+  background: rgba(34, 197, 94, 1.00);
+  box-shadow: 0 0 22px rgba(34,197,94,0.56);
+}
+
+/* LOCK arrow unit sizing so count = strength (no stretching) */
+#matchupBar .mi-log-top3 .mi-log-arrows.left,
+#matchupBar .mi-log-top3 .mi-log-arrows.right{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;              /* fixed spacing between arrows */
+}
+
+#matchupBar .mi-log-top3 .mi-log-arrows .mi-log-arrow{
+  flex: 0 0 auto;        /* <-- THIS is the big one: prevents “2 arrows get bigger” */
+  width: 10px;           /* hard-lock arrow box */
+  height: 10px;
+  line-height: 10px;
+  display: inline-block;
+}
+
+#matchupBar .mi-log-top3 .mi-log-arrows .mi-log-arrow::before{
+  display: block;
+  width: 10px;           /* match the box */
+  height: 10px;
+  line-height: 10px;
+  font-size: 10px;       /* if your arrows are font glyphs in ::before */
+}
+
+/* Position the reused matchup-kicker as the log label */
+#matchupBar .mi-matchup-backplate .mi-log-label.matchup-kicker{
+  position: relative;     /* overrides absolute positioning used in controls */
+  left: auto;
+  right: auto;
+  top: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 6px auto;
+  width: fit-content;
+  text-align: center;
+  z-index: 1;
+}
+
+/* ==========================================
+   KICKER SKIN — force reuse (does not rely on class being present)
+   ========================================== */
+#matchupBar .matchup-controls-label,
+#matchupBar .mi-log-label,
+#interactionsSection .legend-header--interactions .int-console-pill.interactions-header-pill{
+  font-size: 14px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-weight: 850;
+  line-height: 1;
+
+  color: rgba(249,246,238,0.9);
+  background-color: rgba(3, 7, 18, 0.55);
+  border: 1px solid rgba(148,163,184,0.18);
+  border-radius: 12px;
+
+  padding: 10px 12px;
+  margin: 0;
+  white-space: nowrap;
+
+  box-shadow:
+    0 10px 22px rgba(0,0,0,0.45),
+    inset 0 1px 0 rgba(255,255,255,0.06),
+    inset 0 0 0 1px rgba(255,255,255,0.03);
+  text-shadow: 0 1px 0 rgba(0,0,0,0.35);
+
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Keep your log label centered (kicker skin shouldn't reposition it) */
+#matchupBar .mi-log-label:not(.matchup-kicker){
+  width: 100%;
+  text-align: center;
+  background: transparent;    /* optional: comment this out if you want the pill background */
+  border-color: transparent;  /* optional */
+  box-shadow: none;           /* optional */
+  backdrop-filter: none;      /* optional */
+  -webkit-backdrop-filter: none;
 }
 
 /* ========== ANALYSIS SHELL (HIDE UNTIL MATCHUP RUNS) ========== */
@@ -3421,11 +4170,11 @@ select:focus {
 
 /* HERO: reduce height/air */
 .app-shell.pre-matchup .app-header.enhanced-header{
-  padding: var(--pm-hero-pad) !important;
   min-height: 0 !important;
 }
+
 .app-shell.pre-matchup .hero-logo-wrap{
-  margin-bottom: 10px !important;
+  margin-bottom: 1px !important;
 }
 .app-shell.pre-matchup .hero-text-wrap{
   gap: 6px !important;
@@ -3434,7 +4183,7 @@ select:focus {
   margin: 6px 0 6px !important;
 }
 .app-shell.pre-matchup .hero-tagline{
-  margin: 0 0 6px !important;
+  margin: 0 0 1px !important;
 }
 
 /* STATUS BAR: tuck it closer */
@@ -3599,7 +4348,7 @@ select:focus {
   gap: 0;                 /* remove spacing so rows feel connected */
   border: 1px solid rgba(148, 163, 184, 0.16);
   border-radius: 14px;
-  overflow: hidden;
+  overflow: visible;
   background: rgba(15, 23, 42, 0.35);
 }
 
@@ -3648,6 +4397,240 @@ select:focus {
 .controls-card.is-primary-entry .file-label.file-label--manual{
   height: 42px;
   min-height: 42px;
+}
+
+/* ================================
+   Searchable Team Dropdown (custom panel, drives native <select>)
+   ================================ */
+
+.mi-team-dd {
+  position: relative;
+  width: 100%;
+}
+
+.mi-team-dd-btn {
+  width: 100%;
+  height: 34px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(148,163,184,0.32);
+  background: rgba(2,6,23,0.55);
+  color: rgba(226,232,240,0.92);
+  font-size: 12px;
+  letter-spacing: 0.02em;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.mi-team-dd-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(56,189,248,0.18);
+}
+
+.mi-team-dd-btn .mi-chev {
+  opacity: 0.75;
+  transform: translateY(0.5px);
+}
+
+.mi-team-dd-search {
+  width: 100%;
+  height: 36px;
+  padding: 0 12px;
+  border: 0;
+  outline: none;
+  background: rgba(15,23,42,0.70);
+  color: rgba(226,232,240,0.92);
+  font-size: 12px;
+  border-bottom: 1px solid rgba(148,163,184,0.18);
+}
+
+.mi-team-dd-list {
+  max-height: 248px;
+  overflow: auto;
+  padding: 6px;
+}
+
+.mi-team-dd .mi-team-dd-panel::before{
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 38px; /* start below the search strip */
+  height: 18px;
+  pointer-events: none;
+  background: linear-gradient(
+    to bottom,
+    rgba(2,6,23,0.85),
+    rgba(2,6,23,0)
+  );
+  opacity: 0.35;
+}
+
+.mi-team-dd .mi-team-dd-search{
+  background: linear-gradient(180deg, rgba(30,41,59,0.92), rgba(15,23,42,0.85));
+  border-bottom: 1px solid rgba(148,163,184,0.22);
+  box-shadow: 0 1px 0 rgba(255,255,255,0.05) inset;
+  color: rgba(226,232,240,0.94);
+  height: 38px;
+  min-height: 38px;
+  flex: 0 0 auto;
+  line-height: 38px;
+}
+
+/* Bottom fade cue (broadcast ticker style) */
+.mi-team-dd .mi-team-dd-panel::after{
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 34px;
+  pointer-events: none;
+  background: linear-gradient(
+    to bottom,
+    rgba(2,6,23,0),
+    rgba(2,6,23,0.92)
+  );
+}
+
+.mi-team-dd-item {
+  width: 100%;
+  text-align: left;
+  border: 0;
+  background: transparent;
+  color: rgba(226,232,240,0.92);
+  font-size: 12px;
+  padding: 9px 10px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.mi-team-dd-item:hover,
+.mi-team-dd-item.is-active {
+  background: rgba(56,189,248,0.12);
+}
+
+.mi-team-dd-item mark {
+  background: rgba(251,191,36,0.18);
+  color: rgba(226,232,240,0.98);
+  padding: 0 2px;
+  border-radius: 4px;
+}
+
+.mi-team-dd .mi-team-dd-search::placeholder{
+  color: rgba(148,163,184,0.70);
+}
+
+/* ================================
+   Team dropdown: clarity + contrast pass
+   ================================ */
+
+.mi-team-dd .mi-team-dd-panel{
+  position: absolute;
+  z-index: 9999;
+  top: calc(100% + 8px);
+  left: 0;
+  width: 100%;
+
+  border-radius: 14px;
+  overflow: hidden;
+
+  /* plate */
+  background: linear-gradient(180deg, rgba(15,23,42,0.94), rgba(2,6,23,0.94));
+  border: 1px solid rgba(56,189,248,0.26);
+  box-shadow:
+    0 22px 60px rgba(0,0,0,0.68),
+    0 0 0 1px rgba(255,255,255,0.05) inset,
+    0 0 26px rgba(56,189,248,0.10);
+
+  /* sizing + layout */
+  max-height: min(360px, calc(100vh - 220px));
+  display: flex;
+  flex-direction: column;
+}
+
+/* Search "header strip" that reads as a control surface */
+.mi-team-dd .mi-team-dd-search{
+  background: linear-gradient(180deg, rgba(30,41,59,0.92), rgba(15,23,42,0.85));
+  border-bottom: 1px solid rgba(148,163,184,0.22);
+  box-shadow: 0 1px 0 rgba(255,255,255,0.05) inset;
+  color: rgba(226,232,240,0.94);
+}
+
+.mi-team-dd .mi-team-dd-search::placeholder{
+  color: rgba(148,163,184,0.70);
+}
+
+/* List area gets a tiny inner frame so it reads as "menu" */
+.mi-team-dd .mi-team-dd-list{
+  padding: 8px;
+  background: radial-gradient(120% 120% at 20% 0%, rgba(56,189,248,0.07), transparent 60%);
+  flex: 1 1 auto;
+  min-height: 0;
+  max-height: none;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* Rows: add faint separators + stronger hover to signal interactivity */
+.mi-team-dd .mi-team-dd-item{
+  position: relative;
+  border-radius: 10px;
+  transition: background-color 140ms ease, transform 140ms ease;
+}
+
+.mi-team-dd .mi-team-dd-item::after{
+  content: "";
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  bottom: -3px;
+  height: 1px;
+  background: rgba(148,163,184,0.10);
+  pointer-events: none;
+}
+
+.mi-team-dd .mi-team-dd-item:hover,
+.mi-team-dd .mi-team-dd-item.is-active{
+  background: rgba(56,189,248,0.16);
+  transform: translateY(-0.5px);
+}
+
+/* Slight "selected candidate" emphasis when navigating with keys */
+.mi-team-dd .mi-team-dd-item.is-active{
+  box-shadow:
+    0 0 0 1px rgba(56,189,248,0.22) inset,
+    0 10px 18px rgba(0,0,0,0.28);
+}
+
+/* Scrollbar theming (prevents the big white gutter on Windows) */
+.mi-team-dd .mi-team-dd-list{
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148,163,184,0.42) rgba(2,6,23,0.20);
+}
+
+.mi-team-dd .mi-team-dd-list::-webkit-scrollbar{
+  width: 10px;
+}
+.mi-team-dd .mi-team-dd-list::-webkit-scrollbar-track{
+  background: rgba(2,6,23,0.20);
+  border-radius: 999px;
+}
+.mi-team-dd .mi-team-dd-list::-webkit-scrollbar-thumb{
+  background: rgba(148,163,184,0.42);
+  border-radius: 999px;
+  border: 2px solid rgba(2,6,23,0.35);
+}
+.mi-team-dd .mi-team-dd-list::-webkit-scrollbar-thumb:hover{
+  background: rgba(56,189,248,0.34);
+}
+
+/* Hard guarantee: hidden panels never render (must be last) */
+.mi-team-dd .mi-team-dd-panel[hidden]{
+  display: none !important;
 }
 
 /* =========================================
@@ -3739,7 +4722,7 @@ select:focus {
 /* Make the OUTER card be the unified container */
 .pre-setup-row #matchupSetupCard{
   padding: 0 !important;          /* removes the extra outer padding that creates the "frame" */
-  overflow: hidden;               /* so row borders clip cleanly */
+  overflow: visible;               /* so row borders clip cleanly */
 }
 
 /* Flatten the INNER wrapper so it doesn't look like a second card */
@@ -3925,6 +4908,10 @@ button,
   background:
     radial-gradient(140% 140% at 50% -25%, rgba(56, 189, 248, 0.14), transparent 65%),
     var(--mi-grad-card);
+}
+
+#preMatchupHub {
+  overflow: visible;
 }
 
 /* =========================================
@@ -4679,7 +5666,7 @@ button,
    v3.5 — Interactions header pills (ONLY)
    ===================================== */
 
-#interactionsSection .legend-header--interactions .interactions-header-pill{
+#interactionsSection .legend-header--interactions .interactions-header-pill:not(.matchup-kicker){
   /* Keep your existing sizing — only polish */
   border-radius: var(--mi-radius-pill);
 
@@ -4707,7 +5694,7 @@ button,
 }
 
 /* Subtle top highlight band so they feel “anchored” */
-#interactionsSection .legend-header--interactions .interactions-header-pill::before{
+#interactionsSection .legend-header--interactions .interactions-header-pill:not(.matchup-kicker)::before{
   content:"";
   position: absolute;
   inset: 1px 10px auto 10px;
@@ -4718,8 +5705,24 @@ button,
 }
 
 /* Ensure ::before positions correctly */
-#interactionsSection .legend-header--interactions .interactions-header-pill{
+#interactionsSection .legend-header--interactions .interactions-header-pill:not(.matchup-kicker){
   position: relative;
+}
+
+/* Reuse matchup-kicker styling for interaction header pills (without the matchup-bar positioning) */
+#result .interactions-head .int-console-pill.matchup-kicker{
+  position: relative;
+  top: auto;
+  left: auto;
+  right: auto;
+  bottom: auto;
+
+  display: flex;           /* keep your pill alignment */
+  align-items: center;
+  justify-content: center;
+
+  margin: 0;               /* let the header layout control spacing */
+  transform: none;         /* if matchup-kicker uses transforms */
 }
 
 /* Profile Marks — Empty State */
@@ -5243,57 +6246,9 @@ button,
     0 0 var(--mi-v-blur) rgba(var(--mi-verdict-rgb), var(--mi-v-alpha));
 
   transition: box-shadow 0.3s ease;
-}
-
-/* glass + drift sheen */
-#verdictShell::before{
-  content:"";
-  position:absolute;
-  inset:0;
-  background:
-    radial-gradient(900px 260px at 50% 0%,
-      rgba(var(--mi-verdict-rgb), 0.18),
-      rgba(0,0,0,0) 60%),
-    linear-gradient(180deg,
-      rgba(255,255,255,0.06),
-      rgba(255,255,255,0.00) 38%);
-  background-size: 120% 120%, 100% 100%;
-  background-position: 50% 0%, 0% 0%;
-  animation: miVerdictDrift 11s ease-in-out infinite alternate;
-  pointer-events:none;
-}
-
-/* scanline breath (subtle) */
-#verdictShell::after{
-  content:"";
-  position:absolute;
-  inset:-2px;
-  background: repeating-linear-gradient(
-    180deg,
-    rgba(255,255,255,0.035) 0px,
-    rgba(255,255,255,0.035) 1px,
-    rgba(255,255,255,0.00) 3px,
-    rgba(255,255,255,0.00) 7px
-  );
-  opacity: 0.20;
-  animation: miScanBreath 6.5s ease-in-out infinite;
-  mix-blend-mode: overlay;
-  pointer-events:none;
-}
-
-/* Left accent rail (kept, but not “sidebar-y”) */
-#verdictShell .mi-verdict-shell-inner::before{
-  content:"";
-  position:absolute;
-  left: 10px;
-  top: 12px;
-  bottom: 12px;
-  width: 2px;
-  border-radius: 999px;
-  background: linear-gradient(180deg,
-    rgba(var(--mi-verdict-rgb), 0.92),
-    rgba(var(--mi-verdict-rgb), 0.18));
-  opacity: 0.55;
+  z-index: 10;
+  margin-top: 18px;
+  padding-top: 18px;
 }
 
 /* “Hit” sheen (JS toggles .mi-verdict-hit) */
@@ -5526,7 +6481,6 @@ button,
   color: rgba(148,163,184,0.90);
 }
 
-
 /* ================================
    Lean tiers + winner hue (existing JS hooks)
    ================================ */
@@ -5641,14 +6595,6 @@ button,
    Paste at VERY BOTTOM of styles2.css
    ========================================================= */
 
-/* 1) Shell becomes a simple 2-row stack: (content) + (cta) */
-#verdictShell .mi-verdict-shell-inner{
-  display: flex;
-  flex-direction: column;
-  gap: 16px;               /* spacing between content and CTA row */
-  padding-bottom: 18px;    /* undo the huge bottom pad used for floating */
-}
-
 /* 2) Undo the “absolute floating bar” so it can’t overlap anything */
 #verdictShell .mi-verdict-actions.mi-verdict-actions-rail{
   position: static !important;
@@ -5724,39 +6670,44 @@ button,
 
 /* glass + sheen + scanline */
 #verdictShell::before{
-  content:"";
+  content: none;
+  display: none;
   position:absolute;
-  inset:0;
-  background:
-    radial-gradient(980px 280px at 50% 0%,
-      rgba(var(--mi-verdict-rgb), 0.20),
-      rgba(0,0,0,0) 62%),
-    linear-gradient(180deg,
-      rgba(255,255,255,0.07),
-      rgba(255,255,255,0.00) 42%);
-  pointer-events:none;
+  top: 12px;
+  bottom: 12px;
+  left: 12px;
+  width: 3px;
 
-  /* restrained “alive” drift */
-  background-size: 120% 120%, 100% 100%;
-  background-position: 50% 0%, 0% 0%;
-  animation: miVerdictDrift 11s ease-in-out infinite alternate;
+  border-radius: 3px;
+  background: rgba(249,115,22,0.40); /* orange, toned down */
+  opacity: 0.55;
+
+  pointer-events:none;
 }
 
+/* glass sheen (separate layer so it doesn’t fight the accent bar) */
 #verdictShell::after{
   content:"";
   position:absolute;
-  inset:-2px;
-  background: repeating-linear-gradient(
-    180deg,
-    rgba(255,255,255,0.035) 0px,
-    rgba(255,255,255,0.035) 1px,
-    rgba(255,255,255,0.00) 3px,
-    rgba(255,255,255,0.00) 7px
-  );
-  opacity: 0.18;
-  mix-blend-mode: overlay;
+  inset:0;
+  border-radius: inherit;
+
+  background:
+    radial-gradient(980px 280px at 50% 0%,
+      rgba(148,163,184, 0.10),
+      rgba(0,0,0,0) 62%),
+    linear-gradient(180deg,
+      rgba(255,255,255,0.03),
+      rgba(255,255,255,0.00) 42%);
+
   pointer-events:none;
-  animation: miScanBreath 6.5s ease-in-out infinite;
+
+  /* restrained drift */
+  background-size: 120% 120%, 100% 100%;
+  background-position: 50% 0%, 0% 0%;
+  animation: miVerdictDrift 11s ease-in-out infinite alternate;
+
+  opacity: 0.40; /* <- this is the “tone down” lever */
 }
 
 @keyframes miVerdictDrift{
@@ -5766,26 +6717,6 @@ button,
 @keyframes miScanBreath{
   0%,100% { opacity: 0.16; }
   50%     { opacity: 0.23; }
-}
-
-/* inner frame + accent rail */
-#verdictShell .mi-verdict-shell-inner{
-  position: relative;
-  padding: 18px 18px 14px;
-}
-
-#verdictShell .mi-verdict-shell-inner::before{
-  content:"";
-  position:absolute;
-  left: 0;
-  top: 12px;
-  bottom: 12px;
-  width: 3px;
-  border-radius: 999px;
-  background: linear-gradient(180deg,
-    rgba(var(--mi-verdict-rgb), 0.95),
-    rgba(var(--mi-verdict-rgb), 0.18));
-  opacity: 0.88;
 }
 
 /* Top row: brand + score module */
@@ -6002,12 +6933,6 @@ button,
    - No rail placement, no floating/overlap hacks
    ========================================================= */
 
-#verdictShell .mi-verdict-shell-inner{
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
 /* Row 2: CTA band sits directly under the grid */
 #verdictShell .mi-verdict-shell-inner > .mi-verdict-actions.mi-verdict-actions-rail{
   position: static !important;
@@ -6193,13 +7118,6 @@ button,
    VERDICT — DENSITY + CLEAR SECTION EDGES (final polish)
    Goal: reduce dead space + make internal sections obvious
    ========================================================= */
-
-/* 1) Overall density: tighten vertical padding + internal gaps */
-#verdictShell .mi-verdict-shell-inner{
-  padding-top: 12px;
-  padding-bottom: 12px;
-  gap: 12px; /* was roomier; this removes “ballroom” feeling */
-}
 
 #verdictShell .mi-verdict-grid{
   display: grid;
@@ -6528,6 +7446,94 @@ button,
 }
 
 /* =========================================================
+   VERDICT SHELL — De-seam / De-line pass (clean borders + space)
+   Paste at END of styles2.css
+   ========================================================= */
+
+
+
+/* 2) Normalize the verdict shell to ONE neutral border + ONE shadow system */
+#verdictShell{
+  border-radius: 18px;
+  border: 1px solid rgba(148,163,184,0.26) !important;   /* neutral slate */
+  background: rgba(7,10,18,0.92) !important;
+
+  /* remove colored glows that read as orange seams */
+  box-shadow:
+    0 18px 44px rgba(0,0,0,0.55),
+    inset 0 1px 0 rgba(255,255,255,0.05) !important;
+
+  /* separation should come from spacing, not dividers */
+  padding-top: 0 !important;
+}
+
+/* 3) Remove “section divider lines” inside the verdict shell that often come from borders */
+#verdictShell hr,
+#verdictShell .divider,
+#verdictShell .mi-divider,
+#verdictShell .rule,
+#verdictShell .mi-rule{
+  display: none !important;
+  border: 0 !important;
+  height: 0 !important;
+}
+
+/* 4) If there’s a vertical seam between left/right columns, kill it */
+#verdictShell .mi-verdict-grid,
+#verdictShell .verdict-grid{
+  background-image: none !important;
+}
+
+#verdictShell .mi-verdict-left,
+#verdictShell .mi-verdict-right,
+#verdictShell .verdict-left,
+#verdictShell .verdict-right{
+  border-left: none !important;
+  border-right: none !important;
+}
+
+/* 5) Ensure the gap above the verdict shell is purely spacing (no orange line) */
+#verdictShell{
+  margin-top: 18px !important;
+}
+
+/* =========================================================
+   VERDICT SHELL — INNER CONTENT WRAPPER (single source of truth)
+   ========================================================= */
+
+#verdictShell .mi-verdict-shell-inner{
+  position: relative;            /* anchors ::before accent */
+  display: flex;
+  flex-direction: column;
+
+  padding: 12px 16px;            /* controlled, not “ballroom” */
+  gap: 12px;
+
+  border-radius: 14px;           /* subtle inner plate feel */
+}
+
+/* LEFT ACCENT BAR — intentional, full-height, restrained */
+#verdictShell .mi-verdict-shell-inner::before{
+  content:"";
+  position:absolute;
+
+  left: 10px;
+  top: 12px;
+  bottom: 12px;
+  width: 3px;
+
+  border-radius: 999px;
+  background: linear-gradient(
+    180deg,
+    rgba(var(--mi-verdict-rgb), 0.70),
+    rgba(var(--mi-verdict-rgb), 0.10)
+  );
+
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+/* =========================================================
    MOBILE FIXES — POST MATCHUP (Scorecards)
    Goal: stop the crushed/tiny text look on phones.
 ========================================================= */
@@ -6741,7 +7747,7 @@ button,
   line-height: 1.06;
   font-weight: 880;
   letter-spacing: -0.02em;
-  color: rgba(248,250,252,0.97);
+  color: rgba(249,246,238,0.9);
   text-wrap: balance;
 }
 
@@ -6751,7 +7757,7 @@ button,
   line-height: 1.34;
   font-weight: 560;
   letter-spacing: -0.005em;
-  color: rgba(226,232,240,0.86);
+  color: rgba(249,246,238,0.9);
   max-width: 62ch; /* keeps long second sentences from feeling like a wall */
 }
 
@@ -6892,8 +7898,8 @@ button,
 .mi-scorebug-kicker::after{
   content: "";
   display: block;
-  width: 56px;
-  height: 56px;
+  width: 125px;
+  height: 125px;
   border-radius: 14px;
 
   background-color: rgba(3, 7, 18, 0.72);
@@ -6931,6 +7937,78 @@ button,
     inset 0 0 0 1px rgba(255,255,255,0.02),
     0 20px 48px rgba(0,0,0,0.65),
     0 0 0 1px rgba(148,163,184,0.08);
+}
+
+
+
+/* Edit button = mode switch */
+#editMatchupBtn.matchup-bar-edit{
+  border: 1px solid rgba(129,140,248,0.42);
+  background: rgba(2,6,23,0.22);
+  color: rgba(199,210,254,0.95);
+
+  padding: 7px 12px;
+  border-radius: 999px;
+
+  font-weight: 850;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+
+  transition:
+    transform 140ms ease,
+    background 160ms ease,
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    opacity 160ms ease;
+}
+
+#editMatchupBtn.matchup-bar-edit:hover{
+  border-color: rgba(129,140,248,0.74);
+  background: rgba(30,64,175,0.20);
+  box-shadow: 0 0 0 3px rgba(129,140,248,0.12);
+  transform: translateY(-1px);
+}
+
+#editMatchupBtn.matchup-bar-edit:active{
+  transform: translateY(0px) scale(0.99);
+  opacity: 0.92;
+}
+
+/* ================================
+   Pre-Matchup Round Dropdown Fix
+   ================================ */
+
+#roundDropdown {
+  min-width: 220px;          /* restore readable width */
+  max-width: 260px;
+  padding: 6px 0;
+  max-height: 260px;         /* allow full list */
+  overflow-y: auto;
+  border-radius: 12px;
+}
+
+/* Individual round options */
+#roundDropdown .round-option {
+  padding: 10px 14px;        /* restore touch-friendly height */
+  font-size: 14px;
+  line-height: 1.3;
+  white-space: nowrap;
+}
+
+/* Hover / active clarity */
+#roundDropdown .round-option:hover {
+  background: rgba(255,255,255,0.06);
+}
+
+/* Ensure dropdown is not clipped by parent */
+.round-select-wrap,
+#roundSelectorWrap {
+  overflow: visible;
+}
+
+/* TEMP: hide footer (v3.7) */
+#appFooter{
+  display: none;
 }
 
 /* =========================================================
