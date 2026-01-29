@@ -254,7 +254,7 @@
 
       <!-- LEFT: CINDERELLA -->
       <div class="matchup-bar-left">
-        <span class="matchup-bar-label">Cinderella</span>
+        <span id="matchupRoleA" class="matchup-bar-label">Cinderella</span>
         <div class="matchup-bar-team">
           <span id="matchupCinderName">Team A</span>
           <span id="matchupCinderSeed" class="matchup-bar-seed"></span>
@@ -265,7 +265,7 @@
       <!-- CENTER -->
       <div class="matchup-bar-center">
         <div class="matchup-bar-vs">vs</div>
-        <span id="matchupRoundPill" class="summary-round-pill matchup-bar-round">Round of 64</span>
+        <span id="matchupRoundPill" class="summary-round-pill matchup-bar-round">Round</span>
         <button id="editMatchupBtn" class="matchup-bar-edit" type="button">Edit matchup ▾</button>
         <div id="matchupQuickRound" class="matchup-quick-slot matchup-quick-round" aria-hidden="true"></div>
 
@@ -277,7 +277,7 @@
 
       <!-- RIGHT: FAVORITE -->
       <div class="matchup-bar-right">
-        <span class="matchup-bar-label">Favorite</span>
+        <span id="matchupRoleB" class="matchup-bar-label">Favorite</span>
         <div class="matchup-bar-team">
           <span id="matchupFavoriteName">Team B</span>
           <span id="matchupFavoriteSeed" class="matchup-bar-seed"></span>
@@ -396,7 +396,7 @@
         <!-- Header -->
         <header class="team-card-header">
           <div class="team-label-wrap">
-            <span class="role-tag cind-tag" data-copy="card.cinderella_label">Cinderella</span>
+            <span id="roleTagA" class="role-tag cind-tag">Cinderella</span>
             <h2 id="teamATitle">Team A</h2>
           </div>
           <div class="seed-label"><span id="teamASeed"></span></div>
@@ -407,18 +407,18 @@
           <div class="flip-tile-inner">
 
             <!-- Tile FRONT -->
-            <div class="tile-face tile-front">
-              <div class="section-header">
-                <h3 data-copy="card.cind_profile_title">Cinderella Core Traits Profile</h3>
-                <button
-                  id="explainCindA"
-                  class="link-btn explain-toggle"
-                  data-target="#cindProfileExplainA"
-                  data-copy="card.explain_btn"
-                >
-                  Explain
-                </button>
-              </div>
+          <div class="tile-face tile-front">
+  <div class="section-header">
+    <div class="matchup-kicker">Core Traits Profile</div>
+
+    <button
+      id="explainCindA"
+      class="link-btn explain-toggle"
+      data-target="#cindProfileExplainA"
+      data-copy="card.explain_btn">
+      Explain
+    </button>
+  </div>
 
               <table id="cindProfileTableA" class="explain-table"></table>
               <div id="cindProfileExplainA" class="explain-panel"></div>
@@ -508,9 +508,7 @@
               <!-- FRONT -->
               <div class="tile-face tile-front">
                 <div class="context-header marks-header">
-                  <div class="marks-header-text">
-                    <span class="context-label" data-copy="card.marks_label">Profile Marks</span>
-                  </div>
+                  <div class="marks-header-text matchup-kicker">Profile Marks</div>
                 </div>
                 <div class="context-subrow">
                   <div id="inlineMarksA" class="inline-marks-strip"></div>
@@ -590,7 +588,7 @@
         <!-- Header -->
         <header class="team-card-header">
           <div class="team-label-wrap">
-            <span class="role-tag fav-tag" data-copy="card.favorite_label">Favorite</span>
+            <span id="roleTagB" class="role-tag fav-tag">Favorite</span>
             <h2 id="teamBTitle">Team B</h2>
           </div>
           <div class="seed-label"><span id="teamBSeed"></span></div>
@@ -601,19 +599,18 @@
           <div class="flip-tile-inner">
 
             <!-- FRONT -->
-            <div class="tile-face tile-front">
-              <div class="section-header">
-                <h3 data-copy="card.fav_profile_title">Favorite Core Traits Profile</h3>
-                <button
-                  id="explainFavB"
-                  class="link-btn explain-toggle"
-                  data-target="#favProfileExplainB"
-                  data-copy="card.explain_btn"
-                >
-                  Explain
-                </button>
-              </div>
+          <div class="tile-face tile-front">
+  <div class="section-header">
+    <div class="matchup-kicker">Core Traits Profile</div>
 
+    <button
+      id="explainCindA"
+      class="link-btn explain-toggle"
+      data-target="#cindProfileExplainA"
+      data-copy="card.explain_btn">
+      Explain
+    </button>
+  </div>
               <table id="favProfileTableB" class="explain-table"></table>
               <div id="favProfileExplainB" class="explain-panel"></div>
 
@@ -703,9 +700,7 @@
               <!-- FRONT -->
               <div class="tile-face tile-front">
                 <div class="context-header marks-header">
-                  <div class="marks-header-text">
-                    <span class="context-label" data-copy="card.marks_label">Profile Marks</span>
-                  </div>
+                  <div class="marks-header-text matchup-kicker">Profile Marks</div>
                 </div>
                 <div class="context-subrow">
                   <div id="inlineMarksB" class="inline-marks-strip"></div>
@@ -820,34 +815,159 @@
 </div>
 </section>
 
-<!-- ================ SCORECARDS & MATCHUP SUMMARY ================ -->
+<!-- ================ SCORE BUILD (Scorecard Stitcher) ================ -->
 <section id="summarySection" class="card summary-card">
-  <div class="summary-header">
-    <h2 data-copy="summary.title">5. Scorecards & Matchup Summary</h2>
+  <!-- ================================
+       SCORECARD STITCHER — 3-COLUMN GRID
+       Left: Team A build
+       Mid : Narrative synthesis (delta + interpretation + volatility)
+       Right: Team B build
+       ================================ -->
+  <div class="summary-scorebuild">
+    <div class="summary-block-title matchup-kicker">SCORE BUILD</div>
+    <!-- Keep the ID for continuity, but it's now a grid container (not a table) -->
+    <div id="summaryTable" class="summary-stitcher-grid" role="group" aria-label="Score Build">
+      
+<!-- LEFT — TEAM A BUILD -->
+<div class="summary-col summary-col-a">
+  <div class="summary-block summary-block-a" data-team="a">
+    <!-- Team name INSIDE the card -->
+    <div class="summary-block-head" id="summaryTeamAHeader"></div>
+
+    <div class="summary-line summary-line--anchor" data-field="base">
+      <span class="summary-label" data-copy="summary.score_build.baseline">Baseline MI</span>
+      <span class="summary-hint">Team profile before opponent</span>
+      <span class="summary-value" data-value="a.base">—</span>
+    </div>
+
+    <div class="summary-line" data-field="int_raw">
+      <span class="summary-label" data-copy="summary.score_build.raw_leverage">Raw Interaction Leverage</span>
+      <span class="summary-hint">Matchup effects before scaling</span>
+      <span class="summary-value" data-value="a.int_raw">—</span>
+    </div>
+
+    <div class="summary-line" data-field="rFact">
+      <span class="summary-label" data-copy="summary.score_build.resume_factor">Résumé Scaling</span>
+      <span class="summary-hint">Credibility multiplier</span>
+      <span class="summary-value" data-value="a.rFact">—</span>
+    </div>
+
+    <div class="summary-line" data-field="int_eff">
+      <span class="summary-label" data-copy="summary.score_build.effective_adj">Effective Matchup Adjustment</span>
+      <span class="summary-hint">Applied matchup impact</span>
+      <span class="summary-value" data-value="a.int_eff">—</span>
+    </div>
+
+    <div class="summary-line summary-line--final" data-field="final">
+      <span class="summary-label" data-copy="summary.score_build.final">Final Matchup MI</span>
+      <span class="summary-hint">Baseline + matchup effects</span>
+      <span class="summary-value" data-value="a.final">—</span>
+    </div>
   </div>
+</div>
 
-  <!-- Clean matchup summary table -->
-  <table id="summaryTable" class="explain-table summary-table">
-    <thead>
-      <tr>
-        <th id="summaryTeamAHeader"></th>
-        <th class="summary-matchup-header" data-copy="summary.matchup_header">Madness Index</th>
-        <th id="summaryTeamBHeader"></th>
-      </tr>
-    </thead>
-    <tbody>
-      <!-- JS will inject the matchup row here -->
-    </tbody>
-  </table>
+<!-- MIDDLE — DELTA + GAP ATTRIBUTION + SYNTHESIS (unified card) -->
+<div class="summary-col summary-col-mid">
 
-  <!-- Round pill -->
-  <div class="summary-row summary-round-row">
-    <span class="summary-round-label" data-copy="summary.round">Round:</span>
-    <span id="currentRoundLabel" class="summary-round-pill">Round of 64</span>
+  <div class="summary-mid-card summary-mid-card--explain" role="group" aria-label="Matchup Summary">
+
+    <!-- Delta headline (now a header region inside the mid card) -->
+    <div class="summary-mid-top">
+      <div class="summary-mid-title" data-copy="summary.delta.title">Madness Delta</div>
+      <div class="summary-mid-hint">Difference between the two teams' final matchup MI values.</div>
+      <div class="summary-mid-delta" data-value="gap.sep">—</div>
+      <div class="summary-mid-delta-note" data-value="gap.net_note"></div>
+    </div>
+
+    <div class="summary-mid-divider" aria-hidden="true"></div>
+
+    <!-- Gap attribution -->
+    <div id="summaryGapAttribution" class="summary-gap">
+      <div class="summary-mid-kicker" data-copy="summary.gap_attribution.title">Gap Attribution</div>
+      <div class="summary-gap-bridge">Baseline gap + matchup shift = net delta</div>
+      <div class="summary-gap-line" data-field="baseline_gap">
+        <span class="summary-label" data-copy="summary.gap_attribution.baseline_gap">Baseline Gap</span>
+        <span class="summary-hint">Profile separation before opponent-specific effects.</span>
+        <span class="summary-value" data-value="gap.baseline">—</span>
+        <span class="summary-note" data-value="gap.baseline_note"></span>
+      </div>
+
+      <div class="summary-gap-line" data-field="matchup_shift">
+        <span class="summary-label" data-copy="summary.gap_attribution.matchup_shift">Matchup Shift</span>
+        <span class="summary-hint">How interaction metrics affected the separation.</span>
+        <span class="summary-value" data-value="gap.shift">—</span>
+        <span class="summary-note" data-value="gap.shift_note"></span>
+      </div>
+
+      <div class="summary-gap-line summary-gap-line--final" data-field="net_gap">
+        <span class="summary-label" data-copy="summary.gap_attribution.net_gap">Net Gap</span>
+        <span class="summary-hint">Final separation after baseline + matchup effects.</span>
+        <span class="summary-value" data-value="gap.net">—</span>
+        <span class="summary-note" data-value="gap.net_dir"></span>
+      </div>
+    </div>
+
+    <div class="summary-mid-divider" aria-hidden="true"></div>
+
+    <!-- Synthesis tag -->
+    <div id="summaryStitchTag" class="summary-stitch">
+      <div class="summary-mid-kicker" data-copy="summary.stitch.title">Matchup Summary</div>
+
+      <div class="summary-stitch-pill" data-field="stitch_tag">
+        <span class="summary-stitch-label" data-value="stitch.label">—</span>
+        <span class="summary-stitch-note" data-value="stitch.note"></span>
+      </div>
+    </div>
+
+    <!-- Keep the “How to Read This” markup for later, but hide it for now -->
+    <div class="summary-narrative summary-narrative--placeholder" hidden>
+      <div class="summary-mid-kicker" data-copy="summary.narrative.title">How to Read This</div>
+      <p class="summary-narrative-text" data-value="summary.narrative">—</p>
+      <p class="summary-volatility-text" data-value="summary.volatility"></p>
+    </div>
+
   </div>
+</div>
 
-  <!-- Seed / bracket compatibility note (filled by JS) -->
-  <p id="summarySeedNote" class="summary-seed-note helper-text"></p>
+<!-- RIGHT — TEAM B BUILD -->
+<div class="summary-col summary-col-b">
+  <div class="summary-block summary-block-b" data-team="b">
+    <!-- Team name INSIDE the card -->
+    <div class="summary-block-head" id="summaryTeamBHeader"></div>
+
+    <div class="summary-line summary-line--anchor" data-field="base">
+      <span class="summary-label" data-copy="summary.score_build.baseline">Baseline MI</span>
+      <span class="summary-hint">Team profile before opponent</span>
+      <span class="summary-value" data-value="b.base">—</span>
+    </div>
+
+    <div class="summary-line" data-field="int_raw">
+      <span class="summary-label" data-copy="summary.score_build.raw_leverage">Raw Interaction Leverage</span>
+      <span class="summary-hint">Matchup effects before scaling</span>
+      <span class="summary-value" data-value="b.int_raw">—</span>
+    </div>
+
+    <div class="summary-line" data-field="rFact">
+      <span class="summary-label" data-copy="summary.score_build.resume_factor">Résumé Scaling</span>
+      <span class="summary-hint">Credibility multiplier</span>
+      <span class="summary-value" data-value="b.rFact">—</span>
+    </div>
+
+    <div class="summary-line" data-field="int_eff">
+      <span class="summary-label" data-copy="summary.score_build.effective_adj">Effective Matchup Adjustment</span>
+      <span class="summary-hint">Applied matchup impact</span>
+      <span class="summary-value" data-value="b.int_eff">—</span>
+    </div>
+
+    <div class="summary-line summary-line--final" data-field="final">
+      <span class="summary-label" data-copy="summary.score_build.final">Final Matchup MI</span>
+      <span class="summary-hint">Baseline + matchup effects</span>
+      <span class="summary-value" data-value="b.final">—</span>
+    </div>
+  </div>
+</div>
+    </div><!-- /#summaryTable -->
+  </div><!-- /.summary-scorebuild -->
 </section>
 </div><!-- end #analysisShell -->
 

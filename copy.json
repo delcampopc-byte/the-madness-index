@@ -1,81 +1,81 @@
 {
   "hero": {
-    "tagline": "Predict the Madness. Master your Bracket.",
+    "tagline": "Predict the Madness. Master the Bracket.",
     "overline": "NCAA TOURNAMENT MATCHUP ENGINE",
     "title_main": "THE MADNESS INDEX",
     "subtitle": "Head-to-head NCAA Tournament matchup engine",
     "subtitle_highlight": "powered by advanced analytics."
   },
   "verdict": {
-  "metrics": {
-    "primary_text": {
-      "tiny_gap": [
-        "The Madness Index suggests little separation between {{WINNER}} and {{LOSER}}, with no clear directional pull emerging."
-      ],
-      "small_gap": [
-        "The Madness Index edges {{WINNER}} ahead of {{LOSER}}, though the margin remains thin."
-      ],
-      "medium_gap": [
-        "The Madness Index establishes {{WINNER}} as the more favorable profile versus {{LOSER}}."
-      ],
-      "large_gap": [
-        "The Madness Index strongly favors {{WINNER}} over {{LOSER}}, with matchup pressure clearly aligned."
-      ],
-      "default": [
-        "The Madness Index provides context for {{WINNER}} versus {{LOSER}}, though the lean remains muted."
-      ]
-    },
-    "secondary_text": {
-      "tiny_gap": [
-        "{{WINNER}} and {{LOSER}} answer each other’s strengths cleanly enough to keep the matchup level."
-      ],
-      "small_gap": [
-        "{{WINNER}} holds small advantages in flow that {{LOSER}} does not fully counter."
-      ],
-      "medium_gap": [
-        "{{WINNER}} controls more of the game’s terms than {{LOSER}} as the matchup settles."
-      ],
-      "large_gap": [
-        "{{WINNER}} operates with a style of play that bends the game away from the strengths of {{LOSER}} for extended stretches."
-      ],
-      "default": [
-        "{{WINNER}} and {{LOSER}} trade advantages in ways that keep the game structure fluid."
-      ]
-    },
-    "back_text": {
-      "base": [
-        "The Madness Index rating represents a team’s overall profile strength after performance, efficiency, and context are considered together.",
-        "The Madness Index rating reflects a team’s full-season profile by combining results, efficiency, and contextual factors.",
-        "The Madness Index rating captures a team’s overall standing by integrating performance quality with situational context."
-      ],
-      "matchup": [
-        "The matchup-adjusted rating shows how those profiles translate when the two teams are evaluated directly against each other.",
-        "The matchup-adjusted rating accounts for how each team’s profile interacts when the two are compared in the same game context.",
-        "The matchup-adjusted rating reflects how team profiles shift when evaluated through a head-to-head lens."
-      ],
-      "gap": {
+    "metrics": {
+      "primary_text": {
         "tiny_gap": [
-          "The gap between the ratings is minimal, indicating that the teams remain closely grouped with little clear separation.",
-          "The narrow gap suggests the ratings cluster tightly, offering limited clarity between the two profiles."
+          "The Madness Index suggests little separation between {{WINNER}} and {{LOSER}}, with no clear directional pull emerging."
         ],
         "small_gap": [
-          "The gap between the ratings shows modest separation, suggesting some differentiation without a clear divide.",
-          "The ratings are separated enough to indicate a mild distinction, though the profiles remain relatively close."
+        "The Madness Index edges {{WINNER}} ahead of {{LOSER}}, though the margin remains thin."
         ],
         "medium_gap": [
-          "The gap between the ratings reflects meaningful separation, indicating clearer differentiation between the two profiles.",
-          "The size of the gap suggests the profiles diverge in noticeable ways rather than remaining closely aligned."
+          "The Madness Index establishes {{WINNER}} as the more favorable profile versus {{LOSER}}."
         ],
         "large_gap": [
-          "The gap between the ratings is pronounced, indicating clear separation between the two profiles.",
-          "The size of the gap reflects strong differentiation, with the ratings no longer closely aligned."
+          "The Madness Index strongly favors {{WINNER}} over {{LOSER}}, with matchup pressure clearly aligned."
         ],
         "default": [
-          "The gap between the ratings provides a general sense of separation, offering context without strongly distinguishing the two profiles.",
-          "The difference between the ratings offers baseline perspective on separation, though the distinction remains broadly interpretive."
+          "The Madness Index provides context for {{WINNER}} versus {{LOSER}}, though the lean remains muted."
         ]
+      },
+      "secondary_text": {
+        "tiny_gap": [
+          "{{WINNER}} and {{LOSER}} answer each other’s strengths cleanly enough to keep the matchup level."
+        ],
+        "small_gap": [
+          "{{WINNER}} holds small advantages in flow that {{LOSER}} does not fully counter."
+        ],
+        "medium_gap": [
+          "{{WINNER}} controls more of the game’s terms than {{LOSER}} as the matchup settles."
+        ],
+        "large_gap": [
+          "{{WINNER}} operates with a style of play that bends the game away from the strengths of {{LOSER}} for extended stretches."
+        ],
+        "default": [
+          "{{WINNER}} and {{LOSER}} trade advantages in ways that keep the game structure fluid."
+        ]
+      },
+      "back_text": {
+        "base": [
+        "The Baseline Madness Index reflects each team’s full-season profile, combining performance quality, efficiency, and contextual factors into a single strength rating.",
+        "Baseline ratings summarize how strong each team looks on its own, before accounting for the specific opponent or game dynamics.",
+        "The Baseline Madness Index represents a team’s overall profile strength based on season-long results and context."
+        ],
+        "matchup": [
+        "The matchup-adjusted rating shows how those baseline profiles change when the two teams are evaluated directly against each other.",
+        "Matchup ratings reflect how each team’s strengths and weaknesses interact in this specific head-to-head context.",
+        "The matchup-adjusted view highlights how the comparison reshapes each team’s profile rather than simply restating season averages."
+        ],
+        "gap": {
+          "tiny_gap": [
+            "The small gap indicates the profiles remain tightly aligned, with limited separation between the two teams in this matchup.",
+            "Minimal separation suggests the matchup does little to distinguish one profile clearly from the other."
+          ],
+          "small_gap": [
+            "The modest gap reflects some differentiation, though the teams still compare closely in this matchup.",
+            "A small separation suggests one profile edges ahead without establishing clear dominance."
+          ],
+          "medium_gap": [
+            "The gap indicates meaningful separation, showing that the matchup context favors one profile more clearly.",
+            "This level of separation reflects noticeable divergence between how the two teams compare head-to-head."
+          ],
+          "large_gap": [
+            "The large gap reflects strong separation between the profiles, signaling high confidence in how the matchup favors one side.",
+            "Pronounced separation indicates that, while an outcome is never guaranteed, the matchup comparison strongly distinguishes the two teams."
+          ],
+          "default": [
+            "The gap between the ratings provides context for how clearly the matchup separates the two profiles.",
+            "The difference offers perspective on separation without implying certainty about the outcome."
+          ]
+        }
       }
-    }
     }
   },
   "prematch": {
@@ -347,34 +347,74 @@
     ]
   },
   "marks": {
+    "summary_by_count": {
+      "0": "This team does not meet the criteria for any Profile Marks, meaning none of the specific structural vulnerabilities tracked by this system cross the field-normalized thresholds. This is not an endorsement of overall quality—only an indication that these particular diagnostic flags did not register at a meaningful level.",
+      "1": "This team meets the criteria for a single Profile Mark, indicating one identifiable structural tendency without broader systemic exposure. The profile remains relatively contained, with most performance variance explained elsewhere in the model.",
+      "2": "This team registers two Profile Marks, suggesting a small cluster of stylistic or structural tendencies that can influence performance under specific conditions. These marks add context without defining the team’s overall identity.",
+      "3": "This team qualifies for three Profile Marks, indicating multiple areas where structure or style can meaningfully shape outcomes. While not overwhelming, these factors introduce added volatility that may surface in certain matchups or game states.",
+      "4": "This team carries four Profile Marks, reflecting a layered diagnostic profile with several identifiable vulnerabilities or dependencies. Together, these marks suggest a team whose performance can fluctuate meaningfully based on how games are played.",
+      "5": "This team triggers five Profile Marks, signaling a dense structural profile with multiple interacting tendencies. At this level, style, rhythm, and matchup conditions play a larger role in determining stability and outcomes.",
+      "6": "This team registers six Profile Marks, indicating widespread structural exposure across several dimensions of play. Performance is more sensitive to disruption, making consistency harder to sustain in high-variance tournament environments.",
+      "7": "This team meets the criteria for all seven Profile Marks, reflecting a highly complex and fragile structural profile. With multiple dependencies and vulnerabilities present, outcomes are more likely to be driven by volatility, rhythm, and opponent pressure rather than baseline strength alone."
+    },
     "descriptions": {
       "Offensive Rigidity": {
-       "moderate":"Typically one-dimensional offense.",
-       "severe": "Can collapse when primary option is removed."
+        "moderate": "Typically one-dimensional offense.",
+        "severe": "Can collapse when primary option is removed."
       },
       "Unstable Perimeter": {
-       "moderate": "3PT-reliant yet inconsistent.",
-       "severe": "Severe volatility from 3PT-range."
+        "moderate": "3PT-reliant yet inconsistent.",
+        "severe": "Severe volatility from 3PT-range."
       },
       "Cold Arc Team": {
-       "moderate": "Relatively poor 3PT-shooting team.",
-       "severe": "Not a threat from 3PT-range."
+        "moderate": "Relatively poor 3PT-shooting team.",
+        "severe": "Not a threat from 3PT-range."
       },
       "Undisciplined Defense": {
-       "moderate": "Aggressive defense yet prone to fouling.",
-       "severe": "Over-aggressive defense with fouling problems."
+        "moderate": "Aggressive defense yet prone to fouling.",
+        "severe": "Over-aggressive defense with fouling problems."
       },
       "Soft Interior": {
-       "moderate": "Insignificant paint presence.",
-       "severe": "Poor rim resistance and shot deterrence."
+        "moderate": "Insignificant paint presence.",
+        "severe": "Poor rim resistance and shot deterrence."
       },
       "Perimeter Leakage": {
-       "moderate": "Tends to allow clean perimeter looks.",
-       "severe": "Prone to teams with high 3PT-volume."
+        "moderate": "Tends to allow clean perimeter looks.",
+        "severe": "Prone to teams with high 3PT-volume."
       },
       "Tempo Strain": {
-       "moderate": "Vulnerable when out of play-style comfort zone.",
-       "severe": "Susceptible to strong halfcourt disruiption."
+        "moderate": "Vulnerable when out of play-style comfort zone.",
+        "severe": "Susceptible to strong halfcourt disruption."
+      }
+    },
+    "back": {
+      "Offensive Rigidity": {
+        "moderate": "This offense tends to rely heavily on a narrow set of actions or creators, making it more predictable across a full game.",
+        "severe": "This offense can stall entirely when its primary scoring option is disrupted, leaving limited secondary answers."
+      },
+      "Unstable Perimeter": {
+        "moderate": "This team leans on three-point shooting for spacing and scoring, but results fluctuate noticeably game to game.",
+        "severe": "This team’s perimeter shooting introduces extreme volatility, creating sharp swings in offensive effectiveness."
+      },
+      "Cold Arc Team": {
+        "moderate": "This team struggles to generate consistent value from beyond the arc, allowing defenses to compress the floor.",
+        "severe": "This team poses minimal perimeter shooting threat, enabling opponents to collapse defensively without punishment."
+      },
+      "Undisciplined Defense": {
+        "moderate": "This defense plays aggressively but often sacrifices positional discipline, leading to avoidable fouls.",
+        "severe": "This defense frequently overcommits, creating foul trouble and gifting opponents free points."
+      },
+      "Soft Interior": {
+        "moderate": "This team lacks a reliable interior presence, reducing effectiveness around the rim on both ends.",
+        "severe": "This team struggles to protect the paint, offering little resistance against interior scoring."
+      },
+      "Perimeter Leakage": {
+        "moderate": "This defense allows opponents to generate clean perimeter looks, especially through ball movement.",
+        "severe": "This defense consistently yields high-quality perimeter opportunities, amplifying opponent shooting volume."
+      },
+      "Tempo Strain": {
+        "moderate": "This team is less effective when forced outside its preferred pace, particularly against stylistic pressure.",
+        "severe": "This team is highly vulnerable to deliberate halfcourt control that disrupts rhythm and decision-making."
       }
     }
   },
@@ -391,8 +431,37 @@
       "tile": "The Breadth summary highlights how many core metrics clear the above-average threshold and how much bonus that coverage adds."
     },
     "resume": {
-      "card": "Résumé Context blends record and schedule strength into a single index. Elite résumés earn a small boost; fragile or inflated résumés receive a small penalty.",
-      "tile": "This tile summarizes how the team's win percentage and schedule difficulty stack up versus the field and how that converts into a résumé adjustment."
+      "card": "Résumé Context blends record and schedule strength into a single index. Elite résumés earn a small boost; fragile or inflated résumés receive a stronger skepticism penalty.",
+      "tile": "This tile summarizes how the team's win percentage and schedule difficulty stack up versus the field and how that converts into a résumé adjustment.",
+      "tier_tile": {
+        "Elite": [
+          "This résumé reflects substantial success across one of the most demanding schedules in all of college basketball.",
+          "It provides strong contextual validation for how this team's profile reads relative to other teams in the field."
+       ],
+        "Strong": [
+          "This résumé reflects consistent success against a high-quality level of competition.",
+          "It indicates a profile whose strengths hold up well under context rather than relying on favorable game conditions."
+       ],
+       "Above Average": [
+         "This résumé presents a record that is supported by a reasonably demanding slate of opponents.",
+         "It suggests a profile whose signals are strengthened by the competition it has faced."
+       ],
+       "Average": [
+         "This résumé reflects results that track with the level of competition faced, without clear over- or under-performance.",
+         "It suggests a profile that reads as expected once record and competition are considered together."
+       ],
+       "Weak": [
+         "This résumé shows limited evidence of success once the quality of competition is elevated.",
+         "It suggests a profile that may look stronger on paper, and may not have been fully clarified by higher-level opposition."
+       ],
+       "Fragile": [
+         "This résumé presents modest results and performance combined with limited exposure to stronger competition.",
+         "It suggests a profile that becomes increasingly difficult to interpret as competition levels rise."
+       ],
+       "fallback": [
+         "This résumé tier reflects how the team’s results and schedule context compare to the tournament field."
+       ]
+     }
     },
     "marks": {
       "card": "Profile Marks are diagnostic flags. They do not change the score directly, but they reveal structural strengths or vulnerabilities that may matter in specific matchups.",
@@ -628,9 +697,9 @@
           "Average": "Their ball handling is serviceable, mixing stable stretches with occasional lapses. They can maintain rhythm when focused, though they don’t provide a built-in safety net against pressure.",
           "Weak": "Their giveaways show up often enough to interrupt runs and stall possessions. Opponents gain extra chances without having to overextend, narrowing the margin for any offensive efficiency they create.",
           "Fragile": "They struggle to keep possession intact, with turnovers emerging from both pressure and routine situations. These breakdowns place constant strain on their offense and feed opponents easy scoring opportunities."
+        }
       }
-    }
-  },
+    },
     "support_phrases": {
       "two_plus_elite": "With multiple elite core metrics, this profile tends to travel well into tougher rounds.",
       "one_elite_plus_depth": "One standout core strength supported by several solid traits gives this team a stable identity.",
@@ -701,12 +770,11 @@
     }
   },
   "marks_explain": {
-    "template_some": "{{team}} currently carries {{summary}}. {{impact}}",
+    "template_some": "{{team}} currently carries {{summary}}. {{details}} {{impact}}",
     "template_none": "{{team}} has no active Profile Marks. This suggests a structurally clean statistical profile, at least within the limits of this model.",
-    "severity_order": [
-      "Severe",
-      "Moderate"
-    ],
+
+    "severity_order": ["Severe", "Moderate"],
+
     "severity_phrases": {
       "Severe": {
         "singular": "one Severe badge: {{list}}",
@@ -722,31 +790,69 @@
       "Mixed": "The blend of Severe and Moderate flags points to real pressure points, but also some room for matchups to break in their favor.",
       "Moderate_light": "Moderate flags alone act more like caution labels than full stop signs — they matter, but only when the matchup leans into them.",
       "None": "Without any badges, this profile doesn’t raise obvious structural red flags, so matchups hinge more on pure efficiency and style."
-    }
+    },
+    "max_details": 3,
+    "details_prefix": "Details: ",
+    "detail_joiner": " • ",
+    "detail_template": "{{severity}} — {{mark}}: {{desc}}",
+    "details_more_template": " (+{{n}} more)"
   },
   "identity_explain": {
-    "template_favorite": "{{team}} enters this matchup as a {{band}} based on its FAS_static score and seed context. {{support}}",
-    "template_cinderella": "{{team}} shows a {{band}} when slotted as the underdog, driven by its CIS_static score and résumé overperformance. {{support}}",
-    "template_neutral": "{{team}} sits in a neutral identity band here, neither a clear Favorite nor a true Cinderella in the model. {{support}}",
-    "fallback_template": "{{team}}’s tournament identity is neutral in this matchup.",
-    "bands": {
-      "cis": {
-        "Live Cinderella": "High CIS_static with real upset volatility as an underdog.",
-        "Potential Cinderella": "Noticeable underdog upside without full-blown chaos.",
-        "Mild Upset Signal": "Some upset noise, but more matchup-dependent.",
-        "Low Cinderella Identity": "Little in the profile that suggests a classic bracket-buster."
+    "CIS": {
+      "b0_25": {
+        "text": "{{team}} shows minimal surprise signal. The profile largely aligns with baseline expectations, indicating that unexpected elements carry little weight in how the team is currently interpreted."
       },
-      "fas": {
-        "True Favorite": "High FAS_static with a strong efficiency and résumé backbone.",
-        "Strong Favorite": "Clearly favored, but not quite on the top shelf.",
-        "Questionable Favorite": "Favored by seed, but carrying some structural doubt.",
-        "Fragile Favorite": "Technically favored, but with enough holes to worry about."
+      "b26_50": {
+        "text": "{{team}} reflects a light surprise signal. Some indicators suggest mild deviation from expectation, but this lens remains secondary within the overall profile."
+      },
+      "b51_85": {
+        "text": "{{team}} presents a clear surprise signal. Several indicators diverge from expectation, making unexpected performance a meaningful factor in current interpretation."
+      },
+      "b86_100": {
+        "text": "{{team}} exhibits a dominant surprise signal. The profile strongly reflects outcomes that differ from expectation, with this lens guiding much of the team’s interpretation."
       }
     },
-    "support_phrases": {
-      "aligned": "The identity band lines up with how the bracket already sees this team.",
-      "misaligned": "The identity band pushes against the bracket’s default view, hinting at either upset or disappointment risk.",
-      "ambiguous": "The CIS/FAS signals are mixed, so the identity band here is more descriptive than predictive."
+    "FAS": {
+      "b0_25": {
+        "text": "{{team}} shows minimal safety signal. The profile offers little evidence that expectations have been held, limiting the role of assumed reliability in interpretation."
+      },
+      "b26_50": {
+        "text": "{{team}} reflects a light safety signal. Some expectations have been met, though alignment remains partial and plays a restrained role in the profile."
+      },
+      "b51_85": {
+        "text": "{{team}} presents a strong safety signal. Performance has largely met expectation, making reliability a meaningful lens in how the team is currently viewed."
+      },
+      "b86_100": {
+        "text": "{{team}} exhibits a dominant safety signal. Expectations have been consistently met and reinforced, placing reliability at the center of interpretation."
+      }
+    },
+    "LCI": {
+      "b0_25": {
+        "text": "{{team}} shows minimal reinforcement of earlier surprise. Initial unexpected indicators lack sustained confirmation, limiting their credibility within the current profile."
+      },
+      "b26_50": {
+        "text": "{{team}} reflects light reinforcement of earlier surprise. Some confirmation is present, though credibility remains modest and situational."
+      },
+      "b51_85": {
+        "text": "{{team}} presents a strongly reinforced surprise signal. Continued confirmation has validated this lens as a meaningful part of the team’s interpretation."
+      },
+      "b86_100": {
+        "text": "{{team}} exhibits a dominantly reinforced surprise signal. Sustained validation firmly establishes this lens as a central component of the profile."
+      }
+    },
+    "LFI": {
+      "b0_25": {
+        "text": "{{team}} shows minimal reinforcement of expected safety. Indicators of authority lack confirmation, limiting the credibility of reliability within the profile."
+      },
+      "b26_50": {
+        "text": "{{team}} reflects light reinforcement of expected safety. Some validation is present, though authority remains only partially confirmed."
+      },
+      "b51_85": {
+        "text": "{{team}} presents a strongly reinforced safety signal. Continued confirmation has validated expected authority as a meaningful interpretive lens."
+      },
+      "b86_100": {
+        "text": "{{team}} exhibits a dominantly reinforced safety signal. Sustained confirmation firmly establishes expected authority and reliability within the profile."
+      }
     }
   },
   "madness_explain": {
@@ -1388,40 +1494,13 @@
         }
       }
     }
-  },
-  "summary": {
-    "verdict": {
-    "confidence_label": "",
-    "driver_label": "",
-    "risk_label": "",
-    "int_soft_threshold": 0.2,
-    "driver_templates": {
-      "neutral_balanced": "",
-      "neutral_swingy": "",
-      "edge_balanced": "",
-      "reinforces_winner": "",
-      "resists_winner": "",
-      "mixed_still_winner": "",
-      "mixed_live_loser": ""
-    },
-    "risk_templates": {
-      "heavy_default": "",
-      "heavy_resists": "",
-      "solid_default": "",
-      "solid_resists": "",
-      "slight_default": "",
-      "slight_resists": "",
-      "coin_default": "",
-      "coin_resists": ""
-    }
   }
-},
+  },
   "debug": {
     "title": "Developer Debug Panel",
     "help": "Shows parsed inputs and rule evaluations for QA. Only visible when Debug View is enabled."
   },
   "footer": {
     "note": "All logic is deterministic and based solely on the uploaded season stats."
-  }
   }
 }

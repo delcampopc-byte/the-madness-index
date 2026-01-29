@@ -305,10 +305,115 @@ function populateBackExplanations(copy) {
   // Résumé mini-tiles
   setText('backResumeTileA',  b.resume  && b.resume.tile);
   setText('backResumeTileB',  b.resume  && b.resume.tile);
+}
 
-  // Profile Marks mini-tiles
-  setText('backMarksTileA',   b.marks   && b.marks.tile);
-  setText('backMarksTileB',   b.marks   && b.marks.tile);
+function updateMarksBacksForResult(result) {
+  const copy = window.MI_COPY;
+  const marksCopy = copy && copy.marks ? copy.marks : null;
+  if (!marksCopy || !result || !result.a || !result.b) return;
+
+  const elTileA = document.getElementById('backMarksTileA');
+  const elTileB = document.getElementById('backMarksTileB');
+  if (!elTileA || !elTileB) return;
+
+  const clearEl = (el) => {
+    while (el.firstChild) el.removeChild(el.firstChild);
+  };
+
+  const renderTeamInto = (el, team) => {
+    clearEl(el);
+
+    const marks = Array.isArray(team.profileMarks) ? team.profileMarks : [];
+    const count = Math.max(0, Math.min(7, marks.length));
+
+    // --- Summary (always present) ---
+    const summaryMap = marksCopy.summary_by_count || {};
+    const summaryText = summaryMap[String(count)] || summaryMap[count] || '';
+
+    const summarySpan = document.createElement('span');
+    summarySpan.className = 'mi-marks-back-summary';
+    summarySpan.textContent = summaryText;
+    el.appendChild(summarySpan);
+
+    // Divider (CSS can draw line using ::after on summary, or style this element)
+    const divider = document.createElement('span');
+    divider.className = 'mi-marks-back-divider';
+    el.appendChild(divider);
+    
+    // --- Marks list (0–7 rows) ---
+    if (!marks.length) {
+      // Ensure fade state resets when summary-only
+      requestAnimationFrame(() => {
+        const needsScroll = el.scrollHeight > el.clientHeight + 1;
+        el.classList.toggle('has-scroll', needsScroll);
+      });
+      return;
+    }
+
+    const parsed = marks
+      .map(parseProfileMark)
+      .filter(Boolean)
+      .map(pm => {
+        const base = String(pm.base || '').trim();
+        const sevRaw = String(pm.severity || 'Moderate').trim();
+        const sevKey = sevRaw.toLowerCase() === 'severe' ? 'severe' : 'moderate';
+        const sevLabel = sevKey === 'severe' ? 'Severe' : 'Moderate';
+        return { base, sevKey, sevLabel };
+      });
+
+    // Deterministic ordering: Severe first, then Moderate; alphabetical within severity
+    const sevRank = { severe: 0, moderate: 1 };
+    parsed.sort((a, b) => {
+      const ra = sevRank[a.sevKey] ?? 99;
+      const rb = sevRank[b.sevKey] ?? 99;
+      if (ra !== rb) return ra - rb;
+      return String(a.base).localeCompare(String(b.base));
+    });
+
+    // Container for rows (still inside <p>, so use spans)
+    const listSpan = document.createElement('span');
+    listSpan.className = 'mi-marks-back-list';
+    el.appendChild(listSpan);
+
+    const backMap = marksCopy.back || {};
+
+    parsed.forEach((pm, idx) => {
+      const row = document.createElement('span');
+      row.className = 'mi-marks-back-row';
+      row.setAttribute('data-severity', pm.sevKey);
+
+      const name = document.createElement('span');
+      name.className = 'mi-marks-back-name';
+      name.textContent = pm.base;
+
+      const sev = document.createElement('span');
+      sev.className = 'mi-marks-back-sev';
+      sev.textContent = pm.sevLabel;
+
+      const desc = document.createElement('span');
+      desc.className = 'mi-marks-back-desc';
+      const key = pm.base || '';
+      const backEntry = backMap[key] || {};
+      desc.textContent = backEntry[pm.sevKey] || '';
+
+      row.appendChild(name);
+      row.appendChild(sev);
+      row.appendChild(desc);
+
+      listSpan.appendChild(row);
+
+      // Line break between rows (cleanest inside a <p>)
+      if (idx < parsed.length - 1) listSpan.appendChild(document.createElement('br'));
+    });
+
+    requestAnimationFrame(() => {
+      const needsScroll = el.scrollHeight > el.clientHeight + 1;
+      el.classList.toggle('has-scroll', needsScroll);
+    });
+  };
+
+  renderTeamInto(elTileA, result.a);
+  renderTeamInto(elTileB, result.b);
 }
 
 // ========== CORE TRAITS TILE — BULLETED LAYOUT ==========
@@ -989,112 +1094,6 @@ function niceList(names) {
   return `${allButLast.join(', ')}, and ${last}`;
 }
 
-function pickMarksImpactKey(severeCount, moderateCount) {
-  if (severeCount >= 2) return 'Severe_heavy';
-  if (severeCount >= 1 && moderateCount >= 1) return 'Mixed';
-  if (severeCount === 1 && moderateCount === 0) return 'Mixed';          // one Severe is still a big deal
-  if (severeCount === 0 && moderateCount >= 1) return 'Moderate_light';
-  return 'None';
-}
-
-function buildMarksBackTextForTeam(team, copy) {
-  if (!team || !copy || !copy.marks_explain) return '';
-
-  const mx = copy.marks_explain;
-
-  const marks = Array.isArray(team.profileMarks) ? team.profileMarks : [];
-  if (!marks.length) {
-    const tplNone = mx.template_none || "{{team}} has no active Profile Marks.";
-    return tplNone.replace('{{team}}', team.name);
-  }
-
-  const severityOrder = Array.isArray(mx.severity_order) ? mx.severity_order : ['Severe', 'Moderate'];
-  const severityPhrases = mx.severity_phrases || {};
-  const impactPhrases   = mx.impact_phrases   || {};
-
-  // Group marks by severity
-  const grouped = {};
-  marks.forEach(m => {
-    const parsed = parseProfileMark(m);
-    if (!parsed) return;
-    const sev = parsed.severity || 'Moderate';
-    if (!grouped[sev]) grouped[sev] = [];
-    grouped[sev].push(parsed.base);
-  });
-
-  const parts = [];
-  let severeCount = 0;
-  let moderateCount = 0;
-
-  severityOrder.forEach(sev => {
-    const list = grouped[sev];
-    if (!list || !list.length) return;
-
-    const count = list.length;
-    if (sev === 'Severe') severeCount = count;
-    if (sev === 'Moderate') moderateCount = count;
-
-    const cfg = severityPhrases[sev];
-    if (!cfg) return;
-
-    const key = count === 1 ? 'singular' : 'plural';
-    const tpl = cfg[key];
-    if (!tpl) return;
-
-    const listText = niceList(list);
-    const phrase = tpl
-      .replace('{{count}}', String(count))
-      .replace('{{list}}', listText);
-
-    parts.push(phrase);
-  });
-
-  if (!parts.length) {
-    // No recognizable marks despite array not being empty
-    const tplNone = mx.template_none || "{{team}} has no active Profile Marks.";
-    return tplNone.replace('{{team}}', team.name);
-  }
-
-  // "one Severe badge: A" AND "one Moderate badge: B"
-  let summary = '';
-  if (parts.length === 1) {
-    summary = parts[0];
-  } else if (parts.length === 2) {
-    summary = `${parts[0]} and ${parts[1]}`;
-  } else {
-    summary = `${parts[0]}, ${parts[1]}, and ${parts[2]}`;
-  }
-
-  const impactKey = pickMarksImpactKey(severeCount, moderateCount);
-  const impactText = impactPhrases[impactKey] || '';
-
-  const template = mx.template_some || "{{team}} currently carries {{summary}}.";
-  let text = template
-    .replace('{{team}}', team.name)
-    .replace('{{summary}}', summary);
-
-  if (impactText) {
-    if (!/[.!?]\s*$/.test(text)) text += '.';
-    text += ' ' + impactText;
-  }
-
-  return text;
-}
-
-function updateMarksBacksForResult(result) {
-  const copy = window.MI_COPY;
-  if (!copy || !copy.marks_explain || !result || !result.a || !result.b) return;
-
-  const textA = buildMarksBackTextForTeam(result.a, copy);
-  const textB = buildMarksBackTextForTeam(result.b, copy);
-
-  const elTileA = document.getElementById('backMarksTileA');
-  const elTileB = document.getElementById('backMarksTileB');
-
-  if (elTileA && textA) elTileA.textContent = textA;
-  if (elTileB && textB) elTileB.textContent = textB;
-}
-
 function buildFormulaBackTextForSide(side, result, copy) {
   const team = side === 'A' ? result.a : result.b;
   if (!team || !result) return '';
@@ -1141,23 +1140,16 @@ function updateIdentityBacksForResult(result) {
     // Force: the team we're building is always A in the resolver.
     const ctx = resolveIdentityContext(team, opponent, roundCode);
 
-    const myRole   = ctx.roleA;
-    const myMetric = ctx.metricA;
-    const myValue  = ctx.valueA;
-
-    const role =
-      (ctx.mode !== "standard") ? "Neutral" :
-      (myRole === "favorite")   ? "Favorite" :
-      (myRole === "cinderella") ? "Cinderella" :
-                                  "Neutral";
+    // Single source of truth from resolver:
+    const myMetric = ctx.metricA;  // "CIS" | "FAS" | "LCI" | "LFI"
+    const myValue  = ctx.valueA;   // expected 0..100
 
     return {
       name: team.name,
-      identity: {
-        CIS_static: (myMetric === "CIS" || myMetric === "LCI") ? myValue : 0,
-        FAS_static: (myMetric === "FAS" || myMetric === "LFI") ? myValue : 0
-      },
-      role
+      identityPacket: {
+        metric: myMetric,
+        value: myValue
+      }
     };
   };
 
@@ -1177,56 +1169,48 @@ function updateIdentityBacksForResult(result) {
 // template from copy.identity_explain, fills placeholders, and returns a
 // final back-of-card explanation string.
 //
+function miClamp01to100(n) {
+  const x = Number(n);
+  if (!Number.isFinite(x)) return 0;
+  return Math.max(0, Math.min(100, x));
+}
+
+function miIdentityBucketKey(value0to100) {
+  const v = miClamp01to100(value0to100);
+  if (v <= 25) return "b0_25";
+  if (v <= 50) return "b26_50";
+  if (v <= 85) return "b51_85";
+  return "b86_100";
+}
+
+function miFillTeamToken(text, teamName) {
+  const name = teamName || "This team";
+  return String(text || "").replaceAll("{{team}}", name);
+}
 
 function buildIdentityBackTextForTeam(team, copy) {
+  // New v3.8+ identity back builder:
+  // Uses resolveIdentityContext output via team.identityPacket:
+  // { metric: "CIS"|"FAS"|"LCI"|"LFI", value: 0..100 }
   if (!team || !copy || !copy.identity_explain) return "";
 
-  const id = team.identity || {};
-  const cis = id.CIS_static ?? 0;
-  const fas = id.FAS_static ?? 0;
+  const pkt = team.identityPacket || {};
+  const metric = pkt.metric;
+  const value = miClamp01to100(pkt.value);
 
-  const x = copy.identity_explain;
+  // Generic fallback if metric missing or invalid
+  const fallback = "{{team}} has no clear identity signal in this matchup.";
 
-  // -------- Determine identity band (CIS or FAS side) --------
-    const cisBand =
-    cis >= 80 ? "Live Cinderella" :
-    cis >= 50 ? "Potential Cinderella" :
-    cis >= 20 ? "Mild Upset Signal" :
-                "Low Cinderella Identity";
+  // If metric is missing/unknown, return fallback (token-filled)
+  const group = copy.identity_explain?.[metric];
+  if (!group) return miFillTeamToken(fallback, team.name);
 
-  const fasBand =
-    fas >= 80 ? "True Favorite" :
-    fas >= 50 ? "Strong Favorite" :
-    fas >= 20 ? "Questionable Favorite" :
-                "Fragile Favorite";
+  const bucketKey = miIdentityBucketKey(value);
+  const entry = group?.[bucketKey];
+  const text = entry?.text;
 
-  // Decide whether team is being treated as Cinderella or Favorite based on role
-  const role = team.role;   // "Cinderella" or "Favorite"
-  let template = "";
-  let band = "";
-  let support = "";
-
-  if (role === "Cinderella") {
-    template = x.template_cinderella || x.fallback_template;
-    band = cisBand;
-    support = x.support_phrases?.aligned || "";
-  } else if (role === "Favorite") {
-    template = x.template_favorite || x.fallback_template;
-    band = fasBand;
-    support = x.support_phrases?.aligned || "";
-  } else {
-    template = x.template_neutral || x.fallback_template;
-    band = "";
-    support = x.support_phrases?.ambiguous || "";
-  }
-
-  // -------- String assembly --------
-  let out = template
-    .replace("{{team}}", team.name || "This team")
-    .replace("{{band}}", band)
-    .replace("{{support}}", support);
-
-  return out.trim();
+  if (!text) return miFillTeamToken(fallback, team.name);
+  return miFillTeamToken(text, team.name).trim();
 }
 
 // ---------- Madness Index Back-of-Card Explanation ----------
@@ -1492,6 +1476,25 @@ function getSeedRoundMeta(seedA, seedB, roundCode) {
     isAllowed,   // true if current round is compatible with these seeds
     earliest,    // earliest possible round in standard bracket order
   };
+}
+
+// Round pill (Matchup Bar) — JSON-canonical, round-aware
+function miUpdateMatchupRoundPill(roundCode) {
+  const el = document.getElementById('matchupRoundPill');
+  if (!el) return;
+
+  const r = miNormalizeRoundCode(roundCode);
+
+  const copy = window.MI_COPY || {};
+  const roundLabels = copy.rounds || {};
+
+  // Deterministic lookup with safe fallback
+  const label = roundLabels[r] || 'Round';
+
+  el.textContent = label;
+
+  // Debug / state hook (optional but useful)
+  el.setAttribute('data-round', r);
 }
 
 // ---------- Config: Metric Aliases ----------
@@ -2047,7 +2050,7 @@ function computeCoreForTeam(team) {
     },
     {
       key:   'adjem',
-      label: 'Adj. Efficiency Margin',
+      label: 'Efficiency Margin',
       mean:  fsAdjEM.mean,
       sd:    fsAdjEM.sd,
       value: team.adjem,
@@ -2091,7 +2094,7 @@ function computeCoreForTeam(team) {
     },
     {
       key:   'epr',
-      label: 'Effective Possession Ratio (EPR)',
+      label: 'Effective Possession Ratio',
       mean:  fsEPR.mean,
       sd:    fsEPR.sd,
       value: team.epr,
@@ -2172,30 +2175,16 @@ function computeResumeContextForTeam(team) {
     team.resumeR     = 0;          // adjustment actually added to MI_base
     team.resumeRTier = 'Average';
 
-    // Keep MI_base well-defined even if résumé is neutral
-     computeMIBase(team);
+    computeMIBase(team);
     return;
   }
 
-  // 1) Field-normalized record and schedule
   const z_wp = zScore(team.wp, FIELD_STATS.wp.mean, FIELD_STATS.wp.sd || 0.00001);
   const z_P  = zScore(team.P,  FIELD_STATS.P.mean,  FIELD_STATS.P.sd  || 0.00001);
 
   const R = (z_wp + z_P) / 2;
 
-  // 3) Map R into global z-tier bands (same system used elsewhere),
-  //    then convert tier → adjustment in the ±0.15 range.
-  //
-  // Tiers (R):
-  //   Elite      : R ≥ +1.00        → +0.15
-  //   Strong     : +1.00 > R ≥ 0.80 → +0.10
-  //   Above Avg  : +0.80 > R ≥ 0.60 → +0.05
-  //   Average    : +0.60 > R ≥ 0.00 →  0.00
-  //   Weak       :  0.00 > R ≥ –0.80 → –0.05
-  //   Fragile    : R < –0.80        → –0.10
-
-  let adj  = 0;
-  let tier = 'Average';
+  let adj, tier;
 
   if (R >= 1.00) {
     adj = 0.15; tier = 'Elite';
@@ -2203,18 +2192,18 @@ function computeResumeContextForTeam(team) {
     adj = 0.10; tier = 'Strong';
   } else if (R >= 0.60) {
     adj = 0.05; tier = 'Above Average';
-  } else if (R < -0.80) {
-    adj = -0.25; tier = 'Fragile';
-  } else if (R < 0.00) {
+  } else if (R >= 0.00) {
+    adj = 0.00; tier = 'Average';
+  } else if (R > -0.80) {
     adj = -0.15; tier = 'Weak';
+  } else { // R <= -0.80
+    adj = -0.25; tier = 'Fragile';
   }
 
-  // 4) Store all résumé pieces on the team object
-  team.resumeIndex = R;    // the underlying R index (z-like)
-  team.resumeR     = adj;  // the actual MI_base adjustment
+  team.resumeIndex = R;
+  team.resumeR     = adj;
   team.resumeRTier = tier;
 
-  // 5) Update MI_base now that Core, Breadth, and Résumé are known
   computeMIBase(team);
 }
 
@@ -2964,6 +2953,7 @@ function compareTeams(teamAName, teamBName, roleMode = 'auto') {
   window.LAST_RESULT = result;
 
   renderTeamCards(result);
+  miUpdateMatchupLensHeaders(result);
   renderProfileMarks(a, "inlineMarksA");
   renderProfileMarks(b, "inlineMarksB");
   renderInteractionsTable(result);
@@ -3377,44 +3367,37 @@ function miGetCanonicalMode(roundCode, seedA, seedB) {
   const hi = Math.max(a, b);
   const pair = `${lo}-${hi}`;
 
-  // R64
+  const isDoubleDouble = (lo >= 11 && hi >= 11);
+
   if (r === 'R64') {
     if (pair === '7-10' || pair === '8-9') return 'neutral_mirror';
     return 'standard';
   }
 
-  // R32
   if (r === 'R32') {
     if (pair === '4-5') return 'chalk_mirror';
-    if (lo >= 10) return 'chaos_mirror'; // 10/15, 11/14, 12/13
+    if (isDoubleDouble) return 'neutral_mirror';
     return 'standard';
   }
 
-  // S16
   if (r === 'S16') {
     if (pair === '2-3') return 'chalk_mirror';
     if (pair === '6-7') return 'chaos_mirror';
+    if (pair === '7-11') return 'chaos_mirror';
+    if (isDoubleDouble) return 'chaos_mirror';
     return 'standard';
   }
 
-  // E8
   if (r === 'E8') {
     if (pair === '1-2' || pair === '3-4') return 'chalk_mirror';
-    if (pair === '4-6' || pair === '5-6' || pair === '5-7') return 'chaos_mirror';
     return 'standard';
   }
 
-  // F4
   if (r === 'F4') {
     if (a === b) return 'chalk_mirror';
-    if (
-      pair === '3-4' || pair === '4-5' || pair === '5-6' ||
-      pair === '6-7' || pair === '7-8'
-    ) return 'chaos_mirror';
     return 'standard';
   }
 
-  // Champ
   if (r === 'Champ') {
     if (a === b) return 'chalk_mirror';
     return 'standard';
@@ -3523,6 +3506,82 @@ function resolveIdentityContext(teamA, teamB, roundCode) {
     valueA: aIsFav ? getFavValue(teamA, teamB) : getCinValue(teamA, teamB),
     valueB: aIsFav ? getCinValue(teamB, teamA) : getFavValue(teamB, teamA)
   };
+}
+
+function miUpdateMatchupLensHeaders(result) {
+  if (!result || !result.a || !result.b) return;
+
+  // New canonical matchup bar labels
+  const elA = document.getElementById('matchupRoleA');
+  const elB = document.getElementById('matchupRoleB');
+
+  // (Optional) If you also added these IDs to the scorecard header pills, we’ll update them too.
+  const cardA = document.getElementById('roleTagA');
+  const cardB = document.getElementById('roleTagB');
+
+  if (!elA && !elB && !cardA && !cardB) return;
+
+  const roundCode = result.round || CURRENT_ROUND || 'R64';
+  const ctx = (typeof resolveIdentityContext === 'function')
+    ? resolveIdentityContext(result.a, result.b, roundCode)
+    : null;
+
+  if (!ctx) return;
+
+  const copy = window.MI_COPY || {};
+  const card = copy.card || {};
+
+  const LABEL = {
+    favorite: card.favorite_label || 'Favorite',
+    cinderella: card.cinderella_label || 'Cinderella',
+    chalk: card.chalk_mirror_label || 'Chalk Mirror',
+    chaos: card.chaos_mirror_label || 'Chaos Mirror',
+    neutral: card.neutral_mirror_label || 'Neutral Mirror'
+  };
+
+  // Helper: set text + a lightweight data attribute (useful for CSS later if you want)
+  const setLabel = (el, text, lensKey) => {
+    if (!el) return;
+    el.textContent = text;
+    el.setAttribute('data-lens', lensKey);
+  };
+
+  // Mirrors: both sides get the mirror lens label
+  if (ctx.mode === 'chalk_mirror') {
+    setLabel(elA, LABEL.chalk, 'chalk_mirror');
+    setLabel(elB, LABEL.chalk, 'chalk_mirror');
+    setLabel(cardA, LABEL.chalk, 'chalk_mirror');
+    setLabel(cardB, LABEL.chalk, 'chalk_mirror');
+    return;
+  }
+
+  if (ctx.mode === 'chaos_mirror') {
+    setLabel(elA, LABEL.chaos, 'chaos_mirror');
+    setLabel(elB, LABEL.chaos, 'chaos_mirror');
+    setLabel(cardA, LABEL.chaos, 'chaos_mirror');
+    setLabel(cardB, LABEL.chaos, 'chaos_mirror');
+    return;
+  }
+
+  if (ctx.mode === 'neutral_mirror') {
+    setLabel(elA, LABEL.neutral, 'neutral_mirror');
+    setLabel(elB, LABEL.neutral, 'neutral_mirror');
+    setLabel(cardA, LABEL.neutral, 'neutral_mirror');
+    setLabel(cardB, LABEL.neutral, 'neutral_mirror');
+    return;
+  }
+
+  // Standard: label each side by its resolved role
+  const roleA = (ctx.roleA || '').toLowerCase(); // "favorite" | "cinderella"
+  const roleB = (ctx.roleB || '').toLowerCase();
+
+  const textA = (roleA === 'favorite') ? LABEL.favorite : LABEL.cinderella;
+  const textB = (roleB === 'favorite') ? LABEL.favorite : LABEL.cinderella;
+
+  setLabel(elA, textA, roleA || 'standard');
+  setLabel(elB, textB, roleB || 'standard');
+  setLabel(cardA, textA, roleA || 'standard');
+  setLabel(cardB, textB, roleB || 'standard');
 }
 
 // ---------- Lean band helper (for ΔMI) ----------
@@ -3921,32 +3980,52 @@ function miSetVerdictCopy({ winner, loser, gapKey }) {
   const copy = window.MI_COPY || {};
   const metrics = copy.verdict && copy.verdict.metrics ? copy.verdict.metrics : {};
 
-  // Headline (primary)
+  const lineEl = document.getElementById('miVerdictLine');
+  if (!lineEl) return;
+
+  // ----- Primary (headline) -----
   const primaryBlock = metrics.primary_text;
   const primaryLineRaw = miPickBandLine(primaryBlock, gapKey);
   const primaryLine = miApplyVerdictTokens(primaryLineRaw, winner, loser);
 
-  const headlineEl = document.querySelector('[data-copy="verdict.metrics.primary_text"]') 
-                  || document.getElementById('miVerdictLine');
+  // Ensure structured children exist (because your CSS expects split styling)
+  let headlineSpan = lineEl.querySelector('.mi-verdict-headline');
+  let whySpan = lineEl.querySelector('.mi-verdict-why');
 
-  if (headlineEl) headlineEl.textContent = primaryLine || '—';
+  if (!headlineSpan || !whySpan) {
+    // Preserve any existing wrapper text as a fallback headline
+    const existingText = (lineEl.textContent || '').trim();
 
-  // Optional secondary (why)
+    // Reset wrapper and recreate the two spans your own code expects
+    lineEl.textContent = '';
+
+    headlineSpan = document.createElement('span');
+    headlineSpan.className = 'mi-verdict-headline';
+
+    whySpan = document.createElement('span');
+    whySpan.className = 'mi-verdict-why';
+
+    if (existingText) headlineSpan.textContent = existingText;
+
+    lineEl.appendChild(headlineSpan);
+    lineEl.appendChild(whySpan);
+
+    lineEl.classList.add('is-structured');
+  }
+
+  // Write primary into the dedicated headline span
+  headlineSpan.textContent = primaryLine || '—';
+
+  // ----- Secondary (why) -----
   const secondaryBlock = metrics.secondary_text;
   const secondaryLineRaw = miPickBandLine(secondaryBlock, gapKey);
   const secondaryLine = miApplyVerdictTokens(secondaryLineRaw, winner, loser);
 
-  const secondaryEl =
-    document.querySelector('[data-copy="verdict.metrics.secondary_text"]') ||
-    document.querySelector('.mi-verdict-why');
-
-  if (secondaryEl) {
-    secondaryEl.textContent = secondaryLine || '';
-    secondaryEl.classList.toggle('is-empty', !secondaryLine);
-  }
+  // Write secondary into the dedicated why span
+  whySpan.textContent = secondaryLine || '';
+  whySpan.classList.toggle('is-empty', !secondaryLine);
 
   // IMPORTANT: Do NOT touch verdict.metrics.back_text here.
-  // Your existing flip-tile back population remains intact.
 }
 
 /* =========================================================
@@ -3957,27 +4036,36 @@ function enhanceVerdictPresentation() {
   const line = document.getElementById('miVerdictLine');
   if (!line) return;
 
+  // If the wrapper says "structured" but the DOM no longer has the spans,
+  // we are in the quick-edit failure mode: something flattened children via textContent.
+  // In that case, remove the flag so we can rebuild.
+  if (line.classList.contains('is-structured')) {
+    const hasHeadline = !!line.querySelector('.mi-verdict-headline');
+    const hasWhy = !!line.querySelector('.mi-verdict-why');
+
+    // If spans still exist, do nothing (already structured).
+    if (hasHeadline || hasWhy) return;
+
+    // Otherwise, it is stale and must be repaired.
+    line.classList.remove('is-structured');
+  }
+
   const raw = (line.textContent || '').trim();
   if (!raw || raw === '—') return;
-
-  // Avoid re-processing
-  if (line.classList.contains('is-structured')) return;
 
   // Pull team names from existing scorebug labels
   const teamA = (document.getElementById('miScorebugTeamA')?.textContent || '').trim();
   const teamB = (document.getElementById('miScorebugTeamB')?.textContent || '').trim();
 
   // --- Sentence split (Headline = sentence 1, Subdeck = sentence 2+)
-  // Split at the first sentence boundary that looks like end punctuation
-  // followed by whitespace and a capital/open-quote.
   const split = raw.match(/^(.+?[.!?])\s+(?=[A-Z“"‘])/);
 
   let headlineText = raw;
-  let subdeckText = '';
+  let subText = '';
 
   if (split && split[1] && split[1].length < raw.length) {
     headlineText = split[1].trim();
-    subdeckText = raw.slice(split[0].length).trim();
+    subText = raw.slice(split[0].length).trim();
   }
 
   // Build DOM safely (no innerHTML injection)
@@ -3987,20 +4075,24 @@ function enhanceVerdictPresentation() {
   const headline = document.createElement('span');
   headline.className = 'mi-verdict-headline';
   headline.appendChild(highlightTeamsFragment(headlineText, teamA, teamB));
-
   line.appendChild(headline);
 
-  if (subdeckText) {
+  if (subText) {
     const brk = document.createElement('span');
     brk.className = 'mi-verdict-break';
     line.appendChild(brk);
 
-    const subdeck = document.createElement('span');
-    subdeck.className = 'mi-verdict-subdeck';
-    subdeck.appendChild(highlightTeamsFragment(subdeckText, teamA, teamB));
-
-    line.appendChild(subdeck);
+    // IMPORTANT: this must match what miSetVerdictCopy searches for
+    const why = document.createElement('span');
+    why.className = 'mi-verdict-why';
+    why.appendChild(highlightTeamsFragment(subText, teamA, teamB));
+    line.appendChild(why);
   }
+
+  console.log(
+    '[enhanceVerdictPresentation] structured:',
+    document.querySelectorAll('#miVerdictLine .mi-verdict-headline, #miVerdictLine .mi-verdict-why').length
+  );
 }
 
 function highlightTeamsFragment(text, teamA, teamB) {
@@ -4042,11 +4134,27 @@ function highlightTeamsFragment(text, teamA, teamB) {
 }
 
 function renderSummary({ a, b, miA, miB, diff, predicted, interactions, round, seedMeta }) {
+  const summarySection = document.getElementById('summarySection');
   const table = document.getElementById('summaryTable');
-  if (!table) return;
 
-  const tbody = table.querySelector('tbody');
-  if (!tbody) return;
+  // ===== Summary center: hue the Explain card like Verdict Shell =====
+  const explainCard = summarySection
+    ? summarySection.querySelector('.summary-mid-card--explain')
+    : null;
+
+  if (explainCard) {
+    explainCard.classList.remove('mi-winner-cinderella', 'mi-winner-favorite', 'mi-winner-neutral');
+
+    const winnerRole = (diff === 0)
+      ? 'neutral'
+      : (diff > 0 ? 'cinderella' : 'favorite'); // assumes Team A = Cinderella, Team B = Favorite   (same convention as Verdict)
+
+    explainCard.classList.add(`mi-winner-${winnerRole}`);
+  }
+
+  // Do NOT return early just because summary layout changed.
+  // Verdict Shell and scorebug updates must still run.
+  const tbody = table ? table.querySelector('tbody') : null;
 
   // ----- JSON wiring for labels + gap phrases -----
   const copy        = window.MI_COPY || {};
@@ -4122,7 +4230,11 @@ function renderSummary({ a, b, miA, miB, diff, predicted, interactions, round, s
   const confidenceBand = (bandLabel || getLeanBand(diff) || '').trim();
 
   // Determine winner side
-  const winnerIsA = (predicted === a.name);
+  const winnerIsA =
+    (diff > 0) ? true :
+    (diff < 0) ? false :
+    (predicted === a.name); // only if diff === 0
+
   const winName   = winnerIsA ? a.name : b.name;
   const loseName  = winnerIsA ? b.name : a.name;
 
@@ -4247,43 +4359,250 @@ function renderSummary({ a, b, miA, miB, diff, predicted, interactions, round, s
   if (headA) headA.textContent = a.name;
   if (headB) headB.textContent = b.name;
 
-  // ----- Single clean matchup row using "mini cards" in each cell -----
-  tbody.innerHTML = `
-    <tr>
-      <!-- Team A summary -->
-      <td>
-        <div class="summary-block">
-          <div class="summary-team-label">${cTeamLabel}</div>
-          <div class="summary-team-name">${a.name}</div>
-          <div class="summary-mi-line summary-mi-secondary">${baselineLabel}: ${fmt(baseA, 3)}</div>
-          <div class="summary-mi-line summary-mi-primary">${matchupLabel}: ${fmt(miA, 3)}</div>
-          <div class="summary-int-line">
-            ${interactionLabel}: ${fmt(intA, 3)}
-          </div>
-        </div>
-      </td>
+  // Helper: set text for a data-value field inside #summarySection
+  const setSummaryValue = (key, val) => {
+    const els = document.querySelectorAll(`#summarySection [data-value="${key}"]`);
+    if (!els || !els.length) return;
+    const out = (val == null ? '' : val);
+    els.forEach(el => { el.textContent = out; });
+  };
 
-      <!-- Center verdict card -->
-      <td>
-        <div class="summary-block summary-verdict summary-verdict-placeholder">
-          <!-- Verdict moved to #verdictShell -->
-        </div>
-      </td>
+  // ===== Center Column (Explain Mode) helpers =====
 
-      <!-- Team B summary -->
-      <td>
-        <div class="summary-block">
-          <div class="summary-team-label">${fTeamLabel}</div>
-          <div class="summary-team-name">${b.name}</div>
-          <div class="summary-mi-line summary-mi-secondary">${baselineLabel}: ${fmt(baseB, 3)}</div>
-          <div class="summary-mi-line summary-mi-primary">${matchupLabel}: ${fmt(miB, 3)}</div>
-          <div class="summary-int-line">
-            ${interactionLabel}: ${fmt(intB, 3)}
-          </div>
-        </div>
-      </td>
-    </tr>
-  `;
+  // Edge team based on diff sign (diff = miA - miB)
+  const edgeTeam = (diff === 0) ? '' : (diff > 0 ? a.name : b.name);
+
+  // Use existing JSON gapKey/bandLabel if available; otherwise map gapKey → phrase
+  const separationLabelFromGapKey = (k, diff) => {
+    if (diff === 0) return 'No clear edge';
+
+    switch (k) {
+      case 'tiny_gap':
+        return 'No clear edge';
+      case 'small_gap':
+        return 'Slim edge';
+      case 'medium_gap':
+        return 'Moderate edge';
+      case 'large_gap':
+        return 'Strong edge';
+      default:
+        return 'Edge';
+    }
+  };
+
+  const separationLabel = separationLabelFromGapKey(gapKey, diff);
+
+  // Unsigned separation number for humans (supporting evidence only)
+  const sep = Math.abs(diff);
+  const sepText = (diff === 0) ? '—' : `~${sep.toFixed(1)}`;
+
+  // Pull the score-build components from the team objects (computeFinalMI already stores these)
+  const aBase    = (typeof a.mi_base === 'number')      ? a.mi_base      : baseA;
+  const bBase    = (typeof b.mi_base === 'number')      ? b.mi_base      : baseB;
+
+  const aIntRaw  = (typeof a.mi_int_raw === 'number')   ? a.mi_int_raw   : (interactions?.a ?? 0);
+  const bIntRaw  = (typeof b.mi_int_raw === 'number')   ? b.mi_int_raw   : (interactions?.b ?? 0);
+
+  const aRFact   = (typeof a.mi_int_rFact === 'number') ? a.mi_int_rFact : null;
+  const bRFact   = (typeof b.mi_int_rFact === 'number') ? b.mi_int_rFact : null;
+
+  const aIntEff  = (typeof a.mi_int === 'number')       ? a.mi_int       : (interactions?.a ?? 0);
+  const bIntEff  = (typeof b.mi_int === 'number')       ? b.mi_int       : (interactions?.b ?? 0);
+
+  const aFinal   = (typeof a.mi_matchup === 'number')   ? a.mi_matchup   : miA;
+  const bFinal   = (typeof b.mi_matchup === 'number')   ? b.mi_matchup   : miB;
+
+  // Fill Team A ledger
+  setSummaryValue('a.base',    fmt(aBase, 3));
+  setSummaryValue('a.int_raw', fmt(aIntRaw, 3));
+  setSummaryValue('a.rFact',   (aRFact == null ? '—' : fmt(aRFact, 3)));
+  setSummaryValue('a.int_eff', fmt(aIntEff, 3));
+  setSummaryValue('a.final',   fmt(aFinal, 3));
+
+  // Fill Team B ledger
+  setSummaryValue('b.base',    fmt(bBase, 3));
+  setSummaryValue('b.int_raw', fmt(bIntRaw, 3));
+  setSummaryValue('b.rFact',   (bRFact == null ? '—' : fmt(bRFact, 3)));
+  setSummaryValue('b.int_eff', fmt(bIntEff, 3));
+  setSummaryValue('b.final',   fmt(bFinal, 3));
+
+  // ----- Gap Attribution -----
+  const baseGap = aBase - bBase;
+  const shift   = aIntEff - bIntEff;  // matchup shift contribution (effective)
+  const netGap  = diff;              // miA - miB (already computed upstream)
+
+  // Winner name based on sign (negative means B is ahead if your netGap is A-B; adjust if flipped)
+  const leader = (netGap === 0) ? '' : (netGap > 0 ? a.name : b.name);
+
+  // Compact directional notes that *explain* (not “toward ___”)
+  const baselineNote = (baseGap === 0)
+    ? 'No baseline separation'
+    : `Profile edge favors ${baseGap > 0 ? a.name : b.name}`;
+
+  const shiftNote = (shift === 0)
+    ? 'No interaction swing'
+    : `Interactions favor ${shift > 0 ? a.name : b.name}`;
+
+  // Net gap note can stay on existing key or be improved if you want:
+  const netDir = (netGap === 0)
+    ? ''
+    : `Leans ${leader}`;
+
+  // Keep numeric internals for now (you may hide them via CSS in explain mode)
+  setSummaryValue('gap.baseline', fmt(baseGap, 3));
+  setSummaryValue('gap.shift',    fmt(shift, 3));
+  setSummaryValue('gap.net',      fmt(netGap, 3));
+
+  // New: header separation number (unsigned) — requires HTML data-value="gap.sep"
+  setSummaryValue('gap.sep', sepText);
+
+  // New: header support line (plain english, no sign confusion)
+  setSummaryValue(
+    'gap.net_note',
+    (diff === 0) ? 'Model separation is minimal.'
+                 : `Model separation: ${sepText.replace('~','')} points`
+  );
+
+  // Replace old “toward ___” notes with explanatory notes (optional)
+  const baselineNote2 =
+    (baseGap === 0) ? 'Profiles start closely matched.'
+                    : `${baseGap > 0 ? a.name : b.name} looks stronger before matchup effects.`;
+
+  const shiftNote2 =
+    (shift === 0) ? 'Matchup interactions do not create separation.'
+                  : `Matchup interactions ${Math.sign(shift) === Math.sign(diff) ? 'widen' : 'reduce'} the gap.`;
+
+  setSummaryValue('gap.baseline_note', baselineNote2);
+  setSummaryValue('gap.shift_note', shiftNote2);
+
+  // If your HTML still uses *_dir keys anywhere, blank them so nothing confusing renders
+  setSummaryValue('gap.baseline_dir', '');
+  setSummaryValue('gap.shift_dir', '');
+  setSummaryValue('gap.net_dir', '');
+
+  // ===== Center header: convert “Madness Delta” into an EDGE headline =====
+  const midTitleEl = document.querySelector('#summarySection .summary-col-mid .summary-mid-title');
+  if (midTitleEl) {
+    if (diff === 0) {
+      midTitleEl.textContent = 'NO CLEAR EDGE';
+    } else {
+      const safeTeam = miEscapeHtml(String(edgeTeam || '').toUpperCase());
+      midTitleEl.innerHTML = `<span class="edge-team">${safeTeam}</span> <span class="edge-tail">HOLDS THE EDGE</span>`;
+    }
+  }
+
+  const midHintEl = document.querySelector('#summarySection .summary-col-mid .summary-mid-hint');
+  if (midHintEl) {
+    midHintEl.textContent = separationLabel;
+    midHintEl.setAttribute('data-edge', gapKey); // tiny_gap | small_gap | medium_gap | large_gap
+  }
+
+  // ===== Center: “Why ___ has the edge” (repurpose the 3 rows as drivers) =====
+  const gapKickerEl = document.querySelector('#summaryGapAttribution .summary-mid-kicker');
+  if (gapKickerEl) {
+    gapKickerEl.textContent = (diff === 0) ? 'Why this is close' : `Why ${edgeTeam} has the edge`;
+  }
+
+  // Row 1: Profile advantage (baseline profile separation)
+  const rowProfile = document.querySelector('#summaryGapAttribution .summary-gap-line[data-field="baseline_gap"]');
+  if (rowProfile) {
+    const label = rowProfile.querySelector('.summary-label');
+    const hint  = rowProfile.querySelector('.summary-hint');
+    if (label) label.textContent = 'Profile advantage';
+    if (hint) {
+      hint.textContent =
+        (baseGap === 0) ? 'Profiles start closely matched.' :
+        `${baseGap > 0 ? a.name : b.name} shows the cleaner baseline profile.`;
+    }
+  }
+
+  // Row 2: Matchup interactions (interaction swing)
+  const rowInt = document.querySelector('#summaryGapAttribution .summary-gap-line[data-field="matchup_shift"]');
+  if (rowInt) {
+    const label = rowInt.querySelector('.summary-label');
+    const hint  = rowInt.querySelector('.summary-hint');
+    if (label) label.textContent = 'Matchup interactions';
+    if (hint) {
+      hint.textContent =
+        (shift === 0) ? 'Interactions do not meaningfully swing the matchup.' :
+        (Math.sign(shift) === Math.sign(diff))
+          ? 'Interactions support the existing edge.'
+          : 'Interactions push against the edge and tighten it.';
+    }
+  }
+
+  // Row 3: Résumé scaling (credibility multiplier differences)
+  const rowRes = document.querySelector('#summaryGapAttribution .summary-gap-line[data-field="net_gap"]');
+  if (rowRes) {
+    const label = rowRes.querySelector('.summary-label');
+    const hint  = rowRes.querySelector('.summary-hint');
+    if (label) label.textContent = 'Résumé scaling';
+
+    const aRF = (a && typeof a.rFact === 'number') ? a.rFact : null;
+    const bRF = (b && typeof b.rFact === 'number') ? b.rFact : null;
+
+    if (hint) {
+      if (aRF == null || bRF == null) {
+        hint.textContent = 'Résumé scaling contributes to overall separation.';
+      } else if (Math.abs(aRF - bRF) < 0.02) {
+        hint.textContent = 'Résumé scaling is similar for both teams.';
+      } else {
+        hint.textContent = `${(aRF > bRF) ? a.name : b.name} gets the stronger résumé multiplier.`;
+      }
+    }
+  }
+
+  // ----- Synthesis / Stitch Tag (deterministic) -----
+  const stitchCopy = (summaryCopy && summaryCopy.stitch) ? summaryCopy.stitch : {};
+
+  const EPS  = (typeof stitchCopy.eps === 'number')  ? stitchCopy.eps  : 0.001;
+  const SOFT = (typeof stitchCopy.soft === 'number') ? stitchCopy.soft : 0.20;
+
+  const sgn = (x) => (Math.abs(x) < EPS ? 0 : (x > 0 ? 1 : -1));
+
+  const sBase = sgn(baseGap);
+  const sNet  = sgn(netGap);
+  const sShft = sgn(shift);
+
+  let stitchKey = 'confirmed';
+
+  if (sNet === 0) {
+    stitchKey = 'deadlock';
+  } else if (sBase !== 0 && sBase !== sNet) {
+    stitchKey = 'redirected';
+  } else {
+    // baseline and net point same direction (or baseline is ~0)
+    if (Math.abs(shift) < SOFT) {
+      stitchKey = 'confirmed';
+    } else if (sShft === sNet) {
+      stitchKey = 'reinforced';
+    } else if (sShft !== 0 && sShft !== sNet) {
+      stitchKey = 'resisted';
+    } else {
+      stitchKey = 'confirmed';
+    }
+  }
+
+  // Label: prefer copy.json string; fall back to key
+  const stitchLabel =
+    stitchCopy[stitchKey] ||
+    (copy.summary && copy.summary.stitch && copy.summary.stitch[stitchKey]) ||
+    stitchKey;
+
+  // Center column should not leak internal stitch labels (e.g., “REINFORCED”)
+  setSummaryValue('stitch.label', '');
+
+  // “How to read this” (canonical, consistent)
+  const howToRead =
+    (diff === 0)
+      ? 'Minimal separation suggests a true toss-up — treat this as highly volatile.'
+      : 'A strong edge reflects clearer separation between profiles — not a guaranteed outcome.';
+
+  setSummaryValue('stitch.note', howToRead);
+
+  // Optional: rename the kicker in the DOM (purely cosmetic, safe)
+  const stitchKickerEl = document.querySelector('#summaryStitchTag .summary-mid-kicker');
+  if (stitchKickerEl) stitchKickerEl.textContent = 'How to read this';
 
   // ===== VERDICT SHELL (single-source; no duplicate blocks) =====
   // IMPORTANT: verdict UI now lives in #verdictShell (not in the summary table).
@@ -4297,6 +4616,26 @@ function renderSummary({ a, b, miA, miB, diff, predicted, interactions, round, s
       : (diff > 0 ? 'cinderella' : 'favorite'); // diff > 0 => Team A (Cinderella) wins
 
     const tier = edgeTier; // coin | slight | solid | heavy
+
+    // ===== Lens → container data-lens (Option B mapping layer) =====
+    // Mirror modes override winnerRole hue; standard uses winnerRole; toss-up maps to neutral_mirror.
+    const roundCode = round || CURRENT_ROUND || 'R64';
+
+    let lensKey = (winnerRole === 'neutral') ? 'neutral_mirror' : winnerRole; // default for standard
+
+    if (typeof resolveIdentityContext === 'function') {
+      const ctx = resolveIdentityContext(a, b, roundCode);
+      if (ctx && (ctx.mode === 'chalk_mirror' || ctx.mode === 'chaos_mirror' || ctx.mode === 'neutral_mirror')) {
+        lensKey = ctx.mode; // mirror lens wins
+      }
+    }
+
+    // Apply to the three “accent authority” containers
+    verdictShellEl.setAttribute('data-lens', lensKey);
+    if (summarySection) summarySection.setAttribute('data-lens', lensKey);
+
+    const analysisShellEl = document.getElementById('analysisShell');
+    if (analysisShellEl) analysisShellEl.setAttribute('data-lens', lensKey);
 
     verdictShellEl.classList.remove(
       'mi-winner-cinderella', 'mi-winner-favorite', 'mi-winner-neutral',
@@ -4348,8 +4687,13 @@ function renderSummary({ a, b, miA, miB, diff, predicted, interactions, round, s
 
   const lineEl = document.getElementById('miVerdictLine');
   if (lineEl) {
+    // If any flow previously structured the verdict, a later .textContent write can
+    // flatten children but leave the flag behind. Always clear the flag before rewriting.
+    lineEl.classList.remove('is-structured');
+
     // Prefer JSON headline; fall back to legacy leanText if JSON is missing
     lineEl.textContent = combinedVerdict || (leanText || '');
+
     enhanceVerdictPresentation();
   }
 
@@ -4406,6 +4750,8 @@ function renderSummary({ a, b, miA, miB, diff, predicted, interactions, round, s
     roundSpan.textContent = getRoundLabelFromCode(round || CURRENT_ROUND);
   }
 
+  miUpdateMatchupRoundPill(round || CURRENT_ROUND);
+
   // Legacy spans (safe no-ops if not present)
   const miASpan  = document.getElementById('miA');
   const miBSpan  = document.getElementById('miB');
@@ -4415,9 +4761,54 @@ function renderSummary({ a, b, miA, miB, diff, predicted, interactions, round, s
   if (miBSpan)  miBSpan.textContent  = miB.toFixed(3);
   if (predSpan) predSpan.textContent = predictedLabel ? `${predicted}` : `${predicted}`;
 
-  const summarySection = document.getElementById('summarySection');
   if (summarySection) {
     summarySection.classList.add('visible');
+  }
+
+  // ===== Center: "Why ___ has the edge" (repurpose the 3 gap lines) =====
+  const whyKickerEl = document.querySelector('#summaryGapAttribution .summary-mid-kicker');
+  if (whyKickerEl) {
+    whyKickerEl.textContent = (diff === 0) ? 'Why this is close' : `Why ${edgeTeam} has the edge`;
+  }
+
+  const gapLines = document.querySelectorAll('#summaryGapAttribution .summary-gap-line');
+  if (gapLines && gapLines.length >= 3) {
+
+    // 1) Profile advantage
+    const l0 = gapLines[0].querySelector('.summary-label');
+    const h0 = gapLines[0].querySelector('.summary-hint');
+
+    if (l0) l0.textContent = 'Profile advantage';
+    if (h0) {
+      h0.textContent =
+        (diff === 0)
+          ? 'Overall team profiles enter this matchup closely matched.'
+          : `${edgeTeam} enters the matchup with the stronger overall profile.`;
+    }
+
+    // 2) Matchup interactions
+    const l1 = gapLines[1].querySelector('.summary-label');
+    const h1 = gapLines[1].querySelector('.summary-hint');
+
+    if (l1) l1.textContent = 'Matchup interactions';
+    if (h1) {
+      h1.textContent =
+        (diff === 0)
+          ? 'Opponent-specific effects do not create meaningful separation.'
+          : 'Opponent-specific matchup effects widen the separation rather than narrowing it.';
+    }
+
+    // 3) Résumé scaling
+    const l2 = gapLines[2].querySelector('.summary-label');
+    const h2 = gapLines[2].querySelector('.summary-hint');
+
+    if (l2) l2.textContent = 'Résumé scaling';
+    if (h2) {
+      h2.textContent =
+        (diff === 0)
+          ? 'Credibility scaling keeps this in toss-up territory.'
+          : 'Résumé scaling supports the reliability of those matchup effects.';
+    }
   }
 
   // ----- Seed / bracket compatibility note -----
@@ -5000,35 +5391,37 @@ function updateMatchupBarFromDOM() {
   const teamBNameEl  = document.getElementById('teamBTitle');
   const seedAEl      = document.getElementById('teamASeed');
   const seedBEl      = document.getElementById('teamBSeed');
-  const roundLabelEl = document.getElementById('currentRoundLabel');
 
   const cName = teamANameEl ? teamANameEl.textContent.trim() : 'Team A';
   const fName = teamBNameEl ? teamBNameEl.textContent.trim() : 'Team B';
   const cSeed = seedAEl ? seedAEl.textContent.trim() : '';
   const fSeed = seedBEl ? seedBEl.textContent.trim() : '';
-  const round = roundLabelEl ? roundLabelEl.textContent.trim() : 'Round of 64';
 
   const cNameOut = document.getElementById('matchupCinderName');
   const fNameOut = document.getElementById('matchupFavoriteName');
   const cSeedOut = document.getElementById('matchupCinderSeed');
   const fSeedOut = document.getElementById('matchupFavoriteSeed');
-  const roundOut = document.getElementById('matchupRoundPill');
 
   if (cNameOut) cNameOut.textContent = cName;
   if (fNameOut) fNameOut.textContent = fName;
   if (cSeedOut) cSeedOut.textContent = cSeed ? `(${cSeed})` : '';
   if (fSeedOut) fSeedOut.textContent = fSeed ? `(${fSeed})` : '';
-  if (roundOut) roundOut.textContent = round;
+
+  // ✅ Round pill should be state-driven, not scraped from DOM text.
+  // This prevents "Round of 64" from being re-injected as a fallback.
+  miUpdateMatchupRoundPill(CURRENT_ROUND);
 
   matchupBar.classList.add('visible');
   topBar.classList.add('collapsed');
 
   const appShell = document.querySelector('.app-shell');
-   if (appShell) {
-   appShell.classList.add('has-matchup');
-   appShell.classList.remove('pre-matchup');
-   showFooter();
+  if (appShell) {
+    appShell.classList.add('has-matchup');
+    appShell.classList.remove('pre-matchup');
+    showFooter();
   }
+
+  console.log('[updateMatchupBarFromDOM] verdict children:', document.getElementById('miVerdictLine')?.innerHTML);
 }
 
 function hideMatchupBar() {
@@ -5172,7 +5565,10 @@ function enterMatchupQuickEdit() {
 
   // Show actions container
   const actions = matchupBar.querySelector('.matchup-quick-actions');
-  if (actions) actions.setAttribute('aria-hidden', 'false');
+  if (actions) {
+    actions.setAttribute('aria-hidden', 'false');
+    actions.inert = false;
+  }
 
   // Move existing controls into the bar
   slotA.appendChild(aWrap);
@@ -5192,13 +5588,44 @@ function exitMatchupQuickEdit() {
   const slotB = document.getElementById('matchupQuickB');
   const slotR = document.getElementById('matchupQuickRound');
 
+  const actions = matchupBar.querySelector('.matchup-quick-actions');
+
+  // --- A11y: don't aria-hide a region while a descendant still has focus ---
+  const active = document.activeElement;
+  const focusIsInside =
+    !!active &&
+    (
+      (actions && actions.contains(active)) ||
+      (slotA && slotA.contains(active)) ||
+      (slotB && slotB.contains(active)) ||
+      (slotR && slotR.contains(active))
+    );
+
+  if (focusIsInside) {
+    // Prefer to focus a stable, always-visible control outside quick-edit regions.
+    const fallback =
+      document.getElementById('teamA') ||
+      document.getElementById('teamB') ||
+      document.getElementById('roundSelector') ||
+      document.getElementById('matchupRunBtn');
+
+    if (fallback && typeof fallback.focus === 'function') {
+      fallback.focus();
+    } else if (active && typeof active.blur === 'function') {
+      active.blur();
+    }
+  }
+
+  // Now it's safe to hide/toggle editing state
   matchupBar.classList.remove('is-editing');
   slotA?.setAttribute('aria-hidden', 'true');
   slotB?.setAttribute('aria-hidden', 'true');
   slotR?.setAttribute('aria-hidden', 'true');
 
-  const actions = matchupBar.querySelector('.matchup-quick-actions');
-  if (actions) actions.setAttribute('aria-hidden', 'true');
+  if (actions) {
+    actions.setAttribute('aria-hidden', 'true');
+    actions.inert = true;
+  }
 
   const aWrap = document.getElementById('teamASelectWrap');
   const bWrap = document.getElementById('teamBSelectWrap');
@@ -5428,10 +5855,10 @@ function buildTeamSummary(team, opponent, result, side) {
 }
 
 function renderTeamSide(side, result) {
-  const isA   = side === 'A';
-  const team  = isA ? result.a   : result.b;
-  const mi    = isA ? result.miA : result.miB;              // matchup MI (still used elsewhere if needed)
-  const intTot= isA ? result.interactions.a : result.interactions.b;
+  const isA    = side === 'A';
+  const team   = isA ? result.a   : result.b;
+  const mi     = isA ? result.miA : result.miB; // matchup MI (still used elsewhere if needed)
+  const intTot = isA ? result.interactions.a : result.interactions.b;
 
   if (!team) return;
 
@@ -5443,16 +5870,14 @@ function renderTeamSide(side, result) {
   const neutralTableId    = isA ? 'neutralTableA'     : 'neutralTableB';
   const neutralSubtotalId = isA ? 'neutralSubtotalA'  : 'neutralSubtotalB';
 
-  const core    = team.mibs    || 0;
-  const breadth = team.breadth || 0;
-  const resume  = team.resumeR || 0;
+  const core     = team.mibs    || 0;
+  const breadth  = team.breadth || 0;
+  const resume   = team.resumeR || 0;
   const opponent = isA ? result.b : result.a;
-  const summary = buildTeamSummary(team, opponent, result, side);
 
   // Baseline profile subtotal and MI_base
   const profileSubtotal = core + breadth;
 
-  // Ensure MI_base is present; fall back to computing if needed
   const miBase = (typeof team.mi_base === 'number')
     ? team.mi_base
     : computeMIBase(team);
@@ -5462,13 +5887,10 @@ function renderTeamSide(side, result) {
   const seedStr  = (team.seed != null && team.seed !== '') ? String(team.seed) : '';
 
   if (titleEl) {
-    titleEl.textContent = seedStr
-      ? `#${seedStr} Seed ${baseName}`
-      : baseName;
+    titleEl.textContent = seedStr ? `#${seedStr} Seed ${baseName}` : baseName;
   }
 
-  // Keep the raw numeric seed in the hidden span so the matchup HUD
-  // can still read it and display "(1)" etc. if desired.
+  // Keep the raw numeric seed in the hidden span so the matchup HUD can read it
   if (seedEl) {
     seedEl.textContent = seedStr;
   }
@@ -5499,31 +5921,56 @@ function renderTeamSide(side, result) {
     teamTotalEl.textContent = rating.toString().padStart(2, '0');
   }
 
+  // =========================
   // Résumé context mini-tile
-  const resumeTile   = document.getElementById(isA ? 'resumeTileA' : 'resumeTileB');
-  const resumeAdjEl  = document.getElementById(isA ? 'resumeAdjA'  : 'resumeAdjB');
-  const resumeTierEl = document.getElementById(isA ? 'resumeTierA' : 'resumeTierB');
+  // =========================
+  const resumeTile    = document.getElementById(isA ? 'resumeTileA' : 'resumeTileB');
+  const resumeAdjEl   = document.getElementById(isA ? 'resumeAdjA'  : 'resumeAdjB');
+  const resumeTierEl  = document.getElementById(isA ? 'resumeTierA' : 'resumeTierB');
+  const backResumeEl  = document.getElementById(isA ? 'backResumeTileA' : 'backResumeTileB');
 
   if (resumeTile && resumeAdjEl && resumeTierEl) {
-    resumeAdjEl.textContent = fmt(resume, 3);
-
+    // Determine tier label (prefer precomputed on team if present)
     let tier = team.resumeRTier;
 
     if (!tier) {
-     const rules = miGetCopy('resume_tile_ui.tier_rules', null);
-     if (Array.isArray(rules) && rules.length) {
-       const hit = rules.find(r => typeof r.min === 'number' && resume >= r.min);
-       tier = hit?.label || 'Average';
-     } else {
-       tier =
-        (resume >= 0.10 ? 'Strong' :
-         resume >= 0.05 ? 'Above Average' :
-         resume <= -0.10 ? 'Fragile' :
-         resume <= -0.05 ? 'Weak' : 'Average');
-     }
-   }
+      const tierRules = miGetCopy('resume_tile_ui.tier_rules', null);
 
-    resumeTierEl.textContent = tier;
+      if (Array.isArray(tierRules) && tierRules.length) {
+        // IMPORTANT: assumes tier_rules sorted high->low by "min"
+        const hit = tierRules.find(r => typeof r.min === 'number' && resume >= r.min);
+        tier = hit?.label || 'Average';
+      } else {
+        // Fallback heuristics
+        tier =
+          (resume >= 0.10 ? 'Strong' :
+           resume >= 0.05 ? 'Above Average' :
+           resume <= -0.10 ? 'Fragile' :
+           resume <= -0.05 ? 'Weak' : 'Average');
+      }
+    }
+
+    // FRONT: show tier in the big score spot
+    resumeAdjEl.textContent = tier;
+
+    // Optional: keep numeric resume on hover for debugging
+    resumeAdjEl.setAttribute('title', `Résumé Context: ${fmt(resume, 3)}`);
+
+    // Hide/remove tier subrow text for now (since tier is displayed above)
+    resumeTierEl.textContent = '';
+
+    // BACK: tier-aware résumé explanation (JSON-driven)
+    if (backResumeEl) {
+      const tierMap = miGetCopy('back.resume.tier_tile', {}) || {};
+      const lines =
+        (tier && Array.isArray(tierMap[tier])) ? tierMap[tier]
+        : (Array.isArray(tierMap.fallback) ? tierMap.fallback : []);
+
+      const tierText = (lines && lines.length) ? lines.slice(0, 2).join(' ') : '';
+
+      // Combine generic + tier-specific
+      backResumeEl.textContent = [tierText].filter(Boolean).join(' ');
+    }
 
     // Reset state + tier classes
     resumeTile.classList.remove(
@@ -5542,28 +5989,30 @@ function renderTeamSide(side, result) {
     if (resume > 0.0001) stateClass = 'context-positive';
     else if (resume < -0.0001) stateClass = 'context-negative';
 
-   // Tier-based color class (JSON-driven)
-  let tierClass = 'resume-tier-average';
-  const rules = miGetCopy('resume_tile_ui.tier_rules', []);
-  if (Array.isArray(rules)) {
-    const rule = rules.find(r => r.label === tier);
-    if (rule?.class) tierClass = rule.class;
-  }
+    // Tier-based color class (JSON-driven)
+    let tierClass = 'resume-tier-average';
+    const tierRules2 = miGetCopy('resume_tile_ui.tier_rules', []);
+    if (Array.isArray(tierRules2)) {
+      const rule = tierRules2.find(r => r.label === tier);
+      if (rule?.class) tierClass = rule.class;
+    }
 
     resumeTile.classList.add(stateClass, tierClass);
   }
 
-    // Identity tile (CIS / FAS)
-  const identityTile    = document.getElementById(isA ? 'identityTileA'    : 'identityTileB');
-  const identityScoreEl = document.getElementById(isA ? 'identityScoreA'   : 'identityScoreB');
-  const identityRoleEl  = document.getElementById(isA ? 'identityRoleA'    : 'identityRoleB');
-  const identityDetailEl= document.getElementById(isA ? 'identityDetailA'  : 'identityDetailB');
-  const backIdentityEl  = document.getElementById(isA ? 'backIdentityA'    : 'backIdentityB');
+  // =========================
+  // Identity tile (CIS / FAS / LCI / LFI)
+  // =========================
+  const identityTile     = document.getElementById(isA ? 'identityTileA'   : 'identityTileB');
+  const identityScoreEl  = document.getElementById(isA ? 'identityScoreA'  : 'identityScoreB');
+  const identityRoleEl   = document.getElementById(isA ? 'identityRoleA'   : 'identityRoleB');
+  const identityDetailEl = document.getElementById(isA ? 'identityDetailA' : 'identityDetailB');
+  const backIdentityEl   = document.getElementById(isA ? 'backIdentityA'   : 'backIdentityB');
 
   if (identityTile && identityScoreEl && identityRoleEl && identityDetailEl) {
     const identityLabelEl = identityTile.querySelector('.context-label');
-    const opponent = isA ? result.b : result.a;
     const roundCode = result.round || CURRENT_ROUND || "R64";
+
     // v3.8 identity packet (single source of truth)
     const ctx = resolveIdentityContext(result.a, result.b, roundCode);
 
@@ -5581,7 +6030,6 @@ function renderTeamSide(side, result) {
       ? getRoundLabelFromCode(roundCode)
       : roundCode;
 
-    // Determine label + tile styling (roles only: Favorite/Cinderella/Mirror)
     if (ctx.mode === "standard") {
       if (myRole === "favorite") {
         activeScore = myValue;
@@ -5601,7 +6049,6 @@ function renderTeamSide(side, result) {
       }
       headerText = `Tournament Identity — ${roundLabel}`;
     } else {
-      // Mirrors: role = Mirror (subtype reflected in header)
       activeScore = myValue;
       label       = 'Mirror';
       tileClass   = 'identity-neutral';
@@ -5616,16 +6063,11 @@ function renderTeamSide(side, result) {
       desc = `${myMetric}: ${Math.round(myValue)}`;
     }
 
-    identityScoreEl.textContent = (activeScore != null)
-      ? fmt(activeScore, 1)
-      : '—';
-
+    identityScoreEl.textContent = (activeScore != null) ? fmt(activeScore, 1) : '—';
     identityRoleEl.textContent   = label;
     identityDetailEl.textContent = desc;
 
-    if (identityLabelEl) {
-      identityLabelEl.textContent = headerText;
-    }
+    if (identityLabelEl) identityLabelEl.textContent = headerText;
 
     identityTile.classList.remove('identity-favorite', 'identity-cinderella', 'identity-neutral');
     identityTile.classList.add('identity-tile', tileClass);
@@ -5641,7 +6083,6 @@ function renderTeamSide(side, result) {
       const identityTeam = {
         name: team.name,
         identity: {
-          // Store the displayed metric in the matching slot so copy stays aligned.
           CIS_static: (myMetric === "CIS" || myMetric === "LCI") ? myValue : 0,
           FAS_static: (myMetric === "FAS" || myMetric === "LFI") ? myValue : 0
         },
@@ -5652,6 +6093,7 @@ function renderTeamSide(side, result) {
       backIdentityEl.textContent = expl || '';
     }
   }
+
   // Core Traits big table
   renderCoreProfileTable(team, coreTableId);
 
@@ -6378,6 +6820,7 @@ if (roundBtn && roundDropdown) {
       if (!value) return;
 
       CURRENT_ROUND = value;
+      miUpdateMatchupRoundPill(CURRENT_ROUND);
 
       MI_ROUND_TOUCHED = true;
       clearRoundNudge();
