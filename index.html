@@ -815,159 +815,148 @@
 </div>
 </section>
 
-<!-- ================ SCORE BUILD (Scorecard Stitcher) ================ -->
+<!-- ================ SCORE BUILD v3.92 ================ -->
 <section id="summarySection" class="card summary-card">
-  <!-- ================================
-       SCORECARD STITCHER — 3-COLUMN GRID
-       Left: Team A build
-       Mid : Narrative synthesis (delta + interpretation + volatility)
-       Right: Team B build
-       ================================ -->
-  <div class="summary-scorebuild">
-    <div class="summary-block-title matchup-kicker">SCORE BUILD</div>
-    <!-- Keep the ID for continuity, but it's now a grid container (not a table) -->
-    <div id="summaryTable" class="summary-stitcher-grid" role="group" aria-label="Score Build">
-      
-<!-- LEFT — TEAM A BUILD -->
-<div class="summary-col summary-col-a">
-  <div class="summary-block summary-block-a" data-team="a">
-    <!-- Team name INSIDE the card -->
-    <div class="summary-block-head" id="summaryTeamAHeader"></div>
+  <div id="summaryTable" class="summary-synthesis-wrap" role="group" aria-label="Score Synthesis">
+    <table class="summary-synthesis-table" aria-label="Score Synthesis table">
+      <tbody>
+        <!-- ROW 1: Title (merged across full width) -->
+        <tr>
+          <th class="syn-title" colspan="7">Score Synthesis</th>
+        </tr>
 
-    <div class="summary-line summary-line--anchor" data-field="base">
-      <span class="summary-label" data-copy="summary.score_build.baseline">Baseline MI</span>
-      <span class="summary-hint">Team profile before opponent</span>
-      <span class="summary-value" data-value="a.base">—</span>
-    </div>
+        <!-- ROW 2: Team Names + CENTER narrative (now merged into one syn-center cell) -->
+        <tr>
+         <th class="syn-team syn-team-a" colspan="3">
+          <span id="summaryTeamAHeader"></span>
+         </th>
 
-    <div class="summary-line" data-field="int_raw">
-      <span class="summary-label" data-copy="summary.score_build.raw_leverage">Raw Interaction Leverage</span>
-      <span class="summary-hint">Matchup effects before scaling</span>
-      <span class="summary-value" data-value="a.int_raw">—</span>
-    </div>
+        <!-- syn-center now occupies the former spacer column AND its original spot -->
+         <td class="syn-center" rowspan="5">
+          <div class="syn-center-inner">
+            <div id="summarySynLean" class="syn-lean-line" data-copy="summary.synthesis.syn_lean"></div>
 
-    <div class="summary-line" data-field="rFact">
-      <span class="summary-label" data-copy="summary.score_build.resume_factor">Résumé Scaling</span>
-      <span class="summary-hint">Credibility multiplier</span>
-      <span class="summary-value" data-value="a.rFact">—</span>
-    </div>
+          <!-- MI Δ moved up into the main grid (formerly its own bottom row) -->
+             <div class="syn-delta">
+              <span class="syn-delta-label">MI Δ</span>
+               <span class="syn-delta-value" data-value="gap.sep">—</span>
+              </div>
+             </div>
+         </td>
 
-    <div class="summary-line" data-field="int_eff">
-      <span class="summary-label" data-copy="summary.score_build.effective_adj">Effective Matchup Adjustment</span>
-      <span class="summary-hint">Applied matchup impact</span>
-      <span class="summary-value" data-value="a.int_eff">—</span>
-    </div>
+          <th class="syn-team syn-team-b" colspan="3">
+           <span id="summaryTeamBHeader"></span>
+         </th>
+        </tr>
 
-    <div class="summary-line summary-line--final" data-field="final">
-      <span class="summary-label" data-copy="summary.score_build.final">Final Matchup MI</span>
-      <span class="summary-hint">Baseline + matchup effects</span>
-      <span class="summary-value" data-value="a.final">—</span>
-    </div>
+        <!-- Baseline MI row -->
+        <tr>
+          <!-- LEFT ledger label cell (label + micro-hint) -->
+          <td class="syn-label syn-label-a">
+            <div class="syn-label-stack">
+              <div class="syn-label-main" data-copy="summary.score_build.baseline">Baseline MI</div>
+              <div class="syn-label-hint" data-copy="summary.score_build.baseline_hint">Team profile before opponent</div>
+            </div>
+          </td>
+
+          <!-- LEFT value -->
+          <td class="syn-val syn-val-a" data-value="a.base">—</td>
+
+          <!-- LEFT Final MI (merged / dedicated narrow column) -->
+          <td class="syn-final syn-final-a" rowspan="4">
+            <div class="syn-final-inner">
+              <div class="syn-final-label" data-copy="summary.score_build.final">Final Matchup MI</div>
+              <div class="syn-final-hint" data-copy="summary.score_build.final_hint">Baseline + matchup effects</div>
+              <div class="syn-final-value" data-value="a.final">—</div>
+            </div>
+          </td>
+
+          <!-- RIGHT Final MI (merged / dedicated narrow column) -->
+          <td class="syn-final syn-final-b" rowspan="4">
+            <div class="syn-final-inner">
+              <div class="syn-final-label" data-copy="summary.score_build.final">Final Matchup MI</div>
+              <div class="syn-final-hint" data-copy="summary.score_build.final_hint">Baseline + matchup effects</div>
+              <div class="syn-final-value" data-value="b.final">—</div>
+            </div>
+          </td>
+
+          <!-- RIGHT value -->
+          <td class="syn-val syn-val-b" data-value="b.base">—</td>
+
+          <!-- RIGHT ledger label cell (label + micro-hint) -->
+          <td class="syn-label syn-label-b">
+            <div class="syn-label-stack">
+              <div class="syn-label-main" data-copy="summary.score_build.baseline">Baseline MI</div>
+              <div class="syn-label-hint" data-copy="summary.score_build.baseline_hint">Team profile before opponent</div>
+            </div>
+          </td>
+        </tr>
+
+        <!-- Breadth Bonus row -->
+        <tr>
+          <td class="syn-label syn-label-a">
+            <div class="syn-label-stack">
+              <div class="syn-label-main" data-copy="summary.score_build.resume_factor">Breadth Bonus</div>
+              <div class="syn-label-hint" data-copy="summary.score_build.resume_factor_hint">Credibility multiplier</div>
+            </div>
+          </td>
+
+          <td class="syn-val syn-val-a" data-value="a.breadth">—</td>
+
+          <td class="syn-val syn-val-b" data-value="b.breadth">—</td>
+
+          <td class="syn-label syn-label-b">
+            <div class="syn-label-stack">
+              <div class="syn-label-main" data-copy="summary.score_build.resume_factor">Breadth Bonus</div>
+              <div class="syn-label-hint" data-copy="summary.score_build.resume_factor_hint">Credibility multiplier</div>
+            </div>
+          </td>
+        </tr>
+
+        <!-- Interaction Adjustment row -->
+        <tr>
+          <td class="syn-label syn-label-a">
+            <div class="syn-label-stack">
+              <div class="syn-label-main" data-copy="summary.score_build.effective_adj">Effective Matchup Adjustment</div>
+              <div class="syn-label-hint" data-copy="summary.score_build.effective_adj_hint">Applied matchup impact</div>
+            </div>
+          </td>
+
+          <td class="syn-val syn-val-a" data-value="a.int_eff">—</td>
+
+          <td class="syn-val syn-val-b" data-value="b.int_eff">—</td>
+
+          <td class="syn-label syn-label-b">
+            <div class="syn-label-stack">
+              <div class="syn-label-main" data-copy="summary.score_build.effective_adj">Effective Matchup Adjustment</div>
+              <div class="syn-label-hint" data-copy="summary.score_build.effective_adj_hint">Applied matchup impact</div>
+            </div>
+          </td>
+        </tr>
+
+        <!-- Total Adjustment row -->
+        <tr>
+          <td class="syn-label syn-label-a">
+            <div class="syn-label-stack">
+              <div class="syn-label-main" data-copy="summary.score_build.total_adj">Total Adjustment</div>
+              <div class="syn-label-hint" data-copy="summary.score_build.total_adj_hint">Net add-on to baseline</div>
+            </div>
+          </td>
+
+          <td class="syn-val syn-val-a" data-value="a.total_adj">—</td>
+
+          <td class="syn-val syn-val-b" data-value="b.total_adj">—</td>
+
+          <td class="syn-label syn-label-b">
+            <div class="syn-label-stack">
+              <div class="syn-label-main" data-copy="summary.score_build.total_adj">Total Adjustment</div>
+              <div class="syn-label-hint" data-copy="summary.score_build.total_adj_hint">Net add-on to baseline</div>
+            </div>
+          </td>
+        </tr>
+     </tbody>
+    </table>
   </div>
-</div>
-
-<!-- MIDDLE — DELTA + GAP ATTRIBUTION + SYNTHESIS (unified card) -->
-<div class="summary-col summary-col-mid">
-
-  <div class="summary-mid-card summary-mid-card--explain" role="group" aria-label="Matchup Summary">
-
-    <!-- Delta headline (now a header region inside the mid card) -->
-    <div class="summary-mid-top">
-      <div class="summary-mid-title" data-copy="summary.delta.title">Madness Delta</div>
-      <div class="summary-mid-hint">Difference between the two teams' final matchup MI values.</div>
-      <div class="summary-mid-delta" data-value="gap.sep">—</div>
-      <div class="summary-mid-delta-note" data-value="gap.net_note"></div>
-    </div>
-
-    <div class="summary-mid-divider" aria-hidden="true"></div>
-
-    <!-- Gap attribution -->
-    <div id="summaryGapAttribution" class="summary-gap">
-      <div class="summary-mid-kicker" data-copy="summary.gap_attribution.title">Gap Attribution</div>
-      <div class="summary-gap-bridge">Baseline gap + matchup shift = net delta</div>
-      <div class="summary-gap-line" data-field="baseline_gap">
-        <span class="summary-label" data-copy="summary.gap_attribution.baseline_gap">Baseline Gap</span>
-        <span class="summary-hint">Profile separation before opponent-specific effects.</span>
-        <span class="summary-value" data-value="gap.baseline">—</span>
-        <span class="summary-note" data-value="gap.baseline_note"></span>
-      </div>
-
-      <div class="summary-gap-line" data-field="matchup_shift">
-        <span class="summary-label" data-copy="summary.gap_attribution.matchup_shift">Matchup Shift</span>
-        <span class="summary-hint">How interaction metrics affected the separation.</span>
-        <span class="summary-value" data-value="gap.shift">—</span>
-        <span class="summary-note" data-value="gap.shift_note"></span>
-      </div>
-
-      <div class="summary-gap-line summary-gap-line--final" data-field="net_gap">
-        <span class="summary-label" data-copy="summary.gap_attribution.net_gap">Net Gap</span>
-        <span class="summary-hint">Final separation after baseline + matchup effects.</span>
-        <span class="summary-value" data-value="gap.net">—</span>
-        <span class="summary-note" data-value="gap.net_dir"></span>
-      </div>
-    </div>
-
-    <div class="summary-mid-divider" aria-hidden="true"></div>
-
-    <!-- Synthesis tag -->
-    <div id="summaryStitchTag" class="summary-stitch">
-      <div class="summary-mid-kicker" data-copy="summary.stitch.title">Matchup Summary</div>
-
-      <div class="summary-stitch-pill" data-field="stitch_tag">
-        <span class="summary-stitch-label" data-value="stitch.label">—</span>
-        <span class="summary-stitch-note" data-value="stitch.note"></span>
-      </div>
-    </div>
-
-    <!-- Keep the “How to Read This” markup for later, but hide it for now -->
-    <div class="summary-narrative summary-narrative--placeholder" hidden>
-      <div class="summary-mid-kicker" data-copy="summary.narrative.title">How to Read This</div>
-      <p class="summary-narrative-text" data-value="summary.narrative">—</p>
-      <p class="summary-volatility-text" data-value="summary.volatility"></p>
-    </div>
-
-  </div>
-</div>
-
-<!-- RIGHT — TEAM B BUILD -->
-<div class="summary-col summary-col-b">
-  <div class="summary-block summary-block-b" data-team="b">
-    <!-- Team name INSIDE the card -->
-    <div class="summary-block-head" id="summaryTeamBHeader"></div>
-
-    <div class="summary-line summary-line--anchor" data-field="base">
-      <span class="summary-label" data-copy="summary.score_build.baseline">Baseline MI</span>
-      <span class="summary-hint">Team profile before opponent</span>
-      <span class="summary-value" data-value="b.base">—</span>
-    </div>
-
-    <div class="summary-line" data-field="int_raw">
-      <span class="summary-label" data-copy="summary.score_build.raw_leverage">Raw Interaction Leverage</span>
-      <span class="summary-hint">Matchup effects before scaling</span>
-      <span class="summary-value" data-value="b.int_raw">—</span>
-    </div>
-
-    <div class="summary-line" data-field="rFact">
-      <span class="summary-label" data-copy="summary.score_build.resume_factor">Résumé Scaling</span>
-      <span class="summary-hint">Credibility multiplier</span>
-      <span class="summary-value" data-value="b.rFact">—</span>
-    </div>
-
-    <div class="summary-line" data-field="int_eff">
-      <span class="summary-label" data-copy="summary.score_build.effective_adj">Effective Matchup Adjustment</span>
-      <span class="summary-hint">Applied matchup impact</span>
-      <span class="summary-value" data-value="b.int_eff">—</span>
-    </div>
-
-    <div class="summary-line summary-line--final" data-field="final">
-      <span class="summary-label" data-copy="summary.score_build.final">Final Matchup MI</span>
-      <span class="summary-hint">Baseline + matchup effects</span>
-      <span class="summary-value" data-value="b.final">—</span>
-    </div>
-  </div>
-</div>
-    </div><!-- /#summaryTable -->
-  </div><!-- /.summary-scorebuild -->
 </section>
 </div><!-- end #analysisShell -->
 
@@ -1005,5 +994,46 @@
   </div><!-- end .app-shell -->
   <!-- Core logic -->
   <script src="madness_index.js?v=21"></script>
+
+<!-- =========================================================
+     GLOSSARY DRAWER (matchup-only; overlay; left-anchored)
+     ========================================================= -->
+<aside id="glossaryDrawer" class="mi-glossary" aria-label="Glossary" hidden>
+  <!-- Slim left-edge handle (closed affordance) -->
+  <button id="glossaryHandle"
+          class="mi-glossary-handle"
+          type="button"
+          aria-controls="glossaryPanel"
+          aria-expanded="false">
+    <span class="mi-glossary-handle-text">Glossary</span>
+  </button>
+
+  <!-- Drawer panel -->
+  <section id="glossaryPanel" class="mi-glossary-panel" role="dialog" aria-modal="false">
+    <header class="mi-glossary-header">
+      <div class="mi-glossary-title" id="glossaryTitle">Stat &amp; Rule Glossary</div>
+
+      <div class="mi-glossary-header-actions">
+        <button id="glossaryClose" class="mi-glossary-close" type="button" aria-label="Close glossary">
+          ✕
+        </button>
+      </div>
+    </header>
+
+    <!-- One unified scroll area (avoid nested scroll traps) -->
+    <div class="mi-glossary-body">
+      <nav class="mi-glossary-toc" aria-label="Glossary table of contents" id="glossaryTOC">
+        <!-- JS renders <details> sections here -->
+      </nav>
+
+      <!-- Definition viewer (single “active term” pane) -->
+      <div class="mi-glossary-view" aria-live="polite">
+        <div class="mi-glossary-view-term" id="glossaryViewTerm">Select a term</div>
+        <div class="mi-glossary-view-def" id="glossaryViewDef">Quick definitions appear here.</div>
+      </div>
+    </div>
+  </section>
+</aside>
+
 </body>
 </html>

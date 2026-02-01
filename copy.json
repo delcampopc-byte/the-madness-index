@@ -293,23 +293,50 @@
     "round_help": "",
     "debug_btn": "Toggle Debug View"
   },
-  "summary": {
+"summary": {
   "title": "5. Scorecards & Matchup Summary",
   "help": "Final Madness Index scores for each team, the MI gap, and the model’s predicted lean.",
-  "matchup_header": "Matchup Edge",
-  "round": "Round:",
-  "neutral_matchup": "Neutral matchup",
-  "toward_phrase": "toward",
+
+  "matchup_header": "",
+  "round": "",
+  "neutral_matchup": "",
+  "toward_phrase": "",
+
   "table_labels": {
-    "cinderella_label": "Cinderella",
-    "favorite_label": "Favorite",
-    "baseline_label": "Baseline MI",
-    "matchup_label": "Matchup MI",
-    "interaction_label": "Interaction Leverage",
-    "predicted_label": "Predicted Winner",
-    "edge_label": "Matchup Edge"
-    }
+    "cinderella_label": "",
+    "favorite_label": "",
+    "baseline_label": "",
+    "matchup_label": "",
+    "interaction_label": "",
+    "predicted_label": "",
+    "edge_label": ""
   },
+
+  "delta": {
+    "title": ""
+  },
+
+  "score_build": {
+    "baseline": "Baseline MI",
+    "baseline_hint": "",
+
+    "breadth_bonus": "Breadth Bonus",
+    "breadth_bonus_hint": "",
+
+    "effective_adj": "Effective Matchup Adjustment",
+    "effective_adj_hint": "",
+
+    "total_adj": "Total Adjustment",
+    "total_adj_hint": "",
+
+    "final": "Final Matchup MI",
+    "final_hint": ""
+  },
+
+  "synthesis": {
+    "syn_lean": ""
+  }
+},
   "glossary": {
     "title": "Stat & Rule Glossary",
     "help": "Definitions for all metrics and rules used in the Madness Index.",

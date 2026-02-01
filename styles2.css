@@ -6484,7 +6484,7 @@ button,
   align-items: center;
   justify-content: flex-start;
   height: 100%;
-  padding: 18px 18px 20px;
+  padding: 8px 6px 6px;
   box-sizing: border-box;
 }
 
@@ -8417,1235 +8417,243 @@ button,
 }
 
 /* ==========================================
-   SUMMARY — Score Build / Gap Attribution / Synthesis
-   (Phase 2 cohesion pass; no layout redesign)
+   SCORE SYNTHESIS (v3.92 table) — broadcast grid
+   Matches intentional per-cell alignment from mock
    ========================================== */
 
-/* Subhead ("Score Build", "Gap Attribution", "Synthesis") */
-.summary-block-title{
-  margin: 10px 0 8px;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
+#summarySection .summary-synthesis-wrap{
+  width: 100%;
+}
 
-  font-size: 12px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  font-weight: 850;
-  line-height: 1;
+#summarySection .summary-synthesis-table{
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
 
-  color: rgba(226, 232, 240, 0.90);
-  background: rgba(3, 7, 18, 0.55);
-  border: 1px solid rgba(148,163,184,0.18);
+  background: rgba(2, 6, 23, 0.55);
+  border: 1px solid rgba(148, 163, 184, 0.28);
   border-radius: 12px;
-
-  padding: 9px 12px;
-  box-shadow:
-    0 10px 22px rgba(0,0,0,0.38),
-    inset 0 1px 0 rgba(255,255,255,0.06);
-}
-
-/* Tighten spacing under the section h2 so it feels like the Verdict Shell stack */
-.summary-card .summary-header{
-  margin-bottom: 6px;
-}
-
-/* Score Build wrapper */
-.summary-scorebuild{
-  margin-top: 6px;
-}
-
-/* Treat each side as a "glass panel" rather than an old mini-card */
-.summary-block{
-  /* override the older “heavy black card” look without nuking it */
-  background: radial-gradient(circle at 20% 10%, rgba(255,255,255,0.06), rgba(0,0,0,0) 55%),
-              rgba(3, 7, 18, 0.72);
-  border: 1px solid rgba(148,163,184,0.16);
-  border-radius: 14px;
-
-  padding: 14px 16px 12px;
-  text-align: left;              /* ledger needs alignment */
-  color: rgba(226,232,240,0.86);
-
-  box-shadow:
-    0 18px 40px rgba(0,0,0,0.40),
-    inset 0 1px 0 rgba(255,255,255,0.06);
-}
-
-/* Ledger lines: label left, value right */
-.summary-line{
-  display: grid;
-  grid-template-columns: 1fr auto;
-  align-items: baseline;
-  column-gap: 14px;
-
-  padding: 6px 0;
-  border-bottom: 1px solid rgba(148,163,184,0.12);
-}
-
-.summary-line:last-child{
-  border-bottom: none;
-}
-
-/* Label tone */
-.summary-label{
-  font-size: 12px;
-  letter-spacing: 0.02em;
-  color: rgba(148,163,184,0.86);
-}
-
-/* Value tone */
-.summary-value{
-  font-variant-numeric: tabular-nums;
-  font-weight: 800;
-  font-size: 12px;
-  color: rgba(226,232,240,0.92);
-}
-
-/* Final line emphasis (the only “headline” inside each panel) */
-.summary-line--final .summary-label{
-  color: rgba(226,232,240,0.92);
-}
-.summary-line--final .summary-value{
-  font-size: 14px;
-  font-weight: 950;
-  letter-spacing: 0.02em;
-}
-
-/* Gap Attribution block: make it a compact grid like a broadcast stat strip */
-.summary-gap{
-  margin-top: 14px;
-}
-
-.summary-gap-line{
-  display: grid;
-  grid-template-columns: 160px auto 1fr;
-  align-items: baseline;
-  column-gap: 10px;
-
-  padding: 6px 0;
-  border-bottom: 1px solid rgba(148,163,184,0.12);
-}
-
-.summary-gap-line:last-child{
-  border-bottom: none;
-}
-
-.summary-gap-line .summary-label{
-  color: rgba(148,163,184,0.86);
-}
-
-.summary-gap-line .summary-value{
-  font-variant-numeric: tabular-nums;
-  font-weight: 900;
-}
-
-.summary-gap-line .summary-note{
-  color: rgba(226,232,240,0.70);
-  font-size: 12px;
-}
-
-/* Net gap emphasis */
-.summary-gap-line--final .summary-label{
-  color: rgba(226,232,240,0.92);
-}
-.summary-gap-line--final .summary-value{
-  font-size: 13px;
-  font-weight: 950;
-}
-
-/* Synthesis (stitch tag) */
-.summary-stitch{
-  margin-top: 14px;
-}
-
-.summary-stitch-pill{
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-
-  padding: 10px 12px;
-  border-radius: 999px;
-  border: 1px solid rgba(148,163,184,0.18);
-  background: rgba(3, 7, 18, 0.55);
-
-  box-shadow:
-    0 12px 28px rgba(0,0,0,0.38),
-    inset 0 1px 0 rgba(255,255,255,0.06);
-}
-
-.summary-stitch-label{
-  font-size: 12px;
-  font-weight: 950;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: rgba(226,232,240,0.92);
-}
-
-.summary-stitch-note{
-  font-size: 12px;
-  color: rgba(148,163,184,0.86);
-}
-
-/* Round row: tighten + match kicker vibe */
-.summary-round-row{
-  margin-top: 14px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.summary-round-label{
-  color: rgba(148,163,184,0.86);
-  font-size: 12px;
-  letter-spacing: 0.02em;
-}
-
-/* ==========================================
-   SUMMARY — 3-column stitcher grid (new HTML)
-   ========================================== */
-
-.summary-stitcher-grid{
-  display: grid;
-  grid-template-columns: minmax(260px, 1fr) minmax(320px, 1.15fr) minmax(260px, 1fr);
-  gap: 14px;
-  align-items: start;
-}
-
-/* Column wrappers */
-.summary-col{
-  min-width: 0; /* prevents overflow in grid */
-}
-
-/* Column heads (team names) */
-.summary-col-head{
-  margin: 0 0 8px;
-  padding: 10px 12px;
-
-  font-size: 12px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  font-weight: 950;
-  line-height: 1;
-
-  color: rgba(226,232,240,0.92);
-  background: rgba(3, 7, 18, 0.55);
-  border: 1px solid rgba(148,163,184,0.18);
-  border-radius: 12px;
-
-  box-shadow:
-    0 10px 22px rgba(0,0,0,0.38),
-    inset 0 1px 0 rgba(255,255,255,0.06);
-}
-
-/* Middle column headline (delta) */
-.summary-mid-top{
-  padding: 12px 14px;
-  border-radius: 14px;
-  border: 1px solid rgba(148,163,184,0.16);
-  background: rgba(3, 7, 18, 0.60);
-
-  box-shadow:
-    0 18px 40px rgba(0,0,0,0.40),
-    inset 0 1px 0 rgba(255,255,255,0.06);
-  margin-bottom: 12px;
-}
-
-.summary-mid-title{
-  font-size: 12px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  font-weight: 900;
-  color: rgba(148,163,184,0.86);
-}
-
-.summary-mid-delta{
-  margin-top: 6px;
-  font-variant-numeric: tabular-nums;
-  font-weight: 950;
-  font-size: 18px;
-  color: rgba(226,232,240,0.92);
-}
-
-.summary-mid-delta-note{
-  margin-top: 4px;
-  font-size: 12px;
-  color: rgba(226,232,240,0.70);
-}
-
-/* Narrative block text (middle column) */
-.summary-narrative{
-  margin-top: 14px;
-}
-
-.summary-narrative-text,
-.summary-volatility-text{
-  margin: 8px 0 0;
-  color: rgba(226,232,240,0.78);
-  font-size: 13px;
-  line-height: 1.45;
-}
-
-.summary-volatility-text{
-  color: rgba(148,163,184,0.88);
-}
-
-/* Spacing harmony inside mid column blocks */
-.summary-col-mid .summary-gap,
-.summary-col-mid .summary-stitch{
-  margin-top: 12px;
-}
-
-/* Responsive: collapse to vertical stack (A -> mid -> B) */
-@media (max-width: 900px){
-  .summary-stitcher-grid{
-    grid-template-columns: 1fr;
-  }
-
-  .summary-col-head{
-    margin-top: 10px;
-  }
-}
-
-/* Mobile: stack the two score panels and simplify gap grid */
-@media (max-width: 720px){
-  .summary-gap-line{
-    grid-template-columns: 1fr auto;
-  }
-  .summary-gap-line .summary-note{
-    grid-column: 1 / -1;
-    margin-top: 2px;
-  }
-}
-
-/* ==========================================
-   SUMMARY — Middle column unified card
-   ========================================== */
-
-.summary-col-mid .summary-mid-card{
-  background: radial-gradient(circle at 20% 10%, rgba(255,255,255,0.06), rgba(0,0,0,0) 55%),
-              rgba(3, 7, 18, 0.72);
-  border: 1px solid rgba(148,163,184,0.16);
-  border-radius: 14px;
-
-  padding: 14px 16px 12px;
-  color: rgba(226,232,240,0.86);
-
-  box-shadow:
-    0 18px 40px rgba(0,0,0,0.40),
-    inset 0 1px 0 rgba(255,255,255,0.06);
-}
-
-/* The delta block used to be a standalone “card”.
-   Inside the unified card, it should just be a header region. */
-.summary-col-mid .summary-mid-top{
-  padding: 0;
-  border: 0;
-  background: transparent;
-  box-shadow: none;
-  border-radius: 0;
-  margin: 0;
-}
-
-/* Unified internal dividers */
-.summary-mid-divider{
-  height: 1px;
-  background: rgba(148,163,184,0.12);
-  margin: 12px 0;
-}
-
-/* Middle-column section headers (replace pill-y block titles) */
-.summary-mid-kicker{
-  margin: 0 0 8px;
-  font-size: 12px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  font-weight: 900;
-  line-height: 1;
-
-  color: rgba(148,163,184,0.86);
-}
-
-/* Remove the “separate widget” spacing now that it’s one card */
-.summary-col-mid .summary-gap,
-.summary-col-mid .summary-stitch,
-.summary-col-mid .summary-narrative{
-  margin-top: 0;
-}
-
-/* Tighten the gap attribution strip inside the mid card */
-.summary-col-mid .summary-gap-line{
-  padding: 7px 0;
-}
-
-/* Synthesis pill should feel anchored, not floating */
-.summary-col-mid .summary-stitch-pill{
-  margin-top: 2px;
-}
-
-/* Optional: if you later unhide narrative, keep it visually consistent */
-.summary-col-mid .summary-narrative--placeholder[hidden]{
-  display: none !important;
-}
-
-.summary-gap-bridge{
-  margin: -2px 0 8px;
-  font-size: 12px;
-  line-height: 1.25;
-  color: rgba(148,163,184,0.70);
-}
-
-.summary-line{
-  display: grid;
-  grid-template-columns: 1fr auto;
-  grid-template-rows: auto auto;
-  align-items: start;
-  row-gap: 2px;
-}
-
-.summary-label{
-  font-size: 12px;
-  font-weight: 700;
-  color: rgba(226,232,240,0.85);
-}
-
-.summary-value{
-  grid-row: 1 / span 2;
-  align-self: center;
-  font-variant-numeric: tabular-nums;
-}
-
-.summary-hint{
-  font-size: 11px;
-  line-height: 1.2;
-  color: rgba(148,163,184,0.65);
-  font-weight: 500;
-}
-
-.summary-line--anchor .summary-label,
-.summary-line--final .summary-label{
-  font-weight: 800;
-  color: rgba(226,232,240,0.95);
-}
-
-.summary-line--anchor .summary-value,
-.summary-line--final .summary-value{
-  font-weight: 900;
-}
-
-.summary-line:not(.summary-line--anchor):not(.summary-line--final) .summary-value{
-  color: rgba(226,232,240,0.78);
-  font-weight: 600;
-}
-
-/* TEAM NAME — now inside the score-build card */
-.summary-block-head{
-  margin: 0 0 10px;
-  padding: 10px 12px;
-
-  border: 1px solid rgba(148,163,184,0.14);
-  border-radius: 12px;
-
-  background: rgba(3, 7, 18, 0.35);
-  color: rgba(226,232,240,0.92);
-
-  font-size: 13px;
-  font-weight: 900;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-
-  box-shadow:
-    0 10px 22px rgba(0,0,0,0.35),
-    inset 0 1px 0 rgba(255,255,255,0.05);
-}
-
-/* If .summary-col-head still exists anywhere, nuke it visually */
-.summary-col-head{
-  display: none !important;
-}
-
-/* SCORE BUILD ROWS — lock a consistent internal grid */
-.summary-line{
-  display: grid;
-  grid-template-columns: 1fr auto;
-  grid-template-rows: auto auto;
-  column-gap: 12px;
-  row-gap: 2px;
-  align-items: start;
-}
-
-.summary-line .summary-label{
-  grid-column: 1;
-  grid-row: 1;
-}
-
-.summary-line .summary-hint{
-  grid-column: 1;
-  grid-row: 2;
-}
-
-.summary-line .summary-value{
-  grid-column: 2;
-  grid-row: 1 / span 2;
-  align-self: center;
-  justify-self: end;
-  font-variant-numeric: tabular-nums;
-}
-
-/* =========================================================
-   SUMMARY — Scorecards & Matchup Summary
-   Polish Pass (broadcast-grade alignment + symmetry)
-   Paste at VERY BOTTOM of styles2.css
-   ========================================================= */
-
-#summarySection .summary-scorebuild{
-  /* creates a centering context for the title without affecting the grid */
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  gap: 10px;
-}
-
-#summarySection .summary-block-title{
-  /* center the “Score Build” pill over the 3-column grid */
-  align-self: center;
-  margin: 0; /* override the default margin so it sits cleanly */
-}
-
-/* Make the stitcher feel like one stitched scoreboard: equal bottoms */
-#summarySection .summary-stitcher-grid{
-  align-items: stretch;          /* was start */
-  gap: 16px;                     /* slightly more “engineered” spacing */
-  grid-template-columns: 0.8fr 1.4fr 0.8fr;
-}
-
-/* Each column becomes a height-stretch wrapper */
-#summarySection .summary-col{
-  display: flex;
-  min-width: 0;
+  overflow: hidden;
 }
 
-/* Cards stretch and use consistent internal stacking */
-#summarySection .summary-block,
-#summarySection .summary-col-mid .summary-mid-card{
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
+/* Base cell styling */
+#summarySection .summary-synthesis-table th,
+#summarySection .summary-synthesis-table td{
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  padding: 10px 10px;
+  vertical-align: middle;
+  color: rgba(226, 232, 240, 0.92);
 }
 
-/* Side-card team header: enforce consistent height + centering */
-#summarySection .summary-block-head{
-  min-height: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+/* ===== Row 1: Title (centered, merged) ===== */
+#summarySection .summary-synthesis-table .syn-title{
   text-align: center;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-size: 13px;
+  line-height: 1;
 
-  white-space: nowrap;
+  padding: 12px 10px;
+  background: rgba(3, 7, 18, 0.70);
+}
+
+/* ===== Row 2: Team headers (centered) ===== */
+#summarySection .summary-synthesis-table .syn-team{
+  text-align: center;
+  font-weight: 850;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-size: 12px;
+
+  background: rgba(15, 23, 42, 0.55);
+}
+
+#summarySection .summary-synthesis-table .syn-team span{
+  display: inline-block;
+  max-width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
-
-  margin-bottom: 12px; /* tighter + consistent */
-}
-
-/* -------- Score Build rows (side cards) — lock broadcast rhythm -------- */
-#summarySection .summary-block .summary-line{
-  /* override any earlier .summary-line variants */
-  padding: 8px 0;
-  border-bottom: 1px solid rgba(148,163,184,0.12);
-
-  /* consistent “lane height” feel */
-  min-height: 44px;
-
-  /* ensure the 2-row grid behavior is stable */
-  display: grid;
-  grid-template-columns: 1fr auto;
-  grid-template-rows: auto auto;
-  column-gap: 12px;
-  row-gap: 2px;
-  align-items: start;
-}
-
-#summarySection .summary-block .summary-line:last-child{
-  border-bottom: none;
-}
-
-#summarySection .summary-block .summary-label{
-  line-height: 1.05;
-  letter-spacing: 0.01em;
-}
-
-#summarySection .summary-block .summary-hint{
-  line-height: 1.15;
-  max-width: 28ch;
-}
-
-/* Values: hard right edge + stable numeric lane */
-#summarySection .summary-block .summary-value{
-  justify-self: end;
-  text-align: right;
-  min-width: 7ch; /* stabilizes the right edge so values don’t “swim” */
-  font-variant-numeric: tabular-nums;
-  font-feature-settings: "tnum" 1, "lnum" 1;
-}
-
-/* Keep hierarchy: anchors + final pop, mid rows quieter */
-#summarySection .summary-block .summary-line--anchor .summary-value,
-#summarySection .summary-block .summary-line--final .summary-value{
-  font-weight: 900;
-}
-
-#summarySection .summary-block .summary-line:not(.summary-line--anchor):not(.summary-line--final) .summary-value{
-  font-weight: 650;
-  color: rgba(226,232,240,0.78);
-}
-
-/* -------- Center column cohesion -------- */
-
-/* Tighten divider spacing slightly for a “single unit” feel */
-#summarySection .summary-col-mid .summary-mid-divider{
-  margin: 10px 0;
-}
-
-/* Make the top delta area sit like a header region, not a floating block */
-#summarySection .summary-col-mid .summary-mid-top{
-  margin: 0;
-  padding-bottom: 2px;
-}
-
-/* Gap Attribution rows: label | fixed numeric | note (broadcast strip) */
-#summarySection .summary-col-mid .summary-gap-line{
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 7ch minmax(0, 1fr);
-  column-gap: 12px;
-  align-items: baseline;
-
-  padding: 7px 0;
-  border-bottom: 1px solid rgba(148,163,184,0.12);
-}
-
-#summarySection .summary-col-mid .summary-gap-line:last-child{
-  border-bottom: none;
-}
-
-#summarySection .summary-col-mid .summary-gap-line .summary-value{
-  justify-self: end;
-  text-align: right;
-  font-variant-numeric: tabular-nums;
-  font-feature-settings: "tnum" 1, "lnum" 1;
-}
-
-#summarySection .summary-col-mid .summary-gap-line .summary-note{
-  justify-self: end;
-  text-align: right;
-}
-
-/* Synthesis pill: keep it aligned, not floaty */
-#summarySection .summary-col-mid .summary-stitch-pill{
-  align-self: flex-start;
-}
-
-/* =========================================================
-   SUMMARY — Center Column Cohesion (no extra vertical blocks)
-   Paste at VERY BOTTOM of styles2.css
-   ========================================================= */
-
-#summarySection .summary-col-mid .summary-mid-card{
-  display: flex;
-  flex-direction: column;
-}
-
-/* Tighten + standardize divider rhythm so the column reads intentional */
-#summarySection .summary-col-mid .summary-mid-divider{
-  margin: 10px 0;
-  border-color: rgba(148,163,184,0.12);
-}
-
-/* --- Panelize the 3 center sections using existing wrappers --- */
-/* Assumes these wrappers exist (they already appear in your current markup/styles):
-   .summary-mid-top
-   .summary-mid-section (gap attribution block)
-   .summary-mid-synthesis
-   If any differ, tell me the actual class names and I’ll remap the selectors.
-*/
-
-#summarySection .summary-col-mid .summary-mid-top,
-#summarySection .summary-col-mid .summary-mid-section,
-#summarySection .summary-col-mid .summary-mid-synthesis{
-  padding: 12px 12px;
-  border: 1px solid rgba(148,163,184,0.12);
-  background: rgba(3,7,18,0.22);
-  border-radius: 14px;
-
-  box-shadow:
-    0 10px 22px rgba(0,0,0,0.30),
-    inset 0 1px 0 rgba(255,255,255,0.04);
-}
-
-/* Make the delta area feel like the “headline” */
-#summarySection .summary-col-mid .summary-mid-top{
-  background: rgba(3,7,18,0.30);
-  border-color: rgba(148,163,184,0.16);
-}
-
-/* If you have a big delta number element, stabilize it */
-#summarySection .summary-col-mid .summary-delta-value,
-#summarySection .summary-col-mid .summary-mid-top .summary-value{
-  font-variant-numeric: tabular-nums;
-  font-feature-settings: "tnum" 1, "lnum" 1;
-  letter-spacing: 0.02em;
-}
-
-/* Make gap attribution read as “drivers” not a table */
-#summarySection .summary-col-mid .summary-gap-line{
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 7ch minmax(0, 1fr);
-  column-gap: 12px;
-  align-items: baseline;
-
-  padding: 7px 0;
-  border-bottom: 1px solid rgba(148,163,184,0.12);
-}
-#summarySection .summary-col-mid .summary-gap-line:last-child{
-  border-bottom: none;
-}
-
-#summarySection .summary-col-mid .summary-gap-line .summary-value{
-  justify-self: end;
-  text-align: right;
-  min-width: 7ch;
-  font-variant-numeric: tabular-nums;
-  font-feature-settings: "tnum" 1, "lnum" 1;
-}
-
-#summarySection .summary-col-mid .summary-gap-line .summary-note{
-  justify-self: end;
-  text-align: right;
-  color: rgba(148,163,184,0.75);
-}
-
-/* Ensure center kickers/headings align visually with side-card headings */
-#summarySection .summary-col-mid .summary-mid-kicker,
-#summarySection .summary-col-mid .summary-block-title{
-  margin: 0 0 8px 0;
-}
-
-/* =========================================================
-   SUMMARY — Center Column micro-hint rows (match side columns)
-   Paste at VERY BOTTOM of styles2.css
-   ========================================================= */
-
-#summarySection .summary-mid-top{
-  padding: 12px;
-}
-
-#summarySection .summary-mid-hint{
-  margin-top: 6px;
-  font-size: 11px;
-  line-height: 1.25;
-  color: rgba(148,163,184,0.75);
-}
-
-/* Rebuild gap rows to match the side-card rhythm:
-   label + hint on the left, value on the right, optional note under value */
-#summarySection .summary-gap-line{
-  display: grid;
-  grid-template-columns: 1fr auto;
-  grid-template-rows: auto auto;
-  column-gap: 12px;
-  row-gap: 2px;
-
-  padding: 10px 0;
-  border-bottom: 1px solid rgba(148,163,184,0.12);
-  align-items: start;
-}
-
-#summarySection .summary-gap-line:last-child{
-  border-bottom: none;
-}
-
-#summarySection .summary-gap-line .summary-label{
-  grid-column: 1;
-  grid-row: 1;
-  line-height: 1.05;
-}
-
-#summarySection .summary-gap-line .summary-hint{
-  grid-column: 1;
-  grid-row: 2;
-  margin-top: 0;
-  font-size: 11px;
-  line-height: 1.25;
-  color: rgba(148,163,184,0.75);
-}
-
-/* Value: hard right edge + tabular numbers */
-#summarySection .summary-gap-line .summary-value{
-  grid-column: 2;
-  grid-row: 1;
-  justify-self: end;
-  text-align: right;
-  min-width: 7ch;
-
-  font-variant-numeric: tabular-nums;
-  font-feature-settings: "tnum" 1, "lnum" 1;
-}
-
-/* Optional dynamic note under the value (kept compact) */
-#summarySection .summary-gap-line .summary-note{
-  grid-column: 2;
-  grid-row: 2;
-  justify-self: end;
-  text-align: right;
-
-  font-size: 11px;
-  line-height: 1.25;
-  color: rgba(148,163,184,0.70);
-}
-
-/* Make the final line slightly more anchored */
-#summarySection .summary-gap-line--final .summary-value{
-  font-weight: 900;
-}
-
-/* =========================================================
-   SUMMARY — Center column: allow content to use full width
-   Paste at VERY BOTTOM of styles2.css
-   ========================================================= */
-
-/* Critical: allow grid/flex children to shrink/expand properly */
-#summarySection .summary-col,
-#summarySection .summary-mid-card,
-#summarySection .summary-gap,
-#summarySection .summary-gap-line,
-#summarySection .summary-mid-top{
-  min-width: 0;
-}
-
-/* MADNESS DELTA panel: ensure inner content can span fully */
-#summarySection .summary-mid-top{
-  width: 100%;
-}
-
-/* GAP rows: explicitly define columns so left text gets the space */
-#summarySection #summaryGapAttribution .summary-gap-line{
-  /* left = label+hint, right = value+note */
-  grid-template-columns: minmax(0, 1fr) auto;
-  grid-template-rows: auto auto;
-  column-gap: 16px;
-  row-gap: 4px;
-}
-
-/* Put label + hint in the left column */
-#summarySection #summaryGapAttribution .summary-gap-line .summary-label{
-  grid-column: 1;
-  grid-row: 1;
-}
-
-#summarySection #summaryGapAttribution .summary-gap-line .summary-hint{
-  grid-column: 1;
-  grid-row: 2;
-  max-width: none;           /* remove any inherited cap */
-}
-
-/* Put value + note in the right column */
-#summarySection #summaryGapAttribution .summary-gap-line .summary-value{
-  grid-column: 2;
-  grid-row: 1;
-  justify-self: end;
-  text-align: right;
-  min-width: 7ch;
-}
-
-#summarySection #summaryGapAttribution .summary-gap-line .summary-note{
-  grid-column: 2;
-  grid-row: 2;
-  justify-self: end;
-  text-align: right;
-  max-width: none;           /* remove any inherited cap */
-}
-
-/* If any older styles are forcing narrow measure on hints/notes, neutralize */
-#summarySection #summaryGapAttribution .summary-hint,
-#summarySection #summaryGapAttribution .summary-note{
-  white-space: normal;
-  overflow: visible;
-  text-overflow: unset;
-}
-
-/* =========================================================
-   SUMMARY — Center column “Explain Mode”
-   (repurpose Gap Attribution + Stitch into plain-English explainer)
-   Paste at VERY BOTTOM of styles2.css
-   ========================================================= */
-
-#summarySection .summary-mid-card--explain #summaryGapAttribution .summary-gap-bridge{
-  display: none; /* no need for the equation line in explain mode */
-}
-
-/* Turn the 3 gap rows into clean bullet strips:
-   keep label + hint, hide numeric columns */
-#summarySection .summary-mid-card--explain #summaryGapAttribution .summary-gap-line .summary-value,
-#summarySection .summary-mid-card--explain #summaryGapAttribution .summary-gap-line .summary-note{
-  display: none;
-}
-
-/* Make label + hint use full width */
-#summarySection .summary-mid-card--explain #summaryGapAttribution .summary-gap-line{
-  grid-template-columns: 1fr;
-}
-
-/* Hide the stitch label pill (REINFORCED etc.) */
-#summarySection .summary-mid-card--explain #summaryStitchTag .summary-stitch-label{
-  display: none;
-}
-
-/* Give the stitch note a “broadcast explainer” feel */
-#summarySection .summary-mid-card--explain #summaryStitchTag .summary-stitch-note{
-  display: block;
-  padding: 10px 12px;
-  border: 1px solid rgba(148,163,184,0.12);
-  background: rgba(3,7,18,0.22);
-  border-radius: 12px;
-  color: rgba(148,163,184,0.82);
-  line-height: 1.25;
-}
-
-/* =========================================================
-   SUMMARY — Center column “Explain Mode” polish (broadcast-grade)
-   Paste at VERY BOTTOM of styles2.css
-   ========================================================= */
-
-/* 1) Edge headline block: make it feel like a broadcast callout */
-#summarySection .summary-col-mid .summary-mid-top{
-  display: grid;
-  grid-template-rows: auto auto auto auto;
-  row-gap: 6px;
-  padding: 2px 0 4px; /* keep unified-card feel */
-}
-
-/* Headline: EDGE TEAM HOLDS THE EDGE / NO CLEAR EDGE */
-#summarySection .summary-col-mid .summary-mid-title{
-  font-size: 13px;
-  letter-spacing: 0.16em;
-  font-weight: 950;
-  color: rgba(226,232,240,0.92);
-}
-
-/* Strength line: turn existing hint into a chip */
-#summarySection .summary-col-mid .summary-mid-hint{
-  display: inline-flex;
-  align-items: center;
-  justify-self: start;
-  padding: 6px 10px;
-  border-radius: 999px;
-  border: 1px solid rgba(148,163,184,0.18);
-  background: rgba(3, 7, 18, 0.45);
-
-  font-size: 11px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  font-weight: 900;
-  color: rgba(148,163,184,0.86);
-
-  max-width: 100%;
   white-space: nowrap;
 }
 
-/* Big number: unsigned separation */
-#summarySection .summary-col-mid .summary-mid-delta{
-  margin-top: 2px;
-  font-size: 22px;
-  font-weight: 975;
-  letter-spacing: 0.02em;
+/* The small spacer between team headers (kept subtle, still “a cell”) */
+#summarySection .summary-synthesis-table .syn-center-spacer{
+  background: rgba(2, 6, 23, 0.45);
 }
 
-/* Note line: “Model separation: X points” */
-#summarySection .summary-col-mid .summary-mid-delta-note{
-  margin-top: 0;
-  color: rgba(148,163,184,0.82);
-  font-size: 12px;
-  line-height: 1.25;
+/* ===== Ledger columns sizing (mirrored lanes) =====
+   7 columns total:
+   [A label][A val][A final][center][B final][B val][B label]
+*/
+#summarySection .summary-synthesis-table col{
+  width: auto;
 }
 
-/* 2) “Why ___ has the edge” rows: ensure full-width, consistent rhythm */
-#summarySection .summary-mid-card--explain #summaryGapAttribution .summary-gap-line{
-  padding: 10px 0;
+/* If you have no <colgroup>, this still behaves well due to fixed layout.
+   These widths are “guiding rails” — adjust if you want tighter/wider lanes. */
+#summarySection .summary-synthesis-table{
+  /* label / val / final / center / final / val / label */
+  --syn-w-label: 24%;
+  --syn-w-val:   10%;
+  --syn-w-final: 12%;
+  --syn-w-center:18%;
 }
 
-#summarySection .summary-mid-card--explain #summaryGapAttribution .summary-gap-line .summary-label{
-  font-weight: 900;
-  letter-spacing: 0.02em;
-  color: rgba(226,232,240,0.86);
+#summarySection .summary-synthesis-table tr > *:nth-child(1){ width: var(--syn-w-label); }
+#summarySection .summary-synthesis-table tr > *:nth-child(2){ width: var(--syn-w-val); }
+#summarySection .summary-synthesis-table tr > *:nth-child(3){ width: var(--syn-w-final); }
+#summarySection .summary-synthesis-table tr > *:nth-child(4){ width: var(--syn-w-center); }
+#summarySection .summary-synthesis-table tr > *:nth-child(5){ width: var(--syn-w-final); }
+#summarySection .summary-synthesis-table tr > *:nth-child(6){ width: var(--syn-w-val); }
+#summarySection .summary-synthesis-table tr > *:nth-child(7){ width: var(--syn-w-label); }
+
+/* ===== Label cells (centered “Word center” behavior) ===== */
+#summarySection .summary-synthesis-table .syn-label{
+  text-align: center;         /* intentional: centered label blocks */
+  background: rgba(15, 23, 42, 0.35);
 }
 
-#summarySection .summary-mid-card--explain #summaryGapAttribution .summary-gap-line .summary-hint{
-  max-width: none;
-  color: rgba(148,163,184,0.78);
-}
-
-/* 3) “How to read this”: make it a full-width explainer card */
-#summarySection .summary-mid-card--explain #summaryStitchTag .summary-stitch-pill{
-  display: block;
-  width: 100%;
-  padding: 0; /* note carries padding */
-  border: 0;
-  background: transparent;
-  box-shadow: none;
-}
-
-/* =========================================================
-   SUMMARY — Center column broadcast polish + EDGE TEAM emphasis
-   Paste at VERY BOTTOM of styles2.css
-   ========================================================= */
-
-#summarySection .summary-col-mid .summary-mid-card--explain{
-  position: relative;
-  overflow: hidden;
-  border-color: rgba(148,163,184,0.20);
-  background:
-    radial-gradient(900px 220px at 18% 10%, rgba(56,189,248,0.14), rgba(0,0,0,0) 55%),
-    radial-gradient(700px 240px at 82% 0%, rgba(99,102,241,0.10), rgba(0,0,0,0) 60%),
-    rgba(3, 7, 18, 0.76);
-  box-shadow:
-    0 26px 70px rgba(0,0,0,0.55),
-    inset 0 1px 0 rgba(255,255,255,0.07),
-    inset 0 0 0 1px rgba(255,255,255,0.03);
-}
-
-/* top “broadcast rail” */
-#summarySection .summary-col-mid .summary-mid-card--explain::before{
-  content: "";
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 2px;
-  background: linear-gradient(90deg,
-    rgba(56,189,248,0.0),
-    rgba(56,189,248,0.55),
-    rgba(99,102,241,0.35),
-    rgba(56,189,248,0.0)
-  );
-  opacity: 0.95;
-}
-
-/* subtle corner glow to lift it off the page */
-#summarySection .summary-col-mid .summary-mid-card--explain::after{
-  content: "";
-  position: absolute;
-  inset: -40px -60px auto auto;
-  width: 220px;
-  height: 220px;
-  background: radial-gradient(circle, rgba(56,189,248,0.14), rgba(0,0,0,0) 65%);
-  pointer-events: none;
-}
-
-/* --- EDGE headline block --- */
-#summarySection .summary-col-mid .summary-mid-top{
-  display: grid;
-  grid-template-rows: auto auto auto auto;
-  row-gap: 8px;
-  padding: 2px 0 6px;
-}
-
-/* Headline overall */
-#summarySection .summary-col-mid .summary-mid-title{
+#summarySection .summary-synthesis-table .syn-label-stack{
   display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 8px;
-
-  font-size: 13px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  font-weight: 975;
-  color: rgba(226,232,240,0.92);
+  flex-direction: column;
+  align-items: center;        /* center within the cell */
+  justify-content: center;
+  gap: 4px;
 }
 
-/* THE WINNER SIGNAL: edge team “badge” */
-#summarySection .summary-col-mid .summary-mid-title .edge-team{
-  display: inline-flex;
-  align-items: center;
-
-  padding: 6px 10px;
-  border-radius: 999px;
-  border: 1px solid rgba(56,189,248,0.34);
-  background:
-    radial-gradient(circle at 20% 20%, rgba(56,189,248,0.26), rgba(0,0,0,0) 55%),
-    rgba(3,7,18,0.40);
-
-  color: rgba(224,242,254,0.96);
-  text-shadow: 0 0 18px rgba(56,189,248,0.22);
-  box-shadow:
-    0 12px 34px rgba(0,0,0,0.45),
-    inset 0 1px 0 rgba(255,255,255,0.08);
+#summarySection .summary-synthesis-table .syn-label-main{
+  font-weight: 800;
+  font-size: 12px;
+  letter-spacing: 0.04em;
 }
 
-/* “HOLDS THE EDGE” tail: intentionally quieter than the team */
-#summarySection .summary-col-mid .summary-mid-title .edge-tail{
-  color: rgba(148,163,184,0.82);
-  font-weight: 900;
-}
-
-/* Strength chip (your separationLabel) */
-#summarySection .summary-col-mid .summary-mid-hint{
-  display: inline-flex;
-  align-items: center;
-  justify-self: start;
-
-  padding: 6px 10px;
-  border-radius: 999px;
-  border: 1px solid rgba(148,163,184,0.18);
-  background: rgba(3, 7, 18, 0.40);
-
+#summarySection .summary-synthesis-table .syn-label-hint{
   font-size: 11px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  font-weight: 950;
-  color: rgba(148,163,184,0.88);
+  line-height: 1.1;
+  color: rgba(203, 213, 225, 0.72);
 }
 
-/* Strength chip gets “heat” based on gapKey */
-#summarySection .summary-col-mid .summary-mid-hint[data-edge="tiny_gap"]{
-  border-color: rgba(148,163,184,0.16);
-  color: rgba(148,163,184,0.78);
-}
-
-#summarySection .summary-col-mid .summary-mid-hint[data-edge="small_gap"]{
-  border-color: rgba(56,189,248,0.20);
-  color: rgba(186,230,253,0.86);
-}
-
-#summarySection .summary-col-mid .summary-mid-hint[data-edge="medium_gap"]{
-  border-color: rgba(56,189,248,0.28);
-  color: rgba(224,242,254,0.92);
-  box-shadow: 0 10px 26px rgba(56,189,248,0.08);
-}
-
-#summarySection .summary-col-mid .summary-mid-hint[data-edge="large_gap"]{
-  border-color: rgba(56,189,248,0.40);
-  color: rgba(224,242,254,0.96);
-  box-shadow:
-    0 14px 34px rgba(56,189,248,0.12),
-    inset 0 1px 0 rgba(255,255,255,0.07);
-}
-
-/* Big separation number: give it “scorebug” weight */
-#summarySection .summary-col-mid .summary-mid-delta{
-  margin-top: 2px;
-  font-size: 24px;
-  font-weight: 990;
-  letter-spacing: 0.02em;
+/* ===== Value cells (centered numbers) ===== */
+#summarySection .summary-synthesis-table .syn-val{
+  text-align: center;         /* intentional: centered x/y/z */
+  font-weight: 850;
   font-variant-numeric: tabular-nums;
-  color: rgba(226,232,240,0.96);
-  text-shadow: 0 0 20px rgba(255,255,255,0.06);
+  letter-spacing: 0.02em;
+
+  background: rgba(2, 6, 23, 0.35);
 }
 
-#summarySection .summary-col-mid .summary-mid-delta-note{
-  margin-top: -2px;
-  color: rgba(148,163,184,0.82);
+/* ===== Final MI tall cells (centered label + big number) ===== */
+#summarySection .summary-synthesis-table .syn-final{
+  text-align: center;         /* intentional: centered “Final MI / XYZ” */
+  background: rgba(3, 7, 18, 0.62);
 }
 
-/* Tighten dividers so sections feel “intentional” */
-#summarySection .summary-col-mid .summary-mid-divider{
-  background: rgba(148,163,184,0.14);
-  margin: 14px 0;
+#summarySection .summary-synthesis-table .syn-final-inner{
+  display: flex;
+  flex-direction: column;
+  align-items: center;        /* hard-center content */
+  justify-content: center;
+  gap: 6px;
+  min-height: 154px;          /* gives the tall “merged” feel */
 }
 
-/* Slightly boost the “Why … has the edge” kicker */
-#summarySection .summary-col-mid .summary-mid-kicker{
-  color: rgba(148,163,184,0.84);
-  font-weight: 950;
-}
-
-/* =========================================================
-   SUMMARY — Explain card winner hue (reuse Verdict Shell roles)
-   Paste at VERY BOTTOM of styles2.css
-   ========================================================= */
-
-/* Set a default hue var for the center Explain card */
-#summarySection .summary-mid-card--explain{
-  --mi-explain-rgb: 148, 163, 184;        /* neutral fallback */
-  --mi-explain-soft: rgba(148,163,184,0.12);
-
-  border: 1px solid rgba(var(--mi-explain-rgb), 0.28);
-  box-shadow:
-    0 26px 70px rgba(0,0,0,0.55),
-    0 0 22px rgba(var(--mi-explain-rgb), 0.10),
-    inset 0 1px 0 rgba(255,255,255,0.07),
-    inset 0 0 0 1px rgba(255,255,255,0.03);
-
-  background:
-    radial-gradient(900px 260px at 20% 12%, rgba(var(--mi-explain-rgb), 0.14), rgba(0,0,0,0) 58%),
-    radial-gradient(700px 260px at 85% 0%, rgba(var(--mi-explain-rgb), 0.08), rgba(0,0,0,0) 62%),
-    rgba(3, 7, 18, 0.76);
-}
-
-/* Winner hue mapping (same class names as Verdict Shell) */
-#summarySection .summary-mid-card--explain.mi-winner-cinderella{
-  --mi-explain-rgb: var(--mi-role-cinderella-rgb);
-}
-#summarySection .summary-mid-card--explain.mi-winner-favorite{
-  --mi-explain-rgb: var(--mi-role-favorite-rgb);
-}
-#summarySection .summary-mid-card--explain.mi-winner-neutral{
-  --mi-explain-rgb: 148, 163, 184;
-}
-
-/* Broadcast “top rail” now follows the winner hue */
-#summarySection .summary-mid-card--explain::before{
-  content:"";
-  position:absolute;
-  top:0; left:0; right:0;
-  height:2px;
-  background: linear-gradient(90deg,
-    rgba(var(--mi-explain-rgb), 0.00),
-    rgba(var(--mi-explain-rgb), 0.55),
-    rgba(var(--mi-explain-rgb), 0.20),
-    rgba(var(--mi-explain-rgb), 0.00)
-  );
-  opacity: 0.95;
-}
-
-/* EDGE TEAM badge: this is the “winner signal” */
-#summarySection .summary-col-mid .summary-mid-title .edge-team{
-  display:inline-flex;
-  align-items:center;
-
-  padding: 6px 10px;
-  border-radius: 999px;
-  border: 1px solid rgba(var(--mi-explain-rgb), 0.50);
-
-  background:
-    radial-gradient(circle at 20% 20%, rgba(var(--mi-explain-rgb), 0.22), rgba(0,0,0,0) 58%),
-    rgba(3,7,18,0.38);
-
-  color: rgba(226,232,240,0.96);
-  text-shadow: 0 0 18px rgba(var(--mi-explain-rgb), 0.25);
-
-  box-shadow:
-    0 16px 40px rgba(0,0,0,0.50),
-    0 0 26px rgba(var(--mi-explain-rgb), 0.14),
-    inset 0 1px 0 rgba(255,255,255,0.08);
-}
-
-/* Keep “HOLDS THE EDGE” quieter so the team is unmistakable */
-#summarySection .summary-col-mid .summary-mid-title .edge-tail{
-  color: rgba(148,163,184,0.82);
+#summarySection .summary-synthesis-table .syn-final-label{
+  font-size: 11px;
   font-weight: 900;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: rgba(226, 232, 240, 0.85);
 }
 
-/* Strength chip also inherits winner hue (subtle) */
-#summarySection .summary-col-mid .summary-mid-hint{
-  border-color: rgba(var(--mi-explain-rgb), 0.28);
-  color: rgba(226,232,240,0.88);
-  background: rgba(3, 7, 18, 0.40);
-  box-shadow: 0 10px 26px rgba(var(--mi-explain-rgb), 0.06);
+#summarySection .summary-synthesis-table .syn-final-hint{
+  font-size: 11px;
+  color: rgba(203, 213, 225, 0.70);
 }
 
-/* Divider lines get slightly brighter under the winner hue */
-#summarySection .summary-col-mid .summary-mid-divider{
-  background: rgba(var(--mi-explain-rgb), 0.14);
+#summarySection .summary-synthesis-table .syn-final-value{
+  font-size: 20px;
+  font-weight: 950;
+  letter-spacing: 0.06em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ===== Center narrative (left-aligned paragraph inside the big cell) ===== */
+#summarySection .summary-synthesis-table .syn-center{
+  background: rgba(2, 6, 23, 0.45);
+  padding: 12px 12px;
+  vertical-align: middle;
+}
+
+#summarySection #summarySynLean.syn-lean-line{
+  text-align: left;           /* intentional: paragraph reads naturally */
+  font-size: 12px;
+  line-height: 1.35;
+  color: rgba(226, 232, 240, 0.92);
+}
+
+/* ===== Bottom MI Δ row (boxed, label left / value right) ===== */
+#summarySection .summary-synthesis-table .syn-bottom-pad{
+  background: rgba(2, 6, 23, 0.28);
+  padding: 8px 10px;
+}
+
+#summarySection .summary-synthesis-table .syn-delta{
+  background: rgba(15, 23, 42, 0.55);
+  padding: 10px 12px;
+}
+
+#summarySection .summary-synthesis-table .syn-delta{
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* MI Δ left, value right */
+  gap: 12px;
+}
+
+#summarySection .summary-synthesis-table .syn-delta-label{
+  font-weight: 950;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  font-size: 11px;
+  color: rgba(226, 232, 240, 0.86);
+}
+
+#summarySection .summary-synthesis-table .syn-delta-value{
+  font-weight: 950;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.04em;
+}
+
+/* ===== Minor polish: keep borders crisp, reduce jitter ===== */
+#summarySection .summary-synthesis-table td,
+#summarySection .summary-synthesis-table th{
+  /* prevents “bold text” from visually shifting heights */
+  line-height: 1.15;
+}
+
+/* ---------- RESPONSIVE MID GAP ROWS ---------- */
+@media (max-width: 720px){
+  #summarySection .summary-col-mid .summary-gap-line{
+    grid-template-columns: 1fr auto;
+  }
+  #summarySection .summary-col-mid .summary-gap-line .summary-note{
+    grid-column: 1 / -1;
+  }
+}
+
+/* ---------- SAFETY: shrink-wrap prevention ---------- */
+#summarySection .summary-col-a,
+#summarySection .summary-col-b,
+#summarySection .summary-col-mid,
+#summarySection .summary-block,
+#summarySection .summary-mid-card,
+#summarySection .summary-mid-card--explain,
+#summarySection .summary-ledger,
+#summarySection .summary-line,
+#summarySection .summary-gap,
+#summarySection .summary-gap-line{
+  min-width: 0;
 }
 
 #matchupQuickA[aria-hidden="false"] #teamASelectWrap {
@@ -9706,6 +8714,167 @@ button,
   --mi-role-active:      var(--mi-role-neutral-mirror);
   --mi-role-active-soft: var(--mi-role-neutral-mirror-soft);
   --mi-role-active-rgb:  var(--mi-role-neutral-mirror-rgb);
+}
+
+/* =========================================================
+   SCORE SYNTHESIS — SIDE ACCENTS (A/B)
+   Strong tint: headers + Final MI
+   Soft tint: inner ledger rows
+   No HTML changes required
+   ========================================================= */
+
+/* --- Side role defaults (safe neutral) --- */
+#summarySection{
+  --syn-role-a:      var(--mi-role-neutral-mirror);
+  --syn-role-a-soft: var(--mi-role-neutral-mirror-soft);
+  --syn-role-a-rgb:  var(--mi-role-neutral-mirror-rgb);
+
+  --syn-role-b:      var(--mi-role-neutral-mirror);
+  --syn-role-b-soft: var(--mi-role-neutral-mirror-soft);
+  --syn-role-b-rgb:  var(--mi-role-neutral-mirror-rgb);
+}
+
+/* --- Side A mapping --- */
+#summarySection[data-side-a="favorite"]{
+  --syn-role-a:      var(--mi-role-favorite);
+  --syn-role-a-soft: var(--mi-role-favorite-soft);
+  --syn-role-a-rgb:  var(--mi-role-favorite-rgb);
+}
+#summarySection[data-side-a="cinderella"]{
+  --syn-role-a:      var(--mi-role-cinderella);
+  --syn-role-a-soft: var(--mi-role-cinderella-soft);
+  --syn-role-a-rgb:  var(--mi-role-cinderella-rgb);
+}
+#summarySection[data-side-a="chalk_mirror"]{
+  --syn-role-a:      var(--mi-role-chalk-mirror);
+  --syn-role-a-soft: var(--mi-role-chalk-mirror-soft);
+  --syn-role-a-rgb:  var(--mi-role-chalk-mirror-rgb);
+}
+#summarySection[data-side-a="chaos_mirror"]{
+  --syn-role-a:      var(--mi-role-chaos-mirror);
+  --syn-role-a-soft: var(--mi-role-chaos-mirror-soft);
+  --syn-role-a-rgb:  var(--mi-role-chaos-mirror-rgb);
+}
+#summarySection[data-side-a="neutral_mirror"]{
+  --syn-role-a:      var(--mi-role-neutral-mirror);
+  --syn-role-a-soft: var(--mi-role-neutral-mirror-soft);
+  --syn-role-a-rgb:  var(--mi-role-neutral-mirror-rgb);
+}
+
+/* --- Side B mapping --- */
+#summarySection[data-side-b="favorite"]{
+  --syn-role-b:      var(--mi-role-favorite);
+  --syn-role-b-soft: var(--mi-role-favorite-soft);
+  --syn-role-b-rgb:  var(--mi-role-favorite-rgb);
+}
+#summarySection[data-side-b="cinderella"]{
+  --syn-role-b:      var(--mi-role-cinderella);
+  --syn-role-b-soft: var(--mi-role-cinderella-soft);
+  --syn-role-b-rgb:  var(--mi-role-cinderella-rgb);
+}
+#summarySection[data-side-b="chalk_mirror"]{
+  --syn-role-b:      var(--mi-role-chalk-mirror);
+  --syn-role-b-soft: var(--mi-role-chalk-mirror-soft);
+  --syn-role-b-rgb:  var(--mi-role-chalk-mirror-rgb);
+}
+#summarySection[data-side-b="chaos_mirror"]{
+  --syn-role-b:      var(--mi-role-chaos-mirror);
+  --syn-role-b-soft: var(--mi-role-chaos-mirror-soft);
+  --syn-role-b-rgb:  var(--mi-role-chaos-mirror-rgb);
+}
+#summarySection[data-side-b="neutral_mirror"]{
+  --syn-role-b:      var(--mi-role-neutral-mirror);
+  --syn-role-b-soft: var(--mi-role-neutral-mirror-soft);
+  --syn-role-b-rgb:  var(--mi-role-neutral-mirror-rgb);
+}
+
+/* =========================
+   STRONG TINT: TEAM HEADERS
+   ========================= */
+#summarySection .summary-synthesis-table .syn-team-a{
+  background:
+    linear-gradient(
+      180deg,
+      rgba(var(--syn-role-a-rgb), 0.26),
+      rgba(15, 23, 42, 0.55)
+    );
+  border-color: rgba(var(--syn-role-a-rgb), 0.32);
+}
+#summarySection .summary-synthesis-table .syn-team-b{
+  background:
+    linear-gradient(
+      180deg,
+      rgba(var(--syn-role-b-rgb), 0.26),
+      rgba(15, 23, 42, 0.55)
+    );
+  border-color: rgba(var(--syn-role-b-rgb), 0.32);
+}
+
+/* =========================
+   STRONG TINT: FINAL MI CELLS
+   ========================= */
+#summarySection .summary-synthesis-table .syn-final-a{
+  background:
+    linear-gradient(
+      180deg,
+      rgba(var(--syn-role-a-rgb), 0.18),
+      rgba(3, 7, 18, 0.62)
+    );
+  border-color: rgba(var(--syn-role-a-rgb), 0.34);
+  box-shadow: inset 0 0 0 1px rgba(var(--syn-role-a-rgb), 0.12);
+}
+#summarySection .summary-synthesis-table .syn-final-b{
+  background:
+    linear-gradient(
+      180deg,
+      rgba(var(--syn-role-b-rgb), 0.18),
+      rgba(3, 7, 18, 0.62)
+    );
+  border-color: rgba(var(--syn-role-b-rgb), 0.34);
+  box-shadow: inset 0 0 0 1px rgba(var(--syn-role-b-rgb), 0.12);
+}
+
+/* Make the big number carry the accent slightly (premium, not loud) */
+#summarySection .summary-synthesis-table .syn-final-a .syn-final-value{
+  color: rgba(var(--syn-role-a-rgb), 0.95);
+  text-shadow: 0 0 10px rgba(var(--syn-role-a-rgb), 0.10);
+}
+#summarySection .summary-synthesis-table .syn-final-b .syn-final-value{
+  color: rgba(var(--syn-role-b-rgb), 0.95);
+  text-shadow: 0 0 10px rgba(var(--syn-role-b-rgb), 0.10);
+}
+
+/* =========================
+   SOFT TINT: INNER LEDGER ROWS
+   (labels + values only)
+   ========================= */
+#summarySection .summary-synthesis-table .syn-label-a,
+#summarySection .summary-synthesis-table .syn-val-a{
+  background:
+    linear-gradient(
+      180deg,
+      rgba(var(--syn-role-a-rgb), 0.07),
+      rgba(2, 6, 23, 0.35)
+    );
+}
+#summarySection .summary-synthesis-table .syn-label-b,
+#summarySection .summary-synthesis-table .syn-val-b{
+  background:
+    linear-gradient(
+      180deg,
+      rgba(var(--syn-role-b-rgb), 0.07),
+      rgba(2, 6, 23, 0.35)
+    );
+}
+
+/* Optional: subtle side rails so the table reads “two halves” */
+#summarySection .summary-synthesis-table .syn-label-a,
+#summarySection .summary-synthesis-table .syn-val-a{
+  border-left-color: rgba(var(--syn-role-a-rgb), 0.18);
+}
+#summarySection .summary-synthesis-table .syn-label-b,
+#summarySection .summary-synthesis-table .syn-val-b{
+  border-right-color: rgba(var(--syn-role-b-rgb), 0.18);
 }
 
 /* ==========================================
@@ -9784,41 +8953,373 @@ button,
     0 0 12px rgba(var(--mi-role-neutral-mirror-rgb), 0.32);
 }
 
-/* ==========================================
-   BACKGROUND WATERMARK — bracket texture
-   ========================================== */
+/* =========================================================
+   GLOSSARY DRAWER — matchup-only overlay
+   ========================================================= */
 
-body{
-  position: relative;
-  background:
-    radial-gradient(circle at 50% 18%, rgba(255,255,255,0.06), transparent 58%),
-    linear-gradient(180deg, #0b1220 0%, #0a1120 45%, #070b14 100%);
-}
-html::after{
-  content:"";
+/* Root (kept hidden via [hidden] attribute when unavailable) */
+.mi-glossary[hidden] { display: none !important; }
+
+.mi-glossary{
   position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: -1;
-
-  background-image: url("/assets/img/background/bracket-style-background.png");
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: min(1400px, 92vw);
-
-  opacity: 0.075;
-  filter: blur(0.25px);
-  transform: translateZ(0);
-
-  -webkit-mask-image: radial-gradient(circle at 50% 50%, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.0) 72%);
-  mask-image: radial-gradient(circle at 50% 50%, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.0) 72%);
+  top: 12px;                 /* anchored high */
+  left: 8px;                 /* anchored left */
+  z-index: 9999;             /* above broadcast surfaces */
+  pointer-events: none;      /* enable only when handle/panel are targeted */
 }
 
-html, body { height: 100%; }
+/* Handle: broadcast-grade horizontal badge */
+/* Handle: becomes the ghost rail itself (single cohesive surface) */
+.mi-glossary-handle{
+  pointer-events: auto;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
 
-body{
-  background: url("/assets/img/background/bracket-style-background.png") center/1200px no-repeat !important;
-  background-color: #0b1220 !important;
+  height: 44px;
+
+  /* Match the panel width so closed state implies the drawer footprint */
+  width: min(340px, 36vw);
+  max-width: 360px;
+
+  padding: 0 12px;
+  border-radius: 16px;
+
+  /* Glass rail */
+  background: linear-gradient(
+    180deg,
+    rgba(15, 23, 42, 0.62),
+    rgba(15, 23, 42, 0.42)
+  );
+
+  border: 1px solid rgba(255,255,255,0.12);
+
+  box-shadow:
+    0 16px 40px rgba(0,0,0,0.42),
+    inset 0 1px 0 rgba(255,255,255,0.10),
+    inset 0 -1px 0 rgba(0,0,0,0.28);
+
+  backdrop-filter: blur(var(--mi-blur, 10px));
+
+  cursor: pointer;
+
+  /* Fade the rail to the right so it dissolves into the background */
+  -webkit-mask-image: linear-gradient(
+    to right,
+    rgba(0,0,0,1) 0%,
+    rgba(0,0,0,1) 62%,
+    rgba(0,0,0,0.55) 78%,
+    rgba(0,0,0,0.00) 100%
+  );
+  mask-image: linear-gradient(
+    to right,
+    rgba(0,0,0,1) 0%,
+    rgba(0,0,0,1) 62%,
+    rgba(0,0,0,0.55) 78%,
+    rgba(0,0,0,0.00) 100%
+  );
+
+  transition: transform 180ms ease, filter 180ms ease, opacity 180ms ease;
+}
+
+.mi-glossary-handle:hover{
+  transform: translateY(-1px);
+  filter: brightness(1.06);
+}
+
+.mi-glossary-handle:focus{
+  outline: none;
+  box-shadow:
+    0 16px 40px rgba(0,0,0,0.42),
+    inset 0 1px 0 rgba(255,255,255,0.10),
+    inset 0 -1px 0 rgba(0,0,0,0.28),
+    0 0 0 2px rgba(var(--mi-role-chalk-mirror-rgb, 56,189,248), 0.30);
+}
+
+/* Horizontal label */
+.mi-glossary-handle-text{
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(249,246,238,0.92);
+  white-space: nowrap;
+  text-shadow: 0 1px 0 rgba(0,0,0,0.45);
+  padding: 7px 10px;
+  border-radius: 12px;
+  background: rgba(0,0,0,0.22);
+  border: 1px solid rgba(255,255,255,0.10);
+}
+
+/* Panel (overlay; no layout shift) */
+.mi-glossary-panel{
+  pointer-events: auto;
+  position: absolute;
+  top: 0;
+  left: 0;
+
+  /* Narrow reference width; JS can clamp tighter to “left negative space” */
+  max-width: 100px;
+
+  transform: translateX(-12px);
+  opacity: 0;
+  visibility: hidden;
+
+  border-radius: 16px;
+  background: var(--mi-glass-bg, rgba(15, 23, 42, 0.62));
+  border: 1px solid var(--mi-border, rgba(255,255,255,0.14));
+  box-shadow: var(--mi-shadow, 0 18px 44px rgba(0,0,0,0.45));
+  backdrop-filter: blur(var(--mi-blur, 10px));
+
+  transition: transform 180ms ease, opacity 180ms ease, visibility 0s linear 180ms;
+  overflow: hidden;
+  margin-right: 12px; /* creates visual separation from Verdict Shell lane */
+}
+
+/* Open state */
+.mi-glossary.mi-glossary--open .mi-glossary-panel{
+  transform: translateX(0);
+  opacity: 1;
+  visibility: visible;
+  filter: saturate(0.9);
+  transition: transform 180ms ease, opacity 180ms ease, visibility 0s linear 0s;
+}
+
+/* When open, hide the slim handle’s label a bit (optional) */
+.mi-glossary.mi-glossary--open .mi-glossary-handle{
+  opacity: 0.30;
+  filter: saturate(0.95);
+}
+
+/* Header fixed; body scrolls (single scroll region) */
+.mi-glossary-header{
+  position: sticky;
+  top: 0;
+  z-index: 2;
+
+  padding: 12px 12px 10px 12px;
+  background: linear-gradient(
+    to bottom,
+    rgba(0,0,0,0.24),
+    rgba(0,0,0,0.10)
+  );
+  border-bottom: 1px solid rgba(255,255,255,0.10);
+}
+
+.mi-glossary-title{
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--mi-ink, rgba(249,246,238,0.92));
+}
+
+.mi-glossary-header-actions{
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
+
+.mi-glossary-close{
+  width: 30px;
+  height: 30px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: var(--mi-ink, rgba(249,246,238,0.90));
+  cursor: pointer;
+  transition: transform 160ms ease, filter 160ms ease;
+}
+.mi-glossary-close:hover{ transform: translateY(-1px); filter: brightness(1.06); }
+.mi-glossary-close:focus{
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(var(--mi-role-chalk-mirror-rgb, 56,189,248), 0.35);
+}
+
+.mi-glossary-body{
+  max-height: min(78vh, 720px);
+  overflow: auto;  /* unified scroll area */
+  padding: 10px 10px 12px 10px;
+}
+
+/* TOC sections: use <details> for true multi-expand */
+.mi-glossary-toc details{
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.04);
+  margin-bottom: 8px;
+  overflow: hidden;
+}
+
+.mi-glossary-toc summary{
+  list-style: none;
+  cursor: pointer;
+  user-select: none;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 10px 10px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+
+  color: var(--mi-ink, rgba(249,246,238,0.86));
+}
+
+.mi-glossary-toc summary::-webkit-details-marker{ display: none; }
+
+.mi-glossary-toc .mi-glossary-caret{
+  font-size: 12px;
+  opacity: 0.75;
+  transition: transform 160ms ease;
+}
+
+.mi-glossary-toc details[open] .mi-glossary-caret{
+  transform: rotate(90deg);
+}
+
+.mi-glossary-term-list{
+  padding: 6px 8px 10px 8px;
+  display: grid;
+  gap: 6px;
+}
+
+.mi-glossary-term-btn{
+  width: 100%;
+  text-align: left;
+
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+  align-items: baseline;
+
+  padding: 8px 8px;
+  border-radius: 12px;
+
+  background: rgba(0,0,0,0.16);
+  border: 1px solid rgba(255,255,255,0.10);
+  color: var(--mi-ink, rgba(249,246,238,0.88));
+
+  cursor: pointer;
+  transition: transform 140ms ease, filter 140ms ease, border-color 140ms ease;
+}
+
+.mi-glossary-term-btn:hover{
+  transform: translateY(-1px);
+  filter: brightness(1.05);
+  border-color: rgba(255,255,255,0.14);
+}
+
+.mi-glossary-term-btn:focus{
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(var(--mi-role-chalk-mirror-rgb, 56,189,248), 0.35);
+}
+
+.mi-glossary-term-btn.is-active{
+  border-color: rgba(var(--mi-role-chalk-mirror-rgb, 56,189,248), 0.55);
+  box-shadow: 0 0 0 1px rgba(var(--mi-role-chalk-mirror-rgb, 56,189,248), 0.20);
+}
+
+.mi-glossary-term-name{
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.mi-glossary-term-abbr{
+  font-size: 11px;
+  color: var(--mi-ink-muted, rgba(249,246,238,0.65));
+  padding-left: 8px;
+  white-space: nowrap;
+  opacity: 0.95;
+}
+
+/* Definition viewer */
+.mi-glossary-view{
+  margin-top: 10px;
+  padding: 10px 10px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(0,0,0,0.18);
+}
+
+.mi-glossary-view-term{
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--mi-ink, rgba(249,246,238,0.92));
+  letter-spacing: 0.01em;
+}
+
+.mi-glossary-view-def{
+  margin-top: 6px;
+  font-size: 12px;
+  line-height: 1.35;
+  color: var(--mi-ink, rgba(249,246,238,0.78));
+}
+
+.mi-glossary.mi-glossary--open::before{
+  opacity: 0.20;
+}
+
+.mi-glossary::after{
+  content: "";
+  position: absolute;
+  top: 6px;
+  left: 6px;
+
+  height: 32px;
+  width: 3px;
+  border-radius: 3px;
+
+  background: linear-gradient(
+    to bottom,
+    rgba(var(--mi-role-chalk-mirror-rgb,56,189,248),0.65),
+    rgba(var(--mi-role-chalk-mirror-rgb,56,189,248),0.20)
+  );
+
+  box-shadow:
+    0 0 14px rgba(var(--mi-role-chalk-mirror-rgb,56,189,248),0.30);
+
+  opacity: 0.75;
+  pointer-events: none;
+}
+
+/* ===============================
+   Glossary scrollbar — invisible by default
+   =============================== */
+
+/* Firefox */
+.mi-glossary-body{
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.28) transparent;
+}
+
+/* WebKit (Chrome, Edge, Safari) */
+.mi-glossary-body::-webkit-scrollbar{
+  width: 8px;               /* slim overlay */
+}
+
+.mi-glossary-body::-webkit-scrollbar-track{
+  background: transparent; /* remove gutter entirely */
+}
+
+.mi-glossary-body::-webkit-scrollbar-thumb{
+  background: rgba(255,255,255,0.22);
+  border-radius: 8px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  opacity: 0;
+  transition: opacity 160ms ease, background 160ms ease;
+}
+
+/* Only reveal scrollbar when user is interacting */
+.mi-glossary-body:hover::-webkit-scrollbar-thumb,
+.mi-glossary-body:active::-webkit-scrollbar-thumb{
+  opacity: 1;
+  background: rgba(255,255,255,0.35);
 }
 
 /* =========================================================

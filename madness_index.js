@@ -245,6 +245,7 @@ function resetPostMatchupDefaultView() {
 
 function loadCopyJSON() {
   console.log("[MI] loadCopyJSON fired");
+
   fetch('copy.json')
     .then(res => {
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -254,13 +255,26 @@ function loadCopyJSON() {
       // Ensure pre-matchup hub keys exist in the shape the HTML expects
       normalizePreMatchupCopy(data);
 
+      // Canonical copy assignment
       window.MI_COPY = data;
+
+      // Apply copy-driven UI
       applyCopyToDOM(data);
       buildGlossaryFromCopy(data);
       populateBackExplanations(data);
       populateInteractionsHowToList(data);
 
-      // ✅ Copy arrives async — refresh hub text once MI_COPY is ready
+      // 🔁 Glossary arrives empty on first init — refresh once copy exists
+      if (typeof window.miRefreshGlossary === 'function') {
+        window.miRefreshGlossary();
+      }
+
+      // 🔐 Re-sync availability now that copy + matchup state are both known
+      if (typeof window.miSyncGlossaryToMatchupState === 'function') {
+        window.miSyncGlossaryToMatchupState();
+      }
+
+      // Update pre-matchup hub once copy is ready
       if (typeof updatePreMatchupHubProgress === 'function') {
         updatePreMatchupHubProgress();
       }
@@ -269,6 +283,7 @@ function loadCopyJSON() {
       console.error('Error loading copy.json:', err);
     });
 }
+
 
 // populateBackExplanations(copy) { Uses copy.back to fill the big back-of-card explainer paragraphs and the smaller “mini-tile” explanations for Core, Breadth, Résumé, Marks, Identity, and formula.
 
@@ -2563,7 +2578,6 @@ function computeInteractions(a, b) {
   interactionPaint(a, b);
   interactionTO(a, b);
   interactionGlass(a, b);
-  interactionResume(a, b);
   interactionPhysicality(a, b);
   interactionShotQuality(a, b);
   interactionVariance(a, b);
@@ -2857,9 +2871,8 @@ function computeStaticIdentities() {
 function computeMIBase(team) {
   const mibs      = (typeof team.mibs === 'number') ? team.mibs : 0;
   const breadth   = (typeof team.breadth === 'number') ? team.breadth : 0;
-  const resumeAdj = (typeof team.resumeR === 'number') ? team.resumeR : 0;
 
-  const miBase = mibs + breadth + resumeAdj;
+  const miBase = mibs + breadth;
 
   team.mi_base = miBase;  // keep on the object for UI / downstream use
   return miBase;
@@ -4147,7 +4160,7 @@ function renderSummary({ a, b, miA, miB, diff, predicted, interactions, round, s
 
     const winnerRole = (diff === 0)
       ? 'neutral'
-      : (diff > 0 ? 'cinderella' : 'favorite'); // assumes Team A = Cinderella, Team B = Favorite   (same convention as Verdict)
+      : (diff > 0 ? 'cinderella' : 'favorite'); // Team A = Cinderella, Team B = Favorite
 
     explainCard.classList.add(`mi-winner-${winnerRole}`);
   }
@@ -4189,10 +4202,10 @@ function renderSummary({ a, b, miA, miB, diff, predicted, interactions, round, s
   // ----- Gap band (JSON) -----
   const gapKey    = getSummaryGapKey(diff);
   const gapCfg    = phrases[gapKey] || {};
-  const bandLabel = gapCfg.label || '';
-  const bandDesc  = gapCfg.description || '';
+  const bandLabel = (gapCfg.label || '').trim();
+  const bandDesc  = (gapCfg.description || '').trim();
 
-  // ----- Build lean text (also feeds the hero HUD) -----
+  // ----- Build lean text (also feeds the hero HUD / other UI) -----
   let leanText;
 
   if (diff === 0) {
@@ -4219,14 +4232,14 @@ function renderSummary({ a, b, miA, miB, diff, predicted, interactions, round, s
   }
 
   // ----- Verdict → Confidence → Why → Risk (JSON-driven; NO hardcoded phrases) -----
-  const verdictCopy = summaryCopy.verdict || {}; // NEW namespace (we'll add to copy.json next)
+  const verdictCopy = summaryCopy.verdict || {}; // namespace
 
   // Optional labels (can be blank until JSON is added)
   const confidenceLabelText = verdictCopy.confidence_label || tableLabels.confidence_label || '';
   const driverLabelText     = verdictCopy.driver_label     || tableLabels.driver_label     || '';
   const riskLabelText       = verdictCopy.risk_label       || tableLabels.risk_label       || '';
 
-  // Confidence label comes from summary_phrases band label (already JSON-driven)
+  // Confidence band comes from summary_phrases band label (already JSON-driven)
   const confidenceBand = (bandLabel || getLeanBand(diff) || '').trim();
 
   // Determine winner side
@@ -4288,29 +4301,27 @@ function renderSummary({ a, b, miA, miB, diff, predicted, interactions, round, s
   const driverTpl = (verdictCopy.driver_templates && verdictCopy.driver_templates[driverCase]) || '';
   const riskTpl   = (verdictCopy.risk_templates   && verdictCopy.risk_templates[riskCase])   || '';
 
+  // We'll also compute sepText early for the new synthesis center & MI Δ
+  const sep = Math.abs(diff);
+  const sepText = (sep < 0.05) ? '~0.0' : `~${sep.toFixed(1)}`;
+
   const tokens = {
     WINNER: winName,
     LOSER: loseName,
     DIFF: fmt(diff, 3),
     EDGE_TIER: edgeTier,
     WIN_INT: fmt(winInt, 3),
-    LOSE_INT: fmt(loseInt, 3)
+    LOSE_INT: fmt(loseInt, 3),
+    SEP: sepText,
+    BAND: confidenceBand || (bandLabel || '')
   };
 
   const driverText = renderTpl(driverTpl, tokens);
   const riskText   = renderTpl(riskTpl, tokens);
 
   // ----- Verdict metrics flip-tile (BACK) text (JSON-driven; 3-sentence paragraph; gap-band-aware) -----
-  // Source: copy.json → verdict.metrics.back_text
-  // Canonical shape:
-  // back_text: {
-  //   base:    [ "Sentence 1...", ... ],
-  //   matchup: [ "Sentence 2...", ... ],
-  //   gap:     { tiny_gap:[ "Sentence 3...", ... ], ... , default:[ ... ] }
-  // }
-  // Render requirement: ONE paragraph string = 3 consecutive sentences (no line breaks)
   const metricsCfg   = (copy.verdict && copy.verdict.metrics) ? copy.verdict.metrics : {};
-  const backTextCfg  = metricsCfg.back_text || {};
+  const backTextCfg  = (metricsCfg.back_text || {});
 
   const pickOne = (arr) => (Array.isArray(arr) && arr.length ? arr[Math.floor(Math.random() * arr.length)] : "");
 
@@ -4342,7 +4353,6 @@ function renderSummary({ a, b, miA, miB, diff, predicted, interactions, round, s
     document.querySelector('#verdictShell .mi-verdict-metrics-tile .tile-back .mi-metrics-back-text') ||
     document.querySelector('#verdictShell .mi-metrics-back-text[data-copy="verdict.metrics.back_text"]');
 
-  // Only overwrite if we have JSON content (otherwise keep the HTML fallback text)
   if (metricsBackEl && metricsBackText) {
     metricsBackEl.textContent = metricsBackText;
   }
@@ -4361,45 +4371,18 @@ function renderSummary({ a, b, miA, miB, diff, predicted, interactions, round, s
 
   // Helper: set text for a data-value field inside #summarySection
   const setSummaryValue = (key, val) => {
-    const els = document.querySelectorAll(`#summarySection [data-value="${key}"]`);
+    const root = summarySection || document;
+    const els = root.querySelectorAll(`[data-value="${key}"]`);
     if (!els || !els.length) return;
     const out = (val == null ? '' : val);
     els.forEach(el => { el.textContent = out; });
   };
 
-  // ===== Center Column (Explain Mode) helpers =====
-
-  // Edge team based on diff sign (diff = miA - miB)
-  const edgeTeam = (diff === 0) ? '' : (diff > 0 ? a.name : b.name);
-
-  // Use existing JSON gapKey/bandLabel if available; otherwise map gapKey → phrase
-  const separationLabelFromGapKey = (k, diff) => {
-    if (diff === 0) return 'No clear edge';
-
-    switch (k) {
-      case 'tiny_gap':
-        return 'No clear edge';
-      case 'small_gap':
-        return 'Slim edge';
-      case 'medium_gap':
-        return 'Moderate edge';
-      case 'large_gap':
-        return 'Strong edge';
-      default:
-        return 'Edge';
-    }
-  };
-
-  const separationLabel = separationLabelFromGapKey(gapKey, diff);
-
-  // Unsigned separation number for humans (supporting evidence only)
-  const sep = Math.abs(diff);
-  const sepText = (diff === 0) ? '—' : `~${sep.toFixed(1)}`;
-
-  // Pull the score-build components from the team objects (computeFinalMI already stores these)
+  // ===== SCORE SYNTHESIS (NEW HTML expects: base, breadth, int_eff, total_adj, final) =====
   const aBase    = (typeof a.mi_base === 'number')      ? a.mi_base      : baseA;
   const bBase    = (typeof b.mi_base === 'number')      ? b.mi_base      : baseB;
 
+  // Keep these legacy components (safe no-ops if DOM doesn't have them)
   const aIntRaw  = (typeof a.mi_int_raw === 'number')   ? a.mi_int_raw   : (interactions?.a ?? 0);
   const bIntRaw  = (typeof b.mi_int_raw === 'number')   ? b.mi_int_raw   : (interactions?.b ?? 0);
 
@@ -4409,150 +4392,128 @@ function renderSummary({ a, b, miA, miB, diff, predicted, interactions, round, s
   const aIntEff  = (typeof a.mi_int === 'number')       ? a.mi_int       : (interactions?.a ?? 0);
   const bIntEff  = (typeof b.mi_int === 'number')       ? b.mi_int       : (interactions?.b ?? 0);
 
+  // Breadth bonus is stored on team objects as `breadth` in this codebase
+  const aBreadth = (typeof a.breadth === 'number') ? a.breadth
+                 : (typeof a.mi_breadth === 'number') ? a.mi_breadth
+                 : 0;
+
+  const bBreadth = (typeof b.breadth === 'number') ? b.breadth
+                 : (typeof b.mi_breadth === 'number') ? b.mi_breadth
+                 : 0;
+
   const aFinal   = (typeof a.mi_matchup === 'number')   ? a.mi_matchup   : miA;
   const bFinal   = (typeof b.mi_matchup === 'number')   ? b.mi_matchup   : miB;
 
-  // Fill Team A ledger
-  setSummaryValue('a.base',    fmt(aBase, 3));
+  // Total adjustment should reflect whatever the engine actually applied.
+  // Best: compute it from final - base (captures breadth + any effective matchup effects).
+  const aTotalAdj = (typeof aFinal === 'number' && typeof aBase === 'number') ? (aFinal - aBase) : (aBreadth + aIntEff);
+  const bTotalAdj = (typeof bFinal === 'number' && typeof bBase === 'number') ? (bFinal - bBase) : (bBreadth + bIntEff);
+
+  // Fill required synthesis slots
+  setSummaryValue('a.base',      fmt(aBase, 3));
+  setSummaryValue('b.base',      fmt(bBase, 3));
+
+  setSummaryValue('a.breadth',   fmt(aBreadth, 3));
+  setSummaryValue('b.breadth',   fmt(bBreadth, 3));
+
+  setSummaryValue('a.int_eff',   fmt(aIntEff, 3));
+  setSummaryValue('b.int_eff',   fmt(bIntEff, 3));
+
+  setSummaryValue('a.total_adj', fmt(aTotalAdj, 3));
+  setSummaryValue('b.total_adj', fmt(bTotalAdj, 3));
+
+  setSummaryValue('a.final',     fmt(aFinal, 3));
+  setSummaryValue('b.final',     fmt(bFinal, 3));
+
+  // Keep legacy keys populated if they still exist somewhere in DOM (harmless)
   setSummaryValue('a.int_raw', fmt(aIntRaw, 3));
-  setSummaryValue('a.rFact',   (aRFact == null ? '—' : fmt(aRFact, 3)));
-  setSummaryValue('a.int_eff', fmt(aIntEff, 3));
-  setSummaryValue('a.final',   fmt(aFinal, 3));
-
-  // Fill Team B ledger
-  setSummaryValue('b.base',    fmt(bBase, 3));
   setSummaryValue('b.int_raw', fmt(bIntRaw, 3));
+  setSummaryValue('a.rFact',   (aRFact == null ? '—' : fmt(aRFact, 3)));
   setSummaryValue('b.rFact',   (bRFact == null ? '—' : fmt(bRFact, 3)));
-  setSummaryValue('b.int_eff', fmt(bIntEff, 3));
-  setSummaryValue('b.final',   fmt(bFinal, 3));
 
-  // ----- Gap Attribution -----
+  // MI Δ (new bottom-center slot)
+  setSummaryValue('gap.sep', sepText);
+
+  // ===== NEW CENTER NARRATIVE: #summarySynLean uses JSON template, with leanText fallback =====
+  const synLeanEl = document.getElementById('summarySynLean');
+  if (synLeanEl) {
+    const tpl =
+      (copy.summary && copy.summary.synthesis && copy.summary.synthesis.syn_lean)
+        ? copy.summary.synthesis.syn_lean
+        : '';
+
+    const rendered = clean(renderTpl(tpl, tokens));
+    // If template is blank or not yet written, fall back to the computed lean text.
+    synLeanEl.textContent = rendered || (leanText || '');
+  }
+
+  // ===== GAP ATTRIBUTION (numbers exist, but interpretation leads) =====
   const baseGap = aBase - bBase;
-  const shift   = aIntEff - bIntEff;  // matchup shift contribution (effective)
-  const netGap  = diff;              // miA - miB (already computed upstream)
+  const shift   = aIntEff - bIntEff;
+  const netGap  = diff;
 
-  // Winner name based on sign (negative means B is ahead if your netGap is A-B; adjust if flipped)
-  const leader = (netGap === 0) ? '' : (netGap > 0 ? a.name : b.name);
-
-  // Compact directional notes that *explain* (not “toward ___”)
-  const baselineNote = (baseGap === 0)
-    ? 'No baseline separation'
-    : `Profile edge favors ${baseGap > 0 ? a.name : b.name}`;
-
-  const shiftNote = (shift === 0)
-    ? 'No interaction swing'
-    : `Interactions favor ${shift > 0 ? a.name : b.name}`;
-
-  // Net gap note can stay on existing key or be improved if you want:
-  const netDir = (netGap === 0)
-    ? ''
-    : `Leans ${leader}`;
-
-  // Keep numeric internals for now (you may hide them via CSS in explain mode)
   setSummaryValue('gap.baseline', fmt(baseGap, 3));
   setSummaryValue('gap.shift',    fmt(shift, 3));
   setSummaryValue('gap.net',      fmt(netGap, 3));
 
-  // New: header separation number (unsigned) — requires HTML data-value="gap.sep"
-  setSummaryValue('gap.sep', sepText);
+  // NEW CENTER STRUCTURE (legacy-safe if those nodes no longer exist)
+  const bandPillText =
+    (diff === 0)
+      ? 'NO CLEAR EDGE'
+      : `${winName} HOLDS THE EDGE`;
 
-  // New: header support line (plain english, no sign confusion)
-  setSummaryValue(
-    'gap.net_note',
-    (diff === 0) ? 'Model separation is minimal.'
-                 : `Model separation: ${sepText.replace('~','')} points`
-  );
+  setSummaryValue('gap.band', bandPillText);
 
-  // Replace old “toward ___” notes with explanatory notes (optional)
-  const baselineNote2 =
-    (baseGap === 0) ? 'Profiles start closely matched.'
-                    : `${baseGap > 0 ? a.name : b.name} looks stronger before matchup effects.`;
+  const separationNote =
+    bandDesc
+      ? bandDesc
+      : (diff === 0 ? 'Minimal separation — treat this as high-variance.' : `Model separation: ${sepText.replace('~','')} points.`);
 
-  const shiftNote2 =
-    (shift === 0) ? 'Matchup interactions do not create separation.'
-                  : `Matchup interactions ${Math.sign(shift) === Math.sign(diff) ? 'widen' : 'reduce'} the gap.`;
+  setSummaryValue('gap.net_note', separationNote);
 
-  setSummaryValue('gap.baseline_note', baselineNote2);
-  setSummaryValue('gap.shift_note', shiftNote2);
+  const micro =
+    (diff === 0)
+      ? ''
+      : `${(bandLabel ? bandLabel + ' — ' : '')}${winName} over ${loseName}`;
 
-  // If your HTML still uses *_dir keys anywhere, blank them so nothing confusing renders
+  setSummaryValue('gap.micro', micro);
+
+  // Driver notes in plain English
+  const baselineNote =
+    (baseGap === 0)
+      ? 'Profiles start closely matched before opponent effects.'
+      : `${baseGap > 0 ? a.name : b.name} looks stronger on baseline profile strength.`;
+
+  const shiftNote =
+    (shift === 0)
+      ? 'Matchup interactions do not meaningfully change the baseline picture.'
+      : `Matchup interactions ${Math.sign(shift) === Math.sign(diff) ? 'reinforce' : 'push against'} the edge.`;
+
+  let resumeDriver = 'Résumé scaling informs how much trust to place in the matchup effects.';
+  if (aRFact != null && bRFact != null) {
+    if (Math.abs(aRFact - bRFact) < 0.02) {
+      resumeDriver = 'Résumé scaling is similar on both sides — reliability is comparable.';
+    } else {
+      resumeDriver = `${(aRFact > bRFact) ? a.name : b.name} carries the stronger résumé multiplier.`;
+    }
+  }
+
+  setSummaryValue('gap.baseline_note', baselineNote);
+  setSummaryValue('gap.shift_note', shiftNote);
+  setSummaryValue('gap.net_note2', resumeDriver);
+
+  // If any legacy keys still exist in DOM, blank them to prevent confusing leakage
   setSummaryValue('gap.baseline_dir', '');
   setSummaryValue('gap.shift_dir', '');
   setSummaryValue('gap.net_dir', '');
 
-  // ===== Center header: convert “Madness Delta” into an EDGE headline =====
-  const midTitleEl = document.querySelector('#summarySection .summary-col-mid .summary-mid-title');
-  if (midTitleEl) {
-    if (diff === 0) {
-      midTitleEl.textContent = 'NO CLEAR EDGE';
-    } else {
-      const safeTeam = miEscapeHtml(String(edgeTeam || '').toUpperCase());
-      midTitleEl.innerHTML = `<span class="edge-team">${safeTeam}</span> <span class="edge-tail">HOLDS THE EDGE</span>`;
-    }
-  }
-
-  const midHintEl = document.querySelector('#summarySection .summary-col-mid .summary-mid-hint');
-  if (midHintEl) {
-    midHintEl.textContent = separationLabel;
-    midHintEl.setAttribute('data-edge', gapKey); // tiny_gap | small_gap | medium_gap | large_gap
-  }
-
-  // ===== Center: “Why ___ has the edge” (repurpose the 3 rows as drivers) =====
+  // ===== Center: kicker text (optional — safe cosmetic) =====
   const gapKickerEl = document.querySelector('#summaryGapAttribution .summary-mid-kicker');
   if (gapKickerEl) {
-    gapKickerEl.textContent = (diff === 0) ? 'Why this is close' : `Why ${edgeTeam} has the edge`;
+    gapKickerEl.textContent = (diff === 0) ? 'Why the model keeps this close' : 'Why the model leans this way';
   }
 
-  // Row 1: Profile advantage (baseline profile separation)
-  const rowProfile = document.querySelector('#summaryGapAttribution .summary-gap-line[data-field="baseline_gap"]');
-  if (rowProfile) {
-    const label = rowProfile.querySelector('.summary-label');
-    const hint  = rowProfile.querySelector('.summary-hint');
-    if (label) label.textContent = 'Profile advantage';
-    if (hint) {
-      hint.textContent =
-        (baseGap === 0) ? 'Profiles start closely matched.' :
-        `${baseGap > 0 ? a.name : b.name} shows the cleaner baseline profile.`;
-    }
-  }
-
-  // Row 2: Matchup interactions (interaction swing)
-  const rowInt = document.querySelector('#summaryGapAttribution .summary-gap-line[data-field="matchup_shift"]');
-  if (rowInt) {
-    const label = rowInt.querySelector('.summary-label');
-    const hint  = rowInt.querySelector('.summary-hint');
-    if (label) label.textContent = 'Matchup interactions';
-    if (hint) {
-      hint.textContent =
-        (shift === 0) ? 'Interactions do not meaningfully swing the matchup.' :
-        (Math.sign(shift) === Math.sign(diff))
-          ? 'Interactions support the existing edge.'
-          : 'Interactions push against the edge and tighten it.';
-    }
-  }
-
-  // Row 3: Résumé scaling (credibility multiplier differences)
-  const rowRes = document.querySelector('#summaryGapAttribution .summary-gap-line[data-field="net_gap"]');
-  if (rowRes) {
-    const label = rowRes.querySelector('.summary-label');
-    const hint  = rowRes.querySelector('.summary-hint');
-    if (label) label.textContent = 'Résumé scaling';
-
-    const aRF = (a && typeof a.rFact === 'number') ? a.rFact : null;
-    const bRF = (b && typeof b.rFact === 'number') ? b.rFact : null;
-
-    if (hint) {
-      if (aRF == null || bRF == null) {
-        hint.textContent = 'Résumé scaling contributes to overall separation.';
-      } else if (Math.abs(aRF - bRF) < 0.02) {
-        hint.textContent = 'Résumé scaling is similar for both teams.';
-      } else {
-        hint.textContent = `${(aRF > bRF) ? a.name : b.name} gets the stronger résumé multiplier.`;
-      }
-    }
-  }
-
-  // ----- Synthesis / Stitch Tag (deterministic) -----
+  // ===== Synthesis / Stitch Tag (deterministic) =====
   const stitchCopy = (summaryCopy && summaryCopy.stitch) ? summaryCopy.stitch : {};
 
   const EPS  = (typeof stitchCopy.eps === 'number')  ? stitchCopy.eps  : 0.001;
@@ -4571,7 +4532,6 @@ function renderSummary({ a, b, miA, miB, diff, predicted, interactions, round, s
   } else if (sBase !== 0 && sBase !== sNet) {
     stitchKey = 'redirected';
   } else {
-    // baseline and net point same direction (or baseline is ~0)
     if (Math.abs(shift) < SOFT) {
       stitchKey = 'confirmed';
     } else if (sShft === sNet) {
@@ -4583,16 +4543,14 @@ function renderSummary({ a, b, miA, miB, diff, predicted, interactions, round, s
     }
   }
 
-  // Label: prefer copy.json string; fall back to key
   const stitchLabel =
     stitchCopy[stitchKey] ||
     (copy.summary && copy.summary.stitch && copy.summary.stitch[stitchKey]) ||
     stitchKey;
 
-  // Center column should not leak internal stitch labels (e.g., “REINFORCED”)
+  // Do not show internal stitch labels in center UI
   setSummaryValue('stitch.label', '');
 
-  // “How to read this” (canonical, consistent)
   const howToRead =
     (diff === 0)
       ? 'Minimal separation suggests a true toss-up — treat this as highly volatile.'
@@ -4600,39 +4558,61 @@ function renderSummary({ a, b, miA, miB, diff, predicted, interactions, round, s
 
   setSummaryValue('stitch.note', howToRead);
 
-  // Optional: rename the kicker in the DOM (purely cosmetic, safe)
   const stitchKickerEl = document.querySelector('#summaryStitchTag .summary-mid-kicker');
   if (stitchKickerEl) stitchKickerEl.textContent = 'How to read this';
 
   // ===== VERDICT SHELL (single-source; no duplicate blocks) =====
-  // IMPORTANT: verdict UI now lives in #verdictShell (not in the summary table).
   const verdictShellEl = document.getElementById('verdictShell');
   const verdictInner   = document.querySelector('#verdictShell .mi-verdict-shell-inner');
 
-  // Apply winner/tier classes to the verdict shell (drives hue + intensity via CSS vars)
   if (verdictShellEl) {
     const winnerRole = (diff === 0)
       ? 'neutral'
-      : (diff > 0 ? 'cinderella' : 'favorite'); // diff > 0 => Team A (Cinderella) wins
+      : (diff > 0 ? 'cinderella' : 'favorite');
 
-    const tier = edgeTier; // coin | slight | solid | heavy
-
-    // ===== Lens → container data-lens (Option B mapping layer) =====
-    // Mirror modes override winnerRole hue; standard uses winnerRole; toss-up maps to neutral_mirror.
+    const tier = edgeTier;
     const roundCode = round || CURRENT_ROUND || 'R64';
 
-    let lensKey = (winnerRole === 'neutral') ? 'neutral_mirror' : winnerRole; // default for standard
+    let lensKey = (winnerRole === 'neutral') ? 'neutral_mirror' : winnerRole;
 
     if (typeof resolveIdentityContext === 'function') {
       const ctx = resolveIdentityContext(a, b, roundCode);
       if (ctx && (ctx.mode === 'chalk_mirror' || ctx.mode === 'chaos_mirror' || ctx.mode === 'neutral_mirror')) {
-        lensKey = ctx.mode; // mirror lens wins
+        lensKey = ctx.mode;
       }
     }
 
-    // Apply to the three “accent authority” containers
     verdictShellEl.setAttribute('data-lens', lensKey);
     if (summarySection) summarySection.setAttribute('data-lens', lensKey);
+
+    // ===== SIDE ROLE ATTRS for Score Synthesis (A/B tint) =====
+    // Mirrors tint both sides the same. Standard matchups tint A/B as Cinderella/Favorite.
+    if (summarySection) {
+      let sideA = '';
+      let sideB = '';
+
+      // If identity resolver says mirror, both sides share the mirror token
+      if (lensKey === 'chalk_mirror' || lensKey === 'chaos_mirror' || lensKey === 'neutral_mirror') {
+        sideA = lensKey;
+        sideB = lensKey;
+      } else {
+        // Standard: determine which TEAM is Cinderella vs Favorite in this matchup
+        // In this codebase, diff > 0 means Team A is the winner and labeled Cinderella (per your existing logic).
+        // Keep it consistent with winnerRole mapping above.
+        const aIsCinderella = (diff > 0);
+        sideA = aIsCinderella ? 'cinderella' : 'favorite';
+        sideB = aIsCinderella ? 'favorite' : 'cinderella';
+
+        // Neutral (diff === 0): keep both neutral-mirror so the table doesn't shout
+        if (diff === 0) {
+          sideA = 'neutral_mirror';
+          sideB = 'neutral_mirror';
+        }
+      }
+
+      summarySection.setAttribute('data-side-a', sideA);
+      summarySection.setAttribute('data-side-b', sideB);
+    }
 
     const analysisShellEl = document.getElementById('analysisShell');
     if (analysisShellEl) analysisShellEl.setAttribute('data-lens', lensKey);
@@ -4646,17 +4626,13 @@ function renderSummary({ a, b, miA, miB, diff, predicted, interactions, round, s
     verdictShellEl.classList.add(`mi-winner-${winnerRole}`);
     verdictShellEl.classList.add(`mi-lean-${tier}`);
 
-    // Ensure it's visible post-run
     verdictShellEl.classList.remove('hidden');
 
-    // Trigger a restrained “broadcast hit” sheen on each run (no loops)
     verdictShellEl.classList.add('mi-verdict-hit');
     window.setTimeout(() => verdictShellEl.classList.remove('mi-verdict-hit'), 1100);
   }
 
-  // ===== Primary + Secondary verdict line (JSON-driven; gap-band-aware; winner/loser-aware) =====
-  // Source: copy.json → verdict.metrics.primary_text + verdict.metrics.secondary_text
-
+  // ===== Primary + Secondary verdict line (JSON-driven; gap-band-aware) =====
   const primaryCfg = metricsCfg.primary_text;
 
   let primaryTpl = "";
@@ -4687,13 +4663,8 @@ function renderSummary({ a, b, miA, miB, diff, predicted, interactions, round, s
 
   const lineEl = document.getElementById('miVerdictLine');
   if (lineEl) {
-    // If any flow previously structured the verdict, a later .textContent write can
-    // flatten children but leave the flag behind. Always clear the flag before rewriting.
     lineEl.classList.remove('is-structured');
-
-    // Prefer JSON headline; fall back to legacy leanText if JSON is missing
     lineEl.textContent = combinedVerdict || (leanText || '');
-
     enhanceVerdictPresentation();
   }
 
@@ -4763,52 +4734,6 @@ function renderSummary({ a, b, miA, miB, diff, predicted, interactions, round, s
 
   if (summarySection) {
     summarySection.classList.add('visible');
-  }
-
-  // ===== Center: "Why ___ has the edge" (repurpose the 3 gap lines) =====
-  const whyKickerEl = document.querySelector('#summaryGapAttribution .summary-mid-kicker');
-  if (whyKickerEl) {
-    whyKickerEl.textContent = (diff === 0) ? 'Why this is close' : `Why ${edgeTeam} has the edge`;
-  }
-
-  const gapLines = document.querySelectorAll('#summaryGapAttribution .summary-gap-line');
-  if (gapLines && gapLines.length >= 3) {
-
-    // 1) Profile advantage
-    const l0 = gapLines[0].querySelector('.summary-label');
-    const h0 = gapLines[0].querySelector('.summary-hint');
-
-    if (l0) l0.textContent = 'Profile advantage';
-    if (h0) {
-      h0.textContent =
-        (diff === 0)
-          ? 'Overall team profiles enter this matchup closely matched.'
-          : `${edgeTeam} enters the matchup with the stronger overall profile.`;
-    }
-
-    // 2) Matchup interactions
-    const l1 = gapLines[1].querySelector('.summary-label');
-    const h1 = gapLines[1].querySelector('.summary-hint');
-
-    if (l1) l1.textContent = 'Matchup interactions';
-    if (h1) {
-      h1.textContent =
-        (diff === 0)
-          ? 'Opponent-specific effects do not create meaningful separation.'
-          : 'Opponent-specific matchup effects widen the separation rather than narrowing it.';
-    }
-
-    // 3) Résumé scaling
-    const l2 = gapLines[2].querySelector('.summary-label');
-    const h2 = gapLines[2].querySelector('.summary-hint');
-
-    if (l2) l2.textContent = 'Résumé scaling';
-    if (h2) {
-      h2.textContent =
-        (diff === 0)
-          ? 'Credibility scaling keeps this in toss-up territory.'
-          : 'Résumé scaling supports the reliability of those matchup effects.';
-    }
   }
 
   // ----- Seed / bracket compatibility note -----
@@ -4953,7 +4878,6 @@ const INT_CONSOLE_KEYMAP = {
   'paint': 'paint_tension',
   'to':    'turnover_pressure',
   'glass': 'glass_tension',
-  'resume':'resume_pressure',
   'phys':  'physicality_tolerance',
   'shotq': 'shot_discipline',
   'var':   'variance_sensitivity'
@@ -5058,7 +4982,6 @@ function renderInteractionsConsole(result) {
     paint: "paint_tension",
     tov: "turnover_pressure",
     glass: "glass_tension",
-    resume: "resume_pressure",
     phys: "physicality_tolerance",
     shotq: "shot_discipline",
     var: "variance_sensitivity",
@@ -5071,7 +4994,6 @@ function renderInteractionsConsole(result) {
     paint: "paint",
     tov: "to",
     glass: "glass",
-    resume: "resume",
     phys: "phys",
     shotq: "shotq",
     var: "var",
@@ -5083,7 +5005,6 @@ function renderInteractionsConsole(result) {
     { key: "paint", fallbackLabel: "Paint Tension" },
     { key: "tov", fallbackLabel: "Turnover Pressure" },
     { key: "glass", fallbackLabel: "Glass Tension" },
-    { key: "resume", fallbackLabel: "Résumé Pressure" },
     { key: "phys", fallbackLabel: "Physicality Tolerance" },
     { key: "shotq", fallbackLabel: "Shot Discipline" },
     { key: "var", fallbackLabel: "Variance Sensitivity" },
@@ -5380,12 +5301,35 @@ function hideFooter() {
   if (f) f.classList.add('hidden');
 }
 
+function miSyncGlossaryToMatchupState() {
+  const appShell = document.querySelector('.app-shell');
+  const hasMatchup = !!(appShell && appShell.classList.contains('has-matchup'));
+
+  if (window.miSetGlossaryAvailable) {
+    window.miSetGlossaryAvailable(hasMatchup);
+  }
+}
+
+function detectMatchupVisible(){
+  const appShell = document.querySelector('.app-shell');
+  return !!(appShell && appShell.classList.contains('has-matchup'));
+}
+
 // ========== MATCHUP BAR TOGGLING ==========
 
 function updateMatchupBarFromDOM() {
   const matchupBar = document.getElementById('matchupBar');
   const topBar = document.querySelector('.top-bar') || document.getElementById('preSetupRow');
-  if (!matchupBar || !topBar) return;
+  const appShell = document.querySelector('.app-shell');
+
+  if (!matchupBar || !topBar || !appShell) return;
+
+  // Show the matchup bar (your existing behavior may differ; keep this consistent with your app)
+  matchupBar.classList.remove('hidden');
+
+  // Canonical: entering matchup mode
+  appShell.classList.add('has-matchup');
+  appShell.classList.remove('pre-matchup');
 
   const teamANameEl  = document.getElementById('teamATitle');
   const teamBNameEl  = document.getElementById('teamBTitle');
@@ -5407,37 +5351,35 @@ function updateMatchupBarFromDOM() {
   if (cSeedOut) cSeedOut.textContent = cSeed ? `(${cSeed})` : '';
   if (fSeedOut) fSeedOut.textContent = fSeed ? `(${fSeed})` : '';
 
-  // ✅ Round pill should be state-driven, not scraped from DOM text.
-  // This prevents "Round of 64" from being re-injected as a fallback.
-  miUpdateMatchupRoundPill(CURRENT_ROUND);
+  // Round pill should be state-driven
+  if (typeof miUpdateMatchupRoundPill === 'function') {
+    miUpdateMatchupRoundPill(CURRENT_ROUND);
+  }
 
   matchupBar.classList.add('visible');
   topBar.classList.add('collapsed');
 
-  const appShell = document.querySelector('.app-shell');
-  if (appShell) {
-    appShell.classList.add('has-matchup');
-    appShell.classList.remove('pre-matchup');
-    showFooter();
-  }
+  showFooter();
 
-  console.log('[updateMatchupBarFromDOM] verdict children:', document.getElementById('miVerdictLine')?.innerHTML);
+  // Sync glossary to true matchup state (will reveal affordance)
+  miSyncGlossaryToMatchupState();
 }
 
 function hideMatchupBar() {
   const matchupBar = document.getElementById('matchupBar');
-  const topBar = document.querySelector('.top-bar') || document.getElementById('preSetupRow');
-  if (!matchupBar || !topBar) return;
+  if (matchupBar) {
+    matchupBar.classList.add('hidden');
+  }
 
-  matchupBar.classList.remove('visible');
-  topBar.classList.remove('collapsed');
-
+  // Canonical app-mode reset
   const appShell = document.querySelector('.app-shell');
   if (appShell) {
     appShell.classList.remove('has-matchup');
     appShell.classList.add('pre-matchup');
-    hideFooter();
   }
+
+  // Sync glossary to true matchup state (will close + hide)
+  miSyncGlossaryToMatchupState();
 }
 
 function ensureQuickEditSandboxToggle() {
@@ -5648,7 +5590,6 @@ function showAnalysisShell() {
   if (!shell) return;
 
   shell.classList.remove('hidden');
-  // next frame so the transition actually runs
   requestAnimationFrame(() => shell.classList.add('analysis-visible'));
 }
 
@@ -5657,8 +5598,6 @@ function hideAnalysisShell() {
   if (!shell) return;
 
   shell.classList.remove('analysis-visible');
-
-  // wait for the fade/slide transition, then remove from layout
   window.setTimeout(() => {
     shell.classList.add('hidden');
   }, 280);
@@ -6917,11 +6856,387 @@ if (roundBtn && roundDropdown) {
   }
 }
 
+/* =========================================================
+   Glossary Drawer (matchup-only; JSON-driven; deterministic)
+   ========================================================= */
+(function(){
+  const TOC_ORDER = [
+    "Verdict Shell",
+    "Baseline MI",
+    "Matchup MI",
+    "Madness Delta",
+    "Predicted Winner",
+    "Lean Signals",
+    "Team Scorecards",
+    "Offensive Efficiency",
+    "Defensive Efficiency",
+    "Efficiency Margin",
+    "True Shooting %",
+    "Effective FG%",
+    "Defensive eFG%",
+    "Effective Possession Ratio",
+    "Turnover %",
+    "Breadth Bonus",
+    "Profile Subtotal",
+    "Tournament Identities",
+    "Cinderella Index (CIS)",
+    "Favorite Authority Score (FAS)",
+    "Live Cinderella Index (LCI)",
+    "Live Favorite Index (LFI)",
+    "Résumé Context",
+    "Résumé Context Index",
+    "Strength of Schedule",
+    "Win Percentage",
+    "Résumé Tier",
+    "Profile Marks",
+    "Offensive Rigidity",
+    "Unstable Perimeter",
+    "Cold Arc Team",
+    "Undisciplined Defense",
+    "Soft Interior",
+    "Perimeter Leakage",
+    "Tempo Strain",
+    "Interactions",
+    "Three-Point Tension",
+    "Free Throw Pressure",
+    "Paint Tension",
+    "Turnover Pressure",
+    "Glass Tension",
+    "Résumé Pressure",
+    "Physicality Tolerance",
+    "Shot Discipline",
+    "Variance Sensitivity"
+  ];
+
+  const state = {
+    available: false,
+    open: false,
+    activeKey: null,
+    indexByKey: Object.create(null),
+    grouped: null
+  };
+
+  function $(id){ return document.getElementById(id); }
+
+  function normalizeKey(term, abbr){
+    const t = (term || "").trim();
+    const a = (abbr || "").trim();
+    return (t + (a ? `|${a}` : "")).toLowerCase();
+  }
+
+  function safeCopy(){
+    const copy = window.MI_COPY || {};
+    const g = copy.glossary || {};
+    const title = (typeof g.title === "string" && g.title.trim()) ? g.title.trim() : "Glossary";
+    const help  = (typeof g.help === "string"  && g.help.trim())  ? g.help.trim()  : "Definitions for key terms used in this app.";
+    const entries = Array.isArray(g.entries) ? g.entries : [];
+    return { title, help, entries };
+  }
+
+  function sectionForEntry(entry){
+    // Deterministic mapping: prefer explicit category match to TOC labels.
+    const cat = (entry && entry.category ? String(entry.category).trim() : "");
+    const term = (entry && entry.term ? String(entry.term).trim() : "");
+
+    if (cat && TOC_ORDER.includes(cat)) return cat;
+    if (term && TOC_ORDER.includes(term)) return term;
+
+    // Lightweight term-based mapping for resilience (exact matches only)
+    const termMap = Object.create(null);
+    // Populate common exact matches that might come through w/ a different category
+    TOC_ORDER.forEach(label => { termMap[label] = label; });
+    if (term && termMap[term]) return termMap[term];
+
+    // Final fallback bucket (kept deterministic)
+    return "Other";
+  }
+
+  function buildIndex(entries){
+    state.indexByKey = Object.create(null);
+
+    entries.forEach(e => {
+      if (!e || !e.term) return;
+      const term = String(e.term).trim();
+      if (!term) return;
+
+      const abbr = e.abbr ? String(e.abbr).trim() : "";
+      const def  = e.definition ? String(e.definition).trim() : "";
+
+      const key = normalizeKey(term, abbr);
+      state.indexByKey[key] = {
+        term,
+        abbr: abbr || "",
+        category: e.category ? String(e.category).trim() : "",
+        definition: def || ""
+      };
+    });
+  }
+
+  function groupEntries(entries){
+    const groups = Object.create(null);
+
+    // Initialize groups in TOC order to keep stable rendering
+    TOC_ORDER.forEach(label => { groups[label] = []; });
+    groups["Other"] = [];
+
+    entries.forEach(e => {
+      if (!e || !e.term) return;
+      const term = String(e.term).trim();
+      if (!term) return;
+
+      const section = sectionForEntry(e);
+      if (!groups[section]) groups[section] = [];
+      groups[section].push(e);
+    });
+
+    // Within each section: stable alphabetical by term (deterministic)
+    Object.keys(groups).forEach(k => {
+      groups[k].sort((a,b) => {
+        const ta = (a.term || "").toLowerCase();
+        const tb = (b.term || "").toLowerCase();
+        return ta.localeCompare(tb);
+      });
+    });
+
+    return groups;
+  }
+
+  function setActive(term, abbr){
+    const key = normalizeKey(term, abbr);
+    state.activeKey = key;
+
+    const viewTerm = $("glossaryViewTerm");
+    const viewDef  = $("glossaryViewDef");
+
+    const entry = state.indexByKey[key];
+
+    // Graceful placeholder when missing
+    if (!entry){
+      if (viewTerm) viewTerm.textContent = term || "Unknown term";
+      if (viewDef)  viewDef.textContent  = "Definition unavailable.";
+      return;
+    }
+
+    if (viewTerm){
+      viewTerm.textContent = entry.abbr ? `${entry.term} (${entry.abbr})` : entry.term;
+    }
+    if (viewDef){
+      viewDef.textContent = entry.definition || "Definition unavailable.";
+    }
+
+    // Update active styling
+    const toc = $("glossaryTOC");
+    if (toc){
+      toc.querySelectorAll(".mi-glossary-term-btn.is-active").forEach(btn => btn.classList.remove("is-active"));
+      const activeBtn = toc.querySelector(`.mi-glossary-term-btn[data-key="${CSS.escape(key)}"]`);
+      if (activeBtn) activeBtn.classList.add("is-active");
+    }
+  }
+
+  function renderTOC(groups){
+    const toc = $("glossaryTOC");
+    if (!toc) return;
+
+    toc.innerHTML = "";
+
+    const ordered = [...TOC_ORDER];
+    if (!ordered.includes("Other")) ordered.push("Other");
+
+    ordered.forEach(sectionName => {
+      const list = groups[sectionName] || [];
+      // Render section only if it has entries OR it’s a named TOC section (keeps structure predictable)
+      // If you prefer hiding empty sections: change condition to `if (!list.length) return;`
+      const details = document.createElement("details");
+      details.className = "mi-glossary-section";
+      // Start collapsed by default
+      details.open = false;
+
+      const summary = document.createElement("summary");
+      summary.innerHTML = `
+        <span class="mi-glossary-section-title">${sectionName}</span>
+        <span class="mi-glossary-caret">›</span>
+      `;
+      details.appendChild(summary);
+
+      const container = document.createElement("div");
+      container.className = "mi-glossary-term-list";
+
+      if (!list.length){
+        const empty = document.createElement("div");
+        empty.className = "mi-glossary-term-empty";
+        empty.style.fontSize = "12px";
+        empty.style.opacity = "0.72";
+        empty.style.padding = "6px 2px";
+        empty.textContent = "No definitions found.";
+        container.appendChild(empty);
+      } else {
+        list.forEach(e => {
+          const term = String(e.term || "").trim();
+          const abbr = e.abbr ? String(e.abbr).trim() : "";
+          const key  = normalizeKey(term, abbr);
+
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "mi-glossary-term-btn";
+          btn.dataset.key = key;
+
+          const name = document.createElement("div");
+          name.className = "mi-glossary-term-name";
+          name.textContent = term;
+
+          const ab = document.createElement("div");
+          ab.className = "mi-glossary-term-abbr";
+          ab.textContent = abbr ? abbr : "";
+
+          btn.appendChild(name);
+          btn.appendChild(ab);
+
+          btn.addEventListener("click", () => setActive(term, abbr));
+          container.appendChild(btn);
+        });
+      }
+
+      details.appendChild(container);
+      toc.appendChild(details);
+    });
+  }
+
+  function clampDrawerWidthToLeftLane(){
+    // Contract: first open width must not intrude into Verdict Shell lane.
+    // We’ll clamp to the left edge of #verdictShell if present.
+    const drawer = $("glossaryDrawer");
+    const panel  = $("glossaryPanel");
+    const verdict = document.getElementById("verdictShell");
+    if (!drawer || !panel || !verdict) return;
+
+    const vr = verdict.getBoundingClientRect();
+    const leftEdge = 0;
+    const safeGap = Math.max(0, Math.floor(vr.left - leftEdge - 12)); // 12px breathing room
+
+    // If verdict is very close to the edge, keep a tight minimum drawer width
+    const minW = 260;
+    const maxW = 360;
+    const w = Math.max(minW, Math.min(maxW, safeGap));
+
+    panel.style.maxWidth = w + "px";
+    panel.style.width = w + "px";
+  }
+
+  function setOpen(next){
+    const root = $("glossaryDrawer");
+    const handle = $("glossaryHandle");
+    if (!root || !handle) return;
+
+    state.open = !!next;
+    root.classList.toggle("mi-glossary--open", state.open);
+    handle.setAttribute("aria-expanded", state.open ? "true" : "false");
+
+    if (state.open){
+      clampDrawerWidthToLeftLane();
+    }
+  }
+
+  function onKeyDown(e){
+    if (!state.available) return;
+    if (e.key === "Escape" && state.open){
+      setOpen(false);
+    }
+  }
+
+  function bindOnce(){
+    const root = $("glossaryDrawer");
+    const handle = $("glossaryHandle");
+    const closeBtn = $("glossaryClose");
+    if (!root || !handle || !closeBtn) return;
+
+    handle.addEventListener("click", () => setOpen(!state.open));
+    closeBtn.addEventListener("click", () => setOpen(false));
+
+    // Click outside panel closes (but doesn’t interfere with other UI)
+    document.addEventListener("mousedown", (e) => {
+      if (!state.open) return;
+      const panel = $("glossaryPanel");
+      if (!panel) return;
+      if (panel.contains(e.target) || handle.contains(e.target)) return;
+      setOpen(false);
+    });
+
+    window.addEventListener("resize", () => {
+      if (state.open) clampDrawerWidthToLeftLane();
+    });
+
+    document.addEventListener("keydown", onKeyDown);
+  }
+
+  function renderGlossary(){
+    const { title, help, entries } = safeCopy();
+
+    const root = $("glossaryDrawer");
+    if (!root) return;
+
+    // Title/help
+    const t = $("glossaryTitle");
+    const h = $("glossaryHelp");
+    if (t) t.textContent = title;
+    if (h) h.textContent = help;
+
+    buildIndex(entries);
+    state.grouped = groupEntries(entries);
+    renderTOC(state.grouped);
+
+    // Default view
+    const viewTerm = $("glossaryViewTerm");
+    const viewDef  = $("glossaryViewDef");
+    if (viewTerm) viewTerm.textContent = "Select a term";
+    if (viewDef)  viewDef.textContent  = "Quick definitions appear here.";
+  }
+
+  function detectMatchupVisible(){
+    // Primary gate: analysis-visible on #analysisShell
+    const shell = document.getElementById("analysisShell");
+    if (shell && shell.classList.contains("analysis-visible")) return true;
+
+    // Secondary gate: body class (if you have it)
+    if (document.body && document.body.classList.contains("analysis-visible")) return true;
+
+    return false;
+  }
+
+  // Public hooks (attach to window for deterministic integration)
+  window.miInitGlossary = function(){
+    bindOnce();
+    // Render once; availability is controlled separately
+    renderGlossary();
+    window.miSetGlossaryAvailable(detectMatchupVisible());
+  };
+
+  window.miSetGlossaryAvailable = function(isAvailable){
+    const root = $("glossaryDrawer");
+    if (!root) return;
+
+    state.available = !!isAvailable;
+
+    // Only exists in matchup state
+    if (!state.available){
+      setOpen(false);
+      root.setAttribute("hidden", "");
+    } else {
+      root.removeAttribute("hidden");
+    }
+  };
+
+  window.miRefreshGlossary = function(){
+    // Call if glossary JSON changes or you reassign MI_COPY at runtime
+    renderGlossary();
+    if (state.open) clampDrawerWidthToLeftLane();
+  };
+
+})();
+
 function bootMadnessIndex() {
   console.log("[MI] bootMadnessIndex fired");
-  // If the hub isn't in the DOM yet for any reason, retry a few times.
-  let tries = 0;
 
+  let tries = 0;
   const tick = () => {
     tries += 1;
 
@@ -6934,7 +7249,12 @@ function bootMadnessIndex() {
     setupEventListeners();
     loadCopyJSON();
 
-    // Run immediately (even before copy) so fallbacks populate the step text
+    if (typeof miInitGlossary === 'function') {
+      miInitGlossary();
+    }
+
+    miSyncGlossaryToMatchupState();
+
     updatePreMatchupHubProgress();
   };
 
