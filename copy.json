@@ -179,8 +179,13 @@
   },
   "identity_tile_ui": {
     "headers": {
-      "favorite": "Favorite Authenticity Score",
-      "cinderella": "Cinderella Identity Score",
+      "standard": "Tournament Identity — {{ROUND}}",
+      "mirror": "{{SUBTYPE}} — {{ROUND}}",
+      "neutral_mirror": "Tournament Identity",
+      "chalk_mirror": "Tournament Identity",
+      "chaos_mirror": "Tournament Identity",
+      "favorite": "Favorite Authenticity",
+      "cinderella": "Cinderella Credibility",
       "neutral": "Tournament Identity"
     },
     "role_labels": {
@@ -224,10 +229,10 @@
   },
   "interactions": {
     "title": "4. Interaction Metrics",
-    "help": "Matchup-specific leverage from 3PT Tension, FT Pressure, Paint Tension, Turnover Pressure, Glass Tension, Résumé Pressure, Physicality, Shot Quality, and Variance Sensitivity.",
+    "help": "",
     "howto_title": "How to read this table",
     "howto_items": [
-    "Each row corresponds to a single pressure channel (3PT, FT, paint, turnovers, tempo, or glass).",
+    "Each row corresponds to a single pressure channel.",
     "The edge pill shows which team holds the leverage in that channel, or if it’s essentially even.",
     "Row shading mirrors the edge: soft teal tint for the Cinderella card, warm orange tint for the Favorite card, and neutral for even.",
     "Edges come from matchup-based adjustments, not just the raw team ratings — a strong unit can still be neutralized by a great counter.",
@@ -318,18 +323,18 @@
 
   "score_build": {
     "baseline": "Baseline MI",
-    "baseline_hint": "",
+    "baseline_hint": "Team score before any adjustments",
 
     "breadth_bonus": "Breadth Bonus",
-    "breadth_bonus_hint": "",
+    "breadth_bonus_hint": "Bonus for total hits across Core Traits",
 
-    "effective_adj": "Effective Matchup Adjustment",
-    "effective_adj_hint": "",
+    "effective_adj": "Interaction Metrics Adjustment",
+    "effective_adj_hint": "Driven by how each team's strengths and weaknesses interact.",
 
-    "total_adj": "Total Adjustment",
-    "total_adj_hint": "",
+    "total_adj": "Net Matchup Adjustment",
+    "total_adj_hint": "Combined effect of interaction metrics and breadth bonus.",
 
-    "final": "Final Matchup MI",
+    "final": "Final MI",
     "final_hint": ""
   },
 
@@ -337,42 +342,264 @@
     "syn_lean": ""
   }
 },
-  "glossary": {
-    "title": "Stat & Rule Glossary",
-    "help": "Definitions for all metrics and rules used in the Madness Index.",
-    "entries": [
-      {
-        "term": "Offensive Efficiency",
-        "abbr": "OffEff",
-        "category": "Core Traits",
-        "definition": "Points scored per 100 possessions. Higher values indicate a more efficient offense."
-      },
-      {
-        "term": "Defensive Efficiency",
-        "abbr": "DefEff",
-        "category": "Core Traits",
-        "definition": "Points allowed per 100 possessions. Lower values indicate a stronger defense."
-      },
-      {
-        "term": "Adj. Efficiency Margin",
-        "abbr": "AdjEM",
-        "category": "Core Traits",
-        "definition": "Net efficiency (OffEff minus DefEff), adjusted for field strength. Captures overall quality."
-      },
-      {
-        "term": "True Shooting %",
-        "abbr": "TS%",
-        "category": "Core Traits",
-        "definition": "Shooting efficiency that weights 2s, 3s, and free throws into a single scoring metric."
-      },
-      {
-        "term": "Effective FG %",
-        "abbr": "eFG%",
-        "category": "Core Traits",
-        "definition": "Field-goal percentage that gives extra weight to 3-pointers."
-      }
-    ]
-  },
+"glossary": {
+  "title": "Stat & Rule Glossary",
+  "help": "Definitions for all metrics, rules, and analytical concepts used in the Madness Index.",
+  "entries": [
+    {
+      "term": "The Madness Index",
+      "abbr": "MI",
+      "category": "Overview",
+      "definition": ""
+    },
+    {
+      "term": "Matchup Log",
+      "abbr": "",
+      "category": "Overview",
+      "definition": ""
+    },
+    {
+      "term": "Sandbox Mode",
+      "abbr": "",
+      "category": "Overview",
+      "definition": ""
+    },
+    {
+      "term": "Baseline MI",
+      "abbr": "",
+      "category": "Score Synthesis",
+      "definition": ""
+    },
+    {
+      "term": "Breadth Bonus",
+      "abbr": "",
+      "category": "Score Synthesis",
+      "definition": ""
+    },
+    {
+      "term": "Matchup MI",
+      "abbr": "",
+      "category": "Score Synthesis",
+      "definition": ""
+    },
+    {
+      "term": "Madness Delta",
+      "abbr": "MI Δ",
+      "category": "Score Synthesis",
+      "definition": ""
+    },
+    {
+      "term": "Lean Signals",
+      "abbr": "",
+      "category": "Score Synthesis",
+      "definition": ""
+    },
+    {
+      "term": "Offensive Efficiency",
+      "abbr": "OffEff",
+      "category": "Core Traits",
+      "definition": ""
+    },
+    {
+      "term": "Defensive Efficiency",
+      "abbr": "DefEff",
+      "category": "Core Traits",
+      "definition": ""
+    },
+    {
+      "term": "Efficiency Margin",
+      "abbr": "EM",
+      "category": "Core Traits",
+      "definition": ""
+    },
+    {
+      "term": "True Shooting %",
+      "abbr": "TS%",
+      "category": "Core Traits",
+      "definition": ""
+    },
+    {
+      "term": "Effective FG%",
+      "abbr": "eFG%",
+      "category": "Core Traits",
+      "definition": ""
+    },
+    {
+      "term": "Defensive eFG%",
+      "abbr": "Def eFG%",
+      "category": "Core Traits",
+      "definition": ""
+    },
+    {
+      "term": "Effective Possession Ratio",
+      "abbr": "EPR",
+      "category": "Core Traits",
+      "definition": ""
+    },
+    {
+      "term": "Turnover %",
+      "abbr": "TO%",
+      "category": "Core Traits",
+      "definition": ""
+    },
+    {
+      "term": "Thresholds (Mean / Standard Deviation)",
+      "abbr": "",
+      "category": "Thresholds & Tiers",
+      "definition": ""
+    },
+    {
+      "term": "Tier Significance",
+      "abbr": "",
+      "category": "Thresholds & Tiers",
+      "definition": ""
+    },
+    {
+      "term": "Cinderella Credibility",
+      "abbr": "CIS",
+      "category": "Tournament Identities",
+      "definition": ""
+    },
+    {
+      "term": "Favorite Authenticity",
+      "abbr": "FAS",
+      "category": "Tournament Identities",
+      "definition": ""
+    },
+    {
+      "term": "Live Cinderella Profile",
+      "abbr": "LCI",
+      "category": "Tournament Identities",
+      "definition": ""
+    },
+    {
+      "term": "Live Favorite Profile",
+      "abbr": "LFI",
+      "category": "Tournament Identities",
+      "definition": ""
+    },
+    {
+      "term": "Tournament Identity Profile",
+      "abbr": "",
+      "category": "Tournament Identities",
+      "definition": ""
+    },
+    {
+      "term": "Résumé Context",
+      "abbr": "",
+      "category": "Résumé Context",
+      "definition": ""
+    },
+    {
+      "term": "Résumé Tier",
+      "abbr": "",
+      "category": "Résumé Context",
+      "definition": ""
+    },
+    {
+      "term": "Profile Marks",
+      "abbr": "",
+      "category": "Profile Marks",
+      "definition": ""
+    },
+    {
+      "term": "Offensive Rigidity",
+      "abbr": "",
+      "category": "Profile Marks",
+      "definition": ""
+    },
+    {
+      "term": "Unstable Perimeter",
+      "abbr": "",
+      "category": "Profile Marks",
+      "definition": ""
+    },
+    {
+      "term": "Cold Arc Team",
+      "abbr": "",
+      "category": "Profile Marks",
+      "definition": ""
+    },
+    {
+      "term": "Undisciplined Defense",
+      "abbr": "",
+      "category": "Profile Marks",
+      "definition": ""
+    },
+    {
+      "term": "Soft Interior",
+      "abbr": "",
+      "category": "Profile Marks",
+      "definition": ""
+    },
+    {
+      "term": "Perimeter Leakage",
+      "abbr": "",
+      "category": "Profile Marks",
+      "definition": ""
+    },
+    {
+      "term": "Tempo Strain",
+      "abbr": "",
+      "category": "Profile Marks",
+      "definition": ""
+    },
+    {
+      "term": "Interaction Metrics",
+      "abbr": "",
+      "category": "Interaction Metrics",
+      "definition": ""
+    },
+    {
+      "term": "Perimeter Pressure",
+      "abbr": "",
+      "category": "Interaction Metrics",
+      "definition": ""
+    },
+    {
+      "term": "Whistle Bias",
+      "abbr": "",
+      "category": "Interaction Metrics",
+      "definition": ""
+    },
+    {
+      "term": "Rim Access",
+      "abbr": "",
+      "category": "Interaction Metrics",
+      "definition": ""
+    },
+    {
+      "term": "Possession Security",
+      "abbr": "",
+      "category": "Interaction Metrics",
+      "definition": ""
+    },
+    {
+      "term": "Second-Chance Equity",
+      "abbr": "",
+      "category": "Interaction Metrics",
+      "definition": ""
+    },
+    {
+      "term": "Contact Advantage",
+      "abbr": "",
+      "category": "Interaction Metrics",
+      "definition": ""
+    },
+    {
+      "term": "Shot Diet Control",
+      "abbr": "",
+      "category": "Interaction Metrics",
+      "definition": ""
+    },
+    {
+      "term": "Volatility Leverage",
+      "abbr": "",
+      "category": "Interaction Metrics",
+      "definition": ""
+    }
+  ]
+},
   "marks": {
     "summary_by_count": {
       "0": "This team does not meet the criteria for any Profile Marks, meaning none of the specific structural vulnerabilities tracked by this system cross the field-normalized thresholds. This is not an endorsement of overall quality—only an indication that these particular diagnostic flags did not register at a meaningful level.",
@@ -736,7 +963,7 @@
   },
   "core_profile": {
     "breadth_row": {
-      "threshold_text": "Scales with total hits across Core Traits",
+      "threshold_text": "-",
       "tier_text": "-"
     }
   },
@@ -937,7 +1164,7 @@
 
   "channels": {
     "three_pt_tension": {
-      "label": "3PT Tension",
+      "label": "Perimeter Pressure",
       "pov": "constraint",
       "cases": {
         "a_adv": {
@@ -1004,7 +1231,7 @@
     }
   },
     "ft_pressure": {
-      "label": "FT Pressure",
+      "label": "Whistle Bias",
       "pov": "imposition",
       "cases": {
         "a_adv": {
@@ -1067,7 +1294,7 @@
     },
 
     "paint_tension": {
-      "label": "Paint Tension",
+      "label": "Rim Access",
       "pov": "constraint",
       "cases": {
         "a_adv": {
@@ -1132,7 +1359,7 @@
     },
 
     "turnover_pressure": {
-      "label": "Turnover Pressure",
+      "label": "Possession Security",
       "pov": "imposition",
       "cases": {
         "a_adv": {
@@ -1197,7 +1424,7 @@
     },
 
     "glass_tension": {
-      "label": "Glass Tension",
+      "label": "Second-Chance Equity",
       "pov": "control",
       "cases": {
         "a_adv": {
@@ -1327,7 +1554,7 @@
     },
 
     "physicality_tolerance": {
-      "label": "Physicality Tolerance",
+      "label": "Contact Advantage",
       "pov": "imposition",
       "cases": {
         "a_adv": {
@@ -1392,7 +1619,7 @@
     },
 
     "shot_discipline": {
-      "label": "Shot Discipline",
+      "label": "Shot Diet Control",
       "pov": "constraint",
       "cases": {
         "a_adv": {
@@ -1457,7 +1684,7 @@
     },
 
     "variance_sensitivity": {
-      "label": "Variance Sensitivity",
+      "label": "Volatility Leverage",
       "pov": "control",
       "cases": {
         "a_adv": {

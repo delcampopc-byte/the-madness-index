@@ -107,6 +107,33 @@ function applyCopyToDOM(copy) {
   });
 }
 
+// ===== Copy helpers (path lookup + {{TOKENS}} template fill) =====
+function miGetCopy(path, fallback = '') {
+  const copy = window.MI_COPY;
+  if (!copy || !path) return fallback;
+
+  const parts = String(path).split('.');
+  let value = copy;
+
+  for (const part of parts) {
+    if (value && Object.prototype.hasOwnProperty.call(value, part)) {
+      value = value[part];
+    } else {
+      return fallback;
+    }
+  }
+
+  return (typeof value === 'string') ? value : fallback;
+}
+
+function miTpl(str, tokens = {}) {
+  if (typeof str !== 'string') return '';
+  return str.replace(/{{\s*([A-Za-z0-9_]+)\s*}}/g, (_, key) => {
+    const v = tokens[key];
+    return (v === null || v === undefined) ? '' : String(v);
+  });
+}
+
 // ========== PRE-MATCHUP COPY ADAPTER (pre_matchup → prematch.*) ==========
 // Your HTML expects data-copy="prematch.*" but copy.json uses pre_matchup.*
 // This adapter creates a prematch block so applyCopyToDOM can populate the hub.
@@ -429,6 +456,8 @@ function updateMarksBacksForResult(result) {
 
   renderTeamInto(elTileA, result.a);
   renderTeamInto(elTileB, result.b);
+
+  equalizeProfileMarksTiles();
 }
 
 // ========== CORE TRAITS TILE — BULLETED LAYOUT ==========
@@ -2380,24 +2409,7 @@ function interactionGlass(a, b) {
   }
 }
 
-/* 6) Resume Pressure (matchup version) */
-function interactionResume(a, b) {
-  if (!FIELD_STATS.wp || !FIELD_STATS.P || a.wp == null || b.wp == null || a.P == null || b.P == null) return;
-
-  const z_wp_a = zScore(a.wp, FIELD_STATS.wp.mean, FIELD_STATS.wp.sd || 1e-5);
-  const z_P_a  = zScore(a.P,  FIELD_STATS.P.mean,  FIELD_STATS.P.sd  || 1e-5);
-  const idxA   = (z_wp_a + z_P_a) / 2;
-
-  const z_wp_b = zScore(b.wp, FIELD_STATS.wp.mean, FIELD_STATS.wp.sd || 1e-5);
-  const z_P_b  = zScore(b.P,  FIELD_STATS.P.mean,  FIELD_STATS.P.sd  || 1e-5);
-  const idxB   = (z_wp_b + z_P_b) / 2;
-
-  const gap = idxA - idxB;
-  const base = halfMirroredAdjust(gap);
-  if (gap > 0) _applyToA(base, 'resume'); else if (gap < 0) _applyToB(base, 'resume');
-}
-
-/* 7) Physicality / Contact Tolerance */
+/* 6) Physicality / Contact Tolerance */
 function interactionPhysicality(a, b) {
   // Offensive physicality: lives in contact and the paint
   const physOffA = (
@@ -2442,7 +2454,7 @@ function interactionPhysicality(a, b) {
   }
 }
 
-/* 8) Shot Quality / Shot Discipline */
+/* 7) Shot Quality / Shot Discipline */
 function interactionShotQuality(a, b) {
   // Offensive shot quality: efficiency + geometry + clean interior looks
   const sqA = (
@@ -2484,7 +2496,7 @@ function interactionShotQuality(a, b) {
   }
 }
 
-/* 9) Variance Sensitivity */
+/* 8) Variance Sensitivity */
 function interactionVariance(a, b) {
   // --- Helper: Turnover Fragility index (same logic as the mark, but numeric)
   function getTurnoverFragility(team) {
@@ -2931,6 +2943,125 @@ function getTeamByName(name) {
   return TEAMS[name] || null;
 }
 
+// =========================================================
+// Core Traits Profile Sections — Height Sync
+// Sync the two big <section.profile-section.flip-tile> panels
+// so both match the taller one.
+// =========================================================
+function syncCoreTraitsProfileSectionHeights() {
+  const sections = document.querySelectorAll('section.profile-section.flip-tile');
+  if (!sections || sections.length !== 2) return;
+
+  const a = sections[0];
+  const b = sections[1];
+
+  // Reset so we don't lock an old larger size
+  a.style.setProperty('--mi-profile-sync-h', 'auto');
+  b.style.setProperty('--mi-profile-sync-h', 'auto');
+
+  // Wait for any DOM writes (copy injection / flip class changes) to land
+  requestAnimationFrame(() => {
+    const hA = a.scrollHeight || 0;
+    const hB = b.scrollHeight || 0;
+    const maxH = Math.max(hA, hB);
+
+    if (maxH > 0) {
+      const px = `${maxH}px`;
+      a.style.setProperty('--mi-profile-sync-h', px);
+      b.style.setProperty('--mi-profile-sync-h', px);
+    }
+  });
+}
+
+/* =========================================================
+   PROFILE MARKS — HEIGHT EQUALIZER
+   - Measures front/back for each marks tile
+   - Takes the tallest face per tile
+   - Then normalizes Tile A and Tile B to the same height
+   ========================================================= */
+
+function measureFaceHeight(faceEl, widthPx) {
+  if (!faceEl) return 0;
+
+  // Clone into an offscreen measurer so transforms/flip layout don't lie.
+  const clone = faceEl.cloneNode(true);
+
+  // Strip flip-related layout effects
+  clone.style.transform = 'none';
+  clone.style.position = 'static';
+  clone.style.height = 'auto';
+  clone.style.minHeight = '0';
+  clone.style.maxHeight = 'none';
+  clone.style.overflow = 'visible';
+  clone.style.backfaceVisibility = 'visible';
+
+  const measurer = document.createElement('div');
+  measurer.style.position = 'absolute';
+  measurer.style.left = '-99999px';
+  measurer.style.top = '0';
+  measurer.style.visibility = 'hidden';
+  measurer.style.pointerEvents = 'none';
+  measurer.style.width = (widthPx ? `${widthPx}px` : '600px');
+
+  measurer.appendChild(clone);
+  document.body.appendChild(measurer);
+
+  // offsetHeight tends to be the most reliable “rendered” height.
+  const h = measurer.offsetHeight || clone.scrollHeight || 0;
+
+  document.body.removeChild(measurer);
+  return h;
+}
+
+function computeMarksTileNeededHeight(tileEl) {
+  if (!tileEl) return 0;
+
+  const inner = tileEl.querySelector('.flip-tile-inner');
+  const front = tileEl.querySelector('.tile-face.tile-front');
+
+  const width = (inner && inner.clientWidth) ? inner.clientWidth : tileEl.clientWidth;
+
+  // Measure ONLY the FRONT face for footprint.
+  const hFront = measureFaceHeight(front, width);
+
+  // Tiny buffer so borders/glows never clip.
+  return (hFront || 0) + 2;
+}
+
+function equalizeProfileMarksTiles() {
+  const tileA = document.getElementById('marksTileA');
+  const tileB = document.getElementById('marksTileB');
+  if (!tileA || !tileB) return;
+
+  // Clear previous front height so measurement isn't poisoned.
+  tileA.style.removeProperty('--marks-front-h');
+  tileB.style.removeProperty('--marks-front-h');
+
+  const neededA = computeMarksTileNeededHeight(tileA);
+  const neededB = computeMarksTileNeededHeight(tileB);
+
+  // Normalize both tiles to the taller FRONT.
+  const target = Math.max(neededA, neededB);
+
+  // Fallback min so 0-marks doesn't collapse too hard.
+  const finalH = Math.max(180, Math.round(target));
+
+  tileA.style.setProperty('--marks-front-h', `${finalH}px`);
+  tileB.style.setProperty('--marks-front-h', `${finalH}px`);
+}
+
+
+// Keep it stable on resize
+(function bindMarksEqualizer() {
+  let t = null;
+  window.addEventListener('resize', () => {
+    window.clearTimeout(t);
+    t = window.setTimeout(() => {
+      equalizeProfileMarksTiles();
+    }, 80);
+  });
+})();
+
 function compareTeams(teamAName, teamBName, roleMode = 'auto') {
   const a = getTeamByName(teamAName);
   const b = getTeamByName(teamBName);
@@ -2988,6 +3119,8 @@ function compareTeams(teamAName, teamBName, roleMode = 'auto') {
 
   miPushLogFromResult(result);
   miRenderShelf();
+
+  syncCoreTraitsProfileSectionHeights();
 
   console.log(result);
   return result;
@@ -3524,11 +3657,11 @@ function resolveIdentityContext(teamA, teamB, roundCode) {
 function miUpdateMatchupLensHeaders(result) {
   if (!result || !result.a || !result.b) return;
 
-  // New canonical matchup bar labels
+  // Matchup bar labels
   const elA = document.getElementById('matchupRoleA');
   const elB = document.getElementById('matchupRoleB');
 
-  // (Optional) If you also added these IDs to the scorecard header pills, we’ll update them too.
+  // Scorecard header pills/tags
   const cardA = document.getElementById('roleTagA');
   const cardB = document.getElementById('roleTagB');
 
@@ -3552,19 +3685,48 @@ function miUpdateMatchupLensHeaders(result) {
     neutral: card.neutral_mirror_label || 'Neutral Mirror'
   };
 
-  // Helper: set text + a lightweight data attribute (useful for CSS later if you want)
+  // ===== Helpers =====
   const setLabel = (el, text, lensKey) => {
     if (!el) return;
     el.textContent = text;
     el.setAttribute('data-lens', lensKey);
   };
 
-  // Mirrors: both sides get the mirror lens label
+  // This is the key: ensure the header can "see" the role via :has(.X-tag)
+  const applyRoleTagClass = (tagEl, lensKey) => {
+    if (!tagEl) return;
+
+    // wipe prior role classes
+    tagEl.classList.remove('fav-tag', 'cind-tag', 'chalk-tag', 'chaos-tag', 'neutral-tag');
+
+    // keep any base class the element might rely on
+    // (if your HTML already includes something like class="role-tag", this won't remove it)
+
+    // map lensKey -> class the CSS is looking for
+    const map = {
+      favorite: 'fav-tag',
+      cinderella: 'cind-tag',
+      chalk_mirror: 'chalk-tag',
+      chaos_mirror: 'chaos-tag',
+      neutral_mirror: 'neutral-tag'
+    };
+
+    const cls = map[lensKey];
+    if (cls) tagEl.classList.add(cls);
+
+    // also stamp lens for debugging / future CSS usage
+    tagEl.setAttribute('data-lens', lensKey);
+  };
+
+  // ===== Mirrors =====
   if (ctx.mode === 'chalk_mirror') {
     setLabel(elA, LABEL.chalk, 'chalk_mirror');
     setLabel(elB, LABEL.chalk, 'chalk_mirror');
     setLabel(cardA, LABEL.chalk, 'chalk_mirror');
     setLabel(cardB, LABEL.chalk, 'chalk_mirror');
+
+    applyRoleTagClass(cardA, 'chalk_mirror');
+    applyRoleTagClass(cardB, 'chalk_mirror');
     return;
   }
 
@@ -3573,6 +3735,9 @@ function miUpdateMatchupLensHeaders(result) {
     setLabel(elB, LABEL.chaos, 'chaos_mirror');
     setLabel(cardA, LABEL.chaos, 'chaos_mirror');
     setLabel(cardB, LABEL.chaos, 'chaos_mirror');
+
+    applyRoleTagClass(cardA, 'chaos_mirror');
+    applyRoleTagClass(cardB, 'chaos_mirror');
     return;
   }
 
@@ -3581,10 +3746,13 @@ function miUpdateMatchupLensHeaders(result) {
     setLabel(elB, LABEL.neutral, 'neutral_mirror');
     setLabel(cardA, LABEL.neutral, 'neutral_mirror');
     setLabel(cardB, LABEL.neutral, 'neutral_mirror');
+
+    applyRoleTagClass(cardA, 'neutral_mirror');
+    applyRoleTagClass(cardB, 'neutral_mirror');
     return;
   }
 
-  // Standard: label each side by its resolved role
+  // ===== Standard =====
   const roleA = (ctx.roleA || '').toLowerCase(); // "favorite" | "cinderella"
   const roleB = (ctx.roleB || '').toLowerCase();
 
@@ -3595,6 +3763,9 @@ function miUpdateMatchupLensHeaders(result) {
   setLabel(elB, textB, roleB || 'standard');
   setLabel(cardA, textA, roleA || 'standard');
   setLabel(cardB, textB, roleB || 'standard');
+
+  applyRoleTagClass(cardA, roleA);
+  applyRoleTagClass(cardB, roleB);
 }
 
 // ---------- Lean band helper (for ΔMI) ----------
@@ -4146,9 +4317,45 @@ function highlightTeamsFragment(text, teamA, teamB) {
   return frag;
 }
 
+function miFormatDelta(v){
+  return (Number.isFinite(v) ? v.toFixed(3) : "—");
+}
+
+function miGetPath(obj, path){
+  if (!obj || !path) return undefined;
+  const parts = String(path).split('.');
+  let cur = obj;
+  for (const p of parts){
+    if (cur == null) return undefined;
+    cur = cur[p];
+  }
+  return cur;
+}
+
+function miRenderMadnessDelta(gapSep) {
+  const deltaTxt = miFormatDelta(gapSep);
+
+  // Score Synthesis
+  document.querySelectorAll('[data-value="gap.sep"]').forEach(el => {
+    el.textContent = deltaTxt;
+  });
+
+  // Verdict shell
+  const scorebugDeltaEl = document.getElementById("miVerdictGapTop");
+  if (scorebugDeltaEl) {
+    scorebugDeltaEl.textContent = deltaTxt;
+  }
+}
+
 function renderSummary({ a, b, miA, miB, diff, predicted, interactions, round, seedMeta }) {
   const summarySection = document.getElementById('summarySection');
   const table = document.getElementById('summaryTable');
+
+  // ===== Guard: local aliases for legacy variable names =====
+  // Prefer the "a/b" objects if they carry the computed fields,
+  // fall back to miA/miB if that's where they live in your build.
+  const aBase  = (a && typeof a.base === 'number')  ? a.base  : (miA && typeof miA.base === 'number')  ? miA.base  : 0;
+  const bBase  = (b && typeof b.base === 'number')  ? b.base  : (miB && typeof miB.base === 'number')  ? miB.base  : 0;
 
   // ===== Summary center: hue the Explain card like Verdict Shell =====
   const explainCard = summarySection
@@ -4378,10 +4585,6 @@ function renderSummary({ a, b, miA, miB, diff, predicted, interactions, round, s
     els.forEach(el => { el.textContent = out; });
   };
 
-  // ===== SCORE SYNTHESIS (NEW HTML expects: base, breadth, int_eff, total_adj, final) =====
-  const aBase    = (typeof a.mi_base === 'number')      ? a.mi_base      : baseA;
-  const bBase    = (typeof b.mi_base === 'number')      ? b.mi_base      : baseB;
-
   // Keep these legacy components (safe no-ops if DOM doesn't have them)
   const aIntRaw  = (typeof a.mi_int_raw === 'number')   ? a.mi_int_raw   : (interactions?.a ?? 0);
   const bIntRaw  = (typeof b.mi_int_raw === 'number')   ? b.mi_int_raw   : (interactions?.b ?? 0);
@@ -4389,8 +4592,8 @@ function renderSummary({ a, b, miA, miB, diff, predicted, interactions, round, s
   const aRFact   = (typeof a.mi_int_rFact === 'number') ? a.mi_int_rFact : null;
   const bRFact   = (typeof b.mi_int_rFact === 'number') ? b.mi_int_rFact : null;
 
-  const aIntEff  = (typeof a.mi_int === 'number')       ? a.mi_int       : (interactions?.a ?? 0);
-  const bIntEff  = (typeof b.mi_int === 'number')       ? b.mi_int       : (interactions?.b ?? 0);
+  const aIntEff = (typeof a.mi_int === 'number') ? a.mi_int : 0;
+  const bIntEff = (typeof b.mi_int === 'number') ? b.mi_int : 0;
 
   // Breadth bonus is stored on team objects as `breadth` in this codebase
   const aBreadth = (typeof a.breadth === 'number') ? a.breadth
@@ -4401,17 +4604,19 @@ function renderSummary({ a, b, miA, miB, diff, predicted, interactions, round, s
                  : (typeof b.mi_breadth === 'number') ? b.mi_breadth
                  : 0;
 
+  const aMibsOnly = (typeof a.mibs === 'number') ? a.mibs : (aBase - aBreadth);
+  const bMibsOnly = (typeof b.mibs === 'number') ? b.mibs : (bBase - bBreadth);
+
   const aFinal   = (typeof a.mi_matchup === 'number')   ? a.mi_matchup   : miA;
   const bFinal   = (typeof b.mi_matchup === 'number')   ? b.mi_matchup   : miB;
 
-  // Total adjustment should reflect whatever the engine actually applied.
-  // Best: compute it from final - base (captures breadth + any effective matchup effects).
-  const aTotalAdj = (typeof aFinal === 'number' && typeof aBase === 'number') ? (aFinal - aBase) : (aBreadth + aIntEff);
-  const bTotalAdj = (typeof bFinal === 'number' && typeof bBase === 'number') ? (bFinal - bBase) : (bBreadth + bIntEff);
+  // Therefore, the "Total Adj" component sum we want to show is: breadth + int_eff.
+  const aTotalAdj = aBreadth + aIntEff;
+  const bTotalAdj = bBreadth + bIntEff;
 
   // Fill required synthesis slots
-  setSummaryValue('a.base',      fmt(aBase, 3));
-  setSummaryValue('b.base',      fmt(bBase, 3));
+  setSummaryValue('a.base', fmt(aMibsOnly, 3));
+  setSummaryValue('b.base', fmt(bMibsOnly, 3));
 
   setSummaryValue('a.breadth',   fmt(aBreadth, 3));
   setSummaryValue('b.breadth',   fmt(bBreadth, 3));
@@ -4431,8 +4636,8 @@ function renderSummary({ a, b, miA, miB, diff, predicted, interactions, round, s
   setSummaryValue('a.rFact',   (aRFact == null ? '—' : fmt(aRFact, 3)));
   setSummaryValue('b.rFact',   (bRFact == null ? '—' : fmt(bRFact, 3)));
 
-  // MI Δ (new bottom-center slot)
-  setSummaryValue('gap.sep', sepText);
+  // MI Δ (bottom-center) — true delta, always 3 decimals
+  setSummaryValue('gap.sep', miFormatDelta(diff));
 
   // ===== NEW CENTER NARRATIVE: #summarySynLean uses JSON template, with leanText fallback =====
   const synLeanEl = document.getElementById('summarySynLean');
@@ -4586,32 +4791,33 @@ function renderSummary({ a, b, miA, miB, diff, predicted, interactions, round, s
     if (summarySection) summarySection.setAttribute('data-lens', lensKey);
 
     // ===== SIDE ROLE ATTRS for Score Synthesis (A/B tint) =====
-    // Mirrors tint both sides the same. Standard matchups tint A/B as Cinderella/Favorite.
-    if (summarySection) {
-      let sideA = '';
-      let sideB = '';
+    // Use canonical identity resolver — never derive side tint from diff.
+    if (summarySection && typeof resolveIdentityContext === 'function') {
+      const ctx2 = resolveIdentityContext(a, b, roundCode);
 
-      // If identity resolver says mirror, both sides share the mirror token
-      if (lensKey === 'chalk_mirror' || lensKey === 'chaos_mirror' || lensKey === 'neutral_mirror') {
-        sideA = lensKey;
-        sideB = lensKey;
+      let sideA = 'neutral_mirror';
+      let sideB = 'neutral_mirror';
+
+      if (ctx2 && (ctx2.mode === 'chalk_mirror' || ctx2.mode === 'chaos_mirror' || ctx2.mode === 'neutral_mirror')) {
+        // Mirrors: both halves share the same environment token
+        sideA = ctx2.mode;
+        sideB = ctx2.mode;
+      } else if (ctx2 && ctx2.mode === 'standard') {
+        // Standard: use the actual identity roles (seed-based)
+        sideA = ctx2.roleA; // 'favorite' or 'cinderella'
+        sideB = ctx2.roleB; // 'cinderella' or 'favorite'
       } else {
-        // Standard: determine which TEAM is Cinderella vs Favorite in this matchup
-        // In this codebase, diff > 0 means Team A is the winner and labeled Cinderella (per your existing logic).
-        // Keep it consistent with winnerRole mapping above.
-        const aIsCinderella = (diff > 0);
-        sideA = aIsCinderella ? 'cinderella' : 'favorite';
-        sideB = aIsCinderella ? 'favorite' : 'cinderella';
-
-        // Neutral (diff === 0): keep both neutral-mirror so the table doesn't shout
-        if (diff === 0) {
-          sideA = 'neutral_mirror';
-          sideB = 'neutral_mirror';
-        }
+        // Safety fallback (should be rare)
+        sideA = 'neutral_mirror';
+        sideB = 'neutral_mirror';
       }
 
       summarySection.setAttribute('data-side-a', sideA);
       summarySection.setAttribute('data-side-b', sideB);
+    } else if (summarySection) {
+      // No resolver available: keep neutral so we don't lie with color
+      summarySection.setAttribute('data-side-a', 'neutral_mirror');
+      summarySection.setAttribute('data-side-b', 'neutral_mirror');
     }
 
     const analysisShellEl = document.getElementById('analysisShell');
@@ -4686,7 +4892,7 @@ function renderSummary({ a, b, miA, miB, diff, predicted, interactions, round, s
   }
 
   const gapTop = document.getElementById('miVerdictGapTop');
-  if (gapTop) gapTop.textContent = fmt(diff, 2);
+  if (gapTop) gapTop.textContent = miFormatDelta(diff);
 
   // ===== Scorebug (rail): team names + base / matchup MI =====
   const sbA = document.getElementById('miScorebugTeamA');
@@ -4759,6 +4965,8 @@ function renderSummary({ a, b, miA, miB, diff, predicted, interactions, round, s
         `${currentLabel} is *not* a valid meeting round in a standard 64-team bracket.`;
     }
   }
+
+  miRenderMadnessDelta(window.LAST_RESULT?.diff);
 }
 
 function renderInteractionsTable(result) {
@@ -4768,19 +4976,18 @@ function renderInteractionsTable(result) {
 
   // ==== Full canonical interaction list (ALWAYS displayed) ====
   const ORDER = [
-    '3pt', 'ft', 'paint', 'to', 'glass', 'resume', 'phys', 'shotq', 'var'
+    '3pt', 'ft', 'paint', 'to', 'glass', 'phys', 'shotq', 'var'
   ];
 
   const LABEL = {
-    '3pt':   '3PT Tension',
-    'ft':    'FT Pressure',
-    'paint': 'Paint Tension',
-    'to':    'Turnover Pressure',
-    'glass': 'Glass Tension',
-    'resume':'Résumé Pressure',
-    'phys':  'Physicality Tolerance',
-    'shotq': 'Shot Discipline',
-    'var':   'Variance Sensitivity',
+    '3pt':   'Perimeter Pressure',
+    'ft':    'Whistle Bias',
+    'paint': 'Rim Access',
+    'to':    'Possession Security',
+    'glass': 'Second-Chance Equity',
+    'phys':  'Contact Advantage',
+    'shotq': 'Shot Diet Control',
+    'var':   'Volatility Leverage',
   };
 
   const intensityLabel = (val) => {
@@ -4951,7 +5158,7 @@ function miPairsToRender({ card, isTopDriver, defaults }) {
 
 /**
  * Interaction Console (right tile)
- * Renders ALL 9 interaction channels in a fixed order.
+ * Renders ALL 8 interaction channels in a fixed order.
  * - No "TOP" chips.
  * - Safe fallbacks if a channel is missing narrative text (prevents blank cards like PHYS).
  */
@@ -5001,13 +5208,13 @@ function renderInteractionsConsole(result) {
 
   const ORDER = [
     { key: "threept", fallbackLabel: "3PT Tension" },
-    { key: "ft", fallbackLabel: "FT Pressure" },
-    { key: "paint", fallbackLabel: "Paint Tension" },
-    { key: "tov", fallbackLabel: "Turnover Pressure" },
-    { key: "glass", fallbackLabel: "Glass Tension" },
-    { key: "phys", fallbackLabel: "Physicality Tolerance" },
-    { key: "shotq", fallbackLabel: "Shot Discipline" },
-    { key: "var", fallbackLabel: "Variance Sensitivity" },
+    { key: "ft", fallbackLabel: "Whistle Bias" },
+    { key: "paint", fallbackLabel: "Rim Access" },
+    { key: "tov", fallbackLabel: "Possession Security" },
+    { key: "glass", fallbackLabel: "Second-Chance Equity" },
+    { key: "phys", fallbackLabel: "Contact Advantage" },
+    { key: "shotq", fallbackLabel: "Shot Diet Control" },
+    { key: "var", fallbackLabel: "Volatility Leverage" },
   ];
 
   const copyRoot = window.MI_COPY && window.MI_COPY.interactions_console ? window.MI_COPY.interactions_console : null;
@@ -5959,6 +6166,16 @@ function renderTeamSide(side, result) {
     const myMetric = isA ? ctx.metricA : ctx.metricB;   // "CIS" | "FAS" | "LCI" | "LFI"
     const myValue  = isA ? ctx.valueA  : ctx.valueB;
 
+    // UI-only: map internal metric codes to user-facing names (do NOT rename any keys)
+    const IDENTITY_METRIC_DISPLAY = {
+      CIS: 'Cinderella Credibility',
+      FAS: 'Favorite Authenticity',
+      LCI: 'Live Cinderella Profile',
+      LFI: 'Live Favorite Profile'
+    };
+
+    const myMetricLabel = IDENTITY_METRIC_DISPLAY[myMetric] || myMetric;
+
     let activeScore = null;
     let label       = 'Mirror';
     let desc        = '';
@@ -5968,41 +6185,64 @@ function renderTeamSide(side, result) {
     const roundLabel = (typeof getRoundLabelFromCode === 'function')
       ? getRoundLabelFromCode(roundCode)
       : roundCode;
+ 
+    // Tokens for JSON header templates
+    const headerTokens = { ROUND: roundLabel };
 
     if (ctx.mode === "standard") {
       if (myRole === "favorite") {
         activeScore = myValue;
         label       = 'Favorite';
         tileClass   = 'identity-favorite';
-        desc        = `${myMetric}: ${Math.round(myValue)}`;
+        desc        = `${myMetricLabel}: ${Math.round(myValue)}`;
       } else if (myRole === "cinderella") {
         activeScore = myValue;
         label       = 'Cinderella';
         tileClass   = 'identity-cinderella';
-        desc        = `${myMetric}: ${Math.round(myValue)}`;
+        desc        = `${myMetricLabel}: ${Math.round(myValue)}`;
       } else {
         activeScore = myValue;
         label       = 'Mirror';
         tileClass   = 'identity-neutral';
-        desc        = `${myMetric}: ${Math.round(myValue)}`;
+        desc        = `${myMetricLabel}: ${Math.round(myValue)}`;
       }
-      headerText = `Tournament Identity — ${roundLabel}`;
+
+  // Header (JSON-driven) — role-aware in standard mode (UI-only)
+  const headerKey =
+    (myRole === "favorite")   ? "identity_tile_ui.headers.favorite" :
+    (myRole === "cinderella") ? "identity_tile_ui.headers.cinderella" :
+                                "identity_tile_ui.headers.standard";
+
+  const tmpl = miGetCopy(headerKey, '');
+  headerText = tmpl
+    ? miTpl(tmpl, headerTokens)
+    : (myRole === "favorite")
+        ? "Favorite Authenticity Score"
+        : (myRole === "cinderella")
+            ? "Cinderella Credibility Score"
+            : `Tournament Identity — ${roundLabel}`;
+
     } else {
       activeScore = myValue;
       label       = 'Mirror';
       tileClass   = 'identity-neutral';
 
-      const subtype =
-        (ctx.mode === "neutral_mirror") ? "Neutral Mirror" :
-        (ctx.mode === "chalk_mirror")   ? "Chalk Mirror"   :
-        (ctx.mode === "chaos_mirror")   ? "Chaos Mirror"   :
-                                          "Mirror";
+      // UI-only: all mirror modes share one public-facing label
+      const subtype = "Tournament Identity Profile";
 
-      headerText = `${subtype} — ${roundLabel}`;
-      desc = `${myMetric}: ${Math.round(myValue)}`;
+      headerTokens.SUBTYPE = subtype;
+
+      // Header (JSON-driven) — try mode-specific, then mirror template
+      const modeKey = `identity_tile_ui.headers.${ctx.mode}`;
+      const tmpl =
+        miGetCopy(modeKey, '') ||
+        miGetCopy('identity_tile_ui.headers.mirror', '');
+
+      headerText = tmpl ? miTpl(tmpl, headerTokens) : `${subtype} — ${roundLabel}`;
+      desc = `${myMetricLabel}: ${Math.round(myValue)}`;
     }
 
-    identityScoreEl.textContent = (activeScore != null) ? fmt(activeScore, 1) : '—';
+    identityScoreEl.textContent  = (activeScore != null) ? fmt(activeScore, 1) : '—';
     identityRoleEl.textContent   = label;
     identityDetailEl.textContent = desc;
 
@@ -6781,7 +7021,6 @@ if (roundBtn && roundDropdown) {
     }
   });
 
-
     // v3.3: we no longer flip the entire team card.
     // Only the inner mini flip-tiles (Core, Résumé, Marks, Madness Index) are interactive.
 
@@ -6802,11 +7041,9 @@ if (roundBtn && roundDropdown) {
     // });
 
     // ---- Click-to-flip for individual tiles (Core, Résumé, Marks, Madness) ----
-       const flipTiles = document.querySelectorAll('.flip-tile');
-
-       flipTiles.forEach(tile => {
-       tile.addEventListener('click', (e) => {
-    // Don’t trigger on buttons/links
+    const flipTiles = document.querySelectorAll('.flip-tile');
+    flipTiles.forEach(tile => {
+      tile.addEventListener('click', (e) => {
         if (
           e.target.closest('button') ||
           e.target.closest('a') ||
@@ -6817,8 +7054,20 @@ if (roundBtn && roundDropdown) {
 
         e.stopPropagation();
         tile.classList.toggle('flipped');
-      }); 
-    });
+
+        // Core Traits (big sections)
+        if (tile.matches('section.profile-section.flip-tile')) {
+          syncCoreTraitsProfileSectionHeights();
+        }
+
+        // ✅ Profile Marks: when flipping BACK TO FRONT, re-equalize
+        if (tile.id === 'marksTileA' || tile.id === 'marksTileB') {
+          requestAnimationFrame(() => {
+            equalizeProfileMarksTiles();
+            });
+          }
+        });
+      });
   }
 
   const moreBtn  = document.getElementById('prematchMoreBtn');
@@ -6879,12 +7128,11 @@ if (roundBtn && roundDropdown) {
     "Breadth Bonus",
     "Profile Subtotal",
     "Tournament Identities",
-    "Cinderella Index (CIS)",
-    "Favorite Authority Score (FAS)",
-    "Live Cinderella Index (LCI)",
-    "Live Favorite Index (LFI)",
+    "Cinderella Credibility",
+    "Favorite Authenticity",
+    "Live Cinderella Profile",
+    "Live Favorite Profile",
     "Résumé Context",
-    "Résumé Context Index",
     "Strength of Schedule",
     "Win Percentage",
     "Résumé Tier",
@@ -6897,15 +7145,14 @@ if (roundBtn && roundDropdown) {
     "Perimeter Leakage",
     "Tempo Strain",
     "Interactions",
-    "Three-Point Tension",
-    "Free Throw Pressure",
-    "Paint Tension",
-    "Turnover Pressure",
-    "Glass Tension",
-    "Résumé Pressure",
-    "Physicality Tolerance",
-    "Shot Discipline",
-    "Variance Sensitivity"
+    "Perimeter Pressure",
+    "Whistle Bias",
+    "Rim Access",
+    "Possession Security",
+    "Second-Chance Equity",
+    "Contact Advantage",
+    "Shot Diet Control",
+    "Volatility Leverage"
   ];
 
   const state = {
@@ -6948,7 +7195,7 @@ if (roundBtn && roundDropdown) {
     if (term && termMap[term]) return termMap[term];
 
     // Final fallback bucket (kept deterministic)
-    return "Other";
+    return null;
   }
 
   function buildIndex(entries){
@@ -6977,16 +7224,24 @@ if (roundBtn && roundDropdown) {
 
     // Initialize groups in TOC order to keep stable rendering
     TOC_ORDER.forEach(label => { groups[label] = []; });
-    groups["Other"] = [];
 
     entries.forEach(e => {
       if (!e || !e.term) return;
       const term = String(e.term).trim();
       if (!term) return;
 
+      const abbr = e.abbr ? String(e.abbr).trim() : "";
+      const def  = e.definition ? String(e.definition).trim() : "";
+
       const section = sectionForEntry(e);
-      if (!groups[section]) groups[section] = [];
-      groups[section].push(e);
+      if (!section) return;
+
+      groups[section].push({
+        term,
+        abbr: abbr || "",
+        category: e.category ? String(e.category).trim() : "",
+        definition: def || ""
+      });
     });
 
     // Within each section: stable alphabetical by term (deterministic)
@@ -7040,10 +7295,10 @@ if (roundBtn && roundDropdown) {
     toc.innerHTML = "";
 
     const ordered = [...TOC_ORDER];
-    if (!ordered.includes("Other")) ordered.push("Other");
-
+    
     ordered.forEach(sectionName => {
       const list = groups[sectionName] || [];
+      if (!list.length) return;
       // Render section only if it has entries OR it’s a named TOC section (keeps structure predictable)
       // If you prefer hiding empty sections: change condition to `if (!list.length) return;`
       const details = document.createElement("details");
@@ -7184,6 +7439,8 @@ if (roundBtn && roundDropdown) {
     state.grouped = groupEntries(entries);
     renderTOC(state.grouped);
 
+    prepGlossaryTopArea();
+
     // Default view
     const viewTerm = $("glossaryViewTerm");
     const viewDef  = $("glossaryViewDef");
@@ -7200,6 +7457,92 @@ if (roundBtn && roundDropdown) {
     if (document.body && document.body.classList.contains("analysis-visible")) return true;
 
     return false;
+  }
+
+  function prepGlossaryTopArea(){
+    const panel = $("glossaryPanel");
+    const toc   = $("glossaryTOC");
+    const viewTerm = $("glossaryViewTerm");
+    const viewDef  = $("glossaryViewDef");
+    if (!panel || !toc || !viewTerm || !viewDef) return;
+
+    // Find the "view" container (the box shown in your screenshot)
+    const viewBox =
+      viewTerm.closest(".mi-glossary-view") ||
+      viewTerm.closest(".mi-glossary-card") ||
+      viewTerm.parentElement;
+
+    if (!viewBox) return;
+
+    // Move the view box above the TOC (top of the drawer content area)
+    if (viewBox.parentElement === panel && toc.parentElement === panel){
+      panel.insertBefore(viewBox, toc);
+    } else {
+      // Fallback: if structure differs, place it right before TOC wherever they live
+      toc.parentElement.insertBefore(viewBox, toc);
+    }
+
+    // Inject search row once
+    if (!$("glossarySearchInput")){
+      const row = document.createElement("div");
+      row.className = "mi-glossary-searchrow";
+      row.innerHTML = `
+        <input id="glossarySearchInput"
+               class="mi-glossary-search"
+               type="search"
+               placeholder="Search glossary…"
+               autocomplete="off"
+               spellcheck="false" />
+        <button id="glossarySearchClear" class="mi-glossary-searchclear" type="button" aria-label="Clear search">×</button>
+      `;
+
+      // Put search row at the top of the view box
+      viewBox.insertBefore(row, viewBox.firstChild);
+
+      const input = $("glossarySearchInput");
+      const clear = $("glossarySearchClear");
+
+      const applyFilter = () => {
+        const q = (input.value || "").trim().toLowerCase();
+
+        const allSections = toc.querySelectorAll("details.mi-glossary-section");
+        allSections.forEach(sec => {
+          let anyVisible = false;
+
+          sec.querySelectorAll(".mi-glossary-term-btn").forEach(btn => {
+            const name = (btn.querySelector(".mi-glossary-term-name")?.textContent || "").toLowerCase();
+            const abbr = (btn.querySelector(".mi-glossary-term-abbr")?.textContent || "").toLowerCase();
+            const hit = !q || name.includes(q) || abbr.includes(q);
+
+            btn.style.display = hit ? "" : "none";
+            if (hit) anyVisible = true;
+          });
+
+          // Hide sections with no matches during search; show all when empty
+          sec.style.display = (!q || anyVisible) ? "" : "none";
+
+          // When searching, open sections that have matches
+          if (q && anyVisible) sec.open = true;
+          if (!q) sec.open = false; // return to collapsed default
+        });
+      };
+
+      input.addEventListener("input", applyFilter);
+
+      clear.addEventListener("click", () => {
+        input.value = "";
+        input.focus();
+        applyFilter();
+      });
+
+      // Esc clears when focused in search
+      input.addEventListener("keydown", (e) => {
+        if (e.key === "Escape"){
+          input.value = "";
+          applyFilter();
+        }
+      });
+    }
   }
 
   // Public hooks (attach to window for deterministic integration)

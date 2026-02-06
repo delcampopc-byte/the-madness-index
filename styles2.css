@@ -63,20 +63,20 @@ body {
 
   /* Role colors */
   --mi-role-cinderella:      #22c55e;
-  --mi-role-cinderella-soft: rgba(34, 197, 94, 0.16);
+  --mi-role-cinderella-soft: rgba(34, 197, 94, 0.22);
   --mi-role-favorite:        #f97316;
   --mi-role-favorite-soft:   rgba(249, 115, 22, 0.22);
   --mi-role-cinderella-rgb: 34, 197, 94;
   --mi-role-favorite-rgb:   249, 115, 22;
-  --mi-role-chalk-mirror: #38bdf8;
-  --mi-role-chalk-mirror-soft: rgba(56, 189, 248, 0.20);
-  --mi-role-chalk-mirror-rgb: 56, 189, 248;
-  --mi-role-chaos-mirror: #ef4444;
+  --mi-role-chalk-mirror: #3b82f6;
+  --mi-role-chalk-mirror-soft: rgba(59, 130, 246, 0.22);
+  --mi-role-chalk-mirror-rgb: 59, 130, 246;
+  --mi-role-chaos-mirror: #ef4444
   --mi-role-chaos-mirror-soft: rgba(239, 68, 68, 0.22);
   --mi-role-chaos-mirror-rgb:   239, 68, 68;
-  --mi-role-neutral-mirror: #94a3b8;
-  --mi-role-neutral-mirror-soft: rgba(148, 163, 184, 0.22);
-  --mi-role-neutral-mirror-rgb: 148, 163, 184;
+  --mi-role-neutral-mirror: #a855f7;
+  --mi-role-neutral-mirror-soft: rgba(168, 85, 247, 0.22);
+  --mi-role-neutral-mirror-rgb: 168, 85, 247;
 
   /* Radii */
   --mi-radius-lg:            22px;
@@ -1736,6 +1736,7 @@ select:focus {
     rgba(255, 255, 255, 0.08),
     rgba(255, 255, 255, 0.03)
   );
+  font-size: 18px;
   box-shadow:
     0 12px 30px rgba(0, 0, 0, 0.48),
     inset 0 1px 0 rgba(255, 255, 255, 0.07);
@@ -2675,7 +2676,7 @@ section#matchupBar.card.matchup-bar.visible:not(.is-editing){
 #favCard  #marksTileB .marks-header-text.matchup-kicker,
 #cindCard .section-header .matchup-kicker,
 #favCard  .section-header .matchup-kicker,
-#summarySection .summary-block-title.matchup-kicker{
+#summarySection .matchup-kicker.syn-kicker{
   font-size: 14px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -3245,45 +3246,69 @@ section#matchupBar.card.matchup-bar.visible:not(.is-editing){
 .back-line { margin: 2px 0; font-size: 8px; color: #cbd5f5; line-height: 1.4; }
 .back-helper { margin-top: auto; font-size: 7.5px; color: var(--mi-text-muted); opacity: 0.9; }
 
-/* ========== TEAM CARD HEADER (3.4) ========== */
 
-.team-card-header {
-  position: relative;
+/* ========== TEAM CARD HEADER (3.91) ========== */
+.team-card-header { 
+  position: relative; 
   margin: -4px -4px 6px;
-  padding: 10px 12px 9px;
-  border-radius: 14px 14px 10px 10px;
-
+  padding: 10px 12px 9px; 
+  border-radius: 14px 14px 10px 10px; 
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  text-align: center;
-  overflow: hidden;
+  flex-direction: column; 
+  align-items: center; 
+  gap: 4px; 
+  text-align: center; 
+  overflow: hidden; 
+} 
+
+/* Tighten team title vertical space (override UA h2 margins) */
+.team-card-header h2,
+.team-card-header h2#teamATitle,
+.team-card-header h2#teamBTitle{
+  margin: 0;              /* kills UA 0.83em margins */
+  line-height: 1.12;      /* tighten height without shrinking text */
+  padding: 0;
 }
 
-.team-card-header::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(circle at top, rgba(15, 23, 42, 0.96), rgba(15, 23, 42, 0.96));
-  opacity: 0.85;
-  z-index: 0;
-}
+.team-card-header::before { 
+  content: ""; 
+  position: absolute; 
+  inset: 0; 
+  background: radial-gradient(circle at top, rgba(15, 23, 42, 0.96), rgba(15, 23, 42, 0.96)); 
+  opacity: 0.85; 
+  z-index: 0; 
+} 
 
-.team-card-header:has(.cind-tag)::before {
-  background: radial-gradient(circle at center, rgba(34, 197, 94, 0.28), rgba(15, 23, 42, 0.98) 70%);
-}
+.team-card-header:has(.cind-tag)::before { 
+  background: radial-gradient(circle at center, rgba(34, 197, 94, 0.28), rgba(15, 23, 42, 0.98) 70%); 
+} 
 
-.team-card-header:has(.fav-tag)::before {
-  background: linear-gradient(90deg, rgba(249, 115, 22, 0.28), rgba(15, 23, 42, 0.98) 70%);
-}
+.team-card-header:has(.fav-tag)::before { 
+  background: linear-gradient(90deg, rgba(249, 115, 22, 0.28), rgba(15, 23, 42, 0.98) 70%); 
+} 
+
+.team-card-header:has(.chalk-tag)::before{ 
+  background: radial-gradient(circle at center, rgba(var(--mi-role-chalk-mirror-rgb), 0.28), rgba(15, 23, 42, 0.98) 70%); 
+} 
+
+.team-card-header:has(.chaos-tag)::before{ 
+  background: radial-gradient(circle at center, rgba(var(--mi-role-chaos-mirror-rgb), 0.28), rgba(15, 23, 42, 0.98) 70%); 
+} 
+
+.team-card-header:has(.neutral-tag)::before{ 
+  background: radial-gradient(circle at center, rgba(var(--mi-role-neutral-mirror-rgb), 0.28), rgba(15, 23, 42, 0.98) 70%); 
+} 
 
 .team-card-header > * { position: relative; z-index: 1; }
+
 
 /* Role label (text-first) */
 .team-role-pill,
 .cind-tag,
-.fav-tag {
+.fav-tag,
+.chalk-tag,
+.chaos-tag,
+.neutral-tag{
   background: transparent;
   border: none;
   padding: 0;
@@ -3293,47 +3318,74 @@ section#matchupBar.card.matchup-bar.visible:not(.is-editing){
   letter-spacing: 0.22em;
 }
 
-.cind-tag { color: var(--mi-role-cinderella); }
-.fav-tag  { color: var(--mi-role-favorite); }
+/* Role colors */
+.cind-tag    { color: var(--mi-role-cinderella); }
+.fav-tag     { color: var(--mi-role-favorite); }
+.chalk-tag   { color: var(--mi-role-chalk-mirror); }
+.chaos-tag   { color: var(--mi-role-chaos-mirror); }
+.neutral-tag { color: var(--mi-role-neutral-mirror); }
 
-.team-card-header .cind-tag {
+/* Role glow */
+.team-card-header .cind-tag{
   text-shadow: 0 0 6px rgba(34, 197, 94, 0.65), 0 0 12px rgba(34, 197, 94, 0.45);
 }
-.team-card-header .fav-tag {
+.team-card-header .fav-tag{
   text-shadow: 0 0 6px rgba(249, 115, 22, 0.65), 0 0 12px rgba(249, 115, 22, 0.45);
 }
-
-/* Team title */
-.team-card-header h2 {
-  margin: 0;
-  font-weight: 800;
-  letter-spacing: 0.04em;
-  color: var(--mi-text-primary);
-  text-shadow: 0 0 14px rgba(15, 23, 42, 0.95);
+.team-card-header .chalk-tag{
+  text-shadow: 0 0 6px rgba(var(--mi-role-chalk-mirror-rgb), 0.65),
+               0 0 12px rgba(var(--mi-role-chalk-mirror-rgb), 0.45);
+}
+.team-card-header .chaos-tag{
+  text-shadow: 0 0 6px rgba(var(--mi-role-chaos-mirror-rgb), 0.65),
+               0 0 12px rgba(var(--mi-role-chaos-mirror-rgb), 0.45);
+}
+.team-card-header .neutral-tag{
+  text-shadow: 0 0 6px rgba(var(--mi-role-neutral-mirror-rgb), 0.65),
+               0 0 12px rgba(var(--mi-role-neutral-mirror-rgb), 0.45);
 }
 
-.team-card-header:has(.fav-tag) h2 {
+/* Team title (add mirror-aware glow like fav/cind) */
+.team-card-header:has(.fav-tag) h2{
   text-shadow: 0 0 8px rgba(249, 115, 22, 0.45), 0 0 14px rgba(249, 115, 22, 0.35);
 }
-.team-card-header:has(.cind-tag) h2 {
+.team-card-header:has(.cind-tag) h2{
   text-shadow: 0 0 8px rgba(34, 197, 94, 0.45), 0 0 14px rgba(34, 197, 94, 0.35);
+}
+.team-card-header:has(.chalk-tag) h2{
+  text-shadow: 0 0 8px rgba(var(--mi-role-chalk-mirror-rgb), 0.45),
+               0 0 14px rgba(var(--mi-role-chalk-mirror-rgb), 0.35);
+}
+.team-card-header:has(.chaos-tag) h2{
+  text-shadow: 0 0 8px rgba(var(--mi-role-chaos-mirror-rgb), 0.45),
+               0 0 14px rgba(var(--mi-role-chaos-mirror-rgb), 0.35);
+}
+.team-card-header:has(.neutral-tag) h2{
+  text-shadow: 0 0 8px rgba(var(--mi-role-neutral-mirror-rgb), 0.45),
+               0 0 14px rgba(var(--mi-role-neutral-mirror-rgb), 0.35);
 }
 
 /* Header behavior pre/post compare */
-.app-shell:not(.has-matchup) .team-card-header h2 { display: none; }
+.app-shell:not(.has-matchup) .team-card-header h2{ display:none; }
 
 .app-shell:not(.has-matchup) .team-card-header .team-role-pill,
 .app-shell:not(.has-matchup) .team-card-header .cind-tag,
-.app-shell:not(.has-matchup) .team-card-header .fav-tag {
+.app-shell:not(.has-matchup) .team-card-header .fav-tag,
+.app-shell:not(.has-matchup) .team-card-header .chalk-tag,
+.app-shell:not(.has-matchup) .team-card-header .chaos-tag,
+.app-shell:not(.has-matchup) .team-card-header .neutral-tag{
   letter-spacing: 0.26em;
   margin-top: 2px;
 }
 
-.app-shell.has-matchup .team-card-header h2 { display: block; }
+.app-shell.has-matchup .team-card-header h2{ display:block; }
 
 .app-shell.has-matchup .team-card-header .team-role-pill,
 .app-shell.has-matchup .team-card-header .cind-tag,
-.app-shell.has-matchup .team-card-header .fav-tag {
+.app-shell.has-matchup .team-card-header .fav-tag,
+.app-shell.has-matchup .team-card-header .chalk-tag,
+.app-shell.has-matchup .team-card-header .chaos-tag,
+.app-shell.has-matchup .team-card-header .neutral-tag{
   letter-spacing: 0.22em;
   margin-top: 0;
 }
@@ -3405,6 +3457,10 @@ section#matchupBar.card.matchup-bar.visible:not(.is-editing){
 }
 
 /* ========== CORE TRAITS SECTION (PLATE + TABLE) ========== */
+section.profile-section.flip-tile{
+  /* JS writes --mi-profile-sync-h on both sections */
+  min-height: var(--mi-profile-sync-h, auto);
+}
 
 .profile-section {
   margin: 4px 4px 2px 4px;
@@ -3822,9 +3878,10 @@ section#matchupBar.card.matchup-bar.visible:not(.is-editing){
 .team-card-marks .marks-header {
   width: 100%;
   align-items: flex-start;
-  justify-content: flex-start;
+  justify-content: center;
   margin-bottom: 6px;
   display: flex;
+  text-align: center;
   gap: 8px;
 }
 
@@ -3850,41 +3907,85 @@ section#matchupBar.card.matchup-bar.visible:not(.is-editing){
 }
 
 /* Chips container */
-.inline-marks-strip {
+.inline-marks-strip{
   display: flex;
   flex-wrap: wrap;
-  justify-content: flex-start;
+  justify-content: center;
   align-items: flex-start;
+
   gap: 10px 10px;
-  overflow-x: visible;
+  overflow: visible;
+
   padding: 8px 0 6px;
 }
 
-/* Chip */
-.mark-chip {
+/* Profile Marks tile: semantic front rows (header fixed, body flexible) */
+.inline-marks-tile .tile-front .marks-front{
+  height: 100%;
+  display: grid;
+  grid-template-rows: auto 1fr; /* header row + content row */
+  align-content: start;
+}
+
+.inline-marks-tile .tile-front .marks-front-body{
+  min-height: 0; /* prevents overflow/clip weirdness in grid */
+}
+
+/* Chip — deterministic footprint */
+.mark-chip{
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
 
-  width: 165px;
-  max-width: 165px;
-  min-width: 165px;
+  /* Key: uniform tile size */
+  flex: 0 0 118px;     /* fixed column width in the strip */
+  width: 118px;
+  height: 118px;
 
-  min-height: 165px;
-  max-height: 165px;
-
-  padding: 14px 12px;
+  padding: 12px 10px;
   border-radius: 18px;
 
   background: rgba(15, 23, 42, 0.55);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
 
-  box-shadow: inset 0 0 15px rgba(255, 255, 255, 0.06), 0 0 18px rgba(56, 189, 248, 0.25);
+  box-shadow:
+    inset 0 0 15px rgba(255, 255, 255, 0.06),
+    0 0 18px rgba(56, 189, 248, 0.25);
+
   border: 1px solid rgba(255, 255, 255, 0.08);
 
   transition: transform 0.15s ease, box-shadow 0.2s ease;
+}
+
+/* Chip title — lock to 2 lines so every chip reserves the same space */
+.mark-chip .mark-title,
+.mark-chip h4,
+.mark-chip .chip-title{
+  margin-top: 8px;
+  line-height: 1.08;
+
+  text-align: center;
+  font-weight: 800;
+
+  /* Two-line clamp */
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  line-clamp: 2;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+
+  /* Keeps the visual height stable even when title is short */
+  min-height: calc(1.08em * 2);
+}
+
+/* Optional: slightly smaller icon wrapper (if you have one) */
+.mark-chip .mark-icon,
+.mark-chip .chip-icon{
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
 }
 
 .mark-chip:hover {
@@ -4073,20 +4174,6 @@ section#matchupBar.card.matchup-bar.visible:not(.is-editing){
    PROFILE MARKS — BACK: content-aware scroll
    ========================================== */
 
-#backMarksTileA,
-#backMarksTileB{
-  /* keeps the flip-tile stable; only content scrolls */
-  max-height: 400px;      /* tune: 240–300 is the typical sweet spot */
-  overflow-y: auto;
-  overflow-x: hidden;
-
-  /* reduce scrollbar “stealing” visual space */
-  padding-right: 10px;
-
-  /* helps on iOS / touchpads */
-  -webkit-overflow-scrolling: touch;
-}
-
 /* Subtle scrollbar (Chromium/Safari) */
 #backMarksTileA::-webkit-scrollbar,
 #backMarksTileB::-webkit-scrollbar{
@@ -4261,7 +4348,7 @@ section#matchupBar.card.matchup-bar.visible:not(.is-editing){
 .explain-table td:nth-child(1),
 .explain-table th:nth-child(1),
 .explain-table td:nth-child(1){
-  width: 31%;
+  width: 28%;
   text-align: center;
   vertical-align: middle;
 }
@@ -4270,28 +4357,28 @@ section#matchupBar.card.matchup-bar.visible:not(.is-editing){
 .explain-table td:nth-child(2),
 .explain-table th:nth-child(2),
 .explain-table td:nth-child(2){
-  width: 20%;
+  width: 16%;
 }
 
 #cindCard .explain-table th:nth-child(3),
 #cindCard .explain-table td:nth-child(3),
 #favCard  .explain-table th:nth-child(3),
 #favCard  .explain-table td:nth-child(3){
-  width: 18%;
+  width: 17%;
 }
 
 .explain-table th:nth-child(4),
 .explain-table td:nth-child(4),
 .explain-table th:nth-child(4),
 .explain-table td:nth-child(4){
-  width: 10%;
+  width: 18%;
 }
 
 .explain-table th:nth-child(5),
 .explain-table td:nth-child(5),
 .explain-table th:nth-child(5),
 .explain-table td:nth-child(5){
-  width: 20%;
+  width: 17%;
 }
 
 #cindCard .tile-face.tile-front,
@@ -4318,7 +4405,7 @@ explain-table td:first-child{
 
 /* Context tiles */
 .context-label { 
-  font-size: calc(16px * var(--mi-scale-scorecard));
+  font-size: 14px;
   letter-spacing: 0.1em;
 }
 
@@ -5537,7 +5624,7 @@ button,
   background: rgba(9, 9, 15, 0.96);
   border: 1px solid rgba(75, 85, 99, 0.9);
   border-radius: 12px;
-  padding: 0;
+  padding: 6px;
   min-height: 100%;
 }
 
@@ -6549,14 +6636,13 @@ button,
    ================================ */
 
 .mi-verdict-shell{
-  margin: 10px 0 14px;
   padding: 0;
   overflow: hidden; /* allows rail overflow tricks but keeps inside shell clean */
+  margin-bottom: 10px;
 }
 
 .mi-verdict-shell-inner{
   position: relative;
-  padding: 18px 18px 12px;
 }
 
 /* Hide empty support lines (JS already toggles .is-empty) */
@@ -6584,7 +6670,6 @@ button,
 
   transition: box-shadow 0.3s ease;
   z-index: 10;
-  margin-top: 18px;
   padding-top: 18px;
 }
 
@@ -7892,11 +7977,6 @@ button,
   border-right: none !important;
 }
 
-/* 5) Ensure the gap above the verdict shell is purely spacing (no orange line) */
-#verdictShell{
-  margin-top: 18px !important;
-}
-
 /* =========================================================
    VERDICT SHELL — INNER CONTENT WRAPPER (single source of truth)
    ========================================================= */
@@ -8421,6 +8501,10 @@ button,
    Matches intentional per-cell alignment from mock
    ========================================== */
 
+#summarySection.card.summary-card{
+  padding: 6px 8px;
+}
+
 #summarySection .summary-synthesis-wrap{
   width: 100%;
 }
@@ -8440,10 +8524,24 @@ button,
 #summarySection .summary-synthesis-table th,
 #summarySection .summary-synthesis-table td{
   border: 1px solid rgba(148, 163, 184, 0.22);
-  padding: 10px 10px;
+  padding: 5px;
   vertical-align: middle;
   color: rgba(226, 232, 240, 0.92);
 }
+
+/* SCORE SYNTHESIS: force deterministic column sizing */
+#summarySection .summary-synthesis-table{
+  width: 100%;
+  table-layout: fixed;
+}
+
+#summarySection .summary-synthesis-table colgroup col:nth-child(1){ width: var(--syn-w-label); }
+#summarySection .summary-synthesis-table colgroup col:nth-child(2){ width: var(--syn-w-val); }
+#summarySection .summary-synthesis-table colgroup col:nth-child(3){ width: var(--syn-w-final); }
+#summarySection .summary-synthesis-table colgroup col:nth-child(4){ width: var(--syn-w-center); }
+#summarySection .summary-synthesis-table colgroup col:nth-child(5){ width: var(--syn-w-final); }
+#summarySection .summary-synthesis-table colgroup col:nth-child(6){ width: var(--syn-w-val); }
+#summarySection .summary-synthesis-table colgroup col:nth-child(7){ width: var(--syn-w-label); }
 
 /* ===== Row 1: Title (centered, merged) ===== */
 #summarySection .summary-synthesis-table .syn-title{
@@ -8458,13 +8556,28 @@ button,
   background: rgba(3, 7, 18, 0.70);
 }
 
+/* Allow table headers to behave like normal layout boxes */
+#summarySection .summary-synthesis-table .syn-title{
+  padding: 6px;
+  background: transparent;   /* kicker owns the surface */
+}
+
+/* Kicker inside table header */
+#summarySection .summary-synthesis-table .syn-kicker{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  margin: 0 auto;            /* true center inside th */
+}
+
 /* ===== Row 2: Team headers (centered) ===== */
 #summarySection .summary-synthesis-table .syn-team{
   text-align: center;
   font-weight: 850;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  font-size: 12px;
+  font-size: 16px;
 
   background: rgba(15, 23, 42, 0.55);
 }
@@ -8494,10 +8607,10 @@ button,
    These widths are “guiding rails” — adjust if you want tighter/wider lanes. */
 #summarySection .summary-synthesis-table{
   /* label / val / final / center / final / val / label */
-  --syn-w-label: 24%;
-  --syn-w-val:   10%;
-  --syn-w-final: 12%;
-  --syn-w-center:18%;
+  --syn-w-label: 18%;
+  --syn-w-val:   7%;
+  --syn-w-final: 9%;
+  --syn-w-center: 29%;
 }
 
 #summarySection .summary-synthesis-table tr > *:nth-child(1){ width: var(--syn-w-label); }
@@ -8523,15 +8636,19 @@ button,
 }
 
 #summarySection .summary-synthesis-table .syn-label-main{
-  font-weight: 800;
-  font-size: 12px;
-  letter-spacing: 0.04em;
+  font-weight: 750;
+  font-size: 14px;
+  letter-spacing: 0.02em;
 }
 
 #summarySection .summary-synthesis-table .syn-label-hint{
-  font-size: 11px;
+  font-size: 10px;
   line-height: 1.1;
   color: rgba(203, 213, 225, 0.72);
+}
+
+.syn-label-hint {
+  display: none;
 }
 
 /* ===== Value cells (centered numbers) ===== */
@@ -8560,8 +8677,8 @@ button,
 }
 
 #summarySection .summary-synthesis-table .syn-final-label{
-  font-size: 11px;
-  font-weight: 900;
+  font-size: 14px;
+  font-weight: 750;
   letter-spacing: 0.10em;
   text-transform: uppercase;
   color: rgba(226, 232, 240, 0.85);
@@ -8587,8 +8704,9 @@ button,
 }
 
 #summarySection #summarySynLean.syn-lean-line{
-  text-align: left;           /* intentional: paragraph reads naturally */
-  font-size: 12px;
+  text-align: center;           /* intentional: paragraph reads naturally */
+  font-size: 18px;
+  font-weight: 600;
   line-height: 1.35;
   color: rgba(226, 232, 240, 0.92);
 }
@@ -8599,30 +8717,130 @@ button,
   padding: 8px 10px;
 }
 
-#summarySection .summary-synthesis-table .syn-delta{
-  background: rgba(15, 23, 42, 0.55);
-  padding: 10px 12px;
+/* --- Score Synthesis Final Readout: Verdict Sentence --- */
+#summarySection .syn-center .syn-verdict,
+#summarySection .syn-center #synVerdict,
+#summarySection .syn-center .syn-center-verdict {
+  margin: 0 auto 12px;
+  padding: 14px 16px;
+
+  text-align: center;
+  line-height: 1.25;
+
+  background: linear-gradient(
+    to bottom,
+    rgba(255,255,255,0.06),
+    rgba(15, 23, 42, 0.35)
+  );
+
+  border-top: 1px solid rgba(255,255,255,0.18);
+  border-bottom: 1px solid rgba(255,255,255,0.10);
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.10),
+    0 10px 26px rgba(0,0,0,0.28);
+
+  backdrop-filter: blur(8px);
 }
 
+#summarySection .syn-center .syn-verdict strong,
+#summarySection .syn-center #synVerdict strong,
+#summarySection .syn-center .syn-center-verdict strong {
+  color: rgba(255,255,255,0.96);
+}
+
+/* --- Score Synthesis Final Readout: MADNESS DELTA Banner --- */
+#summarySection .summary-synthesis-table .syn-delta{
+  position: relative;
+  isolation: isolate;
+
+  background: linear-gradient(
+    to right,
+    rgba(15, 23, 42, 0.25),
+    rgba(15, 23, 42, 0.72),
+    rgba(15, 23, 42, 0.25)
+  );
+
+  padding: 14px 14px;
+  border-top: 1px solid rgba(255,255,255,0.20);
+  border-bottom: 1px solid rgba(255,255,255,0.12);
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.10),
+    0 12px 30px rgba(0,0,0,0.35);
+}
+
+/* keep your layout rules */
 #summarySection .summary-synthesis-table .syn-delta{
   display: flex;
   align-items: center;
-  justify-content: space-between; /* MI Δ left, value right */
-  gap: 12px;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+/* Center spine glow (broadcast “finality” cue) */
+#summarySection .summary-synthesis-table .syn-delta::before{
+  content:"";
+  position: absolute;
+  left: 50%;
+  top: 8px;
+  bottom: 8px;
+  width: 1px;
+  transform: translateX(-0.5px);
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    rgba(255,255,255,0.18),
+    transparent
+  );
+  opacity: 0.9;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Soft horizontal glow band */
+#summarySection .summary-synthesis-table .syn-delta::after{
+  content:"";
+  position: absolute;
+  left: 10%;
+  right: 10%;
+  top: 0;
+  height: 100%;
+  background: radial-gradient(
+    closest-side,
+    rgba(255,255,255,0.10),
+    rgba(255,255,255,0.00) 70%
+  );
+  opacity: 0.7;
+  pointer-events: none;
+  z-index: 0;
 }
 
 #summarySection .summary-synthesis-table .syn-delta-label{
+  position: relative;
+  z-index: 1;
+
   font-weight: 950;
-  letter-spacing: 0.10em;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
-  font-size: 11px;
-  color: rgba(226, 232, 240, 0.86);
+  font-size: 18px;
+  color: rgba(226, 232, 240, 0.88);
+
+  /* slightly “engraved” */
+  text-shadow: 0 1px 0 rgba(0,0,0,0.35);
 }
 
 #summarySection .summary-synthesis-table .syn-delta-value{
+  position: relative;
+  z-index: 1;
+
   font-weight: 950;
   font-variant-numeric: tabular-nums;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.06em;
+  font-size: 20px;
+
+  color: rgba(255,255,255,0.96);
+  text-shadow: 0 1px 0 rgba(0,0,0,0.40);
 }
 
 /* ===== Minor polish: keep borders crisp, reduce jitter ===== */
@@ -9320,6 +9538,424 @@ button,
 .mi-glossary-body:active::-webkit-scrollbar-thumb{
   opacity: 1;
   background: rgba(255,255,255,0.35);
+}
+
+.mi-glossary-searchrow{
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.mi-glossary-search{
+  flex: 1;
+  height: 34px;
+  padding: 0 10px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(0,0,0,0.25);
+  color: inherit;
+  outline: none;
+}
+
+.mi-glossary-search:focus{
+  border-color: rgba(255,255,255,0.22);
+}
+
+.mi-glossary-searchclear{
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(0,0,0,0.18);
+  color: inherit;
+  cursor: pointer;
+}
+
+.subtotal-row {
+  justify-self: center;
+}
+
+/* Profile Subtotal Row */
+.subtotal-row {
+  margin-top: 4px;
+  padding: 6px 6px;
+
+  text-align: center;
+
+  background: linear-gradient(
+    to right,
+    rgba(255,255,255,0.00),
+    rgba(255,255,255,0.04),
+    rgba(255,255,255,0.00)
+  );
+
+  border-top: 1px solid rgba(255,255,255,0.18);
+
+  font-size: 20px;
+  letter-spacing: 0.3px;
+  font-weight: 500;
+  color: rgba(255,255,255,0.85);
+
+  position: relative;
+}
+
+/* Subtle glow edge */
+.subtotal-row::before {
+  content: "";
+  position: absolute;
+  top: -1px;
+  left: 20%;
+  right: 20%;
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    rgba(255,255,255,0.35),
+    transparent
+  );
+}
+
+/* Emphasize the number itself */
+.subtotal-row strong,
+.subtotal-row .subtotal-value {
+  font-weight: 600;
+  color: #ffffff;
+}
+
+/* =========================================================
+   v3.91 — Interactions: shrink left tile, keep console scroll
+   Goal:
+   - Left column becomes content-height (no filler gap)
+   - Right console keeps a fixed height + scrolls internally
+   ========================================================= */
+
+#interactionsSection .interactions-grid{
+  /* stop forcing equal-height stretch behavior */
+  align-items: start !important;
+}
+
+/* LEFT: do not match the console height */
+#interactionsSection .interactions-left,
+#interactionsSection .interactions-left-tile{
+  min-height: unset !important;
+  height: auto !important;
+}
+
+/* If you have a wrapper that was designed to "stretch" (creates the gap), kill it */
+#interactionsSection .interaction-table-wrap{
+  flex: 0 0 auto !important;
+  min-height: unset !important;
+  overflow: visible !important;
+}
+
+/* Totals should sit right under the table, not be pushed down by filler */
+#interactionsSection #interactionTotalsBar,
+#interactionsSection .interaction-totals-bar{
+  margin-top: 10px !important;
+}
+
+/* RIGHT: set the section height by the console tile only */
+#interactionsSection .interactions-right,
+#interactionsSection .interactions-console-tile{
+  min-height: 0 !important;
+  height: clamp(420px, 55vh, 560px) !important; /* tweak to taste */
+  overflow: hidden !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+/* The body remains the scroll container */
+#interactionsSection .int-console-body,
+#interactionsSection #interactionConsoleBody{
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+}
+
+/* v3.91 — remove residual slack under Total Interaction Leverage (left tile) */
+#interactionsSection .interactions-left,
+#interactionsSection .interactions-left-tile{
+  align-self: start !important;     /* don't stretch with the row */
+  height: fit-content !important;   /* shrinkwrap */
+}
+
+/* If the leftover is just padding/gap, tighten it slightly */
+#interactionsSection .interactions-left-tile{
+  padding-bottom: 8px !important;   /* was 12px in your tile */
+  gap: 8px !important;              /* was 10px */
+}
+
+/* Make sure the totals bar isn't adding a bottom margin */
+#interactionsSection #interactionTotalsBar,
+#interactionsSection .interaction-totals-bar{
+  margin-bottom: 0 !important;
+}
+
+/* =========================================================
+   v3.91 — INTERACTIONS: FIXED HEIGHT + CONSOLE SCROLL (FINAL)
+   - Lock the whole section/tile row to a stable height
+   - Right console scrolls internally
+   - Left tile does NOT create filler bands
+   ========================================================= */
+
+/* 1) Lock the grid row (the two-tile area) */
+#interactionsSection .interactions-grid{
+  align-items: stretch !important; /* tiles fill the locked height */
+  height: 450px !important;        /* <- main knob (try 500–560) */
+  max-height: 520px !important;
+}
+
+/* 2) Both tiles fill the locked grid height */
+#interactionsSection .interactions-left,
+#interactionsSection .interactions-right{
+  height: 100% !important;
+  max-height: 100% !important;
+  min-height: 0 !important; /* CRITICAL for inner scrolling */
+  overflow: hidden !important;
+}
+
+/* 3) Left tile: flex column with totals pinned, table scrolls only if needed */
+#interactionsSection .interactions-left-tile{
+  height: 100% !important;
+  min-height: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+}
+
+/* If this wrapper exists, it becomes the left-side scroll zone (only if needed) */
+#interactionsSection .interaction-table-wrap{
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  overflow: auto !important;
+}
+
+/* If you do NOT have .interaction-table-wrap, the table itself can be the scroll zone */
+#interactionsSection .interaction-table{
+  display: block;              /* allows overflow scrolling */
+  max-height: 100% !important; /* constrained by left tile */
+  overflow: auto !important;
+}
+
+/* Totals pinned to bottom */
+#interactionsSection #interactionTotalsBar,
+#interactionsSection .interaction-totals-bar{
+  flex: 0 0 auto !important;
+  margin-top: 10px !important;
+}
+
+/* 4) Right tile: true flex column; body is the scroll container */
+#interactionsSection .interactions-console-tile{
+  height: 100% !important;
+  min-height: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important; /* keep scroll inside rounded corners */
+}
+
+/* Scroll only inside the body */
+#interactionsSection .int-console-body,
+#interactionsSection #interactionConsoleBody{
+  flex: 1 1 auto !important;
+  min-height: 0 !important;     /* CRITICAL */
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+}
+
+#interactionsSection {
+  margin-bottom: 10px;
+}
+
+/* =========================================================
+   PROFILE MARKS — FACE-AWARE HEIGHT MODEL
+   - FRONT: JS sets --marks-front-h (A/B equalized)
+   - BACK: fixed height + internal scroll (never inflates tile)
+   ========================================================= */
+
+:root{
+  --marks-back-h: 260px;  /* static back footprint */
+}
+
+#marksTileA,
+#marksTileB{
+  --marks-back-h: 350px;
+}
+
+/* FRONT footprint (JS-driven) */
+#marksTileA,
+#marksTileB{
+  min-height: var(--marks-front-h, 220px);
+}
+
+#marksTileA .flip-tile-inner,
+#marksTileB .flip-tile-inner{
+  min-height: var(--marks-front-h, 220px);
+  height: var(--marks-front-h, auto);
+}
+
+/* Faces fill the inner */
+#marksTileA .tile-face,
+#marksTileB .tile-face{
+  height: 100%;
+}
+
+/* BACK: when flipped, inner takes fixed back height */
+#marksTileA.is-flipped .flip-tile-inner,
+#marksTileB.is-flipped .flip-tile-inner,
+#marksTileA.flipped .flip-tile-inner,
+#marksTileB.flipped .flip-tile-inner,
+#marksTileA[data-face="back"] .flip-tile-inner,
+#marksTileB[data-face="back"] .flip-tile-inner{
+  min-height: var(--marks-back-h);
+  height: var(--marks-back-h);
+}
+
+/* Back face layout */
+#marksTileA .tile-face.tile-back,
+#marksTileB .tile-face.tile-back{
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+/* Back content scrolls inside the fixed back footprint */
+#backMarksTileA,
+#backMarksTileB{
+  flex: 1 1 auto;
+  min-height: 0;
+
+  height: var(--marks-back-h);
+  overflow: auto;
+
+  /* keep scrollbar from kissing content */
+  padding-right: 6px;
+
+  /* allow your fade masks if you use them elsewhere */
+}
+
+.mark-subtext {
+  display: none;
+}
+
+.mi-delta-mark{
+  display: inline-block;
+  vertical-align: -2px;
+  margin-right: 8px;
+  flex: 0 0 auto;
+}
+
+/* ===== FIX: keep mark title inside chip (no spill) ===== */
+.team-card-marks .mark-chip{
+  overflow: hidden;           /* key: prevents “floating” text */
+}
+
+/* tighten vertical budget so title fits */
+.team-card-marks .mark-icon-plate{
+  width: 62px;
+  height: 62px;
+  padding: 12px 10px;
+  border-radius: 16px;
+}
+
+.team-card-marks .mark-chip .mark-badge{
+  width: 58px;
+  height: 58px;
+}
+
+/* info block should belong to chip width + not push itself out */
+.team-card-marks .mark-info{
+  width: 100%;
+  margin-top: 6px;
+}
+
+/* title: keep the clamp, but reduce reserved space slightly */
+.team-card-marks .mark-title{
+  margin-top: 0;
+  font-size: 12.5px;
+  line-height: 1.06;
+  min-height: calc(1.06em * 2);
+}
+
+/* Center narrative container */
+.syn-center-inner{
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  gap:10px;
+  padding:16px 18px 14px;
+}
+
+/* Text block becomes a 2-line stack */
+.syn-lean-line{
+  max-width:520px;
+  margin:0 auto;
+  text-align:left;
+}
+
+/* Mini headline */
+.syn-lean-line .syn-headline{
+  display:block;
+  font-size:16px;
+  line-height:1.15;
+  font-weight:850;
+  letter-spacing:.2px;
+  opacity:.96;
+}
+
+/* Micro subline */
+.syn-lean-line .syn-subline{
+  display:block;
+  margin-top:6px;
+  font-size:12.5px;
+  line-height:1.35;
+  font-weight:650;
+  opacity:.84;
+}
+
+/* Optional risk note (only when you render it) */
+.syn-lean-line .syn-risk{
+  display:block;
+  margin-top:6px;
+  font-size:12px;
+  line-height:1.25;
+  font-weight:650;
+  opacity:.78;
+}
+
+/* Delta strip reads like a stat bug */
+.syn-center-inner .syn-delta{
+  display:flex;
+  align-items:baseline;
+  justify-content:space-between;
+  gap:10px;
+
+  max-width:520px;
+  margin:2px auto 0;
+  padding-top:8px;
+
+  border-top:1px solid rgba(255,255,255,0.10);
+}
+
+.syn-delta-label{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-size:12px;
+  letter-spacing:.8px;
+  text-transform:uppercase;
+  opacity:.72;
+  white-space:nowrap;
+}
+
+.syn-delta-value{
+  font-size:16px;
+  font-weight:850;
+  letter-spacing:.2px;
+  opacity:.96;
+  white-space:nowrap;
+  font-variant-numeric:tabular-nums;
 }
 
 /* =========================================================

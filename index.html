@@ -343,9 +343,42 @@
 
     <!-- MI GAP (full width) -->
     <div class="mi-scorebug-gap" aria-label="Madness Index gap">
-      <div class="mi-scorebug-gap-label">Madness Delta</div>
-      <div class="mi-scorebug-gap-value" id="miVerdictGapTop">—</div>
-    </div>
+  <div class="mi-scorebug-gap-label">
+    <svg class="mi-delta-mark" viewBox="0 0 64 64" width="14" height="14"
+         aria-hidden="true" focusable="false" title="Madness Delta">
+      <title>Madness Delta</title>
+
+      <!-- Brackets (split halves) -->
+      <g fill="currentColor" opacity="0.75">
+        <path d="M10 20h8v4h-4v6h-4z"/>
+        <path d="M10 44h4v6h4v4h-8z"/>
+        <path d="M54 20h-8v4h4v6h4z"/>
+        <path d="M54 44h-4v6h-4v4h8z"/>
+      </g>
+
+      <!-- Delta mark (triangle with inner void) -->
+      <path fill="currentColor" fill-rule="evenodd" d="
+        M32 10
+        L50 52
+        H43.5
+        L32 25.5
+        L20.5 52
+        H14
+        Z
+
+        M32 29
+        L39 45
+        H25
+        Z
+      "/>
+    </svg>
+
+    Madness Delta
+  </div>
+
+  <div class="mi-scorebug-gap-value" id="miVerdictGapTop">—</div>
+</div>
+
 
     <!-- Footer hint -->
     <div class="mi-scorebug-footer">
@@ -505,15 +538,18 @@
           <div id="marksTileA" class="context-tile context-neutral inline-marks-tile flip-tile">
             <div class="flip-tile-inner">
 
-              <!-- FRONT -->
-              <div class="tile-face tile-front">
-                <div class="context-header marks-header">
-                  <div class="marks-header-text matchup-kicker">Profile Marks</div>
-                </div>
-                <div class="context-subrow">
-                  <div id="inlineMarksA" class="inline-marks-strip"></div>
-                </div>
+            <!-- FRONT -->
+            <div class="tile-face tile-front">
+             <div class="marks-front">
+              <div class="marks-front-header context-header marks-header">
+               <div class="marks-header-text matchup-kicker">Profile Marks</div>
               </div>
+
+             <div class="marks-front-body context-subrow">
+              <div id="inlineMarksA" class="inline-marks-strip"></div>
+            </div>
+          </div>
+         </div>
 
               <!-- BACK -->
               <div class="tile-face tile-back">
@@ -697,15 +733,18 @@
           <div id="marksTileB" class="context-tile context-neutral inline-marks-tile flip-tile">
             <div class="flip-tile-inner">
 
-              <!-- FRONT -->
-              <div class="tile-face tile-front">
-                <div class="context-header marks-header">
-                  <div class="marks-header-text matchup-kicker">Profile Marks</div>
-                </div>
-                <div class="context-subrow">
-                  <div id="inlineMarksB" class="inline-marks-strip"></div>
-                </div>
-              </div>
+            <!-- FRONT -->
+             <div class="tile-face tile-front">
+              <div class="marks-front">
+               <div class="marks-front-header context-header marks-header">
+                <div class="marks-header-text matchup-kicker">Profile Marks</div>
+               </div>
+
+             <div class="marks-front-body context-subrow">
+              <div id="inlineMarksB" class="inline-marks-strip"></div>
+             </div>
+           </div>
+         </div>
 
               <!-- BACK -->
               <div class="tile-face tile-back">
@@ -819,34 +858,82 @@
 <section id="summarySection" class="card summary-card">
   <div id="summaryTable" class="summary-synthesis-wrap" role="group" aria-label="Score Synthesis">
     <table class="summary-synthesis-table" aria-label="Score Synthesis table">
+
+      <!-- ✅ Deterministic 7-column grid (A label / A val / A final / center / B final / B val / B label) -->
+      <colgroup>
+        <col><!-- 1: A label -->
+        <col><!-- 2: A val -->
+        <col><!-- 3: A final -->
+        <col><!-- 4: center -->
+        <col><!-- 5: B final -->
+        <col><!-- 6: B val -->
+        <col><!-- 7: B label -->
+      </colgroup>
+
       <tbody>
         <!-- ROW 1: Title (merged across full width) -->
         <tr>
-          <th class="syn-title" colspan="7">Score Synthesis</th>
+          <th class="syn-title" colspan="7">
+            <span class="matchup-kicker syn-kicker">
+              Score Synthesis
+            </span>
+          </th>
         </tr>
 
         <!-- ROW 2: Team Names + CENTER narrative (now merged into one syn-center cell) -->
         <tr>
-         <th class="syn-team syn-team-a" colspan="3">
-          <span id="summaryTeamAHeader"></span>
-         </th>
+          <th class="syn-team syn-team-a" colspan="3">
+            <span id="summaryTeamAHeader"></span>
+          </th>
 
-        <!-- syn-center now occupies the former spacer column AND its original spot -->
-         <td class="syn-center" rowspan="5">
-          <div class="syn-center-inner">
-            <div id="summarySynLean" class="syn-lean-line" data-copy="summary.synthesis.syn_lean"></div>
+          <!-- syn-center now occupies the former spacer column AND its original spot -->
+          <td class="syn-center" rowspan="5">
+            <div class="syn-center-inner">
+              <div id="summarySynLean" class="syn-lean-line" data-copy="summary.synthesis.syn_lean"></div>
 
-          <!-- MI Δ moved up into the main grid (formerly its own bottom row) -->
-             <div class="syn-delta">
-              <span class="syn-delta-label">MI Δ</span>
-               <span class="syn-delta-value" data-value="gap.sep">—</span>
-              </div>
-             </div>
-         </td>
+              <!-- MI Δ moved up into the main grid (formerly its own bottom row) -->
+              <div class="syn-delta">
+  <span class="syn-delta-label">
+    <svg class="mi-delta-mark" viewBox="0 0 64 64" width="14" height="14"
+         aria-hidden="true" focusable="false" title="Madness Delta">
+      <title>Madness Delta</title>
+
+      <!-- Brackets (split halves) -->
+      <g fill="currentColor" opacity="0.75">
+        <path d="M10 20h8v4h-4v6h-4z"/>
+        <path d="M10 44h4v6h4v4h-8z"/>
+        <path d="M54 20h-8v4h4v6h4z"/>
+        <path d="M54 44h-4v6h-4v4h8z"/>
+      </g>
+
+      <!-- Delta mark (triangle with inner void) -->
+      <path fill="currentColor" fill-rule="evenodd" d="
+        M32 10
+        L50 52
+        H43.5
+        L32 25.5
+        L20.5 52
+        H14
+        Z
+
+        M32 29
+        L39 45
+        H25
+        Z
+      "/>
+    </svg>
+
+    Madness Delta
+  </span>
+
+  <span class="syn-delta-value" data-value="gap.sep">—</span>
+</div>
+            </div>
+          </td>
 
           <th class="syn-team syn-team-b" colspan="3">
-           <span id="summaryTeamBHeader"></span>
-         </th>
+            <span id="summaryTeamBHeader"></span>
+          </th>
         </tr>
 
         <!-- Baseline MI row -->
@@ -896,8 +983,8 @@
         <tr>
           <td class="syn-label syn-label-a">
             <div class="syn-label-stack">
-              <div class="syn-label-main" data-copy="summary.score_build.resume_factor">Breadth Bonus</div>
-              <div class="syn-label-hint" data-copy="summary.score_build.resume_factor_hint">Credibility multiplier</div>
+              <div class="syn-label-main" data-copy="summary.score_build.breadth_bonus">Breadth Bonus</div>
+              <div class="syn-label-hint" data-copy="summary.score_build.breadth_bonus_hint">Credibility multiplier</div>
             </div>
           </td>
 
@@ -907,8 +994,8 @@
 
           <td class="syn-label syn-label-b">
             <div class="syn-label-stack">
-              <div class="syn-label-main" data-copy="summary.score_build.resume_factor">Breadth Bonus</div>
-              <div class="syn-label-hint" data-copy="summary.score_build.resume_factor_hint">Credibility multiplier</div>
+              <div class="syn-label-main" data-copy="summary.score_build.breadth_bonus">Breadth Bonus</div>
+              <div class="syn-label-hint" data-copy="summary.score_build.breadth_bonus_hint">Credibility multiplier</div>
             </div>
           </td>
         </tr>
@@ -954,7 +1041,7 @@
             </div>
           </td>
         </tr>
-     </tbody>
+      </tbody>
     </table>
   </div>
 </section>
