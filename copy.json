@@ -10,38 +10,119 @@
     "metrics": {
       "primary_text": {
         "tiny_gap": [
-          "The Madness Index suggests little separation between {{WINNER}} and {{LOSER}}, with no clear directional pull emerging."
+          "The Madness Index gives {{WINNER}} a narrow edge over {{LOSER}} in this matchup. The margin is slim enough that normal game-to-game swings could easily flip the result.",
+          "The Madness Index leans toward {{WINNER}} against {{LOSER}} by a very small margin. This projects as highly competitive, with little separating the two profiles.",
+         "The Madness Index places {{WINNER}} just ahead of {{LOSER}}. The gap is minimal and leaves the outcome sensitive to performance variance.",
+          "The Madness Index sees {{WINNER}} as slightly stronger than {{LOSER}}. The difference is modest and unlikely to withstand major in-game momentum shifts.",
+          "The Madness Index identifies {{WINNER}} as the technical favorite over {{LOSER}}. The separation is thin and offers limited predictive cushion."
         ],
         "small_gap": [
-        "The Madness Index edges {{WINNER}} ahead of {{LOSER}}, though the margin remains thin."
+          "The Madness Index favors {{WINNER}} over {{LOSER}} with a defined but manageable edge. The advantage is real, though the matchup remains competitive.",
+          "The Madness Index identifies {{WINNER}} as the stronger side against {{LOSER}}. The separation provides stability, but not insulation from volatility.",
+          "The Madness Index places {{WINNER}} ahead of {{LOSER}} with measurable support. The edge holds weight, though it does not signal dominance.",
+          "The Madness Index projects {{WINNER}} as the preferred profile over {{LOSER}}. The margin suggests steady footing without implying control.",
+          "The Madness Index evaluates {{WINNER}} as the better overall side in this pairing. The advantage is tangible, though still within reach for {{LOSER}}."
         ],
         "medium_gap": [
-          "The Madness Index establishes {{WINNER}} as the more favorable profile versus {{LOSER}}."
+          "The Madness Index favors {{WINNER}} over {{LOSER}} with clear separation. The profile strength suggests a stable and sustainable advantage.",
+          "The Madness Index evaluates {{WINNER}} as meaningfully stronger than {{LOSER}} in this matchup. The gap reflects consistent advantages across multiple areas.",
+          "The Madness Index places {{WINNER}} comfortably ahead of {{LOSER}}. The separation indicates dependable overall superiority.",
+          "The Madness Index positions {{WINNER}} as the stronger profile against {{LOSER}}. The margin signals reliable underlying advantages.",
+          "The Madness Index projects {{WINNER}} with noticeable distance over {{LOSER}}. The separation supports a confident but measured expectation."
         ],
         "large_gap": [
-          "The Madness Index strongly favors {{WINNER}} over {{LOSER}}, with matchup pressure clearly aligned."
+          "The Madness Index strongly favors {{WINNER}} over {{LOSER}}. The gap signals decisive overall superiority in this matchup.",
+          "The Madness Index places {{WINNER}} well ahead of {{LOSER}}. The separation reflects a pronounced and consistent advantage.",
+          "The Madness Index identifies {{WINNER}} as the clear leader against {{LOSER}}. The margin suggests meaningful distance between the two profiles.",
+          "The Madness Index evaluates {{WINNER}} as substantially stronger than {{LOSER}}. The difference points to broad and sustained advantages.",
+          "The Madness Index projects {{WINNER}} as the dominant profile in this pairing. The separation indicates a significant and reinforced edge."
         ],
         "default": [
-          "The Madness Index provides context for {{WINNER}} versus {{LOSER}}, though the lean remains muted."
+          "The Madness Index evaluates {{WINNER}} and {{LOSER}} without producing meaningful separation. The profiles remain closely balanced under full model review.",
+        "The Madness Index places {{WINNER}} and {{LOSER}} in near analytical alignment. No clear structural advantage emerges.",
+        "The Madness Index finds limited distinction between {{WINNER}} and {{LOSER}} once baseline and matchup effects are applied. The outcome projects as evenly weighted.",
+        "The Madness Index concludes that {{WINNER}} and {{LOSER}} remain tightly grouped across model inputs. The separation is negligible.",
+        "The Madness Index frames this matchup as analytically balanced between {{WINNER}} and {{LOSER}}. The evaluation does not support a defined lean."
         ]
       },
       "secondary_text": {
         "tiny_gap": [
-          "{{WINNER}} and {{LOSER}} answer each other’s strengths cleanly enough to keep the matchup level."
+          "{{WINNER}} and {{LOSER}} counter each other’s strengths closely, leaving the outcome sensitive to small swings.",
+        "Both teams check similar boxes across key interactions, keeping the matchup fragile and variable.",
+        "Minor advantages surface for {{WINNER}}, but they are easily offset by {{LOSER}}’s counters.",
+        "The matchup remains fluid, with neither side exerting consistent leverage over the other.",
+        "Subtle differences appear, though neither profile clearly reshapes the game environment."
         ],
         "small_gap": [
-          "{{WINNER}} holds small advantages in flow that {{LOSER}} does not fully counter."
+          "{{WINNER}} shows narrow advantages that matter if the game follows expected patterns.",
+        "Several small edges tilt toward {{WINNER}}, though {{LOSER}} retains viable counterpaths.",
+        "The matchup favors {{WINNER}} in specific areas, but outcomes remain sensitive to execution.",
+        "{{LOSER}} can resist portions of {{WINNER}}’s edge, keeping the game competitive.",
+        "Separation emerges in spots, though the overall structure remains contestable."
         ],
         "medium_gap": [
-          "{{WINNER}} controls more of the game’s terms than {{LOSER}} as the matchup settles."
+          "{{WINNER}} holds advantages across multiple interaction points that begin to align.",
+        "The matchup tilts toward {{WINNER}} as several strengths reinforce one another.",
+        "{{LOSER}} faces increasing friction across key areas as the profiles diverge.",
+        "The balance of the game shifts toward {{WINNER}} as advantages compound.",
+        "{{WINNER}} is positioned to benefit from cleaner interaction pathways in this matchup."
         ],
         "large_gap": [
-          "{{WINNER}} operates with a style of play that bends the game away from the strengths of {{LOSER}} for extended stretches."
+          "{{WINNER}} benefits from advantages that align cleanly across the matchup.",
+        "{{LOSER}} has fewer effective counters as the profiles separate sharply.",
+        "The matchup structure favors {{WINNER}} across several interacting dimensions.",
+        "{{WINNER}} enters with multiple advantages that reinforce one another.",
+        "{{LOSER}} faces limited avenues to neutralize {{WINNER}}’s strengths."
         ],
         "default": [
-          "{{WINNER}} and {{LOSER}} trade advantages in ways that keep the game structure fluid."
+          "Both teams trade advantages in ways that keep the matchup open-ended.",
+        "The profiles intersect without clear leverage emerging for either side.",
+        "Strengths and weaknesses remain largely balanced across the matchup.",
+        "No single interaction clearly reshapes how the game is likely to unfold.",
+        "The matchup presents competing elements without a dominant throughline."
         ]
       },
+      "secondary_driver_phrases": {
+        "3pt": "perimeter shot-making and spacing pressure",
+        "ft": "foul generation and free-throw reliability",
+        "paint": "consistent paint scoring",
+        "to": "possession control",
+        "glass": "second-chance opportunities",
+        "phys": "physical interior play",
+        "shotq": "shot quality and offensive rhythm",
+        "var": "game-to-game volatility",
+        "mibs": "overall profile strength",
+        "breadth": "scoring versatility"
+      },
+      "secondary_dynamic": {
+        "case1": [
+          "The clearest separation appears in {{DRIVER_1}} and {{DRIVER_2}}.",
+          "This matchup shows its biggest differences in {{DRIVER_1}} and {{DRIVER_2}}."
+        ],
+        "case1_major3": [
+          "The clearest separation appears in {{DRIVER_1}} and {{DRIVER_2}}, with {{DRIVER_3}} also playing a meaningful role.",
+          "This matchup shows its biggest differences in {{DRIVER_1}} and {{DRIVER_2}}, while {{DRIVER_3}} further shapes the margin."
+        ],
+        "case2": [
+          "Some separation appears in {{DRIVER_1}} and {{DRIVER_2}}, though the overall profile remains fairly balanced.",
+          "There are differences in {{DRIVER_1}} and {{DRIVER_2}}, but the broader matchup still holds relatively even."
+        ],
+        "case2_major3": [
+          "Some separation appears in {{DRIVER_1}} and {{DRIVER_2}}, with {{DRIVER_3}} also in play, though the matchup overall remains tight.",
+          "There are differences in {{DRIVER_1}} and {{DRIVER_2}}, with {{DRIVER_3}} contributing, but the full profile still balances out."
+        ],
+        "case3": [
+          "The most noticeable difference comes in {{DRIVER_1}}, with overall profile strength accounting for the remaining gap.",
+          "The clearest distinction lies in {{DRIVER_1}}, while overall profile strength does the rest."
+        ],
+        "case4": [
+          "No single area clearly separates the teams, pointing to a balanced matchup.",
+          "With no strong differences in the key areas, this projects as tightly contested."
+        ]
+      },
+      "disclaimer_line": [
+          "This predicted outcome reflects a model-based matchup analysis, is designed for entertainment purposes only, and does not indicate a guaranteed result."
+      ],
       "back_text": {
         "base": [
         "The Baseline Madness Index reflects each team’s full-season profile, combining performance quality, efficiency, and contextual factors into a single strength rating.",
@@ -350,253 +431,253 @@
       "term": "The Madness Index",
       "abbr": "MI",
       "category": "Overview",
-      "definition": ""
+      "definition": "A composite rating that summarizes a team’s tournament identity using baseline strength and profile breadth. MI is designed to be stable, comparable across teams, and readable as a single-number anchor."
     },
     {
       "term": "Matchup Log",
       "abbr": "",
       "category": "Overview",
-      "definition": ""
+      "definition": "A running record of evaluated matchups, capturing the teams, round context, and the system’s outputs at the time of analysis. It functions as an audit trail for recent comparisons."
     },
     {
       "term": "Sandbox Mode",
       "abbr": "",
       "category": "Overview",
-      "definition": ""
+      "definition": "An alternate evaluation state that allows manual adjustments without treating the result as an official matchup outcome. It is used for testing inputs, edge cases, and “what-if” scenarios."
     },
     {
       "term": "Baseline MI",
       "abbr": "",
       "category": "Score Synthesis",
-      "definition": ""
+      "definition": "The identity-only foundation of MI built from baseline strength plus breadth, without any résumé points being added into the baseline. It represents a team’s underlying profile before matchup interaction scaling."
     },
     {
       "term": "Breadth Bonus",
       "abbr": "",
       "category": "Score Synthesis",
-      "definition": ""
+      "definition": "A baseline add-on that rewards teams with wider, more reliable profile coverage across core traits. It reflects how many different ways a team can sustain performance without relying on one narrow strength."
     },
     {
       "term": "Matchup MI",
       "abbr": "",
       "category": "Score Synthesis",
-      "definition": ""
+      "definition": "The matchup-adjusted version of MI after interaction metrics are applied between the two teams. It represents how each profile scales when placed directly against the opponent."
     },
     {
       "term": "Madness Delta",
       "abbr": "MI Δ",
       "category": "Score Synthesis",
-      "definition": ""
+      "definition": "The net separation between the two teams’ matchup outputs, expressed as a single gap value. MI Δ is the primary “distance” signal used to summarize how far apart the profiles evaluate."
     },
     {
       "term": "Lean Signals",
       "abbr": "",
       "category": "Score Synthesis",
-      "definition": ""
+      "definition": "A set of directional indicators derived from the interaction layer that summarize where the matchup pressure is coming from. Lean Signals describe the type of edge being created, not a guaranteed result."
     },
     {
       "term": "Offensive Efficiency",
       "abbr": "OffEff",
       "category": "Core Traits",
-      "definition": ""
+      "definition": "A possession-based measure of how efficiently a team converts offense into points. OffEff describes scoring output per trip, independent of pace."
     },
     {
       "term": "Defensive Efficiency",
       "abbr": "DefEff",
       "category": "Core Traits",
-      "definition": ""
+      "definition": "A possession-based measure of how efficiently a team prevents scoring. DefEff describes points allowed per opponent trip, independent of pace."
     },
     {
       "term": "Efficiency Margin",
       "abbr": "EM",
       "category": "Core Traits",
-      "definition": ""
+      "definition": "The net efficiency gap between a team’s offense and defense on a per-possession basis. EM summarizes overall strength by combining both sides of the ball into one differential."
     },
     {
       "term": "True Shooting %",
       "abbr": "TS%",
       "category": "Core Traits",
-      "definition": ""
+      "definition": "A scoring efficiency rate that accounts for two-point shots, three-point shots, and free throws in one percentage. TS% represents overall point conversion efficiency per shot attempt."
     },
     {
       "term": "Effective FG%",
       "abbr": "eFG%",
       "category": "Core Traits",
-      "definition": ""
+      "definition": "A shooting efficiency rate that adjusts field-goal percentage to account for the added value of three-point shots. eFG% reflects how efficiently a team converts shot attempts into points from the field."
     },
     {
       "term": "Defensive eFG%",
       "abbr": "Def eFG%",
       "category": "Core Traits",
-      "definition": ""
+      "definition": "The opponent shooting efficiency a team allows, adjusted for the added value of three-point shots. Def eFG% reflects how well a defense limits quality shot conversion."
     },
     {
       "term": "Effective Possession Ratio",
       "abbr": "EPR",
       "category": "Core Traits",
-      "definition": ""
+      "definition": "A possession-quality indicator that summarizes how reliably a team turns trips into usable scoring chances. EPR reflects possession management beyond raw pace or shooting splits."
     },
     {
       "term": "Turnover %",
       "abbr": "TO%",
       "category": "Core Traits",
-      "definition": ""
+      "definition": "The share of possessions that end in a turnover rather than a shot attempt or trip to the line. TO% reflects ball security and offensive stability."
     },
     {
       "term": "Thresholds (Mean / Standard Deviation)",
       "abbr": "",
       "category": "Thresholds & Tiers",
-      "definition": ""
+      "definition": "The statistical baselines used to normalize team trait values across the full dataset. Mean and standard deviation define what counts as typical, strong, or extreme in each metric."
     },
     {
       "term": "Tier Significance",
       "abbr": "",
       "category": "Thresholds & Tiers",
-      "definition": ""
+      "definition": "A classification rule that groups metric values into meaningful bands based on distance from the dataset average. Tiers express how far a team sits from “normal” within a given trait."
     },
     {
       "term": "Cinderella Credibility",
       "abbr": "CIS",
       "category": "Tournament Identities",
-      "definition": ""
+      "definition": "A static identity score that measures how strongly a team’s profile supports a Cinderella-style upset narrative. CIS reflects underdog viability as an identity signal, not a prediction."
     },
     {
       "term": "Favorite Authenticity",
       "abbr": "FAS",
       "category": "Tournament Identities",
-      "definition": ""
+      "definition": "A static identity score that measures how strongly a team’s profile supports favorite-level stability and control. FAS reflects chalk reliability as an identity signal, not a prediction."
     },
     {
       "term": "Live Cinderella Profile",
       "abbr": "LCI",
       "category": "Tournament Identities",
-      "definition": ""
+      "definition": "A round-aware identity score that updates Cinderella alignment based on opponent, path, and current round framing. LCI reflects the Cinderella signal in the present matchup context."
     },
     {
       "term": "Live Favorite Profile",
       "abbr": "LFI",
       "category": "Tournament Identities",
-      "definition": ""
+      "definition": "A round-aware identity score that updates favorite alignment based on opponent, path, and current round framing. LFI reflects the favorite signal in the present matchup context."
     },
     {
       "term": "Tournament Identity Profile",
       "abbr": "",
       "category": "Tournament Identities",
-      "definition": ""
+      "definition": "The identity label applied when a matchup does not cleanly resolve into standard Cinderella-versus-favorite framing. It indicates a non-standard identity state such as mirror, neutral, or chaos conditions."
     },
     {
       "term": "Résumé Context",
       "abbr": "",
       "category": "Résumé Context",
-      "definition": ""
+      "definition": "A résumé-strength layer used to describe schedule quality and accomplishment signals alongside the profile model. Résumé Context is separate from baseline MI and is applied only through interaction scaling."
     },
     {
       "term": "Résumé Tier",
       "abbr": "",
       "category": "Résumé Context",
-      "definition": ""
+      "definition": "The résumé classification band assigned to a team based on its résumé context strength. Tiers provide a compact summary of résumé quality without describing specific results."
     },
     {
       "term": "Profile Marks",
       "abbr": "",
       "category": "Profile Marks",
-      "definition": ""
+      "definition": "A set of named flags that tag notable profile patterns that can matter in tournament play. Marks are descriptive signals, not standalone ratings or guarantees."
     },
     {
       "term": "Offensive Rigidity",
       "abbr": "",
       "category": "Profile Marks",
-      "definition": ""
+      "definition": "A profile mark indicating a team’s offense is built around a narrow scoring shape or limited scoring pathways. It describes an offense that can be easier to map if its primary option is contained."
     },
     {
       "term": "Unstable Perimeter",
       "abbr": "",
       "category": "Profile Marks",
-      "definition": ""
+      "definition": "A profile mark indicating perimeter outcomes are highly variable or structurally vulnerable within the profile. It flags a team whose outside layer is less reliable or more matchup-sensitive."
     },
     {
       "term": "Cold Arc Team",
       "abbr": "",
       "category": "Profile Marks",
-      "definition": ""
+      "definition": "A profile mark indicating low or inconsistent three-point shot conversion relative to peer baselines. It describes a profile that does not reliably generate scoring from the arc."
     },
     {
       "term": "Undisciplined Defense",
       "abbr": "",
       "category": "Profile Marks",
-      "definition": ""
+      "definition": "A profile mark indicating a defense that concedes avoidable advantages through fouls, breakdowns, or poor containment. It flags defensive execution risk rather than scheme identity."
     },
     {
       "term": "Soft Interior",
       "abbr": "",
       "category": "Profile Marks",
-      "definition": ""
+      "definition": "A profile mark indicating the interior defense yields efficiency or access near the rim relative to baseline expectations. It describes a profile that can struggle to consistently protect the paint."
     },
     {
       "term": "Perimeter Leakage",
       "abbr": "",
       "category": "Profile Marks",
-      "definition": ""
+      "definition": "A profile mark indicating the defense allows elevated perimeter shot quality or volume compared to baseline. It flags an outside-containment vulnerability rather than shooting variance."
     },
     {
       "term": "Tempo Strain",
       "abbr": "",
       "category": "Profile Marks",
-      "definition": ""
+      "definition": "A profile mark indicating performance is less stable when pace rises or possession flow becomes chaotic. It flags a profile that can lose efficiency under speed or disruption."
     },
     {
       "term": "Interaction Metrics",
       "abbr": "",
       "category": "Interaction Metrics",
-      "definition": ""
+      "definition": "The set of pressure-based matchup measures that compare two teams’ profiles trait-by-trait. Interaction Metrics translate profile differences into directional competitive friction."
     },
     {
       "term": "Perimeter Pressure",
       "abbr": "",
       "category": "Interaction Metrics",
-      "definition": ""
+      "definition": "An interaction measure describing how three-point volume, quality, and perimeter defense intersect between the two teams. It captures the matchup’s outside shooting and containment tension."
     },
     {
       "term": "Whistle Bias",
       "abbr": "",
       "category": "Interaction Metrics",
-      "definition": ""
+      "definition": "An interaction measure describing how foul pressure and free-throw dependence intersect between the two teams. It captures the matchup’s line-access and foul-risk tension."
     },
     {
       "term": "Rim Access",
       "abbr": "",
       "category": "Interaction Metrics",
-      "definition": ""
+      "definition": "An interaction measure describing how interior scoring leverage meets interior resistance between the two teams. It captures the matchup’s paint efficiency and rim protection tension."
     },
     {
       "term": "Possession Security",
       "abbr": "",
       "category": "Interaction Metrics",
-      "definition": ""
+      "definition": "An interaction measure describing how ball security meets turnover forcing between the two teams. It captures the matchup’s control versus disruption tension on possessions."
     },
     {
       "term": "Second-Chance Equity",
       "abbr": "",
       "category": "Interaction Metrics",
-      "definition": ""
+      "definition": "An interaction measure describing how rebounding and extra-possession generation intersect between the two teams. It captures the matchup’s offensive glass and cleanup leverage."
     },
     {
       "term": "Contact Advantage",
       "abbr": "",
       "category": "Interaction Metrics",
-      "definition": ""
+      "definition": "An interaction measure describing how physical play tolerance intersects with the opponent’s ability to absorb or punish contact. It captures the matchup’s strength-through-contact and foul-resilience tension."
     },
     {
       "term": "Shot Diet Control",
       "abbr": "",
       "category": "Interaction Metrics",
-      "definition": ""
+      "definition": "An interaction measure describing how shot selection discipline intersects with the opponent’s ability to restrict preferred attempts. It captures the matchup’s ability to force or avoid low-value shots."
     },
     {
       "term": "Volatility Leverage",
       "abbr": "",
       "category": "Interaction Metrics",
-      "definition": ""
+      "definition": "An interaction measure describing how outcome variance intersects with the opponent’s stability profile. It captures the matchup’s swing potential as a profile interaction signal."
     }
   ]
 },

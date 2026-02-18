@@ -3,12 +3,20 @@
 <head>
   <meta charset="UTF-8" />
   <title>The Madness Index</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <!-- Core styles -->
   <link rel="stylesheet" href="styles2.css?v=21" />
   <link rel="icon" type="image/png" href="assets/img/logos/madness-index-app-logo.PNG" />
 </head>
 <body>
+<!-- ================= MADNESS INDEX ENTRY SCREEN ================= -->
+<div id="mi-entry-screen" aria-hidden="true">
+  <div class="mi-entry-inner">
+    <img src="assets/img/logos/madness-index-home-logo.png" alt="The Madness Index" class="mi-entry-logo"/>
+      <button class="mi-entry-button">CLICK TO ENTER</button>
+  </div>
+</div>
+<!-- =============================================================== -->
   <div class="app-shell pre-matchup">
    <!-- ================= HEADER ================= -->
 <header class="app-header enhanced-header">
@@ -398,16 +406,18 @@
       </aside>
     </div>
 
+    <!-- tiny footer (calibration / disclaimer) -->
+    <div class="mi-verdict-footer">
+     <span id="miVerdictDisclaimer"
+        class="mi-verdict-disclaimer"
+        data-copy="verdict.metrics.disclaimer_line"></span>
+    </div>
+
     <div class="mi-verdict-actions mi-verdict-actions-rail">
       <button id="miEvidenceToggle" class="mi-evidence-toggle" type="button" aria-expanded="false">
         View Full Scorecard <span class="mi-chev" aria-hidden="true">▾</span>
       </button>
-    </div>
-
-    <!-- tiny footer (disclaimer) -->
-    <div class="mi-verdict-footer">
-      <span id="miVerdictDisclaimer" class="mi-verdict-disclaimer"></span>
-    </div>
+    </div>  
   </div>
 </section>
 
@@ -1079,7 +1089,57 @@
 </footer>
 
   </div><!-- end .app-shell -->
-  <!-- Core logic -->
+
+<script>
+(function () {
+  var ENTRY_KEY = "mi_entry_seen";
+  var entryEl = document.getElementById("mi-entry-screen");
+  var shellEl = document.querySelector(".app-shell");
+
+  if (!entryEl) return;
+
+  // If session already has flag → hide immediately
+  if (sessionStorage.getItem(ENTRY_KEY)) {
+    entryEl.classList.add("is-hidden");
+    entryEl.setAttribute("aria-hidden", "true");
+    return;
+  }
+
+  // First visit this session
+  document.body.classList.add("mi-entry-lock");
+  entryEl.setAttribute("aria-hidden", "false");
+
+  function enterApp() {
+    sessionStorage.setItem(ENTRY_KEY, "1");
+
+    entryEl.classList.add("is-hidden");
+    document.body.classList.remove("mi-entry-lock");
+
+    entryEl.setAttribute("aria-hidden", "true");
+
+    setTimeout(function () {
+      if (entryEl && entryEl.parentNode) {
+        entryEl.parentNode.removeChild(entryEl);
+      }
+    }, 350);
+  }
+
+  var btn = document.querySelector(".mi-entry-button");
+  if (btn) {
+    btn.addEventListener("click", enterApp);
+  }
+
+  // Accessibility: Enter or Space triggers entry
+  document.addEventListener("keydown", function (e) {
+    if (!sessionStorage.getItem(ENTRY_KEY)) {
+      if (e.key === "Enter" || e.key === " ") {
+        enterApp();
+      }
+    }
+  });
+})();
+</script>
+
   <script src="madness_index.js?v=21"></script>
 
 <!-- =========================================================
@@ -1109,15 +1169,9 @@
 
     <!-- One unified scroll area (avoid nested scroll traps) -->
     <div class="mi-glossary-body">
+     <div id="glossarySearchHost"></div>
       <nav class="mi-glossary-toc" aria-label="Glossary table of contents" id="glossaryTOC">
-        <!-- JS renders <details> sections here -->
       </nav>
-
-      <!-- Definition viewer (single “active term” pane) -->
-      <div class="mi-glossary-view" aria-live="polite">
-        <div class="mi-glossary-view-term" id="glossaryViewTerm">Select a term</div>
-        <div class="mi-glossary-view-def" id="glossaryViewDef">Quick definitions appear here.</div>
-      </div>
     </div>
   </section>
 </aside>

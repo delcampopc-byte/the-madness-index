@@ -6895,17 +6895,22 @@ button,
 }
 
 #verdictShell .mi-verdict-footer{
-  margin-top: 10px;
-  padding: 6px 0 0;
-  display: none;
+  display:flex;
   justify-content:center;
+  padding: 6px 0 2px;
 }
 
 #verdictShell .mi-verdict-disclaimer{
-  font-size: 10px;
-  line-height: 1.1;
-  opacity: 0.55;
-  color: rgba(148,163,184,0.90);
+  display: block;
+  line-height: 1.35;
+  font-size: 11px;
+  font-weight: 750;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  color: rgba(148,163,184,0.72);
+  text-align:center;
+  max-width: 88ch;
+  opacity: 0.72;
 }
 
 /* ================================
@@ -9339,15 +9344,26 @@ button,
 }
 
 .mi-glossary-close{
-  width: 30px;
-  height: 30px;
+  width: 26px;
+  height: 26px;
   border-radius: 10px;
-  background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(255,255,255,0.12);
-  color: var(--mi-ink, rgba(249,246,238,0.90));
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 16px;
+  line-height: 1;
+  font-weight: 800;
+
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.14);
+  color: rgba(249,246,238,0.88);
+
   cursor: pointer;
-  transition: transform 160ms ease, filter 160ms ease;
+  transition: transform 140ms ease, filter 140ms ease, border-color 140ms ease, background 140ms ease;
 }
+
 .mi-glossary-close:hover{ transform: translateY(-1px); filter: brightness(1.06); }
 .mi-glossary-close:focus{
   outline: none;
@@ -9570,6 +9586,157 @@ button,
   background: rgba(0,0,0,0.18);
   color: inherit;
   cursor: pointer;
+}
+
+/* Term mini-drawer (<details>) */
+.mi-glossary-term{
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(0,0,0,0.16);
+}
+
+.mi-glossary-term summary{
+  list-style: none;
+}
+.mi-glossary-term summary::-webkit-details-marker{ display:none; }
+
+.mi-glossary-term-summary{
+  width: 100%;
+  cursor: pointer;
+
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 8px;
+  align-items: baseline;
+
+  padding: 8px 8px;
+
+  color: var(--mi-ink, rgba(249,246,238,0.88));
+  transition: transform 140ms ease, filter 140ms ease, border-color 140ms ease;
+}
+
+.mi-glossary-term:hover .mi-glossary-term-summary{
+  transform: translateY(-1px);
+  filter: brightness(1.05);
+}
+
+.mi-glossary-term-caret{
+  font-size: 12px;
+  opacity: 0.70;
+  transition: transform 160ms ease, opacity 160ms ease;
+  padding-left: 2px;
+}
+
+.mi-glossary-term[open] .mi-glossary-term-caret{
+  transform: rotate(90deg);
+  opacity: 0.85;
+}
+
+.mi-glossary-term-def{
+  padding: 8px 10px 10px 10px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+  font-size: 12px;
+  line-height: 1.35;
+  color: var(--mi-ink, rgba(249,246,238,0.78));
+  background: rgba(0,0,0,0.10);
+}
+
+.mi-glossary-close:hover{
+  transform: translateY(-1px);
+  filter: brightness(1.08);
+  background: rgba(255,255,255,0.07);
+  border-color: rgba(255,255,255,0.20);
+}
+
+.mi-glossary-close:active{
+  transform: translateY(0px);
+  filter: brightness(1.02);
+}
+
+.mi-glossary-close:focus{
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(var(--mi-role-chalk-mirror-rgb, 56,189,248), 0.35);
+}
+
+.mi-glossary-searchclear{
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 18px;
+  line-height: 1;
+  font-weight: 800;
+
+  border: 1px solid rgba(255,255,255,0.14);
+  background: rgba(0,0,0,0.18);
+  color: rgba(249,246,238,0.78);
+
+  cursor: pointer;
+  transition: transform 140ms ease, filter 140ms ease, border-color 140ms ease, background 140ms ease, color 140ms ease;
+}
+
+.mi-glossary-searchclear:hover{
+  transform: translateY(-1px);
+  filter: brightness(1.08);
+  background: rgba(0,0,0,0.24);
+  border-color: rgba(255,255,255,0.20);
+  color: rgba(249,246,238,0.90);
+}
+
+.mi-glossary-searchclear:active{
+  transform: translateY(0px);
+}
+
+.mi-glossary-searchclear:focus{
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(var(--mi-role-chalk-mirror-rgb, 56,189,248), 0.28);
+}
+
+.mi-glossary-search{
+  height: 34px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.14);
+  background: rgba(0,0,0,0.22);
+}
+
+.mi-glossary-search::placeholder{
+  color: rgba(249,246,238,0.45);
+}
+
+.mi-glossary-item{
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(0,0,0,0.16);
+  padding: 10px 10px;
+}
+
+.mi-glossary-item-header{
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  color: rgba(249,246,238,0.90);
+}
+
+.mi-glossary-item-abbr{
+  font-size: 11px;
+  opacity: 0.65;
+  margin-left: 8px;
+  white-space: nowrap;
+}
+
+.mi-glossary-item-def{
+  margin-top: 6px;
+  font-size: 12px;
+  line-height: 1.35;
+  color: rgba(249,246,238,0.78);
 }
 
 .subtotal-row {
@@ -9840,10 +10007,19 @@ button,
 }
 
 .mi-delta-mark{
-  display: inline-block;
-  vertical-align: -2px;
-  margin-right: 8px;
-  flex: 0 0 auto;
+  display:inline-block;
+  width:1.05em;
+  height:1.05em;
+  vertical-align:-0.12em;
+  margin-right:0.5em;
+  flex:0 0 auto;
+}
+
+/* This is the “image-like” finishing touch */
+.mi-delta-mark--painted{
+  /* soft lift + depth like your reference */
+  filter: drop-shadow(0 1px 0 rgba(255,255,255,0.10))
+          drop-shadow(0 2px 4px rgba(0,0,0,0.35));
 }
 
 /* ===== FIX: keep mark title inside chip (no spill) ===== */
@@ -9956,6 +10132,88 @@ button,
   opacity:.96;
   white-space:nowrap;
   font-variant-numeric:tabular-nums;
+}
+
+/* ========================================================================
+   MADNESS INDEX — SESSION ENTRY SCREEN
+   Flat broadcast-grade threshold screen
+   No glow. No gradient. No gaming styling.
+   ======================================================================== */
+
+#mi-entry-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: 
+    linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)),
+    url("assets/img/background/plain-background-2.png") center center / cover no-repeat;
+
+  transition: opacity 320ms ease, visibility 320ms ease;
+}
+
+#mi-entry-screen.is-hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.mi-entry-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 36px;
+}
+
+.mi-entry-logo {
+  width: clamp(320px, 50vw, 900px);
+  height: auto;
+  max-height: 55vh;
+  object-fit: contain;
+  transform: translateY(-2%);
+}
+
+#mi-entry-screen:hover .mi-entry-text {
+  opacity: 1;
+}
+
+/* Prevent scroll while entry is visible */
+body.mi-entry-lock {
+  overflow: hidden;
+}
+
+.mi-entry-button {
+  background: transparent;
+  border: 1px solid rgba(217, 214, 207, 0.4);
+  color: #d9d6cf;
+
+  padding: 14px 32px;
+
+  font-size: 13px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+
+  cursor: pointer;
+
+  transition: 
+    background 200ms ease,
+    border-color 200ms ease,
+    transform 120ms ease;
+
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+}
+
+.mi-entry-button:hover {
+  background: rgba(217, 214, 207, 0.08);
+  border-color: rgba(217, 214, 207, 0.8);
+}
+
+.mi-entry-button:active {
+  transform: translateY(1px);
 }
 
 /* =========================================================
@@ -10299,3 +10557,423 @@ button,
   }
 }
 
+/* =========================================================
+   v3.92 — MOBILE DENSITY FOUNDATION (AUTHORITATIVE, LAST)
+   - Truly global: uses rem scaling from html
+   - No transforms / no zoom
+   - Density tokens for padding/gap/radius
+   ========================================================= */
+
+:root{
+  --mi-safe-top: env(safe-area-inset-top);
+  --mi-safe-right: env(safe-area-inset-right);
+  --mi-safe-bottom: env(safe-area-inset-bottom);
+  --mi-safe-left: env(safe-area-inset-left);
+
+  --mi-mobile-gutter: 14px;
+}
+
+/* iOS text autosize guard */
+html{
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+html, body{
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+/* Media-safe clamps */
+img, svg, canvas, video{ max-width: 100%; height: auto; }
+pre, code{ white-space: pre-wrap; overflow-wrap: anywhere; }
+
+@media (max-width: 720px){
+
+  /* Safe area padding (root) */
+  body{
+    padding-left:  max(var(--mi-mobile-gutter), var(--mi-safe-left));
+    padding-right: max(var(--mi-mobile-gutter), var(--mi-safe-right));
+    padding-bottom:max(12px, var(--mi-safe-bottom));
+  }
+
+  /* =========================================================
+     THE ONE GLOBAL KNOB THAT ACTUALLY HITS EVERYTHING:
+     scale rem via html font-size.
+     ========================================================= */
+  html{
+    --mi-scale-global: 0.86; /* MAIN KNOB: try 0.82–0.90 */
+
+    font-size: calc(16px * var(--mi-scale-global));
+    line-height: 1.25;
+  }
+
+  /* Density tokens (rem-based so they follow html scaling) */
+  :root{
+    --mi-type:    0.875rem;  /* ~14px at 16px base */
+    --mi-type-sm: 0.75rem;   /* ~12px */
+    --mi-kicker:  0.65625rem;/* ~10.5px */
+
+    --mi-pad:     0.75rem;   /* ~12px */
+    --mi-gap:     0.625rem;  /* ~10px */
+    --mi-radius:  1.125rem;  /* ~18px */
+  }
+
+  /* Overflow guards on real containers */
+  .app-shell,
+  .card, section, main, aside, header, footer,
+  .tile-face, .flip-tile,
+  .mi-verdict-shell-inner, .mi-verdict-grid,
+  .summary-grid, .result-layout,
+  .matchup-bar-main,
+  #matchupBar, #verdictShell, #summarySection, #interactionsSection,
+  .mi-matchup-dock{
+    min-width: 0;
+  }
+
+  /* Consistent padding rhythm */
+  .card, .tile, .panel, .mi-card, .mi-tile{
+    padding: var(--mi-pad);
+    border-radius: var(--mi-radius);
+  }
+
+  /* Kicker / pill sizing */
+  .matchup-kicker, .pill, .chip, .toggle{
+    font-size: var(--mi-kicker);
+    padding: 0.375rem 0.625rem; /* ~6px 10px */
+    border-radius: 999px;
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+  }
+
+  /* Buttons: keep comfort without bloat */
+  button, .btn, .mi-evidence-toggle{
+    min-height: 42px;
+    font-size: 0.9375rem;       /* ~15px */
+    padding: 0.5625rem 0.75rem; /* ~9px 12px */
+  }
+
+  /* Light vertical rhythm */
+  section{ margin-top: 0.75rem; }
+  .card{ margin-bottom: 0.75rem; }
+
+  /* Wrap guards */
+  h1, h2, h3, h4, p, span, label, button, a{
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
+  /* Headline clamp */
+  h1, h2, .hero-title{
+    font-size: clamp(1.05rem, 5.1vw, 1.5rem); /* ~16.8px → 24px */
+    line-height: 1.1;
+  }
+
+  /* Optional per-section nudges (defaults = 1) */
+  #verdictShell{        --mi-scale-section: 1; }
+  .mi-matchup-dock{     --mi-scale-section: 1; }
+  #summarySection{      --mi-scale-section: 1; }
+  #interactionsSection{ --mi-scale-section: 1; }
+
+  #verdictShell,
+  .mi-matchup-dock,
+  #summarySection,
+  #interactionsSection{
+    font-size: calc(1rem * var(--mi-scale-section));
+  }
+}
+
+@media (max-width: 420px){
+  html{ font-size: calc(16px * 0.83); } /* one notch tighter */
+  :where(.app-shell, body){ --mi-scale-global: 0.85; }
+  .mi-matchup-dock{ --mi-dock-scale: 0.86; }
+}
+
+/* =========================================================
+   v3.92 Mobile — MATCHUP LOG (AUTHORITATIVE, LAST)
+   6 visible columns ONLY:
+   1 tag | 2 Team A | 3 MI A | 4 arrow | 5 MI B | 6 Team B
+   ========================================================= */
+@media (max-width: 720px){
+
+  /* 0) Hard-hide columns that should not exist on mobile */
+  #matchupBar .mi-log-lean,
+  #matchupBar .mi-log-spacer{
+    display: none !important;
+  }
+
+  /* Matchup Log: one knob to scale the whole shelf */
+  #matchupBar{
+    --mi-log-scale: 0.82; /* MAIN LOG KNOB: try 0.78–0.86 */
+  }
+
+  /* 1) Shared row geometry (Top 3 rail + More list) */
+  #matchupBar .mi-log-top3 .mi-log-row,
+  #matchupBar .mi-log-more-list .mi-log-row{
+    display: grid;
+    align-items: center;
+
+    /* tighter rhythm */
+    column-gap: calc(0.5rem * var(--mi-log-scale));
+
+    height:  calc(2.05rem * var(--mi-log-scale));
+    padding: calc(0.35rem * var(--mi-log-scale)) calc(0.65rem * var(--mi-log-scale));
+    border-radius: calc(0.85rem * var(--mi-log-scale));
+
+    /* slightly narrower numeric lanes */
+    grid-template-columns:
+      2.1rem            /* tag */
+      minmax(0, 1fr)    /* name A */
+      3.25rem           /* MI A */
+      1.25rem           /* arrow */
+      3.25rem           /* MI B */
+      minmax(0, 1fr);   /* name B */
+
+    /* make the row’s text follow the knob */
+    font-size: calc(1rem * var(--mi-log-scale));
+    line-height: 1.05;
+  }
+
+  /* 2) Kill legacy explicit placements that can break the grid */
+  #matchupBar .mi-log-top3 .mi-log-row > *,
+  #matchupBar .mi-log-more-list .mi-log-row > *{
+    grid-column: auto !important;
+    min-width: 0;
+  }
+
+  /* Names: a touch smaller and tighter */
+  #matchupBar .mi-log-name.a,
+  #matchupBar .mi-log-name.b{
+    font-size: 0.95em; /* relative to row font-size above */
+    letter-spacing: 0.01em;
+  }
+
+  /* MI numbers: keep bold, but not oversized */
+  #matchupBar .mi-log-mi.a,
+  #matchupBar .mi-log-mi.b{
+    font-size: 0.96em;
+    font-weight: 850;
+  }
+
+  /* Tag: slightly less shouty */
+  #matchupBar .mi-log-tag{
+    font-size: 0.82em;
+    letter-spacing: 0.10em;
+  }
+}
+
+@media (max-width: 720px){
+
+  /* Arrow lane: reserve column 4 and center it */
+  #matchupBar .mi-log-arrows{
+    grid-column: 4 !important;
+    width: 22px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
+  }
+
+  /* Keep real arrow elements. Hide all by default... */
+  #matchupBar .mi-log-arrows .mi-log-arrow{
+    display: none !important;
+  }
+
+  /* ...then show only the FIRST arrow element (single-arrow rule) */
+  #matchupBar .mi-log-arrows .mi-log-arrow:first-child{
+    display: inline-block !important;
+  }
+
+  /* If your arrow markup uses a “winner side has 2 arrows” convention,
+     prefer the SECOND child (more “emphatic”) when present. */
+  #matchupBar .mi-log-arrows .mi-log-arrow:nth-child(2){
+    display: inline-block !important;
+  }
+  /* and suppress first child if second exists */
+  #matchupBar .mi-log-arrows .mi-log-arrow:nth-child(2) ~ .mi-log-arrow{
+    display: none !important;
+  }
+
+    /* Always show both containers, but only one will actually contain an arrow */
+  #matchupBar .mi-log-arrows.left,
+  #matchupBar .mi-log-arrows.right{
+    display: inline-flex !important;
+  }
+}
+
+@media (max-width: 420px){
+  #matchupBar{ --mi-log-scale: 0.76; }
+
+  #matchupBar .mi-log-top3 .mi-log-row,
+  #matchupBar .mi-log-more-list .mi-log-row{
+    grid-template-columns: 2.0rem minmax(0,1fr) 3.05rem 1.15rem 3.05rem minmax(0,1fr);
+  }
+}
+
+/* =========================================================
+   VERDICT SHELL — MOBILE DENSITY AUTHORITY (v3.92)
+   Goal: make the entire Verdict Shell scale down on phones
+   without touching desktop.
+   Paste at VERY BOTTOM of styles2.css
+   ========================================================= */
+
+@media (max-width: 600px){
+
+  /* --- Shell spacing: stop the “ballroom” top + inner gaps --- */
+  #verdictShell{
+    padding-top: 6px !important;
+    border-radius: 16px;
+  }
+
+  #verdictShell .mi-verdict-main{
+    padding: 6px 6px;
+  }
+
+  #verdictShell .mi-verdict-shell-inner{
+    padding: 6px 6px !important;
+  }
+
+  /* --- Left column: reduce left padding + tighten rhythm --- */
+  #verdictShell .mi-scorebug-top{
+    padding-left: 0 !important;
+    gap: 8px !important;
+    align-items: center !important;
+    text-align: center !important;
+    max-width: 100% !important;
+  }
+
+  /* --- Kicker: keep micro-kicker, but shrink the logo block HARD --- */
+  #verdictShell .mi-scorebug-kicker{
+    font-size: 10px !important;
+
+    letter-spacing: 0.22em !important;
+    gap: 8px !important;
+    padding-bottom: 0px !important;
+    background-size: 44px 1px !important;
+  }
+
+  /* This is the big one: the logo block created by ::after */
+  #verdictShell .mi-scorebug-kicker::after{
+    width: 72px !important;
+    height: 72px !important;
+    border-radius: 12px !important;
+    background-size: 88% auto !important;
+    box-shadow:
+      0 10px 22px rgba(0,0,0,0.42),
+      0 0 16px rgba(var(--mi-verdict-rgb), 0.12) !important;
+  }
+
+  /* --- If your verdict line is structured (headline + why) --- */
+  #verdictShell .mi-scorebug-line.is-structured{
+    gap: 8px !important;
+  }
+
+  #verdictShell .mi-scorebug-line.is-structured .mi-verdict-headline{
+    font-size: clamp(18px, 5.4vw, 22px) !important;
+    line-height: 1.10 !important;
+    letter-spacing: -0.01em !important;
+    max-width: 22ch;
+    margin: 0 auto;
+  }
+
+  #verdictShell .mi-scorebug-line.is-structured .mi-verdict-why{
+    font-size: clamp(13px, 3.9vw, 15px) !important;
+    line-height: 1.32 !important;
+    max-width: 40ch !important;
+    margin: 0 auto;
+  }
+
+  /* --- If your verdict line is NOT structured (fallback) --- */
+  #verdictShell .mi-scorebug-line:not(.is-structured){
+    font-size: clamp(18px, 5.4vw, 22px) !important;
+    line-height: 1.10 !important;
+    max-width: 22ch;
+    margin: 0 auto;
+  }
+
+  /* --- Rail column stack tightening --- */
+  #verdictShell .mi-verdict-rail{
+    gap: 12px !important;
+    padding-left: 0 !important;
+    max-width: 520px;
+    margin: 0 auto;
+  }
+  #verdictShell .mi-verdict-rail::before{ display:none !important; }
+
+  /* --- Evidence button: comfortable tap, but not “giant” --- */
+  #verdictShell #miEvidenceToggle.mi-evidence-toggle{
+    padding: 11px 14px !important;
+    font-size: 14px !important;
+    width: min(520px, calc(100% - 18px)) !important;
+  }
+
+  /* --- Disclaimer: tighter + readable --- */
+  #verdictShell .mi-verdict-footer{
+    padding: 4px 0 0 !important;
+  }
+  #verdictShell .mi-verdict-disclaimer{
+    font-size: 10.5px !important;
+    line-height: 1.32 !important;
+    max-width: 46ch !important;
+  }
+}
+
+/* =========================================================
+   VERDICT HERO LOGO — MOBILE HORIZONTAL ART (FIX TINY RENDER)
+   ========================================================= */
+@media (max-width: 600px){
+
+  /* Keep the kicker itself compact */
+  #verdictShell .mi-scorebug-kicker{
+    align-items: center;
+    text-align: center;    
+    font-size: 0 !important;
+    line-height: 0 !important;
+  }
+
+  /* Re-shape the pseudo-logo box to match the new logo aspect */
+  #verdictShell .mi-scorebug-kicker::after{
+    /* banner shape */
+    display: block !important;
+    margin: 0 auto !important;
+    align-content: center;
+    width: clamp(180px, 62vw, 280px) !important;
+    aspect-ratio: 1035 / 189 !important; /* matches your uploaded image */
+    height: auto !important;
+
+    /* swap to the horizontal asset */
+    background-image: url("assets/img/logos/madness-index-mobile-logo.PNG") !important;
+
+    /* critical: don't “fit by height” */
+    background-repeat: no-repeat !important;
+    background-position: center !important;
+    background-size: contain !important;
+
+    /* keep your existing treatment, just tuned for banner */
+    border-radius: 12px !important;
+  }
+}
+
+/* =========================================================
+   VERDICT KICKER — HARD CENTER THE LOGO BOX (MOBILE)
+   ========================================================= */
+@media (max-width: 600px){
+
+  /* Make the kicker a full-width centering lane */
+  #verdictShell .mi-scorebug-top .mi-scorebug-kicker{
+    width: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    text-align: center !important;
+  }
+
+  /* Center the pseudo-element as a block */
+  #verdictShell .mi-scorebug-top .mi-scorebug-kicker::after{
+    display: block !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+}

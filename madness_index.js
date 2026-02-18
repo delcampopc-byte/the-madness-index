@@ -34,6 +34,51 @@ const DEFAULT_MARK_DESCRIPTIONS = {
 
 // getMarkDescription Looks up the description text for a profile mark (e.g., Offensive Rigidity), preferring copy.marks.descriptions (including severity-specific text) and falling back to DEFAULT_MARK_DESCRIPTIONS.
 
+// Decode HTML entities in strings (e.g., "St. Mary&#39;s" -> "St. Mary's")
+function miDecodeEntities(str){
+  if (str == null) return "";
+  const s = String(str);
+  if (s.indexOf("&") === -1) return s;
+  const el = document.createElement("textarea");
+  el.innerHTML = s;
+  return el.value;
+}
+
+function miSplitHeadlineSubdeckSafe(raw){
+  const s = String(raw || "").trim();
+  if (!s) return { headlineText: "", subText: "" };
+
+  const ABBR = new Set(["st","mt","mr","ms","mrs","dr","jr","sr","vs"]);
+
+  // Find a ". " / "! " / "? " that is likely a true sentence boundary.
+  for (let i = 0; i < s.length - 1; i++){
+    const ch = s[i];
+    const next = s[i + 1];
+    if (!((ch === "." || ch === "!" || ch === "?") && next === " ")) continue;
+
+    // If period, check abbreviation immediately before it (St., Mt., etc.)
+    if (ch === ".") {
+      let j = i - 1;
+      while (j >= 0 && /[A-Za-z]/.test(s[j])) j--;
+      const token = s.slice(j + 1, i).toLowerCase();
+      if (token && ABBR.has(token)) continue;
+    }
+
+    // Also require next non-space char to look like a new sentence start
+    let k = i + 2;
+    while (k < s.length && s[k] === " ") k++;
+    const start = s[k] || "";
+    if (!/[A-Z“"‘]/.test(start)) continue;
+
+    return {
+      headlineText: s.slice(0, i + 1).trim(),
+      subText: s.slice(i + 1).trim()
+    };
+  }
+
+  return { headlineText: s, subText: "" };
+}
+
 function setSandboxMode(next) {
   const on = !!next;
 
@@ -1371,6 +1416,89 @@ function miFillTemplate(tpl, vars) {
   });
 }
 
+/* =========================================================
+   Verdict Copy: random variant selection (stable per matchup)
+   ========================================================= */
+
+const __miVerdictCopyCache = new Map();
+
+/** Better random int than Math.random when available */
+function miRandInt(n){
+  n = Math.floor(Number(n) || 0);
+  if (n <= 1) return 0;
+
+  // Prefer crypto for less repetitive patterns
+  if (window.crypto && crypto.getRandomValues){
+    const buf = new Uint32Array(1);
+    crypto.getRandomValues(buf);
+    return buf[0] % n;
+  }
+  return Math.floor(Math.random() * n);
+}
+
+/** Ensure we have an array; if a string is provided, wrap it */
+function miAsArray(v){
+  if (Array.isArray(v)) return v.filter(Boolean);
+  if (typeof v === "string" && v.trim()) return [v.trim()];
+  return [];
+}
+
+/**
+ * Safe deep-get for copy.json structures.
+ * Uses your existing miGetPath if present; otherwise a minimal fallback.
+ */
+function miSafeGet(obj, path){
+  if (!obj || !path) return undefined;
+  if (typeof miGetPath === "function") return miGetPath(obj, path);
+
+  const parts = String(path).split(".");
+  let cur = obj;
+  for (const p of parts){
+    if (cur == null) return undefined;
+    cur = cur[p];
+  }
+  return cur;
+}
+
+/**
+ * Pick a random verdict line from copy pools, but keep it stable for the matchup key.
+ *
+ * @param {string} cacheKey - unique-ish key for the current matchup render
+ * @param {string} pathBase - e.g. "verdict.metrics.primary_text"
+ * @param {string} tierKey  - e.g. "tiny_gap" | "small_gap" | ...
+ * @returns {string} selected line (or empty string)
+ */
+function miPickVerdictLine(cacheKey, pathBase, tierKey){
+  const cacheId = `${cacheKey}::${pathBase}::${tierKey}`;
+
+  // Stable per matchup render
+  if (__miVerdictCopyCache.has(cacheId)){
+    return __miVerdictCopyCache.get(cacheId) || "";
+  }
+
+  const poolsRoot = (window.copy || window.COPY || {});
+  const tierPath = `${pathBase}.${tierKey}`;
+  const defPath  = `${pathBase}.default`;
+
+  const tierPool = miAsArray(miSafeGet(poolsRoot, tierPath));
+  const defPool  = miAsArray(miSafeGet(poolsRoot, defPath));
+
+  const pool = tierPool.length ? tierPool : defPool;
+  const picked = pool.length ? pool[miRandInt(pool.length)] : "";
+
+  __miVerdictCopyCache.set(cacheId, picked || "");
+  return picked || "";
+}
+
+/**
+ * Optional: call this if you want new random lines when the user changes the matchup.
+ * (Most builds won’t need this because cacheKey should change per matchup.)
+ */
+function miClearVerdictCopyCache(){
+  __miVerdictCopyCache.clear();
+}
+
+
 // ---------- Madness Index Tier Helper (1–99 cosmetic rating) ----------
 
 function getMITierKeyForRating(rating) {
@@ -1891,8 +2019,11 @@ function buildTeamsFromCSV(headers, rows) {
   TEAM_LIST = [];
 
   for (const row of rows) {
+    const rawName = getStr(row, 'name');
+    const cleanName = miDecodeEntities(rawName).trim();
+
     const team = {
-      name:   getStr(row, 'name'),
+      name:   cleanName,
       seed:   getNum(row, 'seed'),
 
       // core 8
@@ -1928,7 +2059,6 @@ function buildTeamsFromCSV(headers, rows) {
       opp_3pr:       getNum(row, 'opp_3pr'),
       ft_pct:        getNum(row, 'ft_pct'),
 
-
       // résumé
       close_win_pct: getNum(row, 'close_win_pct'),
       w:             getNum(row, 'w'),
@@ -1940,6 +2070,12 @@ function buildTeamsFromCSV(headers, rows) {
 
     TEAMS[team.name] = team;
     TEAM_LIST.push(team.name);
+ 
+    // Optional safety: keep an alias for the raw encoded form if it differs
+    const rawKey = String(rawName || "").trim();
+    if (rawKey && rawKey !== team.name && !TEAMS[rawKey]){
+      TEAMS[rawKey] = team;
+    }
   }
 
   computeFieldStats(); // your existing function
@@ -3822,7 +3958,7 @@ function miSandboxOn(){
 }
 
 function miFormatMI(x){
-  return (typeof x === "number" && isFinite(x)) ? x.toFixed(2) : "—";
+  return (typeof x === "number" && isFinite(x)) ? x.toFixed(3) : "—";
 }
 
 function miLeanTierFromDiff(diff){
@@ -4167,9 +4303,43 @@ function miSetVerdictCopy({ winner, loser, gapKey }) {
   const lineEl = document.getElementById('miVerdictLine');
   if (!lineEl) return;
 
+  // ----- Stable random picker (per matchup render) -----
+  // Keeps the sentence from "shuffling" on re-renders (toggle UI, etc.)
+  const _cache = (window.__MI_VERDICT_LINE_CACHE ||= new Map());
+
+  const miRandInt = (n) => {
+    n = Math.floor(Number(n) || 0);
+    if (n <= 1) return 0;
+    if (window.crypto && crypto.getRandomValues) {
+      const buf = new Uint32Array(1);
+      crypto.getRandomValues(buf);
+      return buf[0] % n;
+    }
+    return Math.floor(Math.random() * n);
+  };
+
+  const pickBandLineStable = (block, bandKey, channel) => {
+    if (!block || typeof block !== 'object') return "";
+
+    const matchupKey = `${String(winner || "")}|${String(loser || "")}|${String(bandKey || "default")}`;
+    const cacheKey = `${channel}::${matchupKey}`;
+
+    if (_cache.has(cacheKey)) return _cache.get(cacheKey) || "";
+
+    const bucket = (block[bandKey] != null) ? block[bandKey] : block.default;
+    let pool = [];
+
+    if (Array.isArray(bucket)) pool = bucket.filter(Boolean);
+    else if (typeof bucket === "string" && bucket.trim()) pool = [bucket.trim()];
+
+    const picked = pool.length ? pool[miRandInt(pool.length)] : "";
+    _cache.set(cacheKey, picked || "");
+    return picked || "";
+  };
+
   // ----- Primary (headline) -----
   const primaryBlock = metrics.primary_text;
-  const primaryLineRaw = miPickBandLine(primaryBlock, gapKey);
+  const primaryLineRaw = pickBandLineStable(primaryBlock, gapKey, "primary");
   const primaryLine = miApplyVerdictTokens(primaryLineRaw, winner, loser);
 
   // Ensure structured children exist (because your CSS expects split styling)
@@ -4202,7 +4372,7 @@ function miSetVerdictCopy({ winner, loser, gapKey }) {
 
   // ----- Secondary (why) -----
   const secondaryBlock = metrics.secondary_text;
-  const secondaryLineRaw = miPickBandLine(secondaryBlock, gapKey);
+  const secondaryLineRaw = pickBandLineStable(secondaryBlock, gapKey, "secondary");
   const secondaryLine = miApplyVerdictTokens(secondaryLineRaw, winner, loser);
 
   // Write secondary into the dedicated why span
@@ -4241,16 +4411,8 @@ function enhanceVerdictPresentation() {
   const teamA = (document.getElementById('miScorebugTeamA')?.textContent || '').trim();
   const teamB = (document.getElementById('miScorebugTeamB')?.textContent || '').trim();
 
-  // --- Sentence split (Headline = sentence 1, Subdeck = sentence 2+)
-  const split = raw.match(/^(.+?[.!?])\s+(?=[A-Z“"‘])/);
-
-  let headlineText = raw;
-  let subText = '';
-
-  if (split && split[1] && split[1].length < raw.length) {
-    headlineText = split[1].trim();
-    subText = raw.slice(split[0].length).trim();
-  }
+  // --- Sentence split (Headline = sentence 1, Subdeck = sentence 2+), abbreviation-safe
+  const { headlineText, subText } = miSplitHeadlineSubdeckSafe(raw);
 
   // Build DOM safely (no innerHTML injection)
   line.textContent = '';
@@ -4838,32 +5000,186 @@ function renderSummary({ a, b, miA, miB, diff, predicted, interactions, round, s
     window.setTimeout(() => verdictShellEl.classList.remove('mi-verdict-hit'), 1100);
   }
 
-  // ===== Primary + Secondary verdict line (JSON-driven; gap-band-aware) =====
+  // ===== Primary + Secondary verdict line (JSON-driven; gap-band-aware; STABLE RANDOM) =====
+  // Cache prevents re-renders from "shuffling" the sentence.
+  const __cache = (window.__MI_VERDICT_LINE_CACHE ||= new Map());
+
+  const _randInt = (n) => {
+    n = Math.floor(Number(n) || 0);
+    if (n <= 1) return 0;
+    if (window.crypto && crypto.getRandomValues) {
+      const buf = new Uint32Array(1);
+      crypto.getRandomValues(buf);
+      return buf[0] % n;
+    }
+    return Math.floor(Math.random() * n);
+  };
+
+  const _asPool = (bucket) => {
+    if (Array.isArray(bucket)) return bucket.filter(Boolean);
+    if (typeof bucket === "string" && bucket.trim()) return [bucket.trim()];
+    return [];
+  };
+
+  // Use round + teams + gapKey so it stays stable for this matchup state
+  const _matchKey = `${String(round || CURRENT_ROUND || "R64")}|${String(winName)}|${String(loseName)}|${String(gapKey || "default")}`;
+
+  const pickTplStable = (cfgObj, bandKey, channel) => {
+    if (!cfgObj || typeof cfgObj !== "object") return "";
+
+    const cacheKey = `${channel}::${_matchKey}`;
+    if (__cache.has(cacheKey)) return __cache.get(cacheKey) || "";
+
+    const bucket = (cfgObj[bandKey] != null) ? cfgObj[bandKey] : cfgObj.default;
+    const pool = _asPool(bucket);
+
+    const picked = pool.length ? pool[_randInt(pool.length)] : "";
+    __cache.set(cacheKey, picked || "");
+    return picked || "";
+  };
+
   const primaryCfg = metricsCfg.primary_text;
-
-  let primaryTpl = "";
-  if (typeof primaryCfg === "string") {
-    primaryTpl = primaryCfg;
-  } else if (primaryCfg && typeof primaryCfg === "object") {
-    const bucket = (primaryCfg[gapKey] != null) ? primaryCfg[gapKey] : primaryCfg.default;
-    if (Array.isArray(bucket)) primaryTpl = pickOne(bucket);
-    else if (typeof bucket === "string") primaryTpl = bucket;
-  }
-
-  const primaryText = renderTpl(primaryTpl, tokens).trim();
-
   const secondaryCfg = metricsCfg.secondary_text;
 
-  let secondaryTpl = "";
-  if (typeof secondaryCfg === "string") {
-    secondaryTpl = secondaryCfg;
-  } else if (secondaryCfg && typeof secondaryCfg === "object") {
-    const bucket = (secondaryCfg[gapKey] != null) ? secondaryCfg[gapKey] : secondaryCfg.default;
-    if (Array.isArray(bucket)) secondaryTpl = pickOne(bucket);
-    else if (typeof bucket === "string") secondaryTpl = bucket;
+  const primaryTpl = pickTplStable(primaryCfg, gapKey, "primary");
+  const primaryText = renderTpl(primaryTpl, tokens).trim();
+
+  // ===== Deterministic interaction driver ranking (no output yet) =====
+  let __rankedDrivers = [];
+
+  if (interactions && interactions.breakdown && typeof interactions.breakdown === "object") {
+    const bd = interactions.breakdown;
+
+    // Collect non-zero interaction channels
+    const nonZero = Object.keys(bd)
+      .filter(k => typeof bd[k] === "number" && Math.abs(bd[k]) > 0)
+      .map(k => ({
+        key: k,
+        value: bd[k],
+        abs: Math.abs(bd[k])
+      }));
+
+    // Fixed deterministic tie-break order (ONLY using keys confirmed in your system)
+    const PRIORITY_ORDER = ['glass', 'to', 'paint', 'shotq', 'phys', '3pt', 'ft', 'var'];
+
+    nonZero.sort((a, b) => {
+      // 1) Higher absolute magnitude first
+      if (b.abs !== a.abs) return b.abs - a.abs;
+
+      // 2) Deterministic tie-break using fixed order
+      return PRIORITY_ORDER.indexOf(a.key) - PRIORITY_ORDER.indexOf(b.key);
+    });
+
+    __rankedDrivers = nonZero;
+  }
+  
+    // ===== Secondary driver state machine (selection only; no rendering yet) =====
+  let __secondaryPlan = {
+    caseId: "case4",
+    drivers: [],
+    hasBalanceClause: false
+  };
+
+  // Inputs we are allowed to use (already verified in your debug):
+  const __bd = (interactions && interactions.breakdown && typeof interactions.breakdown === "object")
+    ? interactions.breakdown
+    : null;
+
+  const __nonZeroCount = Array.isArray(__rankedDrivers) ? __rankedDrivers.length : 0;
+
+  const __ia = (interactions && typeof interactions.a === "number") ? interactions.a : null;
+  const __ib = (interactions && typeof interactions.b === "number") ? interactions.b : null;
+
+  // Net interaction equality/inequality only applies when both totals exist.
+  const __netComparable = (typeof __ia === "number" && typeof __ib === "number");
+  const __netEqual = (__netComparable && __ia === __ib);
+  const __netNotEqual = (__netComparable && __ia !== __ib);
+
+  // Helper: select top 2, and add 3rd only if it is a major (abs == 0.50)
+  function __selectTopDrivers(ranked) {
+    const keys = ranked.map(d => d.key);
+    const out = keys.slice(0, 2);
+
+    // Third driver rule (locked): include only if abs(value) == 0.50
+    if (ranked.length >= 3 && ranked[2] && ranked[2].abs === 0.5) {
+      out.push(ranked[2].key);
+    }
+    return out;
   }
 
-  const secondaryText = renderTpl(secondaryTpl, tokens).trim();
+  // CASE 1: >=2 non-zero AND net interaction != 0
+  if (__nonZeroCount >= 2 && __netNotEqual) {
+    __secondaryPlan.caseId = "case1";
+    __secondaryPlan.drivers = __selectTopDrivers(__rankedDrivers);
+    __secondaryPlan.hasBalanceClause = false;
+  }
+
+  // CASE 2: >=2 non-zero AND net interaction == 0
+  else if (__nonZeroCount >= 2 && __netEqual) {
+    __secondaryPlan.caseId = "case2";
+    __secondaryPlan.drivers = __selectTopDrivers(__rankedDrivers);
+    __secondaryPlan.hasBalanceClause = true; // balance clause ONLY in this case
+  }
+
+  // CASE 3: exactly 1 non-zero
+  else if (__nonZeroCount === 1) {
+    __secondaryPlan.caseId = "case3";
+    __secondaryPlan.drivers = [__rankedDrivers[0].key, "mibs"]; // structural reinforcement
+    __secondaryPlan.hasBalanceClause = false;
+  }
+
+  // CASE 4: 0 non-zero
+  else {
+    __secondaryPlan.caseId = "case4";
+    __secondaryPlan.drivers = ["mibs", "breadth"]; // purely structural framing
+    __secondaryPlan.hasBalanceClause = false;
+  }
+
+  // ===== Deterministic secondary text generation =====
+  let secondaryText = "";
+
+  const metricsCopy = (window.MI_COPY && window.MI_COPY.verdict && window.MI_COPY.verdict.metrics)
+    ? window.MI_COPY.verdict.metrics
+    : null;
+
+  if (metricsCopy && metricsCopy.secondary_dynamic && metricsCopy.secondary_driver_phrases) {
+
+    const dyn = metricsCopy.secondary_dynamic;
+    const phraseMap = metricsCopy.secondary_driver_phrases;
+
+    const d1 = __secondaryPlan.drivers[0] ? phraseMap[__secondaryPlan.drivers[0]] : null;
+    const d2 = __secondaryPlan.drivers[1] ? phraseMap[__secondaryPlan.drivers[1]] : null;
+    const d3 = __secondaryPlan.drivers[2] ? phraseMap[__secondaryPlan.drivers[2]] : null;
+
+    function inject(template) {
+      return template
+        .replace(/{{DRIVER_1}}/g, d1 || "")
+        .replace(/{{DRIVER_2}}/g, d2 || "")
+        .replace(/{{DRIVER_3}}/g, d3 || "")
+        .replace(/{{WINNER}}/g, winName)
+        .replace(/{{LOSER}}/g, loseName);
+    }
+
+    let bank = null;
+
+    if (__secondaryPlan.caseId === "case1") {
+      bank = (d3 && dyn.case1_major3) ? dyn.case1_major3 : dyn.case1;
+    }
+    else if (__secondaryPlan.caseId === "case2") {
+      bank = (d3 && dyn.case2_major3) ? dyn.case2_major3 : dyn.case2;
+    }
+    else if (__secondaryPlan.caseId === "case3") {
+      bank = dyn.case3;
+    }
+    else {
+      bank = dyn.case4;
+    }
+
+    if (Array.isArray(bank) && bank.length > 0) {
+      const tpl = bank[0]; // deterministic: always first entry
+      secondaryText = inject(tpl).trim();
+    }
+  }
 
   const combinedVerdict = [primaryText, secondaryText].filter(Boolean).join(' ');
 
@@ -4872,6 +5188,23 @@ function renderSummary({ a, b, miA, miB, diff, predicted, interactions, round, s
     lineEl.classList.remove('is-structured');
     lineEl.textContent = combinedVerdict || (leanText || '');
     enhanceVerdictPresentation();
+  }
+
+  // ===== Verdict calibration / disclaimer line (copy-driven; hide when missing) =====
+  const dEl = document.getElementById('miVerdictDisclaimer');
+  const fEl = dEl ? dEl.closest('.mi-verdict-footer') : null;
+
+  if (dEl && fEl) {
+    const disclaimer =
+      (copy.verdict && copy.verdict.metrics && copy.verdict.metrics.disclaimer_line)
+        ? String(copy.verdict.metrics.disclaimer_line)
+        : '';
+
+    const out = disclaimer.trim();
+    dEl.textContent = out;
+
+    // Only show the row if we actually have content (prevents the empty strip)
+    fEl.style.display = out ? 'flex' : 'none';
   }
 
   const whyEl = document.getElementById('miVerdictWhy');
@@ -4905,10 +5238,10 @@ function renderSummary({ a, b, miA, miB, diff, predicted, interactions, round, s
   const sbMatchA = document.getElementById('miScorebugMatchA');
   const sbMatchB = document.getElementById('miScorebugMatchB');
 
-  if (sbBaseA)  sbBaseA.textContent  = fmt(baseA, 2);
-  if (sbBaseB)  sbBaseB.textContent  = fmt(baseB, 2);
-  if (sbMatchA) sbMatchA.textContent = fmt(miA, 2);
-  if (sbMatchB) sbMatchB.textContent = fmt(miB, 2);
+  if (sbBaseA)  sbBaseA.textContent  = fmt(baseA, 3);
+  if (sbBaseB)  sbBaseB.textContent  = fmt(baseB, 3);
+  if (sbMatchA) sbMatchA.textContent = fmt(miA, 3);
+  if (sbMatchB) sbMatchB.textContent = fmt(miB, 3);
 
   const scoreBox = document.querySelector('#verdictShell .mi-scorebug-score');
   if (scoreBox) {
@@ -7256,38 +7589,6 @@ if (roundBtn && roundDropdown) {
     return groups;
   }
 
-  function setActive(term, abbr){
-    const key = normalizeKey(term, abbr);
-    state.activeKey = key;
-
-    const viewTerm = $("glossaryViewTerm");
-    const viewDef  = $("glossaryViewDef");
-
-    const entry = state.indexByKey[key];
-
-    // Graceful placeholder when missing
-    if (!entry){
-      if (viewTerm) viewTerm.textContent = term || "Unknown term";
-      if (viewDef)  viewDef.textContent  = "Definition unavailable.";
-      return;
-    }
-
-    if (viewTerm){
-      viewTerm.textContent = entry.abbr ? `${entry.term} (${entry.abbr})` : entry.term;
-    }
-    if (viewDef){
-      viewDef.textContent = entry.definition || "Definition unavailable.";
-    }
-
-    // Update active styling
-    const toc = $("glossaryTOC");
-    if (toc){
-      toc.querySelectorAll(".mi-glossary-term-btn.is-active").forEach(btn => btn.classList.remove("is-active"));
-      const activeBtn = toc.querySelector(`.mi-glossary-term-btn[data-key="${CSS.escape(key)}"]`);
-      if (activeBtn) activeBtn.classList.add("is-active");
-    }
-  }
-
   function renderTOC(groups){
     const toc = $("glossaryTOC");
     if (!toc) return;
@@ -7295,15 +7596,14 @@ if (roundBtn && roundDropdown) {
     toc.innerHTML = "";
 
     const ordered = [...TOC_ORDER];
-    
+
     ordered.forEach(sectionName => {
       const list = groups[sectionName] || [];
       if (!list.length) return;
-      // Render section only if it has entries OR it’s a named TOC section (keeps structure predictable)
-      // If you prefer hiding empty sections: change condition to `if (!list.length) return;`
+
+      // Category accordion (single dropdown level)
       const details = document.createElement("details");
       details.className = "mi-glossary-section";
-      // Start collapsed by default
       details.open = false;
 
       const summary = document.createElement("summary");
@@ -7316,40 +7616,42 @@ if (roundBtn && roundDropdown) {
       const container = document.createElement("div");
       container.className = "mi-glossary-term-list";
 
-      if (!list.length){
-        const empty = document.createElement("div");
-        empty.className = "mi-glossary-term-empty";
-        empty.style.fontSize = "12px";
-        empty.style.opacity = "0.72";
-        empty.style.padding = "6px 2px";
-        empty.textContent = "No definitions found.";
-        container.appendChild(empty);
-      } else {
-        list.forEach(e => {
-          const term = String(e.term || "").trim();
-          const abbr = e.abbr ? String(e.abbr).trim() : "";
-          const key  = normalizeKey(term, abbr);
+      // Terms render inline (no second dropdown)
+      list.forEach(e => {
+        const term = String(e.term || "").trim();
+        if (!term) return;
 
-          const btn = document.createElement("button");
-          btn.type = "button";
-          btn.className = "mi-glossary-term-btn";
-          btn.dataset.key = key;
+        const abbr = e.abbr ? String(e.abbr).trim() : "";
+        const def  = e.definition ? String(e.definition).trim() : "";
 
-          const name = document.createElement("div");
-          name.className = "mi-glossary-term-name";
-          name.textContent = term;
+        const item = document.createElement("div");
+        item.className = "mi-glossary-item";
 
+        const head = document.createElement("div");
+        head.className = "mi-glossary-item-header";
+
+        const name = document.createElement("div");
+        name.className = "mi-glossary-item-term";
+        name.textContent = term;
+
+        head.appendChild(name);
+
+        if (abbr){
           const ab = document.createElement("div");
-          ab.className = "mi-glossary-term-abbr";
-          ab.textContent = abbr ? abbr : "";
+          ab.className = "mi-glossary-item-abbr";
+          ab.textContent = abbr;
+          head.appendChild(ab);
+        }
 
-          btn.appendChild(name);
-          btn.appendChild(ab);
+        const body = document.createElement("div");
+        body.className = "mi-glossary-item-def";
+        body.textContent = def || "Definition unavailable.";
 
-          btn.addEventListener("click", () => setActive(term, abbr));
-          container.appendChild(btn);
-        });
-      }
+        item.appendChild(head);
+        item.appendChild(body);
+
+        container.appendChild(item);
+      });
 
       details.appendChild(container);
       toc.appendChild(details);
@@ -7440,12 +7742,6 @@ if (roundBtn && roundDropdown) {
     renderTOC(state.grouped);
 
     prepGlossaryTopArea();
-
-    // Default view
-    const viewTerm = $("glossaryViewTerm");
-    const viewDef  = $("glossaryViewDef");
-    if (viewTerm) viewTerm.textContent = "Select a term";
-    if (viewDef)  viewDef.textContent  = "Quick definitions appear here.";
   }
 
   function detectMatchupVisible(){
@@ -7460,27 +7756,9 @@ if (roundBtn && roundDropdown) {
   }
 
   function prepGlossaryTopArea(){
-    const panel = $("glossaryPanel");
-    const toc   = $("glossaryTOC");
-    const viewTerm = $("glossaryViewTerm");
-    const viewDef  = $("glossaryViewDef");
-    if (!panel || !toc || !viewTerm || !viewDef) return;
-
-    // Find the "view" container (the box shown in your screenshot)
-    const viewBox =
-      viewTerm.closest(".mi-glossary-view") ||
-      viewTerm.closest(".mi-glossary-card") ||
-      viewTerm.parentElement;
-
-    if (!viewBox) return;
-
-    // Move the view box above the TOC (top of the drawer content area)
-    if (viewBox.parentElement === panel && toc.parentElement === panel){
-      panel.insertBefore(viewBox, toc);
-    } else {
-      // Fallback: if structure differs, place it right before TOC wherever they live
-      toc.parentElement.insertBefore(viewBox, toc);
-    }
+    const toc  = $("glossaryTOC");
+    const host = $("glossarySearchHost");
+    if (!toc || !host) return;
 
     // Inject search row once
     if (!$("glossarySearchInput")){
@@ -7493,11 +7771,13 @@ if (roundBtn && roundDropdown) {
                placeholder="Search glossary…"
                autocomplete="off"
                spellcheck="false" />
-        <button id="glossarySearchClear" class="mi-glossary-searchclear" type="button" aria-label="Clear search">×</button>
+        <button id="glossarySearchClear"
+                class="mi-glossary-searchclear"
+                type="button"
+                aria-label="Clear search">×</button>
       `;
 
-      // Put search row at the top of the view box
-      viewBox.insertBefore(row, viewBox.firstChild);
+      host.appendChild(row);
 
       const input = $("glossarySearchInput");
       const clear = $("glossarySearchClear");
@@ -7509,21 +7789,25 @@ if (roundBtn && roundDropdown) {
         allSections.forEach(sec => {
           let anyVisible = false;
 
-          sec.querySelectorAll(".mi-glossary-term-btn").forEach(btn => {
-            const name = (btn.querySelector(".mi-glossary-term-name")?.textContent || "").toLowerCase();
-            const abbr = (btn.querySelector(".mi-glossary-term-abbr")?.textContent || "").toLowerCase();
+          sec.querySelectorAll("details.mi-glossary-term").forEach(td => {
+            const name = (td.querySelector(".mi-glossary-term-name")?.textContent || "").toLowerCase();
+            const abbr = (td.querySelector(".mi-glossary-term-abbr")?.textContent || "").toLowerCase();
             const hit = !q || name.includes(q) || abbr.includes(q);
 
-            btn.style.display = hit ? "" : "none";
+            td.style.display = hit ? "" : "none";
             if (hit) anyVisible = true;
+
+            // When searching, optionally auto-open matching term defs (I recommend NO for calm UX)
+            // td.open = q && hit ? true : false;
+            if (!q) td.open = false; // return to collapsed default
           });
 
-          // Hide sections with no matches during search; show all when empty
+          // Hide category sections with no matches during search; show all when empty
           sec.style.display = (!q || anyVisible) ? "" : "none";
 
           // When searching, open sections that have matches
           if (q && anyVisible) sec.open = true;
-          if (!q) sec.open = false; // return to collapsed default
+          if (!q) sec.open = false;
         });
       };
 
@@ -7535,7 +7819,6 @@ if (roundBtn && roundDropdown) {
         applyFilter();
       });
 
-      // Esc clears when focused in search
       input.addEventListener("keydown", (e) => {
         if (e.key === "Escape"){
           input.value = "";
