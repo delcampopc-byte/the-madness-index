@@ -208,8 +208,6 @@ body{
     0 0 0 1px var(--mi-brand-blue-a28) inset,
     0 0 0 2px var(--mi-brand-blue-a12);
 
-    var(--mi-shadow-card-inset);
-
   background:
     radial-gradient(
       140% 140% at 50% -25%,
