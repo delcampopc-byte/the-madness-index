@@ -9,6 +9,21 @@
   <link rel="icon" type="image/png" href="assets/img/logos/madness-index-app-logo.PNG" />
 </head>
 <body>
+
+<!-- Canonical Madness Delta (single source of truth) -->
+<svg aria-hidden="true" focusable="false" style="position:absolute;width:0;height:0;overflow:hidden">
+  <symbol id="mi-delta-symbol" viewBox="0 0 10.754103 9.3092775">
+    <g transform="translate(-2.5877921,-2.8114259)">
+      <path
+        style="fill:#1c6fb0;fill-opacity:1;stroke:#165a8e;stroke-width:0.184;stroke-dasharray:none;stroke-opacity:1"
+        d="M 7.9648442,6.2478923 8.9863116,8.1953879 10.00778,10.142884 H 7.9648442 5.9219074 L 6.9433758,8.1953879 Z" />
+      <path
+        style="fill:#e6e9ed;fill-opacity:1;stroke:#bcc3cd;stroke-width:0.3;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1;paint-order:stroke fill markers"
+        d="M 7.9648438,3.1113281 2.8476562,11.970703 h 6.2109376 1.4472652 0.652344 L 10.505859,10.988281 H 9.0585938 4.671875 C 5.7699525,8.9123322 6.8676086,6.8361598 7.9648438,4.7597656 9.1123585,6.9421942 10.279058,9.1148887 11.416016,11.302734 L 11.75,11.970703 h 1.332031 z" />
+    </g>
+  </symbol>
+</svg>
+
 <!-- ================= MADNESS INDEX ENTRY SCREEN ================= -->
 <div id="mi-entry-screen" aria-hidden="true">
   <div class="mi-entry-inner">
@@ -23,26 +38,21 @@
 
   <div class="hero-logo-wrap">
     <img
-      src="assets/img/logos/madness-index-main-logo.PNG"
+      src="assets/img/logos/madness-index-home-logo.png"
       alt="Madness Index Logo"
       class="hero-logo"
     />
   </div>
 
   <div class="hero-text-wrap">
-    <h1 class="hero-title">
-      <span data-copy="hero.title_main"></span>
-    </h1>
-
     <p class="hero-tagline" data-copy="hero.tagline"></p>
-
     <p class="hero-subtitle">
       <span data-copy="hero.subtitle"></span>
       <span class="hero-sub-highlight" data-copy="hero.subtitle_highlight"></span>
     </p>
   </div>
 
-  <div class="version-badge">version 3.7</div>
+  <div class="version-badge">version 3.9</div>
 
 </header>
 
@@ -304,7 +314,13 @@
       <!-- LEFT (75%): Verdict proclamation -->
       <div class="mi-verdict-main">
         <div class="mi-scorebug-top">
-          <div class="mi-scorebug-kicker">THE MADNESS INDEX</div>
+          <div class="mi-scorebug-kicker">
+            <img 
+              src="assets/img/logos/madness-index-vertical.png" 
+              alt="The Madness Index"
+              class="mi-vert-logo"
+            />
+          </div>
           <div class="mi-scorebug-line" id="miVerdictLine" data-copy="verdict.metrics.primary_text">—</div>
         </div>
       </div>
@@ -351,35 +367,15 @@
 
     <!-- MI GAP (full width) -->
     <div class="mi-scorebug-gap" aria-label="Madness Index gap">
-  <div class="mi-scorebug-gap-label">
-    <svg class="mi-delta-mark" viewBox="0 0 64 64" width="14" height="14"
-         aria-hidden="true" focusable="false" title="Madness Delta">
-      <title>Madness Delta</title>
-
-      <!-- Brackets (split halves) -->
-      <g fill="currentColor" opacity="0.75">
-        <path d="M10 20h8v4h-4v6h-4z"/>
-        <path d="M10 44h4v6h4v4h-8z"/>
-        <path d="M54 20h-8v4h4v6h4z"/>
-        <path d="M54 44h-4v6h-4v4h8z"/>
-      </g>
-
-      <!-- Delta mark (triangle with inner void) -->
-      <path fill="currentColor" fill-rule="evenodd" d="
-        M32 10
-        L50 52
-        H43.5
-        L32 25.5
-        L20.5 52
-        H14
-        Z
-
-        M32 29
-        L39 45
-        H25
-        Z
-      "/>
-    </svg>
+      <div class="mi-scorebug-gap-label">
+        <svg class="mi-delta-mark"
+             viewBox="0 0 10.754103 9.3092775"
+             preserveAspectRatio="xMidYMid meet"
+             aria-hidden="true"
+             focusable="false"
+             title="Madness Delta">
+          <use href="#mi-delta-symbol" x="0" y="0" width="100%" height="100%"></use>
+        </svg>
 
     Madness Delta
   </div>
@@ -453,14 +449,6 @@
           <div class="tile-face tile-front">
   <div class="section-header">
     <div class="matchup-kicker">Core Traits Profile</div>
-
-    <button
-      id="explainCindA"
-      class="link-btn explain-toggle"
-      data-target="#cindProfileExplainA"
-      data-copy="card.explain_btn">
-      Explain
-    </button>
   </div>
 
               <table id="cindProfileTableA" class="explain-table"></table>
@@ -901,43 +889,24 @@
             <div class="syn-center-inner">
               <div id="summarySynLean" class="syn-lean-line" data-copy="summary.synthesis.syn_lean"></div>
 
-              <!-- MI Δ moved up into the main grid (formerly its own bottom row) -->
-              <div class="syn-delta">
-  <span class="syn-delta-label">
-    <svg class="mi-delta-mark" viewBox="0 0 64 64" width="14" height="14"
-         aria-hidden="true" focusable="false" title="Madness Delta">
-      <title>Madness Delta</title>
+        <!-- MI Δ moved up into the main grid (formerly its own bottom row) -->
+        <div class="syn-delta">
+          <span class="syn-delta-label">
+            <svg class="mi-delta-mark"
+                 viewBox="0 0 10.754103 9.3092775"
+                 preserveAspectRatio="xMidYMid meet"
+                 aria-hidden="true"
+                 focusable="false"
+                 title="Madness Delta">
+              <use href="#mi-delta-symbol" x="0" y="0" width="100%" height="100%"></use>
+            </svg>
 
-      <!-- Brackets (split halves) -->
-      <g fill="currentColor" opacity="0.75">
-        <path d="M10 20h8v4h-4v6h-4z"/>
-        <path d="M10 44h4v6h4v4h-8z"/>
-        <path d="M54 20h-8v4h4v6h4z"/>
-        <path d="M54 44h-4v6h-4v4h8z"/>
-      </g>
+            Madness Delta
+          </span>
 
-      <!-- Delta mark (triangle with inner void) -->
-      <path fill="currentColor" fill-rule="evenodd" d="
-        M32 10
-        L50 52
-        H43.5
-        L32 25.5
-        L20.5 52
-        H14
-        Z
+          <span class="syn-delta-value" data-value="gap.sep">—</span>
+        </div>
 
-        M32 29
-        L39 45
-        H25
-        Z
-      "/>
-    </svg>
-
-    Madness Delta
-  </span>
-
-  <span class="syn-delta-value" data-value="gap.sep">—</span>
-</div>
             </div>
           </td>
 
@@ -1113,15 +1082,16 @@
     sessionStorage.setItem(ENTRY_KEY, "1");
 
     entryEl.classList.add("is-hidden");
-    document.body.classList.remove("mi-entry-lock");
 
+    document.body.classList.remove("mi-entry-lock");
     entryEl.setAttribute("aria-hidden", "true");
 
+    // Optional: remove element after animation finishes
     setTimeout(function () {
       if (entryEl && entryEl.parentNode) {
         entryEl.parentNode.removeChild(entryEl);
       }
-    }, 350);
+    }, 800);
   }
 
   var btn = document.querySelector(".mi-entry-button");

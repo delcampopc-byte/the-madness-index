@@ -19,16 +19,28 @@ html, body {
   height: 100%;
 }
 
-body {
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", -system-ui, sans-serif;
-  background: radial-gradient(circle at top, #111827 0%, #020817 55%, #000 100%);
-  color: #e5e7eb;
-  -webkit-font-smoothing: antialiased;
-}
-
 /* ========== DESIGN TOKENS (3.4) ========== */
 
 :root {
+   /* ====== BRAND BLUE SYSTEM (UI atmosphere + structure only) ====== */
+  --mi-brand-blue-500: #175FC3; /* canonical brand blue from MIX logo */
+
+  /* Shade ladder (all from your sampled logo blues) */
+  --mi-brand-blue-900: #052C73;
+  --mi-brand-blue-800: #10459E;
+  --mi-brand-blue-700: #124EAC;
+  --mi-brand-blue-650: #1654B0;
+  --mi-brand-blue-600: #175BC0;
+  --mi-brand-blue-400: #1D64C7;
+
+  /* Alpha helpers for glow/atmosphere */
+  --mi-brand-blue-a04: rgba(23, 95, 195, 0.04);
+  --mi-brand-blue-a08: rgba(23, 95, 195, 0.08);
+  --mi-brand-blue-a12: rgba(23, 95, 195, 0.12);
+  --mi-brand-blue-a18: rgba(23, 95, 195, 0.18);
+  --mi-brand-blue-a28: rgba(23, 95, 195, 0.28);
+  --mi-brand-blue-a45: rgba(23, 95, 195, 0.45);
+  
   /* Core palette */
   --mi-color-bg-body:        #020817;
   --mi-color-bg-body-alt:    #111827;
@@ -37,18 +49,18 @@ body {
   --mi-color-surface-subtle: rgba(15, 23, 42, 0.85);
 
   /* Accents */
-  --mi-accent-cyan:          #38bdf8;
-  --mi-accent-cyan-soft:     rgba(56, 189, 248, 0.18);
-  --mi-accent-cyan-strong:   rgba(56, 189, 248, 0.55);
+  --mi-accent-cyan:        var(--mi-brand-blue-500);
+  --mi-accent-cyan-soft:   var(--mi-brand-blue-a18);
+  --mi-accent-cyan-strong: var(--mi-brand-blue-a45);
   --mi-accent-gold:          #facc15;
   --mi-accent-orange:        #f97316;
   --mi-accent-green:         #22c55e;
   --mi-accent-red:           #ef4444;
 
   /* Neutrals / borders */
-  --mi-border-subtle:        rgba(148, 163, 184, 0.35);
-  --mi-border-strong:        rgba(148, 163, 253, 0.45);
-  --mi-border-card:          rgba(148, 163, 253, 0.12);
+  --mi-border-subtle:      rgba(148, 163, 184, 0.35);
+  --mi-border-strong:      var(--mi-brand-blue-a28);
+  --mi-border-card:        var(--mi-brand-blue-a12);
 
   --mi-control-height: 44px;
   --mi-control-radius: 999px;
@@ -71,7 +83,7 @@ body {
   --mi-role-chalk-mirror: #3b82f6;
   --mi-role-chalk-mirror-soft: rgba(59, 130, 246, 0.22);
   --mi-role-chalk-mirror-rgb: 59, 130, 246;
-  --mi-role-chaos-mirror: #ef4444
+  --mi-role-chaos-mirror: #ef4444;
   --mi-role-chaos-mirror-soft: rgba(239, 68, 68, 0.22);
   --mi-role-chaos-mirror-rgb:   239, 68, 68;
   --mi-role-neutral-mirror: #a855f7;
@@ -114,11 +126,37 @@ body {
 
   /* Gradients */
   --mi-grad-hero:
-    radial-gradient(circle at top, var(--mi-accent-cyan-soft), transparent 55%),
+    radial-gradient(circle at top, var(--mi-brand-blue-a18), transparent 55%),
     var(--mi-color-surface-soft);
 
   --mi-grad-card:
-    radial-gradient(circle at top left, rgba(56, 189, 248, 0.05), var(--mi-color-surface-card));
+    radial-gradient(circle at top left, var(--mi-brand-blue-a08), var(--mi-color-surface-card));
+
+  /* ===== Surface tiers (single studio contract) ===== */
+  --mi-surface-panel: rgba(7, 10, 18, 0.92); /* section shells if needed */
+  --mi-surface-card: rgba(15, 23, 42, 0.92);
+  --mi-surface-1: rgba(7, 10, 18, 0.92); /* panels (mostly opaque) */
+  --mi-surface-2: rgba(15, 23, 42, 0.92); /* cards (matte) */
+  --mi-surface-3: rgba(15, 23, 42, 0.72); /* emphasis glass only */
+
+  --mi-sheen: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.00) 55%);
+
+  /* ===== Edge system (consistent borders) ===== */
+  --mi-line-weak: rgba(255,255,255,0.08);
+  --mi-line:      rgba(255,255,255,0.12);
+  --mi-line-strong: rgba(255,255,255,0.18);
+
+  /* ===== Depth (cap stacking) ===== */
+  --mi-depth-1: 0 10px 26px rgba(0,0,0,0.35);
+  --mi-depth-2: 0 18px 44px rgba(0,0,0,0.45);
+}
+
+.mi-surface-card{
+  background: var(--mi-sheen), var(--mi-surface-card);
+  border: 1px solid var(--mi-line);
+  box-shadow: var(--mi-depth-1);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
 }
 
 /* ========== APP SHELL ========== */
@@ -134,6 +172,30 @@ body {
   display: none !important;
 }
 
+.mi-glass{
+  background: var(--mi-surface-3);
+  border: 1px solid var(--mi-line-strong);
+  box-shadow: var(--mi-depth-2);
+  backdrop-filter: blur(12px) saturate(1.05);
+  -webkit-backdrop-filter: blur(12px) saturate(1.05);
+}
+
+body {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", -system-ui, sans-serif;
+  color: var(--mi-text-primary);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ===== Studio base (Tier 0) ===== */
+html, body {
+  background: #000; /* ensures no edge cases on overscroll */
+}
+
+body{
+  background: transparent !important;
+  background-attachment: initial !important;
+}
+
 /* =========================================
    MI Halo — Next Action Highlight
    ========================================= */
@@ -142,17 +204,9 @@ body {
   border: 1px solid rgba(56, 189, 248, 0.75);
 
   box-shadow:
-    /* crisp cyan edge */
-    0 0 0 1px rgba(56, 189, 248, 0.45),
-
-    /* primary glow */
-    0 0 28px rgba(56, 189, 248, 0.35),
-
-    /* secondary falloff */
-    0 0 60px rgba(56, 189, 248, 0.18),
-
-    /* depth */
-    0 20px 50px rgba(0, 0, 0, 0.55),
+    0 10px 22px rgba(0,0,0,0.45),
+    0 0 0 1px var(--mi-brand-blue-a28) inset,
+    0 0 0 2px var(--mi-brand-blue-a12);
 
     var(--mi-shadow-card-inset);
 
@@ -310,10 +364,10 @@ body {
 }
 
 .hero-tagline {
-  font-size: 14px;
-  color: var(--mi-accent-gold);
+  font-size: 18px;
+  color: var(--mi-text-primary);
   font-weight: 600;
-  text-shadow: 0 0 5px var(--mi-accent-gold), 0 0 10px var(--mi-accent-gold);
+  text-shadow: var(--mi-shadow-header);
   margin-top: 8px;
 }
 
@@ -380,7 +434,6 @@ body {
   border: 1px solid rgba(56, 189, 248, 0.35);
 
   color: #7dd3fc;
-  backdrop-filter: blur(6px);
 
   pointer-events: none;
 }
@@ -400,8 +453,11 @@ body {
   padding: 18px 18px;
   border-radius: var(--mi-radius-lg);
   border: 1px solid var(--mi-border-subtle);
-  background: radial-gradient(circle at top, rgba(56, 189, 248, 0.08), rgba(2, 6, 23, 0.92));
-  box-shadow: var(--mi-shadow-soft), var(--mi-shadow-card-inset);
+  background:
+    radial-gradient(circle at top,
+      var(--mi-brand-blue-a08),
+      rgba(2, 6, 23, 0.92)
+    );
 }
 
 .pre-hub-inner {
@@ -465,8 +521,9 @@ body {
   text-align: center;
 
   font-weight: 800;
-  background: rgba(56, 189, 248, 0.14);
-  border: 1px solid rgba(56, 189, 248, 0.35);
+  background: var(--mi-brand-blue-a12);
+  border: 1px;
+  border-color: var(--mi-brand-blue-a28);
 }
 
 .pre-step-text {
@@ -870,15 +927,43 @@ body {
   color: #f9fafb;
 }
 
-/* ========== BASE CARDS ========== */
+/* ===== Tier 2: card baseline ===== */
+.card{
+  background: var(--mi-sheen), var(--mi-surface-card);
+  border: 1px solid var(--mi-line);
+  box-shadow: var(--mi-depth-1);
 
-.card {
-  background: var(--mi-grad-card);
-  border-radius: var(--mi-radius-card);
-  padding: 14px 14px 12px;
-  border: 1px solid var(--mi-border-card);
-  box-shadow: var(--mi-shadow-soft), var(--mi-shadow-card-inset);
-  backdrop-filter: blur(10px);
+  /* critical: stop background sampling drift */
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+/* Flip container shouldn’t add its own lighting */
+.flip-inner{
+  background: transparent;
+  box-shadow: none;
+}
+
+/* Card faces: transparent by default so the parent .card owns the surface */
+
+.card-face{
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+
+  background: var(--mi-sheen), var(--mi-surface-card);
+  border: 1px solid var(--mi-line);
+  box-shadow: var(--mi-depth-1);
+
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.card-face.card-front{
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
 .card-title {
@@ -1077,7 +1162,7 @@ body {
 /* And in the 3-col cockpit, apply the “connected rows” look */
 .pre-setup-row .matchup-controls{
   gap: 0;
-  border: 1px solid rgba(148, 163, 184, 0.16);
+  border-color: rgba(148, 163, 184, 0.16); /* subtle */
   border-radius: 14px;
   overflow: visible;
   background: rgba(15, 23, 42, 0.35);
@@ -1154,7 +1239,7 @@ body {
 
   color: rgba(226, 232, 240, 0.96);
   background: rgba(15, 23, 42, 0.55);
-  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-color: rgba(148, 163, 184, 0.20); /* strong, but not a different material */
   box-shadow: 0 10px 18px rgba(0,0,0,0.35);
 }
 
@@ -1183,31 +1268,42 @@ body {
 /*   Advanced Upload Button UI   */
 /* ============================= */
 
-.controls-card.is-primary-entry .file-label {
+.controls-card.is-primary-entry .file-label{
   --btn-bg: rgba(12, 18, 36, 0.85);
-  --border-light: rgba(56, 189, 248, 0.6);
-  --border-glow: rgba(56, 189, 248, 0.9);
+
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
+
   padding: 8px;
   height: 100%;
   min-height: 180px;
   gap: 5px;
+
   font-size: 22px;
   font-weight: 700;
   letter-spacing: 0.015em;
   color: rgba(230, 236, 243, 0.98);
 
-  background: var(--btn-bg);
-  border: 2px solid var(--border-light);
+  background:
+    radial-gradient(120% 140% at 50% -20%,
+      var(--mi-brand-blue-a08),
+      transparent 62%
+    ),
+    var(--btn-bg);
+
+  border: 1px solid var(--mi-brand-blue-a28);
   border-radius: 14px;
-  backdrop-filter: blur(8px);
+
+  /* critical: remove glass sampling drift */
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+
   box-sizing: border-box;
   box-shadow:
-    0 8px 20px rgba(0, 0, 0, 0.4),
-    0 0 0 1px rgba(56, 189, 248, 0.15) inset;
+    0 8px 20px rgba(0, 0, 0, 0.40),
+    0 0 0 1px rgba(255,255,255,0.06) inset;
 
   cursor: pointer;
   user-select: none;
@@ -1218,26 +1314,6 @@ body {
     box-shadow 180ms ease,
     border-color 180ms ease,
     background 180ms ease;
-}
-
-/* Animate gradient border */
-.controls-card.is-primary-entry .file-label::before {
-  content: "";
-  position: absolute;
-  top: -4px;
-  left: -4px;
-  right: -4px;
-  bottom: -4px;
-  background: linear-gradient(
-    45deg,
-    rgba(56, 189, 248, 0.8),
-    rgba(0, 207, 255, 0.7),
-    rgba(56, 189, 248, 0.8)
-  );
-  z-index: -1;
-  filter: blur(14px);
-  animation: gradientShift 4s linear infinite;
-  border-radius: inherit;
 }
 
 /* Subtle highlight pulse */
@@ -1266,12 +1342,11 @@ body {
     0 0 8px rgba(56, 189, 248, 0.4);
 }
 
-/* Keyboard focus state */
-.controls-card.is-primary-entry .file-label:focus-within {
-  border-color: var(--border-glow);
+.controls-card.is-primary-entry .file-label:focus-within{
+  border-color: var(--mi-brand-blue-a45);
   box-shadow:
-    0 0 0 3px rgba(56, 189, 248, 0.4),
-    0 12px 25px rgba(0, 0, 0, 0.4);
+    0 0 0 3px var(--mi-brand-blue-a18),
+    0 12px 25px rgba(0, 0, 0, 0.40);
 }
 
 /* Secondary button: make it look intentionally “optional,” but still premium */
@@ -1297,9 +1372,9 @@ body {
 
 .controls-card.is-primary-entry .csv-spec-btn:hover{
   transform: translateY(-1px);
-  border-color: rgba(56,189,248,0.40);
+  border-color: var(--mi-brand-blue-a28);
   background:
-    linear-gradient(180deg, rgba(56,189,248,0.10), rgba(2,6,23,0.22));
+    linear-gradient(180deg, var(--mi-brand-blue-a08), rgba(2,6,23,0.22));
   box-shadow: 0 10px 22px rgba(0,0,0,0.40);
 }
 
@@ -1313,7 +1388,7 @@ body {
   gap: 8px;
   padding: 6px 10px;
   border-radius: 10px;
-  border: 1px dashed rgba(148, 163, 253, 0.45);
+  border: 1px dashed var(--mi-brand-blue-a12, 0.22);
   cursor: pointer;
   font-size: 12px;
   color: #cbd5f5;
@@ -1346,7 +1421,7 @@ body {
 .btn.secondary {
   background: rgba(15, 23, 42, 1);
   color: #c4d3ff;
-  border: 1px solid rgba(148, 163, 253, 0.55);
+  border: 1px solid var(--mi-brand-blue-a12, 0.22)
 }
 .btn.secondary:hover { background: rgba(17, 24, 39, 1); box-shadow: 0 4px 14px rgba(15, 23, 42, 0.9); }
 
@@ -1573,16 +1648,18 @@ select:focus {
   pointer-events: none;
   z-index: 2;
 
+  /* Brand blue only — no green channel */
   background: linear-gradient(
     90deg,
-    rgba(64, 200, 255, 0.00),
-    rgba(64, 200, 255, 0.42),
-    rgba(90, 255, 180, 0.30),
-    rgba(64, 200, 255, 0.00)
+    rgba(23, 95, 195, 0.00),
+    rgba(23, 95, 195, 0.34),
+    rgba(23, 95, 195, 0.52),
+    rgba(23, 95, 195, 0.34),
+    rgba(23, 95, 195, 0.00)
   );
 
-  opacity: 0.75;
-  filter: blur(0.2px);
+  opacity: 0.80;
+  filter: blur(0.25px);
 }
 
 /* Side rails */
@@ -1707,9 +1784,6 @@ select:focus {
     inset 0 0 0 1px rgba(255,255,255,0.03);
   text-shadow: 0 1px 0 rgba(0,0,0,0.35);
 
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-
   /* safe default layout */
   display: inline-flex;
   align-items: center;
@@ -1833,9 +1907,6 @@ section#matchupBar.card.matchup-bar.visible:not(.is-editing){
     0 0 30px rgba(56, 189, 248, 0.12),
     inset 0 1px 0 rgba(255, 255, 255, 0.10),
     inset 0 0 0 1px rgba(255, 255, 255, 0.045);
-
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
 }
 
 #matchupBar.is-editing::after{
@@ -2010,32 +2081,16 @@ section#matchupBar.card.matchup-bar.visible:not(.is-editing){
   border-radius: 28px;
 
   background:
-    radial-gradient(1400px 420px at 50% -18%,
-      rgba(96, 165, 250, 0.42) 0%,
-      rgba(56, 189, 248, 0.14) 38%,
-      rgba(0, 0, 0, 0) 68%
-    ),
-    radial-gradient(900px 320px at 14% 10%,
-      rgba(56, 189, 248, 0.12) 0%,
-      rgba(0, 0, 0, 0) 62%
+    radial-gradient(120% 140% at 50% -20%,
+      var(--mi-brand-blue-a12),
+      transparent 62%
     ),
     linear-gradient(180deg,
-      rgba(17, 28, 56, 0.92) 0%,
-      rgba(10, 18, 38, 0.94) 52%,
-      rgba(2, 6, 23, 0.96) 100%
+      rgba(15, 23, 42, 0.74),
+      rgba(2, 6, 23, 0.92)
     );
 
-  border: 1px solid rgba(150, 210, 255, 0.18);
-
-  box-shadow:
-    0 22px 68px rgba(0, 0, 0, 0.72),
-    0 0 0 1px rgba(0, 0, 0, 0.55),
-    0 0 30px rgba(56, 189, 248, 0.12),
-    inset 0 1px 0 rgba(255, 255, 255, 0.10),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.045);
-
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  border-color: var(--mi-brand-blue-a28);
 }
 
 /* “More” button lives to the right of the tabs */
@@ -2064,8 +2119,8 @@ section#matchupBar.card.matchup-bar.visible:not(.is-editing){
 
 /* Tab hover reads like “selectable history” */
 #matchupBar .mi-log-top3 .mi-log-row:hover{
-  border-color: rgba(56,189,248,0.30);
-  background: rgba(2,6,23,0.40);
+  border-color: var(--mi-brand-blue-a28);
+  background: rgba(15, 23, 42, 0.55);
 }
 
 /* Compact the internal layout so it reads like a tab */
@@ -2147,11 +2202,6 @@ section#matchupBar.card.matchup-bar.visible:not(.is-editing){
   font-size: 12px;
   line-height: 1.1;
   font-variant-numeric: tabular-nums;
-}
-
-#matchupBar .mi-log-more-list .mi-log-row:hover{
-  border-color: rgba(56,189,248,0.24);
-  background: rgba(2,6,23,0.36);
 }
 
 /* Tag pill on the far left */
@@ -2501,6 +2551,10 @@ section#matchupBar.card.matchup-bar.visible:not(.is-editing){
   border-bottom-right-radius: 14px;
 }
 
+#matchupBar .mi-log-row{
+  border-color: rgba(148, 163, 184, 0.14);
+}
+
 /* =========================================================
    Shelf cohesion: single unified outline + cap seam stitch
    (no new plates; outline sits behind existing layers)
@@ -2698,9 +2752,6 @@ section#matchupBar.card.matchup-bar.visible:not(.is-editing){
     inset 0 0 0 1px rgba(255,255,255,0.03);
   text-shadow: 0 1px 0 rgba(0,0,0,0.35);
 
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -2855,7 +2906,7 @@ section#matchupBar.card.matchup-bar.visible:not(.is-editing){
 
 .summary-lean {
   background: radial-gradient(circle at top, rgba(56, 189, 248, 0.12), rgba(9, 9, 15, 1));
-  border-color: rgba(148, 163, 253, 0.6);
+  border-color: var(--mi-brand-blue-a12, 0.6);
 }
 
 
@@ -3072,7 +3123,7 @@ section#matchupBar.card.matchup-bar.visible:not(.is-editing){
   text-transform: uppercase;
   letter-spacing: 0.08em;
   padding: 7px 8px;
-  border-bottom: 1px solid rgba(148, 163, 253, 0.35);
+  border-bottom: 1px solid var(--mi-brand-blue-a12, 0.22);
 }
 
 .interaction-table td{
@@ -3146,7 +3197,7 @@ section#matchupBar.card.matchup-bar.visible:not(.is-editing){
     radial-gradient(1200px 200px at -10% -50%, rgba(56,189,248,0.18), transparent),
     radial-gradient(1200px 200px at 110% 150%, rgba(249,115,22,0.18), transparent),
     rgba(9, 9, 15, 0.98);
-  border: 1px solid rgba(148, 163, 253, 0.45);
+  border: 1px solid var(--mi-brand-blue-a12, 0.45);
   box-shadow: inset 0 0 0 1px rgba(255,255,255,0.03);
 }
 
@@ -3270,14 +3321,14 @@ section#matchupBar.card.matchup-bar.visible:not(.is-editing){
   padding: 0;
 }
 
-.team-card-header::before { 
-  content: ""; 
-  position: absolute; 
-  inset: 0; 
-  background: radial-gradient(circle at top, rgba(15, 23, 42, 0.96), rgba(15, 23, 42, 0.96)); 
-  opacity: 0.85; 
-  z-index: 0; 
-} 
+.team-card-header::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background: linear-gradient(180deg, rgba(255,255,255,0.04), transparent 60%);
+  opacity: 1;
+  z-index: 0;
+}
 
 .team-card-header:has(.cind-tag)::before { 
   background: radial-gradient(circle at center, rgba(34, 197, 94, 0.28), rgba(15, 23, 42, 0.98) 70%); 
@@ -3415,6 +3466,7 @@ section#matchupBar.card.matchup-bar.visible:not(.is-editing){
   position: relative;
   overflow: visible !important;
   display: block;
+  background: transparent;
 }
 
 /* ========== MINI FLIP TILE SYSTEM (GLOBAL) ========== */
@@ -3462,13 +3514,18 @@ section.profile-section.flip-tile{
   min-height: var(--mi-profile-sync-h, auto);
 }
 
-.profile-section {
+.profile-section{
   margin: 4px 4px 2px 4px;
   padding: 9px 9px 8px;
   border-radius: 12px;
   min-height: 60px;
-  background: rgba(2, 6, 23, 0.98);
-  border: 1px solid rgba(31, 41, 55, 0.98);
+
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.03), transparent 60%),
+    rgba(0,0,0,0.18);
+
+  border: 1px solid var(--mi-line-weak);
+  box-shadow: none;
   position: relative;
 }
 
@@ -3480,8 +3537,12 @@ section.profile-section.flip-tile{
   right: 0;
   height: 4px;
   border-radius: 12px 12px 0 0;
-  background: linear-gradient(to right, var(--mi-accent-cyan), #1e3a8a);
-  opacity: 0.35;
+  background: linear-gradient(
+    90deg,
+    var(--mi-brand-blue-500),
+    var(--mi-brand-blue-800)
+  );
+  opacity: 0.32; /* slightly clearer, still restrained */
 }
 
 .section-header {
@@ -3508,10 +3569,16 @@ section.profile-section.flip-tile{
   border-collapse: separate;
   border-spacing: 0;
   margin-bottom: 4px;
-  font-size: 12px;
+  font-size: 12.5px;
   border-radius: 12px;
   overflow: hidden;
-  border: 1px solid var(--mi-border-strong);
+  border: 1px solid rgba(148,163,184,0.20);
+  line-height: 1.2;
+  border-radius: 12px;
+  background: rbga(2, 6, 23, 0.55);
+  box-shadow:
+    0 10px 20px rgba(0,0,0,0.35),
+    0 0 0 1px var(--mi-brand-blue-a12) inset;
 }
 
 .explain-table thead {
@@ -3521,8 +3588,8 @@ section.profile-section.flip-tile{
 .explain-table th,
 .explain-table td {
   padding: 7px 9px;
-  border-bottom: 1px solid rgba(30, 64, 175, 0.9);
-  border-right: 1px solid rgba(30, 64, 175, 0.65);
+  border-bottom: 2px solid var(--mi-brand-blue-a45);
+  border-right: 2px solid var(--mi-brand-blue-a28);
   text-align: center;
   vertical-align: middle;
 }
@@ -3538,8 +3605,8 @@ section.profile-section.flip-tile{
 .explain-table th {
   font-size: 11px;
   text-transform: uppercase;
-  letter-spacing: 0.12em;
-  color: var(--mi-text-invert-soft);
+  letter-spacing: 0.10em;
+  color: rgba(226,232,240,0.88);
   font-weight: 700;
 }
 
@@ -3548,8 +3615,49 @@ section.profile-section.flip-tile{
   position: sticky;
   top: 0;
   background: rgba(5, 9, 20, 0.98);
-  backdrop-filter: blur(4px);
+  border-bottom: 2px solid var(--mi-brand-blue-a28);
   z-index: 4;
+}
+
+/* === Scanning improvements: striping, hover, numeric alignment === */
+.explain-table tbody tr:nth-child(odd){
+  background: rgba(255,255,255,0.015);
+}
+.explain-table tbody tr:nth-child(even){
+  background: rgba(0,0,0,0.10);
+}
+.explain-table tbody tr:hover{
+  background: var(--mi-brand-blue-a08);
+}
+
+/* Column-specific scan rules */
+.explain-table td:nth-child(3),  /* TEAM VALUE */
+.explain-table td:nth-child(5){  /* POINTS GIVEN */
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+  letter-spacing: 0.02em;
+}
+
+.explain-table td:nth-child(3){
+  font-weight: 700;              /* Team Value pops */
+  color: rgba(241,245,249,0.92);
+}
+
+.explain-table td:nth-child(5){
+  font-weight: 600;
+  color: rgba(226,232,240,0.90);
+}
+
+/* Thresholds column: make multi-line content easier to read */
+.explain-table td:nth-child(2){
+  font-size: 12px;
+  line-height: 1.25;
+  color: rgba(226,232,240,0.72);
+}
+
+/* Category column: slightly stronger label */
+.explain-table td:first-child{
+  color: rgba(241,245,249,0.88);
 }
 
 /* Tier coloring classes */
@@ -3896,7 +4004,7 @@ section.profile-section.flip-tile{
   text-transform: uppercase;
   letter-spacing: 0.16em;
   font-weight: 800;
-  color: #d1d5db;
+  color: var(--mi-text-primary);
 }
 
 .team-card-marks .marks-subtitle {
@@ -3947,8 +4055,6 @@ section.profile-section.flip-tile{
   border-radius: 18px;
 
   background: rgba(15, 23, 42, 0.55);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
 
   box-shadow:
     inset 0 0 15px rgba(255, 255, 255, 0.06),
@@ -4221,7 +4327,7 @@ section.profile-section.flip-tile{
 
 .madness-tile {
   padding: 1px; /* thin frame */
-  background: linear-gradient(135deg, rgba(148,163,253,0.75), rgba(56,189,248,0.24));
+  background: linear-gradient(135deg, var(--mi-brand-blue-a28, 0.75), rgba(56,189,248,0.24));
   border-radius: 12px;
 }
 
@@ -5064,32 +5170,18 @@ explain-table td:first-child{
 /* 1) While NOT loaded, keep the halo on the primary entry (you already do this) */
 /* .controls-card.is-primary-entry is currently your “halo” card via border/box-shadow. :contentReference[oaicite:3]{index=3} */
 
-/* 2) Once CSV is loaded, REMOVE the halo from the dataset card */
-.app-shell.csv-loaded .controls-card.is-primary-entry{
-  box-shadow: var(--mi-shadow-soft), var(--mi-shadow-card-inset);
-  background: var(--mi-grad-card);
-  transform: none;
-  border: 1px solid var(--mi-border-card);
-}
-
 /* =========================================
    Restore normal state for dataset card
    (after halo is removed)
    ========================================= */
 
-/* 3) Once CSV is loaded, MOVE the halo to the 3-step card */
+/* 2) Once CSV is loaded, MOVE the halo to the 3-step card */
 .app-shell.csv-loaded #matchupSetupCard{
-  border: 1px solid rgba(56, 189, 248, 0.75) !important;
+  border: 1px solid var(--mi-brand-blue-a45) !important;
 
   box-shadow:
-    /* crisp cyan edge */
-    0 0 0 1px rgba(56, 189, 248, 0.45),
-
-    /* primary glow */
-    0 0 28px rgba(56, 189, 248, 0.35),
-
-    /* secondary falloff */
-    0 0 60px rgba(56, 189, 248, 0.18),
+    /* single controlled glow (brand) */
+    0 0 24px var(--mi-brand-blue-a18),
 
     /* depth */
     0 20px 50px rgba(0, 0, 0, 0.55),
@@ -5097,16 +5189,16 @@ explain-table td:first-child{
     var(--mi-shadow-card-inset) !important;
 
   background:
-    /* inner lift so the card itself responds */
+    /* subtle top bias — NOT a second room */
     radial-gradient(
       140% 140% at 50% -25%,
-      rgba(56, 189, 248, 0.14),
+      var(--mi-brand-blue-a12),
       transparent 65%
     ),
     var(--mi-grad-card) !important;
 }
 
-/* 2) Once CSV is loaded, dataset card returns to NORMAL card styling */
+/* Once CSV is loaded, dataset card returns to NORMAL card styling */
 .app-shell.csv-loaded .controls-card.is-primary-entry{
   border: 1px solid var(--mi-border-card);
   box-shadow: var(--mi-shadow-soft), var(--mi-shadow-card-inset);
@@ -5579,8 +5671,8 @@ button,
 
 /* Table row spotlight (subtle) */
 #interactionsTable tbody tr.is-console-active{
-  outline: 1px solid rgba(34, 211, 238, 0.18);
-  box-shadow: inset 0 0 0 9999px rgba(34, 211, 238, 0.045);
+  outline: 1px solid var(--mi-brand-blue-a18);
+  box-shadow: inset 0 0 0 9999px var(--mi-brand-blue-a04);
 }
 
 /* Interaction Console: prevent global "stacked children" dividers between s1/s2 */
@@ -5647,12 +5739,12 @@ button,
 /* Strong vertical dividers (header + body) */
 .interaction-table thead th:not(:last-child),
 .interaction-table tbody td:not(:last-child){
-  border-right: 1px solid rgba(148, 163, 253, 0.18);
+  border-right: 1px solid var(--mi-brand-blue-a12, 0.18);
 }
 
 /* Slightly stronger divider under the header row */
 .interaction-table thead th{
-  border-right: 1px solid rgba(148, 163, 253, 0.22);
+  border-right: 1px solid var(--mi-brand-blue-a12, 0.22);
 }
 .interaction-table thead th:last-child{ border-right: none; }
 
@@ -6107,10 +6199,6 @@ button,
     inset 0 1px 0 rgba(255, 255, 255, 0.06),
     0 0 0 2px rgba(56, 189, 248, 0.10),
     0 18px 45px rgba(15, 23, 42, 0.90);
-
-  /* Slight glass effect to match the app */
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
 
   /* Typography polish (no size change, but more consistent) */
   color: rgba(226, 232, 240, 0.95);
@@ -6654,15 +6742,21 @@ button,
    ================================ */
 
 #verdictShell{
-  --mi-verdict-rgb: 148, 163, 184;
-  --mi-v-alpha: 0.18;
-  --mi-v-border: 0.50;
+  /* Local shell lighting — governed by brand blue (NOT role colors) */
+  --mi-verdict-rgb: 23, 95, 195; /* matches --mi-brand-blue-500 */
+  --mi-v-alpha: 0.16;
+  --mi-v-border: 0.26;
   --mi-v-blur: 18px;
 
   position: relative;
   border-radius: 18px;
+
   border: 1px solid rgba(var(--mi-verdict-rgb), var(--mi-v-border));
-  background: rgba(7, 10, 18, 0.92);
+
+  /* Deep panel that still reads as studio-black */
+  background:
+    radial-gradient(900px 420px at 50% -10%, rgba(var(--mi-verdict-rgb), 0.10), transparent 60%),
+    rgba(7, 10, 18, 0.92);
 
   box-shadow:
     0 20px 44px rgba(0,0,0,0.55),
@@ -6701,20 +6795,10 @@ button,
 
 /* LEFT: Verdict copy block */
 #verdictShell .mi-verdict-main{
-  display:flex;
-  justify-content: stretch;
-}
-
-/* make the left column actually fill */
-#verdictShell .mi-scorebug-top{
-  width: 100%;
-  max-width: 92ch;
-  padding-left: 12px; /* clears the accent rail */
-  display:flex;
+  display: flex;
+  justify-content: center;
   flex-direction: column;
-  gap: 12px;
-  align-items: flex-start;
-  text-align: left;
+  align-self: stretch;
 }
 
 #verdictShell .mi-scorebug-kicker{
@@ -7196,13 +7280,45 @@ button,
   50%     { opacity: 0.23; }
 }
 
-/* Top row: brand + score module */
+/* Verdict: Scorebug top = logo rail + headline */
 #verdictShell .mi-scorebug-top{
+  width: 100%;
+  max-width: 92ch;
+  padding-left: 12px; /* clears the accent rail */
+
   display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 16px;
-  align-items: center;
-  padding-left: 12px; /* clears rail */
+  grid-template-columns: 96px 1fr; /* rail + content */
+  column-gap: 18px;
+  row-gap: 12px;
+  align-items: start;
+
+  text-align: left;
+}
+
+/* Rail column */
+#verdictShell .mi-scorebug-kicker{
+  width: 96px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 2px;
+  position: relative;
+  align-self: stretch;
+}
+
+.mi-scorebug-top{
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Logo inside the rail */
+#verdictShell .mi-vert-logo{
+  display:block;
+  width: 900px;   /* controls perceived size */
+  height: auto;
+  object-fit: contain;
+  opacity: 0.96;
 }
 
 /* Kicker gets a bit cleaner + more “broadcast” */
@@ -7215,13 +7331,16 @@ button,
 
 /* Main verdict line: slightly more confident, better wrap */
 #verdictShell .mi-scorebug-line{
-  margin-top: 7px;
   font-size: 26px;
   line-height: 1.08;
   font-weight: 860;
   color: rgba(248,250,252,0.97);
   text-wrap: balance;
   max-width: 62ch;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 160px;
 }
 
 /* Score module: “scorebug capsule” */
@@ -7719,6 +7838,7 @@ button,
 #miVerdictMetricsTile .mi-scorebug-gap-label{
   font-size: 14px;
   font-weight: 900;
+  opacity: .95;
 }
 
 #miVerdictMetricsTile .mi-scorebug-gap-value{
@@ -7892,6 +8012,10 @@ button,
 .mi-scorebug-gap-label {
   grid-column: 1;
   justify-self: end;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;         /* slightly more “broadcast” spacing */
+  white-space: nowrap;
 }
 
 .mi-scorebug-gap-value {
@@ -8340,70 +8464,36 @@ button,
    Verdict Kicker Re-role (Brand → Context)
    ========================================================= */
 
-.mi-scorebug-top{
+.mi-scorebug-kicker{
+  align-self: stretch;
+  margin-top: 8px;
   display: flex;
-  flex-direction: column;
-  gap: 10px;
+  width: 104px;
+  position: relative;
 }
 
-/* Turn THE MADNESS INDEX into a true micro-kicker */
-.mi-scorebug-kicker{
-  align-self: flex-start;
-  font-size: 11px;
-  letter-spacing: 0.28em;
-  text-transform: uppercase;
-  font-weight: 700;
-  color: rgba(148,163,184,0.65);
-  margin: 0 0 2px 0;
-  padding: 0;
-  line-height: 1;
-}
-
-.mi-scorebug-kicker{
-  display: inline-flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 10px;
-
-  /* keep your micro-kicker typography */
-  font-size: 11px;
-  letter-spacing: 0.28em;
-  text-transform: uppercase;
-  font-weight: 700;
-  color: rgba(148,163,184,0.65);
-  line-height: 1;
-
-  /* subtle broadcast rule using background, not pseudo */
-  padding-bottom: 10px;
-  background-image: linear-gradient(
-    90deg,
-    rgba(148,163,184,0.45),
-    rgba(148,163,184,0.00)
+/* subtle divider line inside rail */
+#verdictShell .mi-scorebug-kicker::after{
+  content:"";
+  position:absolute;
+  top: 6px;
+  right: 0;
+  bottom: 6px;
+  width: 2px;
+  background: linear-gradient(
+    to bottom,
+    rgba(148,163,184,0.55),
+    rgba(148,163,184,0.35),
+    rgba(148,163,184,0.20)
   );
-  background-repeat: no-repeat;
-  background-size: 56px 1px;
-  background-position: left calc(100% - 2px);
 }
 
-.mi-scorebug-kicker::after{
-  content: "";
+.mi-vert-logo{
   display: block;
-  width: 125px;
-  height: 125px;
-  border-radius: 14px;
-
-  background-color: rgba(3, 7, 18, 0.72);
-  background-image: url("assets/img/logos/madness-index-main-logo.PNG");
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: 86% auto;
-
-  border: 1px solid rgba(148,163,184,0.32);
-  box-shadow:
-    0 14px 28px rgba(0,0,0,0.45),
-    0 0 22px rgba(var(--mi-verdict-rgb), 0.16);
-
-  opacity: 0.96;
+  height: auto;  /* tune visually */
+  width: 100%;
+  object-fit: contain;
+  opacity: 0.9;
 }
 
 #verdictShell{
@@ -8417,9 +8507,6 @@ button,
       rgba(2, 6, 23, 0.92)
     );
 
-  backdrop-filter: blur(22px) saturate(1.18);
-  -webkit-backdrop-filter: blur(22px) saturate(1.18);
-
   border: 1px solid rgba(148,163,184,0.28);
 
   box-shadow:
@@ -8428,8 +8515,6 @@ button,
     0 20px 48px rgba(0,0,0,0.65),
     0 0 0 1px rgba(148,163,184,0.08);
 }
-
-
 
 /* Edit button = mode switch */
 #editMatchupBtn.matchup-bar-edit{
@@ -8744,8 +8829,6 @@ button,
   box-shadow:
     inset 0 1px 0 rgba(255,255,255,0.10),
     0 10px 26px rgba(0,0,0,0.28);
-
-  backdrop-filter: blur(8px);
 }
 
 #summarySection .syn-center .syn-verdict strong,
@@ -9956,6 +10039,15 @@ button,
   min-height: var(--marks-front-h, 220px);
 }
 
+/* Marks tiles should read as sub-panels inside the card */
+#marksTileA,
+#marksTileB{
+  background: linear-gradient(180deg, rgba(255,255,255,0.03), transparent 60%),
+              rgba(0,0,0,0.18);
+  border: 1px solid var(--mi-line-weak);
+  box-shadow: none; /* avoid nested shadow stacks */
+}
+
 #marksTileA .flip-tile-inner,
 #marksTileB .flip-tile-inner{
   min-height: var(--marks-front-h, 220px);
@@ -10008,11 +10100,11 @@ button,
 
 .mi-delta-mark{
   display:inline-block;
-  width:1.05em;
-  height:1.05em;
-  vertical-align:-0.12em;
-  margin-right:0.5em;
-  flex:0 0 auto;
+  max-width: none;
+  width: auto;
+  height: 1.05em;
+  vertical-align: -0.08em;
+  flex: 0 0 auto;
 }
 
 /* This is the “image-like” finishing touch */
@@ -10134,6 +10226,17 @@ button,
   font-variant-numeric:tabular-nums;
 }
 
+/* Context-specific icon tuning */
+#miVerdictMetricsTile .mi-scorebug-gap-label .mi-delta-mark{
+  height: 1.12em;    /* slightly larger in scorebug */
+  vertical-align: 0; /* flex handles alignment */
+}
+
+.syn-delta-label .mi-delta-mark{
+  height: 1.05em;    /* default feel for small label */
+  vertical-align: 0; /* flex handles alignment */
+}
+
 /* ========================================================================
    MADNESS INDEX — SESSION ENTRY SCREEN
    Flat broadcast-grade threshold screen
@@ -10149,33 +10252,63 @@ button,
   align-items: center;
   justify-content: center;
 
-   background:
-    /* 1) Soft center presence (subtle lift behind the logo) */
-    radial-gradient(
-      60% 45% at 50% 48%,
-      rgba(255,255,255,0.07),
-      rgba(0,0,0,0.00) 62%
+  background:
+      radial-gradient(
+      65% 50% at 50% 50%,
+      rgba(0,0,0,0.55) 0%,
+      rgba(0,0,0,0.40) 28%,
+      rgba(0,0,0,0.20) 52%,
+      rgba(0,0,0,0.00) 72%
     ),
 
-    /* 2) Slight icy-blue structural wash (very low, keeps it “studio”) */
-    radial-gradient(
-      55% 40% at 50% 46%,
-      rgba(56,189,248,0.06),
-      rgba(0,0,0,0.00) 60%
+    linear-gradient(
+      rgba(0,0,0,0.48),
+      rgba(0,0,0,0.48)
     ),
 
-    /* 3) Your existing global dark overlay — slightly lighter than 0.60 */
-    linear-gradient(rgba(0,0,0,0.52), rgba(0,0,0,0.52)),
-
-    /* 4) Your existing background plate */
     url("assets/img/background/plain-background-2.png") center center / cover no-repeat;
 
   transition: opacity 320ms ease, visibility 320ms ease;
 }
 
+/* Entry Screen Transition */
+#mi-entry-screen {
+  transition: 
+    opacity 450ms ease,
+    transform 750ms cubic-bezier(.16, 1, .3, 1),
+    visibility 0s linear 700ms;
+}
+
+#mi-entry-screen.mi-exit {
+  opacity: 0;
+  transform: translateY(-40px) scale(0.98);
+  pointer-events: none;
+  visibility: hidden;
+}
+
+/* Optional: subtle logo shrink on exit */
+#mi-entry-screen.mi-exit .mi-entry-inner {
+  transform: scale(0.96);
+  transition: transform 600ms ease;
+}
+
+/* Home screen fade-in */
+.mi-home-hidden {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.mi-home-visible {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 600ms ease 250ms,
+              transform 600ms ease 250ms;
+}
+
 #mi-entry-screen.is-hidden {
   opacity: 0;
-  visibility: hidden;
+  transform: translateY(-120px) scale(0.92);
+  filter: blur(6px);
   pointer-events: none;
 }
 
@@ -10231,6 +10364,110 @@ body.mi-entry-lock {
 
 .mi-entry-button:active {
   transform: translateY(1px);
+}
+
+/* ================================
+   STUDIO ROOM (Tier 0) — global
+   ================================ */
+
+html, body{
+  height: 100%;
+  background: #000 !important;
+}
+
+body{
+  position: relative;
+  margin: 0;
+}
+
+body::before{
+  content:"";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+
+  background:
+    radial-gradient(1100px 650px at 50% -12%,
+      var(--mi-brand-blue-a08),
+      transparent 60%
+    ),
+    radial-gradient(circle at top,
+      var(--mi-color-bg-body-alt) 0%,
+      var(--mi-color-bg-body) 62%,
+      #000 100%
+    );
+}
+
+/* Ensure your app sits above the room */
+.app-shell{
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 20px 16px 32px;
+
+  background: transparent !important;
+
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+}
+
+/* ===== Primary Entry Card (CSV Upload) — Tier 2 with restrained brand emphasis ===== */
+.controls-card.is-primary-entry{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  min-height: 200px;
+  padding: 20px;
+  box-sizing: border-box;
+  text-align: center;
+
+  border: 1px solid var(--mi-line);
+  box-shadow: var(--mi-depth-1);
+
+  background:
+    radial-gradient(120% 120% at 50% -20%,
+      var(--mi-brand-blue-a08),
+      transparent 60%
+    ),
+    var(--mi-sheen),
+    var(--mi-surface-card);
+}
+
+/* Bottom tiles: sub-panels inside a Tier 2 card */
+.team-card-bottom .context-tile.flip-tile,
+.team-card-marks  .context-tile.flip-tile,
+.madness-tile.flip-tile{
+  padding: 7px 6px 6px;
+  border-radius: 12px;
+
+  background: rgba(0,0,0,0.18);
+  border: 1px solid var(--mi-line-weak);
+
+  box-shadow: none; /* avoid shadow stacking inside the card */
+}
+
+/* Inner panel */
+.team-card-bottom .context-tile.flip-tile .flip-tile-inner,
+.team-card-marks  .context-tile.flip-tile .flip-tile-inner,
+.madness-tile.flip-tile .flip-tile-inner{
+  border-radius: 10px;
+
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.03), transparent 60%),
+    rgba(15, 23, 42, 0.70);
+
+  border: 1px solid var(--mi-brand-blue-a18);
+}
+
+/* ================================
+   CANVAS RULE — app containers should NOT repaint the room
+   ================================ */
+
+.app-shell{
+  background: transparent !important;
 }
 
 /* =========================================================
@@ -10539,7 +10776,7 @@ body.mi-entry-lock {
 }
 
 @media (max-width: 720px){
-  img, svg, canvas, video { max-width: 100%; height: auto; }
+  img, canvas, video { max-width: 100%; height: auto; }
   pre, code { white-space: pre-wrap; overflow-wrap: anywhere; }
   .card, .tile-face, .flip-tile, .mi-verdict-shell-inner, .mi-verdict-grid,
   .summary-grid, .result-layout, .matchup-bar-main { min-width: 0; }
@@ -10603,7 +10840,7 @@ html, body{
 }
 
 /* Media-safe clamps */
-img, svg, canvas, video{ max-width: 100%; height: auto; }
+img, canvas, video{ max-width: 100%; height: auto; }
 pre, code{ white-space: pre-wrap; overflow-wrap: anywhere; }
 
 @media (max-width: 720px){
