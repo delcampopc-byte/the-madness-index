@@ -29,7 +29,6 @@ const DEFAULT_MARK_DESCRIPTIONS = {
   "Soft Interior":              "Weak rim protection / deterrence.",
   "Perimeter Leakage":          "Allows clean perimeter looks.",
   "Tempo Strain":               "Pace identity strains possessions.",
-  "Turnover Fragility":         "High-risk ball security profile."
 };
 
 // getMarkDescription Looks up the description text for a profile mark (e.g., Offensive Rigidity), preferring copy.marks.descriptions (including severity-specific text) and falling back to DEFAULT_MARK_DESCRIPTIONS.
@@ -2835,14 +2834,6 @@ function computeProfileMarks(team) {
     }
   }
 
-  // 8. Turnover Fragility
-  if (FIELD_STATS.to && FIELD_STATS.epr && team.to != null && team.epr != null) {
-    const stability = (-getZ(team, 'to') + getZ(team, 'epr')) / 2;
-    const frag = -stability;
-    if (frag >= 1.00) marks.push('Turnover Fragility — Severe');
-    else if (frag >= 0.50) marks.push('Turnover Fragility — Moderate');
-  }
-
   team.profileMarks = marks;
 }
 
@@ -3216,6 +3207,7 @@ function compareTeams(teamAName, teamBName, roleMode = 'auto') {
   const miB = computeFinalMI(b, interactions.b);
 
   const diff      = miA - miB;
+  const absDiff   = Math.abs(diff); 
   const predicted = diff > 0 ? a.name : (diff < 0 ? b.name : 'Push');
 
   const result = {
@@ -3224,6 +3216,7 @@ function compareTeams(teamAName, teamBName, roleMode = 'auto') {
     miA,
     miB,
     diff,
+    absDiff,
     predicted,
     interactions,
     round: activeRound,
@@ -4509,7 +4502,7 @@ function miRenderMadnessDelta(gapSep) {
   }
 }
 
-function renderSummary({ a, b, miA, miB, diff, predicted, interactions, round, seedMeta }) {
+function renderSummary({ a, b, miA, miB, diff, absDiff, predicted, interactions, round, seedMeta }) {
   const summarySection = document.getElementById('summarySection');
   const table = document.getElementById('summaryTable');
 
@@ -4642,10 +4635,12 @@ function renderSummary({ a, b, miA, miB, diff, predicted, interactions, round, s
   };
 
   // Decide "edge tier" (keys only; wording comes from JSON)
-  const absDiff = Math.abs(diff);
-  const edgeTier = (absDiff >= 4) ? 'heavy'
-                : (absDiff >= 2) ? 'solid'
-                : (absDiff >  0) ? 'slight'
+  // Canonical display separation (always positive)
+  // Prefer computed absDiff from compareTeams, fall back safely.
+  const gapSep = (typeof absDiff === 'number') ? absDiff : Math.abs(diff);
+  const edgeTier = (gapSep >= 4) ? 'heavy'
+                : (gapSep >= 2) ? 'solid'
+                : (gapSep >  0) ? 'slight'
                 : 'coin';
 
   // Decide driver case
@@ -4799,7 +4794,7 @@ function renderSummary({ a, b, miA, miB, diff, predicted, interactions, round, s
   setSummaryValue('b.rFact',   (bRFact == null ? '—' : fmt(bRFact, 3)));
 
   // MI Δ (bottom-center) — true delta, always 3 decimals
-  setSummaryValue('gap.sep', miFormatDelta(diff));
+  setSummaryValue('gap.sep', miFormatDelta(gapSep));
 
   // ===== NEW CENTER NARRATIVE: #summarySynLean uses JSON template, with leanText fallback =====
   const synLeanEl = document.getElementById('summarySynLean');
@@ -5225,7 +5220,7 @@ function renderSummary({ a, b, miA, miB, diff, predicted, interactions, round, s
   }
 
   const gapTop = document.getElementById('miVerdictGapTop');
-  if (gapTop) gapTop.textContent = miFormatDelta(diff);
+  if (gapTop) gapTop.textContent = miFormatDelta(gapSep);
 
   // ===== Scorebug (rail): team names + base / matchup MI =====
   const sbA = document.getElementById('miScorebugTeamA');
@@ -5299,7 +5294,7 @@ function renderSummary({ a, b, miA, miB, diff, predicted, interactions, round, s
     }
   }
 
-  miRenderMadnessDelta(window.LAST_RESULT?.diff);
+  miRenderMadnessDelta(window.LAST_RESULT?.absDiff ?? Math.abs(window.LAST_RESULT?.diff || 0));
 }
 
 function renderInteractionsTable(result) {
@@ -5771,9 +5766,6 @@ function renderProfileMarks(team, containerId) {
 
     "Tempo Strain — Moderate": "badge_tempo_strain_moderate.svg",
     "Tempo Strain — Severe":   "badge_tempo_strain_severe.svg",
-
-    "Turnover Fragility — Moderate": "badge_turnover_fragility_moderate.svg",
-    "Turnover Fragility — Severe":   "badge_turnover_fragility_severe.svg",
   };
 
   team.profileMarks.forEach(mark => {
