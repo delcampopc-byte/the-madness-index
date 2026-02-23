@@ -159,6 +159,35 @@ html, body {
   -webkit-backdrop-filter: none;
 }
 
+/* =========================================================
+   GLOBAL BUTTON FOUNDATION (size normalization only)
+   ========================================================= */
+
+button,
+.btn,
+.mi-entry-button,
+.mi-evidence-toggle,
+.matchup-bar-edit,
+.mi-log-more-btn,
+.mi-glossary-handle,
+.mi-glossary-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1;
+
+  padding: 8px 16px;
+  min-height: 38px;
+
+  border-radius: var(--mi-radius-pill);
+
+  box-sizing: border-box;
+  white-space: nowrap;
+}
+
 /* ========== APP SHELL ========== */
 
 .app-shell {
@@ -361,14 +390,78 @@ body{
   font-weight: 500;
 }
 
-.hero-tagline {
-  font-size: 18px;
-  color: var(--mi-text-primary);
+/* HERO TAGLINE — studio caption (small-caps + precise glow) */
+.hero-tagline{
+  position: relative;
+  display: inline-block;
+  margin-top: 1px;
+
+  font-size: 28px;
   font-weight: 600;
-  text-shadow: var(--mi-shadow-header);
-  margin-top: 8px;
+  letter-spacing: 0.10em;
+
+  /* key: NOT uppercase. use small-caps for that slick broadcast feel */
+  font-variant-caps: all-small-caps;
+  text-transform: none;
+
+  color: rgba(226,232,240,0.92);
+
+  /* “cooler ink”: crisp shadow + subtle cyan edge */
+  text-shadow:
+    0 2px 10px rgba(0,0,0,0.62),
+    0 0 10px rgba(56,189,248,0.14);
 }
 
+.hero-tagline::after{
+  content:"";
+  position: absolute;
+  left: 50%;
+  bottom: -8px;
+  transform: translateX(-50%);
+
+  width: clamp(180px, 46vw, 420px);
+  height: 2px;
+  border-radius: 999px;
+
+  /* “primary button” energy, but thin and classy */
+  background: linear-gradient(
+    90deg,
+    rgba(56,189,248,0.00),
+    rgba(56,189,248,0.85),
+    rgba(34,197,94,0.65),
+    rgba(34,197,94,0.00)
+  );
+
+  box-shadow:
+    0 0 10px rgba(56,189,248,0.22),
+    0 0 18px rgba(34,197,94,0.14);
+  opacity: 0.95;
+}
+
+.hero-tagline::before{
+  /* subtle “light plate” behind the line to make it feel embedded */
+  content:"";
+  position: absolute;
+  left: 50%;
+  bottom: -14px;
+  transform: translateX(-50%);
+  width: clamp(220px, 54vw, 520px);
+  height: 18px;
+  border-radius: 999px;
+
+  background: radial-gradient(circle at center,
+    rgba(56,189,248,0.14),
+    rgba(2,6,23,0.00) 70%
+  );
+  filter: blur(0.2px);
+  opacity: 0.9;
+  pointer-events: none;
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce){
+  .hero-tagline{ transform: none; }
+}
 .pulse-bars {
   display: flex;
   gap: 4px;
@@ -411,14 +504,14 @@ body{
   font-size: 13px;
   padding: 4px 12px;
   border-radius: var(--mi-radius-pill);
-  background: radial-gradient(circle at top, var(--mi-accent-cyan-soft), var(--mi-color-surface-soft));
-  color: var(--mi-accent-cyan);
-  border: 1px solid var(--mi-accent-cyan-strong);
+  background: radial-gradient(circle at top, var(--mi-color-surface-soft), var(--mi-color-surface-subtle));
+  color: var(--mi-text-invert-soft);
+  border: 1px solid var(--mi-border-strong);
   text-transform: uppercase;
   letter-spacing: 0.16em;
 }
 
-.enhanced-header .version-badge {
+.enhanced-header .version-badge{
   position: absolute;
   top: 18px;
   left: 18px;
@@ -428,10 +521,11 @@ body{
   letter-spacing: 0.08em;
 
   border-radius: 999px;
-  background: rgba(15, 23, 42, 0.55);
-  border: 1px solid rgba(56, 189, 248, 0.35);
 
-  color: #7dd3fc;
+  /* Token-aligned “quiet studio” pill */
+  background: rgba(15, 23, 42, 0.55);                 /* if you want: swap to var(--mi-color-surface-subtle) */
+  border: 1px solid var(--mi-border-strong);
+  color: var(--mi-text-invert-soft);
 
   pointer-events: none;
 }
@@ -468,6 +562,7 @@ body{
   font-weight: 800;
   letter-spacing: 0.08em;
   text-transform: uppercase;
+  text-align: center;
 }
 
 .pre-hub-sub {
@@ -971,6 +1066,18 @@ body{
   margin: 0 0 6px;
 }
 
+/* Make the setup card titles match the STEP label typography */
+#datasetCard .card-title,
+#matchupSetupCard .card-title{
+  font-family: inherit;           /* stays in your global stack */
+  font-size: var(--mi-font-size-h3);
+  font-weight: 800;               /* match computed */
+  letter-spacing: 0.08em;
+  text-transform: uppercase;      /* match computed */
+  text-align: center;               /* keep your card title alignment */
+  margin: 0 0 6px;                /* preserve spacing */
+}
+
 .helper-text {
   margin: 4px 0 0;
   font-size: 12px;
@@ -991,7 +1098,7 @@ body{
 
 /* Optional: make the primary entry feel "active" */
 .app-shell:not(.csv-loaded) .controls-card.is-primary-entry {
-  transform: translateY(-1px);
+  transform: none;
 }
 
 /* ========== TOP CONTROLS LAYOUT ========== */
@@ -1132,7 +1239,9 @@ body{
 
 /* Space under the STEP headers */
 .round-step-label{
-  margin-bottom: 8px;
+  margin-bottom: 6px;
+  margin-top: 6px;
+  text-align: center;
 }
 
 /* Space between form rows */
@@ -1151,6 +1260,9 @@ body{
 .matchup-actions-row{
   margin-top: 12px;
   gap: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .mc-row { 
@@ -1382,6 +1494,7 @@ body{
 
 .file-label {
   display: inline-flex;
+  text-align: center;
   align-items: center;
   gap: 8px;
   padding: 6px 10px;
@@ -1488,40 +1601,88 @@ select:focus {
   box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.35);
 }
 
-/* Round dropdown (final) */
-.round-selector-wrap{
-  position: relative;
-  display: inline-block;
-  z-index: 500;
-  overflow: visible;
-}
+/* =========================================================
+   Round dropdown — match Team dropdown panel styling
+   ========================================================= */
 
-.round-dropdown{
+/* Panel shell (match .mi-team-dd-panel) */
+#roundDropdown.round-dropdown{
   position: absolute;
-  top: calc(100% + 6px);
+  z-index: 9999;
+  top: calc(100% + 8px);
   left: 0;
-  max-width: 80px;
-  z-index: 501;
+
+  width: 2px;
+
+  border-radius: 14px;
+  overflow: hidden;
+
+  background: linear-gradient(180deg, rgba(15,23,42,0.98), rgba(2,6,23,0.98));
+  border: 1px solid rgba(56,189,248,0.26);
+  box-shadow:
+    0 22px 60px rgba(0,0,0,0.68),
+    0 0 0 1px rgba(255,255,255,0.05) inset,
+    0 0 26px rgba(56,189,248,0.10);
+
   max-height: 260px;
   overflow-y: auto;
+  overflow-x: hidden;
 
-  background: rgba(9, 12, 23, 0.98);
-  border: 1px solid rgba(75, 85, 99, 0.9);
+  /* mimic the "list area" pad + subtle inner tint */
+  padding: 8px;
+  background-clip: padding-box;
+}
+
+/* Options (match .mi-team-dd-item feel) */
+#roundDropdown.round-dropdown .round-option{
+  position: relative;
+  padding: 9px 10px;
   border-radius: 10px;
-  padding: 6px 0;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.5);
-}
 
-.round-dropdown.hidden { display: none; }
-
-.round-option {
-  padding: 6px 12px;
   font-size: 12px;
+  color: rgba(226,232,240,0.92);
   cursor: pointer;
-  color: #cbd5e1;
   white-space: nowrap;
+
+  transition: background-color 140ms ease, transform 140ms ease;
 }
-.round-option:hover { background: rgba(56, 189, 248, 0.18); color: var(--mi-accent-cyan); }
+
+/* Separator rule like the team list */
+#roundDropdown.round-dropdown .round-option::after{
+  content:"";
+  position:absolute;
+  left: 10px;
+  right: 10px;
+  bottom: -3px;
+  height: 1px;
+  background: rgba(148,163,184,0.10);
+  pointer-events:none;
+}
+
+#roundDropdown.round-dropdown .round-option:hover{
+  background: rgba(56,189,248,0.16);
+  transform: translateY(-0.5px);
+}
+
+/* Scrollbar (match .mi-team-dd-list) */
+#roundDropdown.round-dropdown{
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148,163,184,0.42) rgba(2,6,23,0.20);
+}
+
+#roundDropdown.round-dropdown::-webkit-scrollbar{ width: 10px; }
+#roundDropdown.round-dropdown::-webkit-scrollbar-track{
+  background: rgba(2,6,23,0.20);
+  border-radius: 999px;
+}
+#roundDropdown.round-dropdown::-webkit-scrollbar-thumb{
+  background: rgba(148,163,184,0.42);
+  border-radius: 999px;
+  border: 2px solid rgba(2,6,23,0.35);
+}
+#roundDropdown.round-dropdown::-webkit-scrollbar-thumb:hover{
+  background: rgba(56,189,248,0.34);
+}
 
 /* ===== Round selector nudge (post-team selection) ===== */
 .round-selector-wrap.is-nudged::after{
@@ -4398,15 +4559,6 @@ section.profile-section.flip-tile{
   overflow-x: auto;
 }
 
-/* ========== FOOTER ========== */
-
-.app-footer {
-  margin-top: 8px;
-  font-size: 7.5px;
-  color: var(--mi-text-faint);
-  text-align: left;
-}
-
 /* ========== SCORECARD GLOBAL SCALE (3.4) ========== */
 
 .team-card {
@@ -4640,27 +4792,6 @@ explain-table td:first-child{
 /* Global hide helper (used for footer reveal) */
 .hidden { display: none !important; }
 
-/* Footer layout polish */
-.app-footer {
-  margin-top: 14px;
-  padding-top: 10px;
-}
-
-.app-footer .footer-inner {
-  display: grid;
-  gap: 10px;
-}
-
-.footer-note {
-  font-size: 11px;
-  color: var(--mi-text-faint);
-}
-
-/* Glossary inside footer should not look like a giant main page section */
-.footer-glossary {
-  margin-top: 6px;
-}
-
 /* =========================================================
    MI 3.4 — Pre-matchup density tightening (safe overrides)
    ========================================================= */
@@ -4760,7 +4891,6 @@ explain-table td:first-child{
   font-weight: 800;
   letter-spacing: 0.2px;
   line-height: 1.1;
-  transform: translateY(-2px); /* nudge up toward top edge */
 }
 
 .controls-card.is-primary-entry .csv-spec-btn{
@@ -4864,7 +4994,7 @@ explain-table td:first-child{
 
 .pre-setup-row .controls-card.is-primary-entry .controls-card-head{
   justify-content: space-between; /* title left, pill right */
-  align-items: flex-start;
+  align-items: center;
 }
 
 .pre-setup-row .controls-card.is-primary-entry .field-label{
@@ -4891,6 +5021,8 @@ explain-table td:first-child{
 .pre-setup-row .controls-card.is-primary-entry .card-title{
   text-transform: uppercase;
   letter-spacing: 0.08em;
+  text-align: center;
+  align-items: center;
 }
 
 /* === CSV Tile: tighter + left-aligned + 1-column stack === */
@@ -4931,7 +5063,8 @@ explain-table td:first-child{
    Searchable Team Dropdown (custom panel, drives native <select>)
    ================================ */
 
-.mi-team-dd {
+/* Wrapper stays in-flow and becomes the positioning context */
+.mi-team-dd{
   position: relative;
   width: 100%;
 }
@@ -4975,10 +5108,14 @@ explain-table td:first-child{
   border-bottom: 1px solid rgba(148,163,184,0.18);
 }
 
-.mi-team-dd-list {
-  max-height: 248px;
-  overflow: auto;
-  padding: 6px;
+.mi-team-dd-list{
+  padding: 6px;     /* keep yours */
+  flex: 1 1 auto;
+  min-height: 0;
+  max-height: none; /* IMPORTANT: remove the old 248px cap */
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
 }
 
 .mi-team-dd .mi-team-dd-panel::before{
@@ -5055,30 +5192,6 @@ explain-table td:first-child{
 /* ================================
    Team dropdown: clarity + contrast pass
    ================================ */
-
-.mi-team-dd .mi-team-dd-panel{
-  position: absolute;
-  z-index: 9999;
-  top: calc(100% + 8px);
-  left: 0;
-  width: 100%;
-
-  border-radius: 14px;
-  overflow: hidden;
-
-  /* plate */
-  background: linear-gradient(180deg, rgba(15,23,42,0.94), rgba(2,6,23,0.94));
-  border: 1px solid rgba(56,189,248,0.26);
-  box-shadow:
-    0 22px 60px rgba(0,0,0,0.68),
-    0 0 0 1px rgba(255,255,255,0.05) inset,
-    0 0 26px rgba(56,189,248,0.10);
-
-  /* sizing + layout */
-  max-height: min(360px, calc(100vh - 220px));
-  display: flex;
-  flex-direction: column;
-}
 
 /* Search "header strip" that reads as a control surface */
 .mi-team-dd .mi-team-dd-search{
@@ -5161,48 +5274,46 @@ explain-table td:first-child{
   display: none !important;
 }
 
+/* Team dropdown: capped panel, list scrolls inside */
+.mi-team-dd .mi-team-dd-panel{
+  position: absolute;
+  z-index: 9999;
+  top: calc(100% + 8px);
+  left: 0;
+  width: 100%;
+
+  border-radius: 14px;
+  overflow: hidden;
+
+  background: linear-gradient(180deg, rgba(15,23,42,0.94), rgba(2,6,23,0.94));
+  border: 1px solid rgba(56,189,248,0.26);
+  box-shadow:
+    0 22px 60px rgba(0,0,0,0.68),
+    0 0 0 1px rgba(255,255,255,0.05) inset,
+    0 0 26px rgba(56,189,248,0.10);
+
+  /* cap height here (panel can be smaller if content is smaller) */
+  max-height: 300px;
+
+  display: flex;
+  flex-direction: column;
+}
+
+/* List scrolls inside the capped panel */
+.mi-team-dd .mi-team-dd-list{
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+}
+
 /* =========================================
    Next-action spotlight handoff (CSV -> Steps)
    ========================================= */
 
 /* 1) While NOT loaded, keep the halo on the primary entry (you already do this) */
 /* .controls-card.is-primary-entry is currently your “halo” card via border/box-shadow. :contentReference[oaicite:3]{index=3} */
-
-/* =========================================
-   Restore normal state for dataset card
-   (after halo is removed)
-   ========================================= */
-
-/* 2) Once CSV is loaded, MOVE the halo to the 3-step card */
-.app-shell.csv-loaded #matchupSetupCard{
-  border: 1px solid var(--mi-brand-blue-a45) !important;
-
-  box-shadow:
-    /* single controlled glow (brand) */
-    0 0 24px var(--mi-brand-blue-a18),
-
-    /* depth */
-    0 20px 50px rgba(0, 0, 0, 0.55),
-
-    var(--mi-shadow-card-inset) !important;
-
-  background:
-    /* subtle top bias — NOT a second room */
-    radial-gradient(
-      140% 140% at 50% -25%,
-      var(--mi-brand-blue-a12),
-      transparent 65%
-    ),
-    var(--mi-grad-card) !important;
-}
-
-/* Once CSV is loaded, dataset card returns to NORMAL card styling */
-.app-shell.csv-loaded .controls-card.is-primary-entry{
-  border: 1px solid var(--mi-border-card);
-  box-shadow: var(--mi-shadow-soft), var(--mi-shadow-card-inset);
-  background: var(--mi-grad-card);
-  transform: none;
-}
 
 /* OR divider between dataset dropdown and manual upload */
 .or-divider{
@@ -5233,10 +5344,15 @@ explain-table td:first-child{
    Removes inner "square inside square"
    ================================ */
 
-/* Make the OUTER card be the unified container */
 .pre-setup-row #matchupSetupCard{
-  padding: 0 !important;          /* removes the extra outer padding that creates the "frame" */
-  overflow: visible;               /* so row borders clip cleanly */
+  padding: 0 !important;
+  border-radius: var(--mi-radius-card, 18px);
+}
+
+/* Make the inner wrapper inherit the rounding */
+.pre-setup-row #matchupSetupCard .matchup-steps{
+  border-radius: inherit;
+  overflow: visible;
 }
 
 /* Flatten the INNER wrapper so it doesn't look like a second card */
@@ -5248,7 +5364,7 @@ explain-table td:first-child{
 }
 
 /* Keep the three rows as the visual structure */
-.pre-setup-row #matchupSetupCard .mc-row{
+.pre-setup-row .mc-row{
   padding: 14px 14px !important;
 }
 
@@ -5411,7 +5527,7 @@ button,
 }
 
 /* Halo the dataset card ONLY before CSV is loaded */
-.app-shell:not(.csv-loaded) .controls-card.is-primary-entry{
+.controls-card.is-primary-entry{
   border: 1px solid rgba(56, 189, 248, 0.75);
   box-shadow:
     0 0 0 1px rgba(56, 189, 248, 0.45),
@@ -5422,6 +5538,49 @@ button,
   background:
     radial-gradient(140% 140% at 50% -25%, rgba(56, 189, 248, 0.14), transparent 65%),
     var(--mi-grad-card);
+}
+
+/* =========================================
+   Next-action halo (single source of truth)
+   - Before CSV: #datasetCard has .is-primary-entry (HTML)
+   - After CSV:  #matchupSetupCard gets .is-primary-entry (JS)
+   ========================================= */
+
+.controls-card.is-primary-entry{
+  border: 1px solid rgba(56, 189, 248, 0.75);
+  box-shadow:
+    0 0 0 1px rgba(56, 189, 248, 0.45),
+    0 0 28px rgba(56, 189, 248, 0.35),
+    0 0 60px rgba(56, 189, 248, 0.18),
+    0 20px 50px rgba(0, 0, 0, 0.55),
+    var(--mi-shadow-card-inset);
+  background:
+    radial-gradient(140% 140% at 50% -25%, rgba(56, 189, 248, 0.14), transparent 65%),
+    var(--mi-grad-card);
+
+  /* guarantees the glow follows rounding */
+  border-radius: var(--mi-radius-card, 18px);
+}
+
+#matchupSetupCard.is-primary-entry{
+  border-color: var(--mi-brand-blue-a45) !important;
+
+  box-shadow:
+    0 0 24px var(--mi-brand-blue-a18),
+    0 20px 50px rgba(0,0,0,0.55),
+    var(--mi-shadow-card-inset) !important;
+
+  background:
+    radial-gradient(140% 140% at 50% -25%, var(--mi-brand-blue-a12), transparent 65%),
+    var(--mi-grad-card) !important;
+
+  border-radius: var(--mi-radius-card, 18px);
+}
+
+#matchupSetupCard.is-primary-entry .card-title {
+  font-size: var(--mi-font-size-h3);
+  font-weight: 800px;
+  text-size-adjust: 100%;
 }
 
 #preMatchupHub {
@@ -8579,11 +8738,6 @@ button,
   overflow: visible;
 }
 
-/* TEMP: hide footer (v3.7) */
-#appFooter{
-  display: none;
-}
-
 /* ==========================================
    SCORE SYNTHESIS (v3.92 table) — broadcast grid
    Matches intentional per-cell alignment from mock
@@ -10469,6 +10623,270 @@ body::before{
 }
 
 /* =========================================================
+   FOOTER — QUIET SIGNATURE MODE
+   Subtle. Centered. Low weight.
+   ========================================================= */
+
+#appFooter.app-footer{
+  margin-top: 2px;
+  font-size: 10.5px;   /* half-feel scale */
+  text-align: center;
+  color: var(--mi-text-faint);
+}
+
+#appFooter .footer-inner{
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  max-width: 100%;
+  margin: 0 auto;
+  gap: 6px;
+  padding: 6px 10px;
+
+  border-radius: 10px;
+
+  background: linear-gradient(
+    to bottom,
+    rgba(255,255,255,0.02),
+    rgba(255,255,255,0.01)
+  );
+
+  border: 1px solid rgba(148,163,184,0.12);
+  box-shadow: none;
+}
+
+/* Disclaimer line */
+#appFooter .footer-note{
+  display: none;
+}
+
+/* Contact container */
+#appFooter .footer-contact{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0;
+  border: 0;
+}
+
+/* Remove divider */
+#appFooter .footer-contact::before{
+  display: none;
+}
+
+/* Label */
+#appFooter .footer-contact-label{
+  font-size: 10.5px;
+  font-weight: 750;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(226,232,240,0.55);
+  padding-right: 6px;
+}
+
+/* Email link — no chip, just refined text */
+#appFooter .footer-contact-email{
+  padding: 0;
+  border: 0;
+  background: none;
+  box-shadow: none;
+
+  font-size: 10.5px;
+  font-weight: 900;
+  letter-spacing: 0.01em;
+
+  color: var(--mi-accent-cyan);
+  text-decoration: none;
+
+  opacity: 0.85;
+  transition: opacity 140ms ease, color 140ms ease;
+}
+
+#appFooter .footer-contact-email:hover{
+  opacity: 1;
+  color: var(--mi-accent-cyan-strong);
+  transform: none;
+}
+
+/* Small-screen behavior: stack label above chip */
+@media (max-width: 720px){
+  #appFooter .footer-contact{
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+/* === Pre-matchup cockpit: hard guarantee rounded tiles (and rounded halos) === */
+.pre-setup-row > .card,
+.pre-setup-row > .controls-card,
+.pre-setup-row > #matchupSetupCard{
+  border-radius: 18px;
+}
+
+/* Allow dropdowns to escape the STEP 1 card */
+.pre-setup-row > #matchupSetupCard{
+  overflow: visible !important;
+}
+
+/* Halo targets must also carry the same radius */
+.controls-card.is-primary-entry{
+  border-radius: 18px;
+}
+
+#matchupSetupCard{
+  border-radius: 18px;
+}
+
+/* When the steps tile is halo'd, keep the radius winning specificity */
+.app-shell.csv-loaded #matchupSetupCard{
+  border-radius: 18px !important;
+}
+
+/* Halo the Steps card AFTER CSV is loaded (override the csv-loaded reset) */
+.app-shell.csv-loaded #matchupSetupCard.is-primary-entry{
+  border: 1px solid rgba(56, 189, 248, 0.75) !important;
+  box-shadow:
+    0 0 0 1px rgba(56, 189, 248, 0.45),
+    0 0 28px rgba(56, 189, 248, 0.35),
+    0 0 60px rgba(56, 189, 248, 0.18),
+    0 20px 50px rgba(0, 0, 0, 0.55),
+    var(--mi-shadow-card-inset) !important;
+  background:
+    radial-gradient(140% 140% at 50% -25%, rgba(56, 189, 248, 0.14), transparent 65%),
+    var(--mi-grad-card) !important;
+
+  border-radius: 18px;
+}
+
+/* =========================================================
+   Canonical Halo Handoff (ID-scoped so it always wins)
+   ========================================================= */
+
+#datasetCard,
+#matchupSetupCard{
+  border-radius: var(--mi-radius-card, 18px);
+}
+
+/* Only the current next-action card gets the halo */
+#datasetCard.is-primary-entry,
+#matchupSetupCard.is-primary-entry{
+  border: 1px solid rgba(56, 189, 248, 0.75) !important;
+
+  box-shadow:
+    0 0 0 1px rgba(56, 189, 248, 0.45),
+    0 0 28px rgba(56, 189, 248, 0.35),
+    0 0 60px rgba(56, 189, 248, 0.18),
+    0 20px 50px rgba(0,0,0,0.55),
+    var(--mi-shadow-card-inset) !important;
+
+  background:
+    radial-gradient(140% 140% at 50% -25%, rgba(56, 189, 248, 0.14), transparent 65%),
+    var(--mi-grad-card) !important;
+}
+
+/* =========================================================
+   STEP-ROW HALO (per mcRow) — no layout shift, rounded edges
+   ========================================================= */
+
+#matchupSetupCard .mc-row{
+  position: relative;
+  border-radius: 16px; /* gives the halo rounded corners even though the row is “rectangular” */
+}
+
+#matchupSetupCard .mc-row > *{
+  position: relative;
+  z-index: 1; /* keep content above the halo layer */
+}
+
+#matchupSetupCard .mc-row.is-primary-entry::before{
+  content:"";
+  position:absolute;
+  inset: 6px;            /* keeps glow off the row dividers */
+  border-radius: inherit;
+  pointer-events:none;
+
+  /* same “broadcast halo” language as your card halo */
+  border: 1px solid rgba(56, 189, 248, 0.75);
+  box-shadow:
+    0 0 0 1px rgba(56, 189, 248, 0.45),
+    0 0 22px rgba(56, 189, 248, 0.30),
+    0 0 48px rgba(56, 189, 248, 0.14);
+
+  background:
+    radial-gradient(140% 140% at 50% -25%, rgba(56, 189, 248, 0.12), transparent 65%);
+}
+
+#matchupSetupCard .matchup-steps{ overflow: visible; }
+
+/* =========================================
+   FIX: Team dropdown must render above STEP 2/3 rows
+   (raise the active mc-row stacking level)
+   ========================================= */
+
+.pre-setup-row #matchupSetupCard .mc-row{
+  position: relative; /* creates a z-index hook without changing layout */
+  z-index: 0;
+}
+
+/* If a team dropdown panel in this row is open, float this row above its siblings */
+.pre-setup-row #matchupSetupCard .mc-row:has(.mi-team-dd-panel:not([hidden])){
+  z-index: 80;
+}
+
+/* Round dropdown open → float STEP 2 row above siblings */
+.pre-setup-row #matchupSetupCard .mc-row:has(#roundDropdown:not(.hidden)){
+  z-index: 80;
+}
+
+/* Stronger CSV status line (always applies inside dataset card) */
+#datasetCard #status:empty{
+  display:none;
+}
+
+#datasetCard #status{
+  margin-top: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+
+  padding: 6px 10px;
+  border-radius: 999px;
+
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+
+  color: rgba(226, 232, 240, 0.96);
+  background: rgba(15, 23, 42, 0.55);
+  border: 1px solid rgba(148, 163, 184, 0.20);
+  box-shadow: 0 10px 18px rgba(0,0,0,0.35);
+}
+
+/* Optional: leading status dot */
+#datasetCard #status::before{
+  content:"";
+  width: 8px;
+  height: 8px;
+  border-radius: 99px;
+  background: rgba(148, 163, 184, 0.8);
+}
+
+/* When CSV is loaded, make it feel “armed” */
+.app-shell.csv-loaded #datasetCard #status{
+  border-color: rgba(34, 197, 94, 0.55);
+  background: rgba(34, 197, 94, 0.10);
+  box-shadow: 0 10px 18px rgba(0,0,0,0.35), 0 0 12px rgba(34, 197, 94, 0.10);
+}
+
+.app-shell.csv-loaded #datasetCard #status::before{
+  background: rgba(34, 197, 94, 0.95);
+  box-shadow: 0 0 10px rgba(34, 197, 94, 0.25);
+}
+
+/* =========================================================
    MOBILE — POST-MATCHUP LAYOUT FIXES
    Goal: keep pre-matchup as-is, but make post-matchup readable.
 ========================================================= */
@@ -11228,4 +11646,42 @@ pre, code{ white-space: pre-wrap; overflow-wrap: anywhere; }
     margin-left: auto !important;
     margin-right: auto !important;
   }
+}
+
+/* =========================================================
+   GLOBAL SCROLLBAR SYSTEM
+   (matches Interaction Console aesthetic)
+   ========================================================= */
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(56,189,248,0.35) transparent;
+}
+
+/* Webkit */
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: rgba(56,189,248,0.25);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: rgba(56,189,248,0.35);
+}
+
+.hero-tagline{
+  font-family: "Rajdhani", system-ui, -apple-system, sans-serif;
+  font-weight: 600;
+  letter-spacing: 0.08em;
 }

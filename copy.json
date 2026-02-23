@@ -1,6 +1,6 @@
 {
   "hero": {
-    "tagline": "Predict the Madness. Master the Bracket.",
+    "tagline": "Where March gets measured.",
     "overline": "NCAA TOURNAMENT MATCHUP ENGINE",
     "title_main": "THE MADNESS INDEX",
     "subtitle": "Head-to-head NCAA Tournament matchup engine",
@@ -1836,6 +1836,8 @@
     "help": "Shows parsed inputs and rule evaluations for QA. Only visible when Debug View is enabled."
   },
   "footer": {
-    "note": "All logic is deterministic and based solely on the uploaded season stats."
+    "note": "All logic is deterministic and based solely on the uploaded season stats.",
+    "contact_label": "Questions, observations, or feedback:   ",
+    "contact_email": "themadnessindex@gmail.com"
   }
 }

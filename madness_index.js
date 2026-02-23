@@ -3442,8 +3442,9 @@ function ensureSearchableTeamDropdown(selectEl, wrapEl, placeholderText) {
   function syncActive() {
     const items = list.querySelectorAll('.mi-team-dd-item');
     items.forEach((el, i) => el.classList.toggle('is-active', i === activeIndex));
-    if (activeIndex >= 0 && items[activeIndex]) {
-      // Keep highlighted item in view
+
+    // ✅ Only auto-scroll the list when the user is navigating with keys
+    if (hasKeyboardNav && activeIndex >= 0 && items[activeIndex]) {
       items[activeIndex].scrollIntoView({ block: 'nearest' });
     }
   }
@@ -3538,11 +3539,15 @@ function ensureSearchableTeamDropdown(selectEl, wrapEl, placeholderText) {
   list.addEventListener('mousemove', (e) => {
     const item = e.target.closest('.mi-team-dd-item');
     if (!item) return;
+
     const items = Array.from(list.querySelectorAll('.mi-team-dd-item'));
     const idx = items.indexOf(item);
     if (idx >= 0) {
       activeIndex = idx;
-      hasKeyboardNav = true; // allow enter to pick hovered item
+
+      // ✅ mouse hover is NOT keyboard navigation
+      hasKeyboardNav = false;
+
       syncActive();
     }
   });
@@ -6655,6 +6660,7 @@ function isRoundSelected() {
 function refreshCompareButtonState() {
   const ready = isCSVLoaded() && getSelectedTeams().ok && isRoundSelected();
   setCompareButtonEnabled(ready);
+  if (typeof syncNextHalo === 'function') syncNextHalo();
   return ready;
 }
 
@@ -6889,17 +6895,32 @@ function updateRoundOptionsForCurrentSeeds() {
   setCompareButtonEnabled(false);   // reset whenever allowed-round set changes
 }
 
+function syncNextHalo() {
+  const datasetCard = document.getElementById('datasetCard');
+  const stepsCard   = document.getElementById('matchupSetupCard');
 
-function syncNextHalo(isCsvLoaded) {
-  const datasetCard = document.querySelector('.controls-card.is-primary-entry');
-  const stepsCard = document.getElementById('matchupSetupCard');
+  const r1 = document.getElementById('mcRow1');
+  const r2 = document.getElementById('mcRow2');
+  const r3 = document.getElementById('mcRow3');
 
-  if (isCsvLoaded) {
-    datasetCard?.classList.remove('mi-halo');
-    stepsCard?.classList.add('mi-halo');
+  const csvLoaded   = (typeof isCSVLoaded === 'function') ? isCSVLoaded() : false;
+  const teamsOk     = (typeof getSelectedTeams === 'function') ? !!getSelectedTeams().ok : false;
+  const roundChosen = (typeof isRoundSelected === 'function') ? !!isRoundSelected() : false;
+
+  // Clear any previous step halos
+  [stepsCard, r1, r2, r3].forEach(el => el && el.classList.remove('is-primary-entry'));
+
+  // Before CSV: halo stays on dataset card (existing behavior)
+  if (datasetCard) datasetCard.classList.toggle('is-primary-entry', !csvLoaded);
+  if (!csvLoaded) return;
+
+  // After CSV: halo moves to the next actionable step row
+  if (!teamsOk) {
+    if (r1) r1.classList.add('is-primary-entry');      // STEP 1: teams
+  } else if (!roundChosen) {
+    if (r2) r2.classList.add('is-primary-entry');      // STEP 2: round/sandbox
   } else {
-    datasetCard?.classList.add('mi-halo');
-    stepsCard?.classList.remove('mi-halo');
+    if (r3) r3.classList.add('is-primary-entry');      // STEP 3: run
   }
 }
 
@@ -6929,8 +6950,12 @@ async function loadOfficialDatasetFromUrl(url, filename) {
     refreshCompareButtonState();
 
     if (appShell) {
-      if (count > 0) appShell.classList.add('csv-loaded');
+      const isLoaded = count > 0;
+      if (isLoaded) appShell.classList.add('csv-loaded');
       else appShell.classList.remove('csv-loaded');
+
+      // ✅ move the “next action” halo to the Steps card after dataset loads
+      syncNextHalo();
     }
 
     if (statusEl) {
@@ -6950,7 +6975,7 @@ async function loadOfficialDatasetFromUrl(url, filename) {
       statusEl.textContent = `Dataset load error: ${err.message}`;
     }
     if (appShell) appShell.classList.remove('csv-loaded');
-    syncNextHalo(false);
+    syncNextHalo();
   }
 }
 
@@ -7096,7 +7121,7 @@ function setupEventListeners() {
             if (isLoaded) appShell.classList.add('csv-loaded');
             else appShell.classList.remove('csv-loaded');
 
-            syncNextHalo(isLoaded);
+            syncNextHalo();
           } 
 
           if (statusEl) {

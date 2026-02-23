@@ -4,6 +4,12 @@
   <meta charset="UTF-8" />
   <title>The Madness Index</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+
+  <!-- Google Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+
   <!-- Core styles -->
   <link rel="stylesheet" href="styles2.css?v=21" />
   <link rel="icon" type="image/png" href="assets/img/logos/madness-index-app-logo.PNG" />
@@ -52,7 +58,7 @@
     </p>
   </div>
 
-  <div class="version-badge">version 3.9</div>
+  <div class="version-badge">version 1.0 (build 4.0)</div>
 
 </header>
 
@@ -150,7 +156,7 @@
   </section>
 
   <!-- COL 2: CSV / Dataset -->
-  <div class="card controls-card is-primary-entry">
+  <div class="card controls-card is-primary-entry" id="datasetCard">
     <div class="controls-card-head">
       <h2 class="card-title" data-copy="controls.data_title">Load Tournament Data</h2>
     </div>
@@ -239,10 +245,6 @@
         <div class="matchup-actions-row">
           <button id="compareBtn" class="btn primary compare-btn-disabled" disabled>
             <span data-copy="controls.compare_btn">Compare Matchup</span>
-          </button>
-
-          <button id="toggleDebugBtn" class="btn subtle">
-            <span data-copy="controls.debug_btn">Toggle Debug View</span>
           </button>
         </div>
       </div>
@@ -1040,21 +1042,12 @@
 <!-- ================ FOOTER (POST-MATCHUP ONLY) ================ -->
 <footer id="appFooter" class="app-footer hidden">
   <div class="footer-inner">
-
-    <!-- Footer note (JSON-driven) -->
     <div class="footer-note" data-copy="footer.note"></div>
-
-    <!-- Glossary lives in footer (also post-matchup only) -->
-    <section id="glossarySection" class="card glossary-card footer-glossary">
-      <h3 data-copy="glossary.title">Stat & Rule Glossary</h3>
-      <p class="helper-text" data-copy="glossary.help">
-        Definitions for all metrics and rules used in the Madness Index. Populated dynamically from copy.json.
-      </p>
-      <div id="glossaryContent">
-        <!-- JS: build glossary list from copy.json.rows / copy.json.glossary -->
+      <div class="footer-contact">
+        <span class="footer-contact-label" data-copy="footer.contact_label"></span>
+        <a class="footer-contact-email" href="mailto:themadnessindex@gmail.com" data-copy="footer.contact_email"></a>
       </div>
-    </section>
-  </div>
+    </div>
 </footer>
 
   </div><!-- end .app-shell -->
