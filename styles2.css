@@ -19,6 +19,17 @@ html, body {
   height: 100%;
 }
 
+/* Prevent whole-app “jump” when edit mode toggles height (scrollbar gutter stability) */
+html{
+  overflow-y: scroll;            /* always reserve vertical scrollbar space */
+  scrollbar-gutter: stable;      /* modern browsers: keep gutter stable */
+}
+
+body{
+  overflow-y: scroll;
+  scrollbar-gutter: stable;
+}
+
 /* ========== DESIGN TOKENS (3.4) ========== */
 
 :root {
@@ -307,13 +318,6 @@ body{
   pointer-events: none;
 }
 
-/* Respect reduced motion */
-@media (prefers-reduced-motion: reduce){
-  .enhanced-header{
-    transition: none !important;
-  }
-}
-
 /* Pre-matchup: compact hero to prioritize setup cockpit */
 .app-shell.pre-matchup .enhanced-header{
   padding: 6px 6px 6px;
@@ -458,10 +462,6 @@ body{
   pointer-events: none;
 }
 
-/* Respect reduced motion */
-@media (prefers-reduced-motion: reduce){
-  .hero-tagline{ transform: none; }
-}
 .pulse-bars {
   display: flex;
   gap: 4px;
@@ -576,12 +576,6 @@ body{
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 10px;
   margin-top: 6px;
-}
-
-@media (max-width: 980px){
-  .pre-hub-steps{
-    grid-template-columns: 1fr;
-  }
 }
 
 .pre-step {
@@ -887,14 +881,6 @@ body{
 @keyframes miProgressSheen{
   0%   { transform: translateX(0); }
   100% { transform: translateX(420%); }
-}
-
-/* Respect reduced motion */
-@media (prefers-reduced-motion: reduce){
-  .pre-hub-status.is-100 .pre-status-fill,
-  .pre-hub-status.is-100 .pre-status-fill::after{
-    animation: none !important;
-  }
 }
 
 .pre-step.is-hidden{
@@ -1208,13 +1194,6 @@ body{
 
 .controls-card.is-primary-entry .file-label.file-label--manual::before{
   display: none;
-}
-
-/* Responsive: stack cleanly when narrow */
-@media (max-width: 720px){
-  .controls-card.is-primary-entry .dataset-row{
-    grid-template-columns: 1fr;
-  }
 }
 
 /* Controls */
@@ -2103,16 +2082,24 @@ section#matchupBar.card.matchup-bar.visible:not(.is-editing){
 }
 
 #matchupBar.is-editing .matchup-bar-main{
-  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  /* Lock side lanes so center never “walks” when zoom/resize triggers reflow */
+  grid-template-columns: minmax(240px, 520px) auto minmax(240px, 520px);
   column-gap: 32px;
   align-items: center;
+  justify-content: center; /* keeps the whole 3-lane system centered */
 }
 
-/* In edit mode, align side columns centered (prevents jitter) */
-#matchupBar.is-editing .matchup-bar-left,
+/* In edit mode, mirror side lanes toward center (true symmetry) */
+#matchupBar.is-editing .matchup-bar-left{
+  justify-self: end;
+  align-items: flex-end;
+  text-align: right;
+}
+
 #matchupBar.is-editing .matchup-bar-right{
-  align-items: center;
-  text-align: center;
+  justify-self: start;
+  align-items: flex-start;
+  text-align: left;
 }
 
 /* Slots: controlled width so they don’t dominate */
@@ -2126,7 +2113,7 @@ section#matchupBar.card.matchup-bar.visible:not(.is-editing){
 /* Edit mode: tighten dropdown width */
 #matchupBar.is-editing .matchup-quick-slot select{
   max-width: 380px;
-  margin-inline: auto;
+  margin: 0;
 }
 
 /* Edit mode: group Round + Sandbox into a single control row */
@@ -2399,17 +2386,6 @@ section#matchupBar.card.matchup-bar.visible:not(.is-editing){
 }
 #matchupBar .mi-log-more-list .mi-log-name.b{ text-align:right; }
 
-/* Mobile: tabs can wrap (still looks like a rail) */
-@media (max-width: 760px){
-  #matchupBar .mi-log-top3{
-    flex-wrap: wrap;
-  }
-  #matchupBar .mi-log-top3 .mi-log-row{
-    max-width: none;
-    flex: 1 1 calc(50% - 10px);
-  }
-}
-
 #matchupBar{
   position: relative;  /* anchors .mi-matchup-backplate absolute positioning */
   overflow: visible;   /* prevents the upward-opening shelf from being clipped */
@@ -2448,14 +2424,30 @@ section#matchupBar.card.matchup-bar.visible:not(.is-editing){
   z-index: 2;
 }
 
-/* New top-row enters like a ticker update (Option A) */
+/* EXTREME slow debug version — clearly visible motion */
 #matchupBar .mi-log-row.is-new{
-  animation: miLogNewRow 520ms ease both;
+  animation: miLogNewRow 2000ms cubic-bezier(.22,1,.36,1) both;
+  will-change: transform, opacity, filter, box-shadow;
 }
 
 @keyframes miLogNewRow{
-  from{ opacity: 0; transform: translateY(10px); }
-  to{ opacity: 1; transform: translateY(0); }
+  0%{
+    opacity: 0;
+    transform: translateY(48px) scale(0.96);
+    filter: brightness(1.25) saturate(1.15);
+  }
+
+  55%{
+    opacity: 1;
+    transform: translateY(-4px) scale(1.01); /* noticeable overshoot */
+    filter: brightness(1.12);
+  }
+
+  100%{
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: none;
+  }
 }
 
 /* Top 3 = VERTICAL stack (ticker tabs) */
@@ -2889,6 +2881,7 @@ section#matchupBar.card.matchup-bar.visible:not(.is-editing){
 #favCard  #marksTileB .marks-header-text.matchup-kicker,
 #cindCard .section-header .matchup-kicker,
 #favCard  .section-header .matchup-kicker,
+#matchupBar.is-editing .matchup-controls-label.matchup-kicker,
 #summarySection .matchup-kicker.syn-kicker{
   font-size: 14px;
   letter-spacing: 0.14em;
@@ -2917,6 +2910,94 @@ section#matchupBar.card.matchup-bar.visible:not(.is-editing){
 
   pointer-events: none;
   user-select: none;
+}
+
+/* Anchor slots to the inner edges so left/right mirror perfectly */
+#matchupBar.is-editing .matchup-bar-left .matchup-quick-slot{
+  margin-left: auto;
+  margin-right: 0;
+}
+
+#matchupBar.is-editing .matchup-bar-right .matchup-quick-slot{
+  margin-right: auto;
+  margin-left: 0;
+}
+
+/* Force TEAM A + TEAM B quick-slot dropdowns to be constrained by the slot */
+#matchupBar.is-editing #matchupQuickA.matchup-quick-slot .mi-team-dd,
+#matchupBar.is-editing #matchupQuickB.matchup-quick-slot .mi-team-dd{
+  position: relative;   /* panel can still be absolute inside this */
+  width: 100%;
+  min-width: 0;
+}
+
+#matchupBar.is-editing #matchupQuickA.matchup-quick-slot .mi-team-dd-btn,
+#matchupBar.is-editing #matchupQuickB.matchup-quick-slot .mi-team-dd-btn{
+  position: relative;   /* ensure the button itself isn't absolute */
+  width: 100%;
+  min-width: 0;
+}
+
+#matchupBar.is-editing .matchup-bar-left .matchup-quick-slot,
+#matchupBar.is-editing .matchup-bar-right .matchup-quick-slot{
+  display: block;
+}
+
+/* =========================================================
+   FIX: Give quick-slot a fixed anchor width (so 100% is real)
+   ========================================================= */
+:root{
+  --mi-quick-dd-width: 250px; /* tune: 240–280px */
+}
+
+#matchupBar.is-editing #matchupQuickA.matchup-quick-slot,
+#matchupBar.is-editing #matchupQuickB.matchup-quick-slot{
+  width: var(--mi-quick-dd-width);
+  max-width: var(--mi-quick-dd-width);
+  flex: 0 0 var(--mi-quick-dd-width); /* IMPORTANT: prevents flex shrink-to-fit */
+  height: auto;
+  min-height: 0;
+}
+
+#matchupBar.is-editing .matchup-bar-left,
+#matchupBar.is-editing .matchup-bar-right{
+  min-width: var(--mi-quick-dd-width);
+}
+
+/* =========================================================
+   EDIT MODE ONLY: keep quick-slot width anchored + stop height inflation
+   Requires: #matchupBar.is-editing AND aria-hidden="false"
+   ========================================================= */
+
+:root{
+  --mi-quick-dd-width: 250px; /* tune */
+}
+
+/* Anchor fixed width at the slot level (so 100% is meaningful) */
+#matchupBar.is-editing #matchupQuickA.matchup-quick-slot[aria-hidden="false"],
+#matchupBar.is-editing #matchupQuickB.matchup-quick-slot[aria-hidden="false"]{
+  width: var(--mi-quick-dd-width);
+  max-width: var(--mi-quick-dd-width);
+  flex: 0 0 auto;
+  overflow: visible;
+}
+
+/* Make the dropdown a proper positioning context */
+#matchupBar.is-editing #matchupQuickA.matchup-quick-slot[aria-hidden="false"] .mi-team-dd,
+#matchupBar.is-editing #matchupQuickB.matchup-quick-slot[aria-hidden="false"] .mi-team-dd{
+  position: relative;
+  width: 100%;
+  min-width: 0;
+}
+
+/* CRITICAL: force the panel to be out of layout flow so it can't add height */
+#matchupBar.is-editing #matchupQuickA.matchup-quick-slot[aria-hidden="false"] .mi-team-dd .mi-team-dd-panel,
+#matchupBar.is-editing #matchupQuickB.matchup-quick-slot[aria-hidden="false"] .mi-team-dd .mi-team-dd-panel{
+  position: absolute !important;
+  top: calc(100% + 8px);
+  left: 0;
+  width: 100%;
+  z-index: 9999;
 }
 
 /* ==========================================
@@ -4940,16 +5021,6 @@ explain-table td:first-child{
   white-space: nowrap;
 }
 
-/* Mobile: stack */
-@media (max-width: 720px){
-  .controls-card.is-primary-entry .controls-grid{
-    grid-template-columns: 1fr;
-  }
-  .controls-card.is-primary-entry .field-label{
-    text-align: left;
-  }
-}
-
 /* ===========================
    Pre-matchup Option B layout
    3 equal columns under status bar
@@ -4966,17 +5037,12 @@ explain-table td:first-child{
 
 .pre-setup-row > *{
   min-width: 0; /* critical: allows equal columns even with wide inner content */
-  height: 100%;
+  height: auto;
 }
 
 /* Ensure all 3 cards fill their column height consistently */
 .pre-setup-row > .card{
-  height: 100%;
-}
-
-/* Responsive: collapse to 1 column on smaller screens */
-@media (max-width: 960px){
-  .pre-setup-row{ grid-template-columns: 1fr; }
+  height: auto;
 }
 
 /* Hub was designed for stacked layout; remove extra lift in 3-col row */
@@ -5084,6 +5150,39 @@ explain-table td:first-child{
   justify-content: space-between;
   gap: 10px;
   cursor: pointer;
+}
+
+/* =========================================================
+   Matchup Controls: TEAM dropdown buttons need a fixed width
+   (prevents long names from clipping)
+   ========================================================= */
+:root{
+  --mi-team-dd-fixed: 240px; /* tune: 230–270px usually feels right */
+}
+
+/* Only inside the Matchup Controls card */
+#matchupSetupCard .mi-team-dd{
+  width: var(--mi-team-dd-fixed);
+  flex: 0 0 var(--mi-team-dd-fixed); /* stops flex from shrink-wrapping */
+}
+
+/* Keep the button/panel aligned to that fixed width */
+#matchupSetupCard .mi-team-dd-btn,
+#matchupSetupCard .mi-team-dd .mi-team-dd-panel{
+  width: 100%;
+}
+
+/* Allow label text to take the available space cleanly */
+#matchupSetupCard .mi-team-dd-btn > span{
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#matchupSetupCard .mi-team-dd-btn .mi-chev{
+  flex: 0 0 auto;
 }
 
 .mi-team-dd-btn:focus-visible {
@@ -5347,6 +5446,21 @@ explain-table td:first-child{
 .pre-setup-row #matchupSetupCard{
   padding: 0 !important;
   border-radius: var(--mi-radius-card, 18px);
+}
+
+/* Force the 3-step stack to be true equal-height rows */
+.pre-setup-row #matchupSetupCard .matchup-steps{
+  display: grid !important;
+  grid-template-rows: repeat(3, minmax(0, 1fr));
+  gap: 0 !important;
+  height: auto;
+}
+
+/* Ensure each row can vertically center its contents cleanly if there’s extra height */
+.pre-setup-row #matchupSetupCard .mc-row{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 /* Make the inner wrapper inherit the rounding */
@@ -5764,19 +5878,6 @@ button,
 .int-console-foot-kicker{
   font-weight: 900;
   color: rgba(226, 232, 240, 0.9);
-}
-
-/* Mobile: stack cleanly */
-@media (max-width: 980px){
-  .interactions-grid{
-    grid-template-columns: 1fr;
-  }
-  .interactions-console-tile{
-    min-height: unset;
-  }
-  .int-console-body{
-    max-height: 360px;
-  }
 }
 
 /* ===== Interaction Console — live states (v3.5) ===== */
@@ -7232,36 +7333,6 @@ button,
 }
 
 /* ================================
-   Responsive
-   ================================ */
-
-@media (max-width: 860px){
-  #verdictShell .mi-verdict-grid{
-    grid-template-columns: 1fr;
-    gap: 16px;
-  }
-
-  #verdictShell .mi-scorebug-top{
-    max-width: 100%;
-    padding-left: 12px;
-  }
-
-  #verdictShell .mi-scorebug-line{
-    font-size: 26px;
-    line-height: 1.10;
-  }
-
-  #verdictShell .mi-verdict-rail{
-    max-width: 520px;
-    margin: 0 auto;
-  }
-
-  #verdictShell .mi-evidence-toggle{
-    width: 100%;
-  }
-}
-
-/* ================================
    Motion control
    ================================ */
 
@@ -7273,39 +7344,6 @@ button,
 @keyframes miScanBreath{
   0%,100% { opacity: 0.18; }
   50%     { opacity: 0.24; }
-}
-
-@media (prefers-reduced-motion: reduce){
-  #verdictShell::before,
-  #verdictShell::after,
-  #verdictShell .mi-verdict-shell-inner::before,
-  #verdictShell .mi-verdict-shell-inner::after{
-    animation: none !important;
-    transition: none !important;
-  }
-}
-
-/* =========================
-   Responsive: keep intent
-   ========================= */
-@media (max-width: 860px){
-  #verdictShell .mi-verdict-grid{
-    grid-template-columns: 1fr;  /* stack */
-    gap: 16px;
-    align-items: stretch;
-  }
-
-  #verdictShell .mi-scorebug-top{
-    max-width: 100%;
-    align-items: center;
-    text-align: center;
-    padding-left: 0;
-  }
-
-  #verdictShell .mi-verdict-support{
-    text-align: center;
-    justify-items: center;
-  }
 }
 
 /* =========================================================
@@ -7352,13 +7390,6 @@ button,
     0 0 0 1px rgba(255,255,255,0.03) inset;
   overflow: hidden;
   transform: translateZ(0);
-}
-
-/* Mobile tweak */
-@media (max-width: 860px){
-  #miEvidenceToggle.mi-evidence-toggle{
-    width: min(520px, calc(100% - 28px));
-  }
 }
 
 /* ================================
@@ -7472,7 +7503,8 @@ button,
 /* Logo inside the rail */
 #verdictShell .mi-vert-logo{
   display:block;
-  width: 900px;   /* controls perceived size */
+  width: 100%;
+  max-width: 86px;
   height: auto;
   object-fit: contain;
   opacity: 0.96;
@@ -7638,47 +7670,6 @@ button,
   100% { transform: translateX(60%); opacity: 0; }
 }
 
-/* Mobile: stack score module under verdict line */
-@media (max-width: 720px){
-  #verdictShell .mi-scorebug-top{
-    grid-template-columns: 1fr;
-    justify-items: start;
-  }
-  #verdictShell .mi-scorebug-score{
-    width: 100%;
-    justify-items: center;
-  }
-  #verdictShell .mi-scorebug-line{ font-size: 22px; }
-  #verdictShell .mi-verdict-actions{
-    flex-direction: column;
-    align-items: stretch;
-  }
-  #verdictShell .mi-evidence-toggle{
-    width:100%;
-    justify-content:center;
-  }
-  #verdictShell .mi-evidence-preview{
-    text-align:center;
-    max-width: 100%;
-  }
-}
-
-/* Respect reduced motion */
-@media (prefers-reduced-motion: reduce){
-  #verdictShell::before,
-  #verdictShell::after{
-    animation: none !important;
-  }
-  #verdictShell.mi-lean-solid .mi-verdict-shell-inner::before,
-  #verdictShell.mi-lean-heavy .mi-verdict-shell-inner::before{
-    animation: none !important;
-  }
-  #verdictShell.mi-verdict-hit .mi-verdict-shell-inner::after{
-    animation: none !important;
-    opacity: 0.35;
-  }
-}
-
 /* =========================================================
    VERDICT CTA — ROW 2 BAND (authoritative)
    Purpose:
@@ -7750,24 +7741,6 @@ button,
   width: auto;
   max-width: 250px;
   justify-content: center;
-}
-
-/* Mobile: stack -> remove the vertical divider + keep CTA centered */
-@media (max-width: 860px){
-  #verdictShell .mi-verdict-rail{
-    padding-left: 0;
-  }
-  #verdictShell .mi-verdict-rail::before{
-    display: none;
-  }
-
-  #verdictShell .mi-verdict-actions.mi-verdict-actions-rail{
-    justify-content: center;
-  }
-
-  #verdictShell #miEvidenceToggle.mi-evidence-toggle{
-    width: 100%;
-  }
 }
 
 /* =========================================================
@@ -8305,83 +8278,6 @@ button,
 }
 
 /* =========================================================
-   MOBILE FIXES — POST MATCHUP (Scorecards)
-   Goal: stop the crushed/tiny text look on phones.
-========================================================= */
-
-@media (max-width: 768px){
-
-  /* 1) Identity + Resume must STACK on mobile */
-  .team-card-bottom{
-    grid-template-columns: 1fr !important; /* was 1fr 1fr */
-    gap: 10px;
-  }
-
-  /* 2) Give flip tiles a little more vertical breathing room */
-  .team-card-bottom .context-tile.flip-tile,
-  .team-card-bottom .context-tile.flip-tile .flip-tile-inner{
-    min-height: 128px; /* was 115px */
-  }
-
-  /* 3) Profile marks: stop the awkward wrap/spacing */
-  .inline-marks-strip{
-    justify-content: center;
-    gap: 10px;
-  }
-
-  /* Use a 2-up grid feel instead of fixed 165px cards */
-  .mark-chip{
-    width: calc(50% - 6px);
-    min-width: 0;
-    max-width: none;
-
-    /* keep your uniform height, but a touch shorter helps phones */
-    min-height: 150px;
-    max-height: 150px;
-  }
-}
-
-/* Extra-small phones: marks become single-column cards */
-@media (max-width: 420px){
-  .mark-chip{
-    width: 100%;
-  }
-}
-
-/* ========== RESPONSIVE ========== */
-
-@media (max-width: 960px) {
-  .app-shell { padding: 16px 10px 24px; }
-  .top-bar { grid-template-columns: 1fr; }
-  .result-layout { grid-template-columns: 1fr; }
-  .summary-grid { grid-template-columns: 1fr; }
-  .interactions-grid { grid-template-columns: 1fr; }
-}
-
-@media (max-width: 768px) {
-  .hero-title { letter-spacing: 0.14em; }
-  .hero-logo { max-height: 90px; }
-  .version-badge { font-size: 10px; }
-  .card { padding: 10px 9px 8px; }
-}
-
-@media (max-width: 600px) {
-  .enhanced-header { padding: 20px 14px 18px; border-radius: 18px; }
-  .hero-title { font-size: 24px; }
-}
-
-/* Smaller marks on narrow screens (keep uniform but reduce width) */
-@media (max-width: 900px) {
-  .mark-chip {
-    width: 150px;
-    min-width: 150px;
-    max-width: 150px;
-    min-height: 165px;
-    max-height: 165px;
-  }
-}
-
-/* =========================================================
    FORCE #miVerdictMetricsTile FRONT FACE TO FILL + STRETCH
    Paste at VERY BOTTOM of styles2.css
    ========================================================= */
@@ -8608,15 +8504,6 @@ button,
   to  { opacity: 1; transform: translateY(0); filter: blur(0); }
 }
 
-/* Respect reduced motion */
-@media (prefers-reduced-motion: reduce){
-  #verdictShell .mi-scorebug-line.is-structured .mi-verdict-headline,
-  #verdictShell .mi-scorebug-line.is-structured .mi-verdict-break,
-  #verdictShell .mi-scorebug-line.is-structured .mi-verdict-subdeck{
-    animation: none !important;
-  }
-}
-
 /* =========================================================
    Verdict Kicker Re-role (Brand → Context)
    ========================================================= */
@@ -8643,14 +8530,6 @@ button,
     rgba(148,163,184,0.35),
     rgba(148,163,184,0.20)
   );
-}
-
-.mi-vert-logo{
-  display: block;
-  height: auto;  /* tune visually */
-  width: 100%;
-  object-fit: contain;
-  opacity: 0.9;
 }
 
 #verdictShell{
@@ -9090,16 +8969,6 @@ button,
   line-height: 1.15;
 }
 
-/* ---------- RESPONSIVE MID GAP ROWS ---------- */
-@media (max-width: 720px){
-  #summarySection .summary-col-mid .summary-gap-line{
-    grid-template-columns: 1fr auto;
-  }
-  #summarySection .summary-col-mid .summary-gap-line .summary-note{
-    grid-column: 1 / -1;
-  }
-}
-
 /* ---------- SAFETY: shrink-wrap prevention ---------- */
 #summarySection .summary-col-a,
 #summarySection .summary-col-b,
@@ -9114,14 +8983,15 @@ button,
   min-width: 0;
 }
 
-#matchupQuickA[aria-hidden="false"] #teamASelectWrap {
+/* Quick-slot team dropdown wraps: keep both sides symmetric + slot-contained */
+#matchupQuickA[aria-hidden="false"] #teamASelectWrap,
+#matchupQuickB[aria-hidden="false"] #teamBSelectWrap{
   position: relative;
-  left: 235px; /* adjust to taste */
-  max-width: 200px;
-}
-
-#matchupQuickB[aria-hidden="false"] #teamBSelectWrap {
-  max-width: 200px;
+  left: auto;
+  right: auto;
+  margin: 0;
+  width: 100%;
+  max-width: 100%;
 }
 
 /* =========================================================
@@ -10711,14 +10581,6 @@ body::before{
   transform: none;
 }
 
-/* Small-screen behavior: stack label above chip */
-@media (max-width: 720px){
-  #appFooter .footer-contact{
-    flex-direction: column;
-    align-items: flex-start;
-  }
-}
-
 /* === Pre-matchup cockpit: hard guarantee rounded tiles (and rounded halos) === */
 .pre-setup-row > .card,
 .pre-setup-row > .controls-card,
@@ -10887,556 +10749,1062 @@ body::before{
 }
 
 /* =========================================================
-   MOBILE — POST-MATCHUP LAYOUT FIXES
-   Goal: keep pre-matchup as-is, but make post-matchup readable.
-========================================================= */
+   HOME (Step 1) team dropdowns only
+   Uses the new .home-team-select hook so it won't touch quick-edit
+   ========================================================= */
 
-/* 1) Global breathing room on small screens */
-@media (max-width: 900px){
-  .card{
-    padding: 12px 12px 10px;
-  }
+/* The wrapper should NOT have a tall fixed height */
+#matchupSetupCard .home-team-select{
+  height: auto;
+  min-height: 0;
+  align-self: center;
 }
 
-/* 2) Matchup bar: collapse the 3-column rail layout into a vertical stack */
-@media (max-width: 900px){
-  .matchup-bar-main{
-    grid-template-columns: 1fr !important;  /* was 1fr auto 1fr */
+/* Ensure the custom dropdown root doesn't stretch vertically */
+#matchupSetupCard .home-team-select .mi-team-dd{
+  height: auto !important;
+  min-height: 0 !important;
+}
+
+/* Make the button a consistent pill height */
+#matchupSetupCard .home-team-select .mi-team-dd-btn{
+  height: 44px;            /* tune if needed */
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+}
+
+#matchupSetupCard .control-row{
+  align-items: center;
+}
+
+/* =========================================================
+   HOME Step 1: stop the team dropdowns from stretching to 240px
+   (fixes the giant empty blue blocks)
+   ========================================================= */
+
+/* The row is flex; ensure children don't get stretched vertically */
+#matchupSetupCard #mcRow1 .control-row{
+  align-items: flex-start !important;
+}
+
+/* Force the two home wrappers to size to content (not 100%/stretch) */
+#matchupSetupCard #teamASelectWrap.home-team-select,
+#matchupSetupCard #teamBSelectWrap.home-team-select{
+  height: auto !important;
+  min-height: 0 !important;
+  align-self: flex-start !important;
+}
+
+/* Force the custom dropdown root to NOT inherit the 240px height */
+#matchupSetupCard #teamASelectWrap.home-team-select .mi-team-dd,
+#matchupSetupCard #teamBSelectWrap.home-team-select .mi-team-dd{
+  height: auto !important;
+  min-height: 0 !important;
+  align-self: flex-start !important;
+  flex: 0 0 auto !important;
+}
+
+/* Give the button a consistent pill height */
+#matchupSetupCard #teamASelectWrap.home-team-select .mi-team-dd-btn,
+#matchupSetupCard #teamBSelectWrap.home-team-select .mi-team-dd-btn{
+  height: 44px !important;
+  min-height: 44px !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+/* --- Matchup setup: enforce 3 equal rows --- */
+#matchupSetupCard .matchup-steps{
+  display: grid;
+  grid-template-rows: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  height: 100%;
+  min-height: 0;
+}
+
+#matchupSetupCard .mc-row{
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* keeps each row compact */
+}
+
+/* keep controls from stretching vertically */
+#matchupSetupCard .control-row,
+#matchupSetupCard .round-control-row,
+#matchupSetupCard .matchup-actions-row{
+  align-items: center;
+}
+
+/* Dropdown popover should anchor to the control, not to a tall parent */
+.mi-team-dd,
+.select-wrap,
+.matchup-quick-slot{
+  position: relative;
+  overflow: visible;
+}
+
+/* The panel should appear directly beneath its control */
+.mi-team-dd-panel{
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  z-index: 999;
+}
+
+/* ========== STOP THE HOME ROW FROM STRETCHING EVERYTHING ========== */
+
+/* Whatever your 3-column wrapper is, force items to size to content */
+.pre-setup-row,
+.home-grid,
+.home-row,
+.controls-row,
+#homeScreenRow {
+  align-items: start !important;     /* for flex */
+  align-content: start !important;   /* for grid */
+}
+
+/* If your home layout is a grid, prevent 1fr rows from becoming huge */
+.pre-setup-row,
+.home-grid,
+#homeScreenRow {
+  grid-auto-rows: min-content !important;
+}
+
+/* Cards should NOT be "height:100%" unless you explicitly want them to fill viewport */
+.controls-card,
+#matchupSetupCard,
+#loadTournamentCard,
+#startMatchupCard {
+  height: auto !important;
+  min-height: 0 !important;
+  align-self: start !important;
+}
+
+/* If any of these are flex children with flex:1, kill that */
+.controls-card,
+#matchupSetupCard,
+#loadTournamentCard,
+#startMatchupCard {
+  flex: 0 0 auto !important;
+}
+
+#matchupSetupCard .matchup-steps{
+  display: grid;
+  grid-template-rows: repeat(3, auto); /* <-- NOT 1fr */
+  gap: 12px;
+}
+
+/* =========================================================
+   PRE-SETUP ROW: 3 equal cards, equal height, no viewport stretch
+   ========================================================= */
+
+#preSetupRow.pre-setup-row {
+  /* stop behaving like a vertical flex column */
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 18px !important;
+
+  /* CRITICAL: do NOT fill the viewport */
+  height: auto !important;
+  min-height: 0 !important;
+
+  align-items: stretch !important; /* equal heights */
+  align-content: start !important; /* no vertical distribution weirdness */
+}
+
+/* Make each card stretch to the row’s height (equal height) */
+#preSetupRow.pre-setup-row > .card.controls-card {
+  height: 100% !important;
+  min-height: 0 !important;
+
+  /* kill any flex-grow rules that might be inflating them */
+  flex: 0 0 auto !important;
+  align-self: stretch !important;
+
+}
+
+/* If you have a rule that only inflates primary entry cards, neutralize it in this row */
+#preSetupRow.pre-setup-row .controls-card.is-primary-entry {
+  height: auto !important;     /* prevents “100% of a tall parent” effects */
+  min-height: 0 !important;
+}
+
+/* =========================================================
+   RULE 1: preSetupRow cards must stay equal-sized ALWAYS
+   ========================================================= */
+
+#preSetupRow.pre-setup-row {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 18px !important;
+
+  /* prevent viewport-driven stretching */
+  height: auto !important;
+  min-height: 0 !important;
+
+  align-items: stretch !important; /* equal heights */
+}
+
+#preSetupRow.pre-setup-row > .card.controls-card {
+  height: 100%;
+  min-height: 0 !important;
+  align-self: stretch !important;
+
+  display: flex;
+  flex-direction: column;
+}
+
+/* =========================================================
+   RULE 2: is-primary-entry must never affect layout sizing
+   (only glow/border/visual emphasis)
+   ========================================================= */
+
+.controls-card.is-primary-entry,
+.matchup-step.is-primary-entry {
+  /* nuke any layout-affecting rules */
+  height: auto !important;
+  min-height: 0 !important;
+  flex: 0 0 auto !important;
+}
+
+/* If you still want the visual emphasis, keep it here */
+.controls-card.is-primary-entry,
+.matchup-step.is-primary-entry {
+  box-shadow: 0 0 0 1px rgba(56,189,248,.45), 0 0 24px rgba(56,189,248,.18) !important;
+  border-color: rgba(56,189,248,.65) !important;
+}
+
+/* === Matchup Setup Card: rows should hug content, not stretch into big blocks === */
+#matchupSetupCard .matchup-steps{
+  display: grid !important;
+  grid-template-rows: auto auto auto !important; /* key: NOT 1fr */
+  gap: 0 !important; /* you’re already drawing separators */
+}
+
+/* Each row should be a normal content block */
+#matchupSetupCard .mc-row{
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start !important; /* stops the “empty square” look */
+  align-items: stretch !important;
+  min-height: 0 !important;
+}
+
+/* Only add spacing where you actually want it */
+#matchupSetupCard #mcRow1 { padding-bottom: 12px; }
+#matchupSetupCard #mcRow2 { padding-top: 12px; padding-bottom: 12px; }
+#matchupSetupCard #mcRow3 { padding-top: 12px; }
+
+/* === IMPORTANT: step highlighting should NOT change sizing === */
+#matchupSetupCard .mc-row.is-primary-entry{
+  height: auto !important;
+  min-height: 0 !important;
+  flex: 0 0 auto !important;
+}
+
+/* Keep only the visual halo/border/glow here (no layout) */
+#matchupSetupCard .mc-row.is-primary-entry{
+  border-color: rgba(56, 189, 248, 0.65);
+  box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.18) inset, 0 0 22px rgba(56, 189, 248, 0.10);
+}
+
+/* Anchor the dropdown panel to the wrap */
+#teamASelectWrap,
+#teamBSelectWrap{
+  position: relative;
+}
+
+/* Ensure the opened panel overlays instead of stretching layout */
+.mi-team-dd-panel{
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  z-index: 5000;
+}
+
+/* =========================
+   Step 1 controls sizing
+   ========================= */
+
+#mcRow1 .control-row{
+  display: flex;
+  justify-content: center !important;
+  gap: 14px !important;
+  align-items: center !important;
+}
+
+/* each wrap gets a sane width instead of stretching */
+#mcRow1 #teamASelectWrap,
+#mcRow1 #teamBSelectWrap{
+  flex: 0 0 auto !important;
+  width: min(320px, 42%) !important;   /* two side-by-side, responsive */
+  max-width: 360px !important;
+}
+
+/* make the custom dropdown fill its wrap, not the whole card */
+#mcRow1 .mi-team-dd{
+  width: 100% !important;
+}
+
+#mcRow1 .mi-team-dd-btn{
+  width: 100% !important;
+}
+
+/* QUICK ROUND: keep Round + Sandbox inline */
+#matchupQuickRound{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+/* let both items share the row without forcing a wrap */
+#matchupQuickRound #roundQuickSelectWrap,
+#matchupQuickRound #miSandboxQuickLabelBar{
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+/* QUICK ROUND (visible): force inline row layout */
+#matchupQuickRound[aria-hidden="false"]{
+  display: flex !important;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: nowrap;
+}
+
+/* ensure both children participate in the row (no full-width forcing) */
+#matchupQuickRound[aria-hidden="false"] #roundQuickSelectWrap,
+#matchupQuickRound[aria-hidden="false"] #miSandboxQuickLabelBar{
+  position: static !important;
+  width: auto !important;
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+/* =========================================================
+   QUICK EDIT — Round dropdown should match HOME (#roundDropdown)
+   Paste at VERY BOTTOM of styles2.css
+   ========================================================= */
+
+/* 0) Undo the earlier "all: unset" nuke if it exists */
+#roundDropdownQuick{
+  all: revert;
+}
+
+/* 1) Panel shell — mirror HOME panel styling */
+#roundDropdownQuick.round-dropdown{
+  position: absolute;
+  z-index: 9999;
+  top: calc(100% + 8px);
+  left: 0;
+
+  /* IMPORTANT: real sizing (prevents the skinny panel issue) */
+  min-width: 220px;
+  max-width: 260px;
+  width: max-content;
+
+  border-radius: 14px;
+  overflow: hidden;
+
+  background: linear-gradient(180deg, rgba(15,23,42,0.98), rgba(2,6,23,0.98));
+  border: 1px solid rgba(56,189,248,0.26);
+  box-shadow:
+    0 22px 60px rgba(0,0,0,0.68),
+    0 0 0 1px rgba(255,255,255,0.05) inset,
+    0 0 26px rgba(56,189,248,0.10);
+
+  max-height: 260px;
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  padding: 8px;
+  background-clip: padding-box;
+
+  /* Scrollbar theme (match HOME) */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148,163,184,0.42) rgba(2,6,23,0.20);
+}
+
+#roundDropdownQuick.round-dropdown::-webkit-scrollbar{ width: 10px; }
+#roundDropdownQuick.round-dropdown::-webkit-scrollbar-track{
+  background: rgba(2,6,23,0.20);
+  border-radius: 999px;
+}
+#roundDropdownQuick.round-dropdown::-webkit-scrollbar-thumb{
+  background: rgba(148,163,184,0.42);
+  border-radius: 999px;
+  border: 2px solid rgba(2,6,23,0.35);
+}
+#roundDropdownQuick.round-dropdown::-webkit-scrollbar-thumb:hover{
+  background: rgba(56,189,248,0.34);
+}
+
+/* 2) Options — mirror HOME option styling */
+#roundDropdownQuick.round-dropdown .round-option{
+  position: relative;
+  padding: 10px 14px;
+  border-radius: 10px;
+
+  font-size: 14px;
+  line-height: 1.3;
+  color: rgba(226,232,240,0.92);
+
+  cursor: pointer;
+  white-space: nowrap;
+
+  transition: background-color 140ms ease, transform 140ms ease;
+}
+
+#roundDropdownQuick.round-dropdown .round-option::after{
+  content:"";
+  position:absolute;
+  left: 10px;
+  right: 10px;
+  bottom: -3px;
+  height: 1px;
+  background: rgba(148,163,184,0.10);
+  pointer-events:none;
+}
+
+#roundDropdownQuick.round-dropdown .round-option:hover{
+  background: rgba(56,189,248,0.16);
+  transform: translateY(-0.5px);
+}
+
+/* =========================================================
+   VERSION BADGE → CLICKABLE PATCH NOTES (v1)
+   ========================================================= */
+
+.enhanced-header .version-badge{
+  /* IMPORTANT: allow click */
+  pointer-events: auto;
+  z-index: 50;
+}
+
+.version-badge-btn{
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  cursor: pointer;
+  user-select: none;
+  text-align: left;
+}
+
+.version-badge-btn .vb-line1{
+  line-height: 1.1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.version-badge-btn .vb-new{
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  padding: 2px 6px;
+  border-radius: 999px;
+
+  background: rgba(0, 180, 255, 0.12);
+  border: 1px solid rgba(0, 180, 255, 0.35);
+  color: rgba(140, 220, 255, 0.95);
+
+  font-weight: 600;
+}
+
+.version-badge-btn .vb-hint{
+  margin-top: 6px;
+  font-size: 8px;
+  letter-spacing: 0.10em;
+  opacity: 0.72;
+  text-transform: none;
+  align-self: center;
+}
+
+.version-badge-btn:hover{
+  border-color: var(--mi-border-strong);
+  filter: brightness(1.06);
+}
+
+.version-badge-btn:focus-visible{
+  outline: 2px solid rgba(130, 203, 255, 0.45);
+  outline-offset: 2px;
+}
+
+/* Panel */
+.version-notes{
+  position: absolute;
+  top: 68px;   /* anchors under the badge; tweak 2–6px if needed */
+  left: 18px;
+  width: min(360px, calc(100vw - 36px));
+  padding: 10px 12px;
+  border-radius: 14px;
+  text-align: left;
+  background: rgba(10, 16, 30, 0.92);
+  border: 1px solid var(--mi-border-strong);
+  color: var(--mi-text-invert-soft);
+
+  box-shadow: 0 14px 36px rgba(0,0,0,0.45);
+  backdrop-filter: blur(6px);
+
+  opacity: 0;
+  transform: translateY(-6px);
+  pointer-events: none;
+  transition: opacity 140ms ease, transform 140ms ease;
+  z-index: 60;
+}
+
+.version-notes.is-open{
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.version-notes-title{
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  opacity: 0.85;
+  margin-bottom: 8px;
+}
+
+.version-notes-list{
+  margin: 0;
+  padding-left: 18px;
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.version-notes-list li{
+  margin: 6px 0;
+}
+
+/* === PATCH NOTES PANEL: sizing + overlay reliability === */
+
+/* Prevent the panel from being clipped by the rounded header shell */
+.enhanced-header,
+.app-header {
+  overflow: visible !important;
+}
+
+/* Optional: if you have an inner header shell wrapper that clips, this catches it too */
+.enhanced-header * {
+  overflow: visible;
+}
+
+/* Panel sizing + overflow */
+.version-notes{
+  width: 320px;                 /* narrower than before */
+  max-width: calc(100vw - 36px);
+  max-height: 180px;            /* allows overflow within the panel */
+  overflow: auto;               /* scroll when notes are long */
+  z-index: 9999;                /* make sure it sits over everything */
+}
+
+/* NEW badge toggling */
+#versionBadgeBtn .vb-new{ display: none; }
+#versionBadgeBtn.is-new .vb-new{ display: inline-flex; }
+
+/* =========================================================
+   QUICK EDIT — ensure JS hidden toggle actually hides dropdown
+   ========================================================= */
+
+#roundDropdownQuick[hidden]{
+  display: none !important;
+}
+
+/* Patch notes list formatting */
+.pn-entry{ margin: 10px 0; }
+.pn-build{ font-size: 12px; line-height: 1.25; }
+.pn-date{ opacity: 0.70; font-weight: 500; }
+.pn-bullets{ margin: 6px 0 0; padding-left: 18px; }
+.pn-bullet{ margin: 6px 0; }
+
+/* =========================================================
+   Flip hint (tile fronts) — match Verdict Shell mi-metrics-hint
+   ========================================================= */
+
+/* Allow bottom pinning inside tile fronts without affecting layout */
+.flip-tile .tile-face.tile-front{
+  position: relative; /* anchor for absolute hint */
+}
+
+/* Reuse verdict-shell visual style everywhere */
+.mi-metrics-hint{
+  margin-top: 6px;
+  font-size: 10.5px;
+  font-weight: 850;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(148,163,184,0.78);
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.mi-metrics-hint::before{
+  content:"↻";
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  line-height: 18px;
+  text-align: center;
+  border-radius: 999px;
+  border: 1px solid rgba(var(--mi-verdict-rgb), 0.45);
+  background: rgba(9,9,15,0.55);
+  box-shadow: 0 0 12px rgba(var(--mi-verdict-rgb), 0.12);
+  transform: translateY(-0.5px);
+}
+
+/* Tile-specific placement */
+.flip-tile .tile-face.tile-front .mi-flip-hint{
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  bottom: 10px;
+  margin-top: 0;
+  justify-content: center; /* centered, more like a footer */
+  pointer-events: none;
+  opacity: 0.92;
+}
+
+/* Ensure it never overlaps content */
+.flip-tile .tile-face.tile-front{
+  padding-bottom: 34px;
+}
+
+/* ==========================================================================
+   MADNESS INDEX — ALL MEDIA QUERIES (CONSOLIDATED)
+   Ordered: largest → smallest breakpoint.
+   prefers-reduced-motion first, then width breakpoints descending.
+   Within each block, later declarations in the original cascade win
+   and are the only ones kept here.
+   ========================================================================== */
+
+
+/* =========================================================
+   PREFERS-REDUCED-MOTION (merged from 4 separate blocks)
+   ========================================================= */
+@media (prefers-reduced-motion: reduce) {
+  .enhanced-header { transition: none !important; }
+  .hero-tagline { transform: none; }
+
+  .pre-hub-status.is-100 .pre-status-fill,
+  .pre-hub-status.is-100 .pre-status-fill::after { animation: none !important; }
+
+  #verdictShell::before,
+  #verdictShell::after,
+  #verdictShell .mi-verdict-shell-inner::before,
+  #verdictShell .mi-verdict-shell-inner::after {
+    animation: none !important;
+    transition: none !important;
+  }
+  #verdictShell.mi-lean-solid .mi-verdict-shell-inner::before,
+  #verdictShell.mi-lean-heavy .mi-verdict-shell-inner::before { animation: none !important; }
+  #verdictShell.mi-verdict-hit .mi-verdict-shell-inner::after { animation: none !important; opacity: 0.35; }
+
+  #verdictShell .mi-scorebug-line.is-structured .mi-verdict-headline,
+  #verdictShell .mi-scorebug-line.is-structured .mi-verdict-break,
+  #verdictShell .mi-scorebug-line.is-structured .mi-verdict-subdeck { animation: none !important; }
+}
+
+
+/* =========================================================
+   980px — Pre-hub steps + interactions stack
+   ========================================================= */
+@media (max-width: 980px) {
+  .pre-hub-steps { grid-template-columns: 1fr; }
+  .interactions-grid { grid-template-columns: 1fr; }
+  .interactions-console-tile { min-height: unset; }
+  .int-console-body { max-height: 360px; }
+}
+
+
+/* =========================================================
+   960px — General layout collapse
+   ========================================================= */
+@media (max-width: 960px) {
+  .app-shell { padding: 16px 10px 24px; }
+  .pre-setup-row { grid-template-columns: 1fr; }
+  .top-bar { grid-template-columns: 1fr; }
+  .result-layout { grid-template-columns: 1fr; }
+  .summary-grid { grid-template-columns: 1fr; }
+  .interactions-grid { grid-template-columns: 1fr; }
+}
+
+
+/* =========================================================
+   900px — Cards, matchup bar, interaction tables
+   ========================================================= */
+@media (max-width: 900px) {
+  .card { padding: 12px 12px 10px; }
+
+  .mark-chip {
+    width: 150px;
+    min-width: 150px;
+    max-width: 150px;
+    min-height: 165px;
+    max-height: 165px;
+  }
+
+  /* Matchup bar: 3-col → single-column, centered */
+  .matchup-bar-main {
+    grid-template-columns: 1fr !important;
     row-gap: 10px;
     column-gap: 0;
     text-align: center;
   }
-
   .matchup-bar-left,
-  .matchup-bar-right{
+  .matchup-bar-right {
     align-items: center !important;
     text-align: center !important;
   }
+  .matchup-bar-center { gap: 6px; }
+  .matchup-quick-slot { max-width: 100% !important; }
 
-  /* Keep center chunk centered with a little spacing */
-  .matchup-bar-center{
-    gap: 6px;
-  }
-
-  /* Quick-edit slot should take full width comfortably */
-  .matchup-quick-slot{
-    max-width: 100% !important;
-  }
-}
-
-/* 3) Interactions: two-tile grid -> one column */
-@media (max-width: 900px){
-  .interactions-grid{
+  /* Interactions: 2-col → 1-col */
+  .interactions-grid {
     grid-template-columns: 1fr !important;
     gap: 12px;
   }
-
-  /* The two header pills should also stack cleanly */
-  .legend-header--interactions{
+  .legend-header--interactions {
     display: grid !important;
     grid-template-columns: 1fr !important;
     gap: 8px;
   }
-
   .interactions-head--left,
-  .interactions-head--right{
-    justify-content: center;
-  }
-}
+  .interactions-head--right { justify-content: center; }
 
-/* 4) Tables on mobile: allow horizontal scroll instead of crushing columns */
-@media (max-width: 900px){
-  .interaction-table-wrap{
+  /* Tables: horizontal scroll instead of crushing columns */
+  .interaction-table-wrap {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
   }
-
-  .interaction-table{
-    min-width: 640px; /* adjust if you want fewer wraps */
-  }
-
-  /* Summary table: same treatment */
-  #summaryTable{
+  .interaction-table { min-width: 640px; }
+  #summaryTable {
     display: block;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
   }
-
-  #summaryTable.summary-table{
-    min-width: 680px;
-  }
+  #summaryTable.summary-table { min-width: 680px; }
 }
 
-/* 5) Post-matchup hero: keep your compact header, but reduce crowding */
-@media (max-width: 600px){
-  .app-shell.has-matchup .enhanced-header{
-    grid-template-columns: 1fr !important;
-    row-gap: 10px;
-    text-align: center;
-  }
-
-  .app-shell.has-matchup .hero-logo-wrap{
-    justify-self: center !important;
-  }
-
-  .app-shell.has-matchup .hero-text-wrap{
-    grid-column: auto !important;
-  }
-
-  .hero-matchup-hud{
-    gap: 12px; /* was roomy desktop spacing */
-  }
-}
 
 /* =========================================================
-   MOBILE FINAL PASS (v3.6) — NO NEW KEYS
-   Goal: everything fits + reads cleanly at ~360–430px
+   860px — Verdict shell layout collapse
+   (merged 3 blocks; second .mi-scorebug-top block wins)
    ========================================================= */
-
-@media (max-width: 720px){
-
-  /* ---- Global safety: kill accidental sideways scroll ---- */
-  html, body{
-    overflow-x: hidden;
+@media (max-width: 860px) {
+  #verdictShell .mi-verdict-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    align-items: stretch;
   }
+  #verdictShell .mi-scorebug-top {
+    max-width: 100%;
+    align-items: center;
+    text-align: center;
+    padding-left: 0;
+  }
+  #verdictShell .mi-scorebug-line {
+    font-size: 26px;
+    line-height: 1.10;
+  }
+  #verdictShell .mi-verdict-support {
+    text-align: center;
+    justify-items: center;
+  }
+  #verdictShell .mi-verdict-rail {
+    max-width: 520px;
+    margin: 0 auto;
+    padding-left: 0;
+  }
+  #verdictShell .mi-verdict-rail::before { display: none; }
+  #verdictShell .mi-verdict-actions.mi-verdict-actions-rail { justify-content: center; }
+  #verdictShell .mi-evidence-toggle { width: 100%; }
+  #miEvidenceToggle.mi-evidence-toggle { width: min(520px, calc(100% - 28px)); }
+}
 
-  /* Long strings (team names, copy, tooltips) should wrap */
-  .app-shell, .card, section, main, aside, header, footer{
+
+/* =========================================================
+   768px — Team cards, marks, hero type
+   ========================================================= */
+@media (max-width: 768px) {
+  .hero-title { letter-spacing: 0.14em; }
+  .hero-logo { max-height: 90px; }
+  .version-badge { font-size: 10px; }
+  .card { padding: 10px 9px 8px; }
+
+  /* Identity + Resume tiles: stack vertically */
+  .team-card-bottom {
+    grid-template-columns: 1fr !important;
+    gap: 10px;
+  }
+  .team-card-bottom .context-tile.flip-tile,
+  .team-card-bottom .context-tile.flip-tile .flip-tile-inner { min-height: 128px; }
+
+  /* Profile marks: 2-up grid */
+  .inline-marks-strip {
+    justify-content: center;
+    gap: 10px;
+  }
+  .mark-chip {
+    width: calc(50% - 6px);
     min-width: 0;
+    max-width: none;
+    min-height: 150px;
+    max-height: 150px;
   }
-  h1, h2, h3, h4, p, span, label, button, a{
+}
+
+
+/* =========================================================
+   760px — Matchup log: allow tab wrapping on narrow screens
+   ========================================================= */
+@media (max-width: 760px) {
+  #matchupBar .mi-log-top3 { flex-wrap: wrap; }
+  #matchupBar .mi-log-top3 .mi-log-row {
+    max-width: none;
+    flex: 1 1 calc(50% - 10px);
+  }
+}
+
+
+/* =========================================================
+   720px — Full mobile pass
+   (merged 8 blocks; v3.92 values are authoritative where they
+   conflict with earlier declarations in the same block)
+   ========================================================= */
+@media (max-width: 720px) {
+
+  /* --- Overflow safety --- */
+  html, body { overflow-x: hidden; }
+  html {
+    --mi-scale-global: 0.86;
+    font-size: calc(16px * var(--mi-scale-global));
+    line-height: 1.25;
+  }
+  body {
+    padding-left:  max(14px, var(--mi-safe-left));
+    padding-right: max(14px, var(--mi-safe-right));
+    padding-bottom: max(12px, var(--mi-safe-bottom));
+  }
+
+  /* --- Density tokens --- */
+  :root {
+    --mi-scale-scorecard: 0.88;
+    --mi-type:    0.875rem;
+    --mi-type-sm: 0.75rem;
+    --mi-kicker:  0.65625rem;
+    --mi-pad:     0.75rem;
+    --mi-gap:     0.625rem;
+    --mi-radius:  1.125rem;
+  }
+
+  /* Section variables */
+  #verdictShell        { --mi-scale-section: 1; }
+  .mi-matchup-dock     { --mi-scale-section: 1; }
+  #summarySection      { --mi-scale-section: 1; }
+  #interactionsSection { --mi-scale-section: 1; }
+  #verdictShell,
+  .mi-matchup-dock,
+  #summarySection,
+  #interactionsSection { font-size: calc(1rem * var(--mi-scale-section)); }
+
+  /* --- Min-width guards (prevent blowout) --- */
+  .app-shell, .card, section, main, aside, header, footer,
+  .tile-face, .flip-tile, .mi-verdict-shell-inner, .mi-verdict-grid,
+  .summary-grid, .result-layout, .matchup-bar-main,
+  #matchupBar, #verdictShell, #summarySection, #interactionsSection,
+  .mi-matchup-dock { min-width: 0; }
+
+  /* --- Media + text wrap guards --- */
+  img, canvas, video { max-width: 100%; height: auto; }
+  pre, code { white-space: pre-wrap; overflow-wrap: anywhere; }
+  h1, h2, h3, h4, p, span, label, button, a {
     overflow-wrap: anywhere;
     word-break: break-word;
   }
 
-  /* Slightly reduce dense scorecard scale on mobile */
-  :root{
-    --mi-scale-scorecard: 0.88;
-  }
+  /* --- Spacing rhythm --- */
+  section { margin-top: 0.75rem; }
+  .card { margin-bottom: 0.75rem; }
 
-  /* ---- Hero / header clamps (avoid giant text pushing layout) ---- */
-  .hero-title{
-    font-size: clamp(20px, 5.5vw, 28px) !important;
-    line-height: 1.08;
-  }
-  .hero-subtitle{
-    font-size: clamp(12px, 3.6vw, 15px);
-  }
-
-  /* ---- Pre-setup cockpit: already collapses at 960px, but tighten at mobile ---- */
-  .pre-setup-row{
-    gap: 10px !important;
-  }
-  .pre-matchup-hub,
-  .controls-card,
-  #matchupSetupCard{
-    padding: 14px !important;
-  }
-
-  /* Ensure form controls are full-width and tap-friendly in stacked rows */
-  .control-row,
-  .round-control-row,
-  .matchup-actions-row{
-    gap: 10px;
-  }
-  select,
-  input[type="text"],
-  input[type="file"],
-  button,
-  .btn{
-    width: 100%;
-    max-width: 100%;
-  }
-
-  /* ---- Matchup Bar: stack into a single column with centered actions ---- */
-  .matchup-bar-main{
-    grid-template-columns: 1fr !important;
-    row-gap: 10px;
-    column-gap: 0;
-    padding: 10px 10px;
-  }
-
-  .matchup-bar-left,
-  .matchup-bar-right{
-    align-items: flex-start !important;
-    text-align: left !important;
-  }
-
-  /* Allow names to wrap instead of hard-ellipsis on narrow */
-  .matchup-bar-team{
-    max-width: 100%;
-    white-space: normal !important;
-  }
-  .matchup-bar-team span{
-    display: block;
-    line-height: 1.05;
-  }
-
-  .matchup-bar-center{
-    justify-items: start;
-    text-align: left;
-  }
-  .matchup-bar-vs{
-    display: none; /* “vs” becomes noise when stacked */
-  }
-
-  /* Quick edit slots should fill the column */
-  .matchup-quick-slot{
-    max-width: 100% !important;
-  }
-  .matchup-quick-actions{
-    width: 100%;
-    gap: 10px;
-  }
-
-  /* ---- Verdict scorebug: collapse to a clean vertical stack ---- */
-  #verdictShell .mi-verdict-grid{
-    display: flex !important;
-    flex-direction: column;
-    gap: 12px;
-  }
-
-  #verdictShell .mi-verdict-main,
-  #verdictShell .mi-verdict-rail{
-    width: 100%;
-    max-width: 100%;
-  }
-
-  /* Metrics flip tile should not be “tower tall” on mobile */
-  #verdictShell .mi-verdict-metrics-tile{
-    min-height: 210px !important;
-  }
-
-  /* Tighten scorebug typography so it reads without wrapping weirdly */
-  #verdictShell .mi-scorebug-kicker{
-    font-size: 11px;
-    letter-spacing: 0.14em;
-  }
-  #verdictShell .mi-scorebug-line{
-    font-size: clamp(14px, 4.2vw, 18px);
-    line-height: 1.12;
-  }
-
-  /* Evidence toggle becomes a full-width CTA */
-  #miEvidenceToggle.mi-evidence-toggle{
-    width: 100% !important;
-    min-height: 44px;
-  }
-
-  /* ---- Analysis / scorecards: 2-col -> 1-col ---- */
-  .result-layout{
-    grid-template-columns: 1fr !important;
-    gap: 12px;
-  }
-
-  /* Team card header: prevent gigantic titles */
-  .team-card-header h2{
-    font-size: calc(24px * var(--mi-scale-scorecard));
-    line-height: 1.05;
-  }
-
-  /* Mini-tiles + tables: reduce padding slightly */
-  .profile-section,
-  .neutral-section,
-  .marks-section,
-  .identity-section{
-    margin: 4px 0 0 0;
-    padding: 10px 10px 9px;
-  }
-
-  /* Tables: enforce wrapping + stable layout */
-  .explain-table{
-    table-layout: fixed;
-  }
-  .explain-table th,
-  .explain-table td{
-    white-space: normal;
-    overflow-wrap: anywhere;
-  }
-
-  /* Sticky header can feel jumpy on mobile; keep it, but reduce visual bulk */
-  .explain-table thead th{
-    padding-top: 6px;
-    padding-bottom: 6px;
-  }
-
-  /* Debug panel: allow wrap and prevent horizontal bleed */
-  .debug-content{
-    white-space: pre-wrap;
-    overflow-x: hidden;
-  }
-}
-
-@media (max-width: 420px){
-
-  :root{
-    --mi-scale-scorecard: 0.84;
-  }
-
-  /* Slightly tighter card padding */
-  .card{
-    padding-left: 12px;
-    padding-right: 12px;
-  }
-
-  /* Verdict tile can compress a bit more on very small screens */
-  #verdictShell .mi-verdict-metrics-tile{
-    min-height: 190px !important;
-  }
-
-  /* Reduce table cell padding just a touch */
-  .explain-table th,
-  .explain-table td{
-    padding: 6px 7px;
-  }
-}
-
-@media (max-width: 720px){
-  img, canvas, video { max-width: 100%; height: auto; }
-  pre, code { white-space: pre-wrap; overflow-wrap: anywhere; }
-  .card, .tile-face, .flip-tile, .mi-verdict-shell-inner, .mi-verdict-grid,
-  .summary-grid, .result-layout, .matchup-bar-main { min-width: 0; }
-}
-
-@media (max-width: 720px){
-  button, .btn, .mi-evidence-toggle, select, input {
-    min-height: 44px;
-  }
-  button, .btn, .mi-evidence-toggle{
-    padding-top: 12px;
-    padding-bottom: 12px;
-  }
-}
-
-@media (max-width: 720px){
-  .tile-face{ padding: 12px !important; }
-  .mi-metrics-back-text{
-    font-size: clamp(12px, 3.6vw, 14px);
-    line-height: 1.25;
-  }
-}
-
-@media (max-width: 720px){
-  section{ margin-top: 12px; }
-  .card{ margin-bottom: 12px; }
-}
-
-@media (max-width: 720px){
-  #verdictShell{
-    box-shadow: 0 16px 34px rgba(0,0,0,0.5);
-  }
-}
-
-/* =========================================================
-   v3.92 — MOBILE DENSITY FOUNDATION (AUTHORITATIVE, LAST)
-   - Truly global: uses rem scaling from html
-   - No transforms / no zoom
-   - Density tokens for padding/gap/radius
-   ========================================================= */
-
-:root{
-  --mi-safe-top: env(safe-area-inset-top);
-  --mi-safe-right: env(safe-area-inset-right);
-  --mi-safe-bottom: env(safe-area-inset-bottom);
-  --mi-safe-left: env(safe-area-inset-left);
-
-  --mi-mobile-gutter: 14px;
-}
-
-/* iOS text autosize guard */
-html{
-  -webkit-text-size-adjust: 100%;
-  text-size-adjust: 100%;
-}
-
-html, body{
-  width: 100%;
-  max-width: 100%;
-  overflow-x: hidden;
-}
-
-/* Media-safe clamps */
-img, canvas, video{ max-width: 100%; height: auto; }
-pre, code{ white-space: pre-wrap; overflow-wrap: anywhere; }
-
-@media (max-width: 720px){
-
-  /* Safe area padding (root) */
-  body{
-    padding-left:  max(var(--mi-mobile-gutter), var(--mi-safe-left));
-    padding-right: max(var(--mi-mobile-gutter), var(--mi-safe-right));
-    padding-bottom:max(12px, var(--mi-safe-bottom));
-  }
-
-  /* =========================================================
-     THE ONE GLOBAL KNOB THAT ACTUALLY HITS EVERYTHING:
-     scale rem via html font-size.
-     ========================================================= */
-  html{
-    --mi-scale-global: 0.86; /* MAIN KNOB: try 0.82–0.90 */
-
-    font-size: calc(16px * var(--mi-scale-global));
-    line-height: 1.25;
-  }
-
-  /* Density tokens (rem-based so they follow html scaling) */
-  :root{
-    --mi-type:    0.875rem;  /* ~14px at 16px base */
-    --mi-type-sm: 0.75rem;   /* ~12px */
-    --mi-kicker:  0.65625rem;/* ~10.5px */
-
-    --mi-pad:     0.75rem;   /* ~12px */
-    --mi-gap:     0.625rem;  /* ~10px */
-    --mi-radius:  1.125rem;  /* ~18px */
-  }
-
-  /* Overflow guards on real containers */
-  .app-shell,
-  .card, section, main, aside, header, footer,
-  .tile-face, .flip-tile,
-  .mi-verdict-shell-inner, .mi-verdict-grid,
-  .summary-grid, .result-layout,
-  .matchup-bar-main,
-  #matchupBar, #verdictShell, #summarySection, #interactionsSection,
-  .mi-matchup-dock{
-    min-width: 0;
-  }
-
-  /* Consistent padding rhythm */
-  .card, .tile, .panel, .mi-card, .mi-tile{
+  /* --- Card + tile padding (v3.92 tokens) --- */
+  .card, .tile, .panel, .mi-card, .mi-tile {
     padding: var(--mi-pad);
     border-radius: var(--mi-radius);
   }
+  .tile-face { padding: 12px !important; }
 
-  /* Kicker / pill sizing */
-  .matchup-kicker, .pill, .chip, .toggle{
+  /* --- Typography --- */
+  h1, h2, .hero-title {
+    font-size: clamp(1.05rem, 5.1vw, 1.5rem);
+    line-height: 1.1;
+  }
+  .hero-subtitle { font-size: clamp(12px, 3.6vw, 15px); }
+  .mi-metrics-back-text {
+    font-size: clamp(12px, 3.6vw, 14px);
+    line-height: 1.25;
+  }
+
+  /* --- Pill / kicker components --- */
+  .matchup-kicker, .pill, .chip, .toggle {
     font-size: var(--mi-kicker);
-    padding: 0.375rem 0.625rem; /* ~6px 10px */
+    padding: 0.375rem 0.625rem;
     border-radius: 999px;
     letter-spacing: 0.06em;
     white-space: nowrap;
   }
 
-  /* Buttons: keep comfort without bloat */
-  button, .btn, .mi-evidence-toggle{
+  /* --- Form controls: tap-friendly sizing --- */
+  select, input { min-height: 44px; }
+  select,
+  input[type="text"],
+  input[type="file"],
+  button, .btn { width: 100%; max-width: 100%; }
+  button, .btn, .mi-evidence-toggle {
     min-height: 42px;
-    font-size: 0.9375rem;       /* ~15px */
-    padding: 0.5625rem 0.75rem; /* ~9px 12px */
+    font-size: 0.9375rem;
+    padding: 0.5625rem 0.75rem;
   }
 
-  /* Light vertical rhythm */
-  section{ margin-top: 0.75rem; }
-  .card{ margin-bottom: 0.75rem; }
+  .control-row,
+  .round-control-row,
+  .matchup-actions-row { gap: 10px; }
 
-  /* Wrap guards */
-  h1, h2, h3, h4, p, span, label, button, a{
-    overflow-wrap: anywhere;
-    word-break: break-word;
+  /* --- Pre-setup cockpit --- */
+  .pre-setup-row { gap: 10px !important; }
+  .pre-matchup-hub,
+  .controls-card,
+  #matchupSetupCard { padding: 14px !important; }
+
+  .controls-card.is-primary-entry .dataset-row { grid-template-columns: 1fr; }
+  .controls-card.is-primary-entry .controls-grid { grid-template-columns: 1fr; }
+  .controls-card.is-primary-entry .field-label { text-align: left; }
+
+  /* --- Matchup bar: re-stack + left-align at mobile --- */
+  .matchup-bar-main {
+    grid-template-columns: 1fr !important;
+    row-gap: 10px;
+    column-gap: 0;
+    padding: 10px;
+  }
+  .matchup-bar-left,
+  .matchup-bar-right {
+    align-items: flex-start !important;
+    text-align: left !important;
+  }
+  .matchup-bar-team { max-width: 100%; white-space: normal !important; }
+  .matchup-bar-team span { display: block; line-height: 1.05; }
+  .matchup-bar-center { justify-items: start; text-align: left; }
+  .matchup-bar-vs { display: none; }
+  .matchup-quick-slot { max-width: 100% !important; }
+  .matchup-quick-actions { width: 100%; gap: 10px; }
+
+  /* --- Verdict shell --- */
+  #verdictShell { box-shadow: 0 16px 34px rgba(0,0,0,0.5); }
+  #verdictShell .mi-verdict-grid {
+    display: flex !important;
+    flex-direction: column;
+    gap: 12px;
+  }
+  #verdictShell .mi-verdict-main,
+  #verdictShell .mi-verdict-rail { width: 100%; max-width: 100%; }
+  #verdictShell .mi-verdict-metrics-tile { min-height: 210px !important; }
+  #verdictShell .mi-scorebug-top {
+    grid-template-columns: 1fr;
+    justify-items: start;
+  }
+  #verdictShell .mi-scorebug-score { width: 100%; justify-items: center; }
+  #verdictShell .mi-scorebug-kicker { font-size: 11px; letter-spacing: 0.14em; }
+  #verdictShell .mi-scorebug-line {
+    font-size: clamp(14px, 4.2vw, 18px);
+    line-height: 1.12;
+  }
+  #verdictShell .mi-verdict-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  #verdictShell .mi-evidence-preview { text-align: center; max-width: 100%; }
+  #miEvidenceToggle.mi-evidence-toggle {
+    width: 100% !important;
+    min-height: 44px;
+    justify-content: center;
   }
 
-  /* Headline clamp */
-  h1, h2, .hero-title{
-    font-size: clamp(1.05rem, 5.1vw, 1.5rem); /* ~16.8px → 24px */
-    line-height: 1.1;
+  /* --- Analysis / scorecards --- */
+  .result-layout { grid-template-columns: 1fr !important; gap: 12px; }
+  .team-card-header h2 {
+    font-size: calc(24px * var(--mi-scale-scorecard));
+    line-height: 1.05;
   }
+  .profile-section,
+  .neutral-section,
+  .marks-section,
+  .identity-section { margin: 4px 0 0; padding: 10px 10px 9px; }
 
-  /* Optional per-section nudges (defaults = 1) */
-  #verdictShell{        --mi-scale-section: 1; }
-  .mi-matchup-dock{     --mi-scale-section: 1; }
-  #summarySection{      --mi-scale-section: 1; }
-  #interactionsSection{ --mi-scale-section: 1; }
+  /* --- Explain tables --- */
+  .explain-table { table-layout: fixed; }
+  .explain-table th,
+  .explain-table td { white-space: normal; overflow-wrap: anywhere; }
+  .explain-table thead th { padding-top: 6px; padding-bottom: 6px; }
 
-  #verdictShell,
-  .mi-matchup-dock,
-  #summarySection,
-  #interactionsSection{
-    font-size: calc(1rem * var(--mi-scale-section));
-  }
-}
+  /* --- Summary section --- */
+  #summarySection .summary-col-mid .summary-gap-line { grid-template-columns: 1fr auto; }
+  #summarySection .summary-col-mid .summary-gap-line .summary-note { grid-column: 1 / -1; }
 
-@media (max-width: 420px){
-  html{ font-size: calc(16px * 0.83); } /* one notch tighter */
-  :where(.app-shell, body){ --mi-scale-global: 0.85; }
-  .mi-matchup-dock{ --mi-dock-scale: 0.86; }
-}
+  /* --- Footer --- */
+  #appFooter .footer-contact { flex-direction: column; align-items: flex-start; }
 
-/* =========================================================
-   v3.92 Mobile — MATCHUP LOG (AUTHORITATIVE, LAST)
-   6 visible columns ONLY:
-   1 tag | 2 Team A | 3 MI A | 4 arrow | 5 MI B | 6 Team B
-   ========================================================= */
-@media (max-width: 720px){
+  /* --- Debug panel --- */
+  .debug-content { white-space: pre-wrap; overflow-x: hidden; }
 
-  /* 0) Hard-hide columns that should not exist on mobile */
+  /* ===== MATCHUP LOG (v3.92) ===== */
   #matchupBar .mi-log-lean,
-  #matchupBar .mi-log-spacer{
-    display: none !important;
-  }
+  #matchupBar .mi-log-spacer { display: none !important; }
 
-  /* Matchup Log: one knob to scale the whole shelf */
-  #matchupBar{
-    --mi-log-scale: 0.82; /* MAIN LOG KNOB: try 0.78–0.86 */
-  }
+  #matchupBar { --mi-log-scale: 0.82; }
 
-  /* 1) Shared row geometry (Top 3 rail + More list) */
   #matchupBar .mi-log-top3 .mi-log-row,
-  #matchupBar .mi-log-more-list .mi-log-row{
+  #matchupBar .mi-log-more-list .mi-log-row {
     display: grid;
     align-items: center;
-
-    /* tighter rhythm */
     column-gap: calc(0.5rem * var(--mi-log-scale));
-
-    height:  calc(2.05rem * var(--mi-log-scale));
-    padding: calc(0.35rem * var(--mi-log-scale)) calc(0.65rem * var(--mi-log-scale));
+    height:     calc(2.05rem * var(--mi-log-scale));
+    padding:    calc(0.35rem * var(--mi-log-scale)) calc(0.65rem * var(--mi-log-scale));
     border-radius: calc(0.85rem * var(--mi-log-scale));
-
-    /* slightly narrower numeric lanes */
     grid-template-columns:
-      2.1rem            /* tag */
+      2.1rem            /* tag   */
       minmax(0, 1fr)    /* name A */
-      3.25rem           /* MI A */
+      3.25rem           /* MI A  */
       1.25rem           /* arrow */
-      3.25rem           /* MI B */
+      3.25rem           /* MI B  */
       minmax(0, 1fr);   /* name B */
-
-    /* make the row’s text follow the knob */
     font-size: calc(1rem * var(--mi-log-scale));
     line-height: 1.05;
   }
-
-  /* 2) Kill legacy explicit placements that can break the grid */
+  /* Kill legacy explicit placements */
   #matchupBar .mi-log-top3 .mi-log-row > *,
-  #matchupBar .mi-log-more-list .mi-log-row > *{
+  #matchupBar .mi-log-more-list .mi-log-row > * {
     grid-column: auto !important;
     min-width: 0;
   }
 
-  /* Names: a touch smaller and tighter */
   #matchupBar .mi-log-name.a,
-  #matchupBar .mi-log-name.b{
-    font-size: 0.95em; /* relative to row font-size above */
-    letter-spacing: 0.01em;
-  }
-
-  /* MI numbers: keep bold, but not oversized */
+  #matchupBar .mi-log-name.b { font-size: 0.95em; letter-spacing: 0.01em; }
   #matchupBar .mi-log-mi.a,
-  #matchupBar .mi-log-mi.b{
-    font-size: 0.96em;
-    font-weight: 850;
-  }
+  #matchupBar .mi-log-mi.b   { font-size: 0.96em; font-weight: 850; }
+  #matchupBar .mi-log-tag    { font-size: 0.82em; letter-spacing: 0.10em; }
 
-  /* Tag: slightly less shouty */
-  #matchupBar .mi-log-tag{
-    font-size: 0.82em;
-    letter-spacing: 0.10em;
-  }
-}
-
-@media (max-width: 720px){
-
-  /* Arrow lane: reserve column 4 and center it */
-  #matchupBar .mi-log-arrows{
+  /* Arrow lane */
+  #matchupBar .mi-log-arrows {
     grid-column: 4 !important;
     width: 22px;
     display: inline-flex;
@@ -11444,68 +11812,42 @@ pre, code{ white-space: pre-wrap; overflow-wrap: anywhere; }
     justify-content: center;
     min-width: 0;
   }
-
-  /* Keep real arrow elements. Hide all by default... */
-  #matchupBar .mi-log-arrows .mi-log-arrow{
-    display: none !important;
-  }
-
-  /* ...then show only the FIRST arrow element (single-arrow rule) */
-  #matchupBar .mi-log-arrows .mi-log-arrow:first-child{
-    display: inline-block !important;
-  }
-
-  /* If your arrow markup uses a “winner side has 2 arrows” convention,
-     prefer the SECOND child (more “emphatic”) when present. */
-  #matchupBar .mi-log-arrows .mi-log-arrow:nth-child(2){
-    display: inline-block !important;
-  }
-  /* and suppress first child if second exists */
-  #matchupBar .mi-log-arrows .mi-log-arrow:nth-child(2) ~ .mi-log-arrow{
-    display: none !important;
-  }
-
-    /* Always show both containers, but only one will actually contain an arrow */
+  #matchupBar .mi-log-arrows .mi-log-arrow               { display: none !important; }
+  #matchupBar .mi-log-arrows .mi-log-arrow:first-child    { display: inline-block !important; }
+  #matchupBar .mi-log-arrows .mi-log-arrow:nth-child(2)   { display: inline-block !important; }
+  /* Suppress first child when second exists */
+  #matchupBar .mi-log-arrows .mi-log-arrow:nth-child(2) ~ .mi-log-arrow { display: none !important; }
   #matchupBar .mi-log-arrows.left,
-  #matchupBar .mi-log-arrows.right{
-    display: inline-flex !important;
-  }
+  #matchupBar .mi-log-arrows.right { display: inline-flex !important; }
 }
 
-@media (max-width: 420px){
-  #matchupBar{ --mi-log-scale: 0.76; }
-
-  #matchupBar .mi-log-top3 .mi-log-row,
-  #matchupBar .mi-log-more-list .mi-log-row{
-    grid-template-columns: 2.0rem minmax(0,1fr) 3.05rem 1.15rem 3.05rem minmax(0,1fr);
-  }
-}
 
 /* =========================================================
-   VERDICT SHELL — MOBILE DENSITY AUTHORITY (v3.92)
-   Goal: make the entire Verdict Shell scale down on phones
-   without touching desktop.
-   Paste at VERY BOTTOM of styles2.css
+   600px — Header, hero, and verdict density
+   (merged 3 verdict blocks; winning values kept)
    ========================================================= */
+@media (max-width: 600px) {
+  /* Header */
+  .enhanced-header { padding: 20px 14px 18px; border-radius: 18px; }
+  .hero-title { font-size: 24px; }
 
-@media (max-width: 600px){
-
-  /* --- Shell spacing: stop the “ballroom” top + inner gaps --- */
-  #verdictShell{
-    padding-top: 6px !important;
-    border-radius: 16px;
+  /* Post-matchup hero collapse */
+  .app-shell.has-matchup .enhanced-header {
+    grid-template-columns: 1fr !important;
+    row-gap: 10px;
+    text-align: center;
   }
+  .app-shell.has-matchup .hero-logo-wrap { justify-self: center !important; }
+  .app-shell.has-matchup .hero-text-wrap { grid-column: auto !important; }
+  .hero-matchup-hud { gap: 12px; }
 
-  #verdictShell .mi-verdict-main{
-    padding: 6px 6px;
-  }
+  /* ===== Verdict Shell density ===== */
+  #verdictShell { padding-top: 6px !important; border-radius: 16px; }
+  #verdictShell .mi-verdict-main  { padding: 6px; }
+  #verdictShell .mi-verdict-shell-inner { padding: 6px !important; }
 
-  #verdictShell .mi-verdict-shell-inner{
-    padding: 6px 6px !important;
-  }
-
-  /* --- Left column: reduce left padding + tighten rhythm --- */
-  #verdictShell .mi-scorebug-top{
+  /* Scorebug top: full-width centering lane */
+  #verdictShell .mi-scorebug-top {
     padding-left: 0 !important;
     gap: 8px !important;
     align-items: center !important;
@@ -11513,125 +11855,20 @@ pre, code{ white-space: pre-wrap; overflow-wrap: anywhere; }
     max-width: 100% !important;
   }
 
-  /* --- Kicker: keep micro-kicker, but shrink the logo block HARD --- */
-  #verdictShell .mi-scorebug-kicker{
-    font-size: 10px !important;
-
-    letter-spacing: 0.22em !important;
-    gap: 8px !important;
-    padding-bottom: 0px !important;
-    background-size: 44px 1px !important;
-  }
-
-  /* This is the big one: the logo block created by ::after */
-  #verdictShell .mi-scorebug-kicker::after{
-    width: 72px !important;
-    height: 72px !important;
-    border-radius: 12px !important;
-    background-size: 88% auto !important;
-    box-shadow:
-      0 10px 22px rgba(0,0,0,0.42),
-      0 0 16px rgba(var(--mi-verdict-rgb), 0.12) !important;
-  }
-
-  /* --- If your verdict line is structured (headline + why) --- */
-  #verdictShell .mi-scorebug-line.is-structured{
-    gap: 8px !important;
-  }
-
-  #verdictShell .mi-scorebug-line.is-structured .mi-verdict-headline{
-    font-size: clamp(18px, 5.4vw, 22px) !important;
-    line-height: 1.10 !important;
-    letter-spacing: -0.01em !important;
-    max-width: 22ch;
-    margin: 0 auto;
-  }
-
-  #verdictShell .mi-scorebug-line.is-structured .mi-verdict-why{
-    font-size: clamp(13px, 3.9vw, 15px) !important;
-    line-height: 1.32 !important;
-    max-width: 40ch !important;
-    margin: 0 auto;
-  }
-
-  /* --- If your verdict line is NOT structured (fallback) --- */
-  #verdictShell .mi-scorebug-line:not(.is-structured){
-    font-size: clamp(18px, 5.4vw, 22px) !important;
-    line-height: 1.10 !important;
-    max-width: 22ch;
-    margin: 0 auto;
-  }
-
-  /* --- Rail column stack tightening --- */
-  #verdictShell .mi-verdict-rail{
-    gap: 12px !important;
-    padding-left: 0 !important;
-    max-width: 520px;
-    margin: 0 auto;
-  }
-  #verdictShell .mi-verdict-rail::before{ display:none !important; }
-
-  /* --- Evidence button: comfortable tap, but not “giant” --- */
-  #verdictShell #miEvidenceToggle.mi-evidence-toggle{
-    padding: 11px 14px !important;
-    font-size: 14px !important;
-    width: min(520px, calc(100% - 18px)) !important;
-  }
-
-  /* --- Disclaimer: tighter + readable --- */
-  #verdictShell .mi-verdict-footer{
-    padding: 4px 0 0 !important;
-  }
-  #verdictShell .mi-verdict-disclaimer{
-    font-size: 10.5px !important;
-    line-height: 1.32 !important;
-    max-width: 46ch !important;
-  }
-}
-
-/* =========================================================
-   VERDICT HERO LOGO — MOBILE HORIZONTAL ART (FIX TINY RENDER)
-   ========================================================= */
-@media (max-width: 600px){
-
-  /* Keep the kicker itself compact */
-  #verdictShell .mi-scorebug-kicker{
-    align-items: center;
-    text-align: center;    
+  /* Kicker: suppress text, show logo banner via ::after
+     (font-size:0 from hero-logo block wins over density's 10px) */
+  #verdictShell .mi-scorebug-kicker {
     font-size: 0 !important;
     line-height: 0 !important;
+    letter-spacing: 0.22em !important;
+    gap: 8px !important;
+    padding-bottom: 0 !important;
+    background-size: 44px 1px !important;
+    align-items: center;
+    text-align: center;
   }
-
-  /* Re-shape the pseudo-logo box to match the new logo aspect */
-  #verdictShell .mi-scorebug-kicker::after{
-    /* banner shape */
-    display: block !important;
-    margin: 0 auto !important;
-    align-content: center;
-    width: clamp(180px, 62vw, 280px) !important;
-    aspect-ratio: 1035 / 189 !important; /* matches your uploaded image */
-    height: auto !important;
-
-    /* swap to the horizontal asset */
-    background-image: url("assets/img/logos/madness-index-mobile-logo.PNG") !important;
-
-    /* critical: don't “fit by height” */
-    background-repeat: no-repeat !important;
-    background-position: center !important;
-    background-size: contain !important;
-
-    /* keep your existing treatment, just tuned for banner */
-    border-radius: 12px !important;
-  }
-}
-
-/* =========================================================
-   VERDICT KICKER — HARD CENTER THE LOGO BOX (MOBILE)
-   ========================================================= */
-@media (max-width: 600px){
-
-  /* Make the kicker a full-width centering lane */
-  #verdictShell .mi-scorebug-top .mi-scorebug-kicker{
+  /* More specific: kicker inside scorebug-top */
+  #verdictShell .mi-scorebug-top .mi-scorebug-kicker {
     width: 100% !important;
     display: flex !important;
     flex-direction: column !important;
@@ -11640,14 +11877,96 @@ pre, code{ white-space: pre-wrap; overflow-wrap: anywhere; }
     text-align: center !important;
   }
 
-  /* Center the pseudo-element as a block */
-  #verdictShell .mi-scorebug-top .mi-scorebug-kicker::after{
+  /* Logo banner pseudo-element */
+  #verdictShell .mi-scorebug-kicker::after {
+    display: block !important;
+    margin: 0 auto !important;
+    width: clamp(180px, 62vw, 280px) !important;
+    aspect-ratio: 1035 / 189 !important;
+    height: auto !important;
+    background-image: url("assets/img/logos/madness-index-mobile-logo.PNG") !important;
+    background-repeat: no-repeat !important;
+    background-position: center !important;
+    background-size: contain !important;
+    border-radius: 12px !important;
+  }
+  /* Centering override (more specific selector) */
+  #verdictShell .mi-scorebug-top .mi-scorebug-kicker::after {
     display: block !important;
     margin-left: auto !important;
     margin-right: auto !important;
   }
+
+  /* Verdict line */
+  #verdictShell .mi-scorebug-line.is-structured { gap: 8px !important; }
+  #verdictShell .mi-scorebug-line.is-structured .mi-verdict-headline {
+    font-size: clamp(18px, 5.4vw, 22px) !important;
+    line-height: 1.10 !important;
+    letter-spacing: -0.01em !important;
+    max-width: 22ch;
+    margin: 0 auto;
+  }
+  #verdictShell .mi-scorebug-line.is-structured .mi-verdict-why {
+    font-size: clamp(13px, 3.9vw, 15px) !important;
+    line-height: 1.32 !important;
+    max-width: 40ch !important;
+    margin: 0 auto;
+  }
+  #verdictShell .mi-scorebug-line:not(.is-structured) {
+    font-size: clamp(18px, 5.4vw, 22px) !important;
+    line-height: 1.10 !important;
+    max-width: 22ch;
+    margin: 0 auto;
+  }
+
+  /* Rail */
+  #verdictShell .mi-verdict-rail {
+    gap: 12px !important;
+    padding-left: 0 !important;
+    max-width: 520px;
+    margin: 0 auto;
+  }
+  #verdictShell .mi-verdict-rail::before { display: none !important; }
+
+  /* Evidence CTA */
+  #verdictShell #miEvidenceToggle.mi-evidence-toggle {
+    padding: 11px 14px !important;
+    font-size: 14px !important;
+    width: min(520px, calc(100% - 18px)) !important;
+  }
+
+  /* Disclaimer */
+  #verdictShell .mi-verdict-footer { padding: 4px 0 0 !important; }
+  #verdictShell .mi-verdict-disclaimer {
+    font-size: 10.5px !important;
+    line-height: 1.32 !important;
+    max-width: 46ch !important;
+  }
 }
 
+
+/* =========================================================
+   420px — Extra-small phones
+   ========================================================= */
+@media (max-width: 420px) {
+  html { font-size: calc(16px * 0.83); }
+  :where(.app-shell, body) { --mi-scale-global: 0.85; }
+  .mi-matchup-dock { --mi-dock-scale: 0.86; }
+  :root { --mi-scale-scorecard: 0.84; }
+
+  .card { padding-left: 12px; padding-right: 12px; }
+  .mark-chip { width: 100%; }
+  #verdictShell .mi-verdict-metrics-tile { min-height: 190px !important; }
+  .explain-table th,
+  .explain-table td { padding: 6px 7px; }
+
+  /* Matchup log: tighter scale + narrower numeric lanes */
+  #matchupBar { --mi-log-scale: 0.76; }
+  #matchupBar .mi-log-top3 .mi-log-row,
+  #matchupBar .mi-log-more-list .mi-log-row {
+    grid-template-columns: 2.0rem minmax(0,1fr) 3.05rem 1.15rem 3.05rem minmax(0,1fr);
+  }
+}
 /* =========================================================
    GLOBAL SCROLLBAR SYSTEM
    (matches Interaction Console aesthetic)

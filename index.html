@@ -58,8 +58,40 @@
     </p>
   </div>
 
-  <div class="version-badge">version 1.0 (build 4.0)</div>
+  <button
+    id="versionBadgeBtn"
+    class="version-badge version-badge-btn"
+    type="button"
+    aria-haspopup="dialog"
+    aria-expanded="false"
+  >
+    <span class="vb-line1">
+      <span id="versionBadgeText">Version 1.0 (Build 4.0)</span>
+      <span class="vb-new" aria-hidden="true">NEW</span>
+    </span>
+    <span class="vb-hint">Click for Patch Notes</span>
+  </button>
 
+  <div
+    id="versionNotes"
+    class="version-notes"
+    role="dialog"
+    aria-hidden="true"
+    aria-label="Patch notes"
+  >
+    <div
+      class="version-notes-title"
+      data-copy="patch_notes.title"
+    >
+      Patch Notes
+    </div>
+
+    <!-- JS will render patch notes into this list -->
+    <ul
+      id="versionNotesList"
+      class="version-notes-list"
+    ></ul>
+  </div>
 </header>
 
 <!-- PRE-MATCHUP PROGRESS BAR (moved under hero) -->
@@ -165,14 +197,21 @@
       <div class="dataset-select-wrap">
         <select id="datasetSelect">
           <option value="" disabled selected data-copy="controls.dataset_placeholder">Select a dataset…</option>
+
+          <option value="data/csvs/mi_2026_official.csv" data-filename="MadnessIndex_2026_Official.csv" disabled>
+            2026 Official Tournament Field (coming soon)
+          </option>
+
           <option value="data/csvs/mi_2025_official.csv" data-filename="MadnessIndex_2025_Official.csv">
             2025 Official Tournament Field
           </option>
-          <option value="data/csvs/mi_2024_official.csv" data-filename="MadnessIndex_2024_Official.csv" disabled>
-            2024 Official Tournament Field (coming soon)
+
+          <option value="data/csvs/mi_2024_official.csv" data-filename="MadnessIndex_2024_Official.csv">
+            2024 Official Tournament Field
           </option>
-          <option value="data/csvs/mi_2023_official.csv" data-filename="MadnessIndex_2023_Official.csv" disabled>
-            2023 Official Tournament Field (coming soon)
+
+          <option value="data/csvs/mi_2023_official.csv" data-filename="MadnessIndex_2023_Official.csv">
+            2023 Official Tournament Field
           </option>
         </select>
       </div>
@@ -199,19 +238,19 @@
         <div class="round-step-label step-label" data-copy="controls.step1_label">STEP 1: Select Teams</div>
 
         <div class="control-row">
-          <div class="select-wrap" id="teamASelectWrap">
-           <select id="teamA">
-            <option value="" disabled selected>Select Team A</option>
-           </select>
-        </div>
+          <div class="select-wrap home-team-select" id="teamASelectWrap">
+            <select id="teamA" data-dd-context="home">
+              <option value="" disabled selected>Select Team A</option>
+            </select>
+          </div>
 
-          <div class="select-wrap" id="teamBSelectWrap">
-           <select id="teamB">
+        <div class="select-wrap home-team-select" id="teamBSelectWrap">
+          <select id="teamB" data-dd-context="home">
             <option value="" disabled selected>Select Team B</option>
-           </select>
+          </select>
         </div>
-       </div>
       </div>
+    </div>
       <!-- ROW 2 -->
       <div class="matchup-step mc-row" id="mcRow2">
         <div class="round-step-label" data-copy="controls.step2_label">STEP 2: Select Round</div>
@@ -460,12 +499,12 @@
                 <span data-copy="card.profile_subtotal">Profile Subtotal (incl. Breadth)</span>
                 <span id="cindSubtotalA" class="subtotal-value">0.00</span>
               </div>
+              <div class="mi-metrics-hint mi-flip-hint">Flip for context</div>
             </div>
 
             <!-- Tile BACK -->
             <div class="tile-face tile-back">
               <div id="backCoreTileA" class="back-line core-back-container"></div>
-              <p id="backBreadthTileA" class="back-line"></p>
               <p class="back-helper" data-copy="card.tile_back_helper_core">
                 Tap again to return to the full Core Traits table.
               </p>
@@ -491,6 +530,7 @@
                   <span id="identityRoleA" class="context-tier">Neutral</span>
                   <span id="identityDetailA" class="context-desc">CIS 0 • FAS 0</span>
                 </div>
+              <div class="mi-metrics-hint mi-flip-hint">Flip for context</div>
               </div>
 
               <!-- BACK -->
@@ -517,6 +557,7 @@
                 <div class="context-subrow">
                   <span id="resumeTierA" class="context-tier">Average</span>
                 </div>
+              <div class="mi-metrics-hint mi-flip-hint">Flip for context</div>
               </div>
 
               <!-- BACK -->
@@ -549,6 +590,7 @@
               <div id="inlineMarksA" class="inline-marks-strip"></div>
             </div>
           </div>
+         <div class="mi-metrics-hint mi-flip-hint">Flip for context</div>
          </div>
 
               <!-- BACK -->
@@ -654,12 +696,12 @@
                 <span data-copy="card.profile_subtotal">Profile Subtotal (incl. Breadth)</span>
                 <span id="favSubtotalB" class="subtotal-value">0.00</span>
               </div>
+            <div class="mi-metrics-hint mi-flip-hint">Flip for context</div>
             </div>
 
             <!-- BACK -->
             <div class="tile-face tile-back">
               <div id="backCoreTileB" class="back-line core-back-container"></div>
-              <p id="backBreadthTileB" class="back-line"></p>
               <p class="back-helper" data-copy="card.tile_back_helper_core">
                 Tap again to return to the full Core Traits table.
               </p>
@@ -685,6 +727,7 @@
                   <span id="identityRoleB" class="context-tier">Neutral</span>
                   <span id="identityDetailB" class="context-desc">CIS 0 • FAS 0</span>
                 </div>
+              <div class="mi-metrics-hint mi-flip-hint">Flip for context</div>
               </div>
 
               <!-- BACK -->
@@ -712,6 +755,7 @@
                 <div class="context-subrow">
                   <span id="resumeTierB" class="context-tier">Average</span>
                 </div>
+              <div class="mi-metrics-hint mi-flip-hint">Flip for context</div>
               </div>
 
               <!-- BACK -->
@@ -744,6 +788,7 @@
               <div id="inlineMarksB" class="inline-marks-strip"></div>
              </div>
            </div>
+         <div class="mi-metrics-hint mi-flip-hint">Flip for context</div>
          </div>
 
               <!-- BACK -->

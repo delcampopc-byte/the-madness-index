@@ -178,6 +178,70 @@ function miTpl(str, tokens = {}) {
   });
 }
 
+// ===== PATCH NOTES "NEW" DETECTION (badge-based) =====
+const MI_PATCH_NOTES_SEEN_KEY = 'mi_patch_notes_last_seen_badge';
+
+function miSyncPatchNotesNewState(currentBadge) {
+  const btn = document.getElementById('versionBadgeBtn');
+  if (!btn) return;
+
+  const lastSeen = localStorage.getItem(MI_PATCH_NOTES_SEEN_KEY) || '';
+  const isNew = !!currentBadge && currentBadge !== lastSeen;
+
+  btn.classList.toggle('is-new', isNew);
+}
+
+function miMarkPatchNotesSeen(currentBadge) {
+  if (!currentBadge) return;
+  localStorage.setItem(MI_PATCH_NOTES_SEEN_KEY, currentBadge);
+
+  const btn = document.getElementById('versionBadgeBtn');
+  if (btn) btn.classList.remove('is-new');
+}
+
+// ===== VERSION BADGE PATCH NOTES =====
+function initVersionPatchNotes() {
+  const btn = document.getElementById('versionBadgeBtn');
+  const panel = document.getElementById('versionNotes');
+  if (!btn || !panel) return;
+
+  const open = () => {
+    panel.classList.add('is-open');
+    panel.setAttribute('aria-hidden', 'false');
+    btn.setAttribute('aria-expanded', 'true');
+
+    const badge = document.getElementById('versionBadgeText')?.textContent?.trim() || '';
+    miMarkPatchNotesSeen(badge);
+  };
+
+  const close = () => {
+    panel.classList.remove('is-open');
+    panel.setAttribute('aria-hidden', 'true');
+    btn.setAttribute('aria-expanded', 'false');
+  };
+
+  const isOpen = () => panel.classList.contains('is-open');
+
+  btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (isOpen()) close();
+    else open();
+  });
+
+  // close on outside click
+  document.addEventListener('click', (e) => {
+    if (!isOpen()) return;
+    if (panel.contains(e.target) || btn.contains(e.target)) return;
+    close();
+  });
+
+  // close on Esc
+  document.addEventListener('keydown', (e) => {
+    if (!isOpen()) return;
+    if (e.key === 'Escape') close();
+  });
+}
+
 // ========== PRE-MATCHUP COPY ADAPTER (pre_matchup → prematch.*) ==========
 // Your HTML expects data-copy="prematch.*" but copy.json uses pre_matchup.*
 // This adapter creates a prematch block so applyCopyToDOM can populate the hub.
@@ -312,6 +376,59 @@ function resetPostMatchupDefaultView() {
   setEvidenceOpen(false);
 }
 
+// ===== PATCH NOTES: render from canonical MI_COPY =====
+function miRenderPatchNotesFromCopy(copyObj) {
+  const copy = copyObj || window.MI_COPY;
+  const list = document.getElementById('versionNotesList');
+  const badgeText = document.getElementById('versionBadgeText');
+  if (!copy || !list) return;
+
+  const pn = copy.patch_notes;
+  if (!pn || !Array.isArray(pn.items)) {
+    list.innerHTML = '';
+    return;
+  }
+
+  // Optional: drive the badge line from copy.json
+  let currentBadge = '';
+  if (typeof pn.badge === 'string' && pn.badge.trim()) {
+    currentBadge = pn.badge.trim();
+    if (badgeText) badgeText.textContent = currentBadge;
+  }
+
+  miSyncPatchNotesNewState(currentBadge);
+
+  const maxItems = Number(pn.max_items || 6);
+  const items = pn.items.slice(0, maxItems);
+
+  list.innerHTML = items.map(entry => {
+    const build = entry.build || 'Update';
+    const date = entry.date ? ` <span class="pn-date">(${miEscapeHtml(String(entry.date))})</span>` : '';
+    const bullets = Array.isArray(entry.bullets) ? entry.bullets : [];
+
+    const bulletsHtml = bullets
+      .map(b => `<li class="pn-bullet">${miEscapeHtml(String(b))}</li>`)
+      .join('');
+
+    return `
+      <li class="pn-entry">
+        <div class="pn-build"><strong>${miEscapeHtml(String(build))}</strong>${date}</div>
+        <ul class="pn-bullets">${bulletsHtml}</ul>
+      </li>
+    `;
+  }).join('');
+}
+
+function miEscapeHtml(s) {
+  return s.replace(/[&<>"']/g, c => ({
+    '&':'&amp;',
+    '<':'&lt;',
+    '>':'&gt;',
+    '"':'&quot;',
+    "'":'&#39;'
+  }[c]));
+}
+
 // loadCopyJSON() { Fetches copy.json, stores it on window.MI_COPY, then calls applyCopyToDOM, buildGlossaryFromCopy, populateBackExplanations, and populateInteractionsHowToList. Handles fetch/parse errors.
 
 function loadCopyJSON() {
@@ -331,6 +448,7 @@ function loadCopyJSON() {
 
       // Apply copy-driven UI
       applyCopyToDOM(data);
+      miRenderPatchNotesFromCopy(data);
       buildGlossaryFromCopy(data);
       populateBackExplanations(data);
       populateInteractionsHowToList(data);
@@ -1668,7 +1786,6 @@ function miUpdateMatchupRoundPill(roundCode) {
   el.setAttribute('data-round', r);
 }
 
-// ---------- Config: Metric Aliases ----------
 // Allows flexible CSV headers while mapping into canonical keys.
 const ALIASES = {
   team: ['Team','TEAM','team','School','Team Name','TeamName','Team_Name','School Name','SchoolName','School_Name'],
@@ -1685,8 +1802,7 @@ const ALIASES = {
   to: ['TO%', 'TOV%', 'to', 'to_pct', 'TO_pct', 'TO pct'],
 
   // Resume / SOS
-  w: ['W', 'Wins'],
-  l: ['L', 'Losses'],
+  wp: ['Win%', 'Win Pct', 'Win Percentage', 'WPCT', 'W-L%'],
   sos: ['SOS', 'sos', 'Sos'],
   cgw: ['CGW%', 'CGW_pct', 'CGW pct', 'Close Game Win %'],
 
@@ -1906,65 +2022,75 @@ function detectTeamNameIndex(headers, rows) {
 }
 
 // Normalize a header (trim, lowercase, strip punctuation/spaces)
+// Hardened to remove hidden unicode spaces and normalize percent variants.
 function _normHeader(h) {
   return String(h || '')
+    // normalize common invisible chars + NBSP
+    .replace(/[\u00A0\u200B\u200C\u200D\uFEFF]/g, ' ')
+    // normalize full-width percent to ASCII percent
+    .replace(/％/g, '%')
     .trim()
     .toLowerCase()
-    .replace(/[%]/g, 'pct')
-    .replace(/[.\-_/]/g, ' ')      // dots and punctuation -> spaces
-    .replace(/\s+/g, ' ')          // collapse spaces
+    // turn % into a real token separator so "3P%" becomes "3p pct"
+    .replace(/%/g, ' pct')
+    // normalize punctuation/underscores/slashes to spaces
+    .replace(/[.\-_/]/g, ' ')
+    // collapse spaces
+    .replace(/\s+/g, ' ')
     .trim();
 }
 
-// EXACT map for "Official MM Sheet 2.csv"
+// EXACT map for the official dataset headers (normalized via _normHeader)
 const HEADER_MAP = new Map([
   // identity
-  ['team',                    'name'],
-  ['seed',                    'seed'],
+  ['team',                      'name'],
+  ['seed',                      'seed'],
 
   // core 8
-  ['off eff',                 'offeff'],
-  ['def eff',                 'defeff'],
-  ['efficiency margin',       'adjem'],
-  ['true shooting pct',       'ts'],
-  ['efg',                     'efg'],
-  ['tempo',                   'tempo'],
+  ['off eff',                   'offeff'],      // "OFF. Eff."
+  ['def eff',                   'defeff'],      // "DEF. Eff."
+  ['efficiency margin',         'adjem'],
+  ['true shooting pct',         'ts'],          // "True Shooting %"
+  ['efg',                       'efg'],
+  ['tempo',                     'tempo'],
   ['effective possession ratio','epr'],
-  ['to pct',                  'to'],
+  ['to pct',                    'to'],          // "TO%"
 
   // defensive eFG
-  ['def efgpct',               'def_efg'],   // for "Def. eFG%"
-  ['def efg pct',              'def_efg'],   // for "Def. eFG pct" style headers
+  ['def efg pct',               'def_efg'],      // "Def. eFG%"
 
   // distribution (points share)
-  ['pct of points from 2',    'pct_pts_2'],  // note: CSV header had a trailing space — normalizer strips it
-  ['pct of points from 3',    'pct_pts_3'],
-  ['pct of points from ft',   'pct_pts_ft'],
+  ['pct of points from 2',      'pct_pts_2'],
+  ['pct of points from 3',      'pct_pts_3'],
+  ['pct of points from ft',     'pct_pts_ft'],
 
-  // shooting + rates used by interactions
-  ['3p pct',                  'threepp'],
-  ['3p rate',                 'threepr'],
-  ['ftr',                     'ftr'],
+  // shooting + rates
+  ['3p pct',                    'threepp'],     // "3P%"
+  ['3p rate',                   'threepr'],     // "3P Rate"
+  ['ft',                        'ft_pct'],      // "FT"
+  ['ftr',                       'ftr'],
 
-  // extras used in breadth / interactions / marks
-  ['extra scoring chances game', 'scpg'],
-  ['non blocked 2pt pct',     'nb2'],
-  ['orb pct',                 'orb'],
-  ['drb pct',                 'drb'],
-  ['block pct',               'blk'],
-  ['steals per possession',   'spp'],
-  ['opp asst poss',           'opp_ast_poss'],
-  ['opp to poss',             'otpp'],
-  ['opp fta fga',             'opp_ftr'],
-  ['opp 3pt pct',             'opp_3pp'],
-  ['opp 3p rate',             'opp_3pr'],
-  ['ft_pct',                  'ft_pct'],
+  // extras
+  ['extra scoring chances game','scpg'],        // "Extra Scoring Chances/game"
+  ['non blocked 2pt pct',       'nb2'],         // "Non-blocked 2pt %"
+  ['orb pct',                   'orb'],         // "ORB %"
+  ['drb pct',                   'drb'],         // "DRB %"
+  ['block pct',                 'blk'],         // "Block %"
+  ['steals per possession',     'spp'],         // "Steals per Possession"
 
-  // résumé bits
-  ['close game win pct',      'close_win_pct'],
-  ['wins',                    'w'],
-  ['losses',                  'l'],
-  ['strength of schedule',    'sos'],
+  // opponent / defensive shooting
+  ['opp 3p pct',                'opp_3pp'],     // "Opp. 3P%"
+  ['opp 3p rate',               'opp_3pr'],     // "Opp. 3P Rate"
+  ['opp asst poss',             'opp_ast_poss'],// "Opp. Asst./Poss"
+  ['opp to poss',               'otpp'],        // "Opp. TO/poss"
+  ['opp fta fga',               'opp_ftr'],     // "Opp. FTA/FGA"
+
+  // résumé
+  ['close game win pct',        'close_win_pct'],
+  ['win pct', 'wp'],
+  ['win%',    'wp'],
+  ['win percentage', 'wp'],
+  ['strength of schedule',      'sos'],
 ]);
 
 // Build index: CSV header -> internal key
@@ -1984,6 +2110,8 @@ function makeHeaderIndex(headers) {
   index.__raw = headers;
   index.__norm = normed;
   return index;
+
+  console.log('NORM HEADERS:', headers.map(_normHeader));
 }
 
 // Live gain constants (locked “starting constants”)
@@ -2060,8 +2188,7 @@ function buildTeamsFromCSV(headers, rows) {
 
       // résumé
       close_win_pct: getNum(row, 'close_win_pct'),
-      w:             getNum(row, 'w'),
-      l:             getNum(row, 'l'),
+      wp:            getNum(row, 'wp'),
       sos:           getNum(row, 'sos'),
     };
 
@@ -2102,12 +2229,8 @@ function computeFieldStats() {
   const sosArr = [];
 
   Object.values(TEAMS).forEach(t => {
-    if (t.w != null && t.l != null) {
-      const total = t.w + t.l;
-      if (total > 0) {
-        t.wp = t.w / total;
-        wpArr.push(t.wp);
-      }
+    if (t.wp != null && !isNaN(t.wp)) {
+      wpArr.push(t.wp);
     }
     if (t.sos != null) {
       sosArr.push(t.sos);
@@ -3203,11 +3326,37 @@ function compareTeams(teamAName, teamBName, roleMode = 'auto') {
   const activeRound = CURRENT_ROUND;  // e.g. "R64", "S16", etc.
   const seedMeta    = getSeedRoundMeta(a.seed, b.seed, activeRound);
 
-  const miA = computeFinalMI(a, interactions.a);
-  const miB = computeFinalMI(b, interactions.b);
+    // ===== Interaction gating (baseline-separation gate) =====
+  // Compute baselines (safeguard: ensure they exist)
+  const baseA = (typeof a.mi_base === 'number') ? a.mi_base : computeMIBase(a);
+  const baseB = (typeof b.mi_base === 'number') ? b.mi_base : computeMIBase(b);
+
+  // Compute "raw" matchup MI under the current engine (includes résumé-scaled interactions)
+  const miA_raw = computeFinalMI(a, interactions.a);
+  const miB_raw = computeFinalMI(b, interactions.b);
+
+  // Decompose into interaction contributions (post-résumé scaling)
+  const intA = miA_raw - baseA;
+  const intB = miB_raw - baseB;
+
+  const base_diff = baseA - baseB;
+  const int_diff  = intA - intB;
+
+  const dBase = Math.abs(base_diff);
+
+  // Gate weight w(|base_diff|)
+  const w =
+    (dBase < 0.25) ? 0.25 :
+    (dBase < 0.50) ? 0.50 :
+    (dBase < 0.75) ? 0.75 :
+                     1.00;
+
+  // Apply gating symmetrically to both teams' interaction contributions
+  const miA = baseA + w * intA;
+  const miB = baseB + w * intB;
 
   const diff      = miA - miB;
-  const absDiff   = Math.abs(diff); 
+  const absDiff   = Math.abs(diff);
   const predicted = diff > 0 ? a.name : (diff < 0 ? b.name : 'Push');
 
   const result = {
@@ -3272,17 +3421,12 @@ function populateTeamDropdowns() {
   selectA.innerHTML = '<option value="" disabled selected>Select Team A</option>';
   selectB.innerHTML = '<option value="" disabled selected>Select Team B</option>';
 
-  TEAM_LIST.sort().forEach(name => {
+  // 1) Populate options fully first
+  TEAM_LIST.slice().sort().forEach(name => {
     const optA = document.createElement('option');
     optA.value = name;
     optA.textContent = name;
     selectA.appendChild(optA);
-
-    // Mount searchable dropdown UI (drives the native selects)
-    const wrapA = document.getElementById('teamASelectWrap');
-    const wrapB = document.getElementById('teamBSelectWrap');
-    if (wrapA) ensureSearchableTeamDropdown(selectA, wrapA, 'Select Team A');
-    if (wrapB) ensureSearchableTeamDropdown(selectB, wrapB, 'Select Team B');
 
     const optB = document.createElement('option');
     optB.value = name;
@@ -3290,6 +3434,17 @@ function populateTeamDropdowns() {
     selectB.appendChild(optB);
   });
 
+  // 2) Mount searchable dropdown UI once
+  const wrapA = document.getElementById('teamASelectWrap');
+  const wrapB = document.getElementById('teamBSelectWrap');
+
+  const ctxA = selectA.getAttribute('data-dd-context') || (wrapA && wrapA.getAttribute('data-dd-context')) || '';
+  const ctxB = selectB.getAttribute('data-dd-context') || (wrapB && wrapB.getAttribute('data-dd-context')) || '';
+
+  if (wrapA) ensureSearchableTeamDropdown(selectA, wrapA, 'Select Team A', ctxA);
+  if (wrapB) ensureSearchableTeamDropdown(selectB, wrapB, 'Select Team B', ctxB);
+
+  // 3) listeners
   let lastTeamsOk = false;
 
   const onTeamChange = () => {
@@ -3298,16 +3453,16 @@ function populateTeamDropdowns() {
     updatePreMatchupHubProgress();
     refreshCompareButtonState();
 
-  const teamsOk = getSelectedTeams().ok;
-  const roundReady = isRoundSelected();
+    const teamsOk = getSelectedTeams().ok;
+    const roundReady = isRoundSelected();
 
-  if (!lastTeamsOk && teamsOk && !roundReady && !MI_ROUND_TOUCHED && !MI_ROUND_NUDGE_SHOWN) {
-    MI_ROUND_NUDGE_SHOWN = true;
-    nudgeRoundSelector();
-  }
+    if (!lastTeamsOk && teamsOk && !roundReady && !MI_ROUND_TOUCHED && !MI_ROUND_NUDGE_SHOWN) {
+      MI_ROUND_NUDGE_SHOWN = true;
+      nudgeRoundSelector();
+    }
 
-  lastTeamsOk = teamsOk;
-};
+    lastTeamsOk = teamsOk;
+  };
 
   selectA.addEventListener('change', onTeamChange);
   selectB.addEventListener('change', onTeamChange);
@@ -3358,7 +3513,7 @@ function miRankMatch(name, q) {
   return 999;
 }
 
-function ensureSearchableTeamDropdown(selectEl, wrapEl, placeholderText) {
+function ensureSearchableTeamDropdown(selectEl, wrapEl, placeholderText, contextKey) {
   if (!selectEl || !wrapEl) return;
 
   // Already mounted?
@@ -3374,6 +3529,10 @@ function ensureSearchableTeamDropdown(selectEl, wrapEl, placeholderText) {
   // Build base structure
   const root = document.createElement('div');
   root.className = 'mi-team-dd';
+
+  // ✅ Context hook for CSS scoping
+  const ctx = contextKey || selectEl.getAttribute('data-dd-context') || wrapEl.getAttribute('data-dd-context') || '';
+  if (ctx) root.setAttribute('data-dd-context', ctx);
 
   const btn = document.createElement('button');
   btn.type = 'button';
@@ -3914,10 +4073,17 @@ function getLeanBand(diff) {
 
 function getSummaryGapKey(diff) {
   const d = Math.abs(typeof diff === 'number' ? diff : 0);
-  if (d < 0.10) return 'tiny_gap';   // "Coin flip"
-  if (d < 0.25) return 'small_gap';  // "Slight lean"
-  if (d < 0.50) return 'medium_gap'; // "Clear lean"
-  return 'large_gap';                // "Strong favorite"
+
+  // Δ < 1.00 (Volatility regime — granular)
+  if (d < 0.25) return 'tiny_0_25';
+  if (d < 0.50) return 'tiny_0_50';
+  if (d < 0.75) return 'tiny_0_75';
+  if (d < 1.00) return 'tiny_1_00';
+
+  // Empirical bands (validated across 2023–2025)
+  if (d < 2.00) return 'small_gap';   // 1.0–2.0
+  if (d < 4.00) return 'medium_gap';  // 2.0–4.0
+  return 'large_gap';                // 4.0+
 }
 
 /* =========================================================
@@ -3935,12 +4101,19 @@ const MI_LOG_LASTNEW_KEY = "MI_LOG_LASTNEW_ID_V1";
 function miLogIntroduced(){
   try{ return localStorage.getItem(MI_LOG_INTRO_KEY) === "1"; }catch(e){ return false; }
 }
+
 function miSetLogIntroduced(){
   try{ localStorage.setItem(MI_LOG_INTRO_KEY, "1"); }catch(e){}
 }
+
 function miSetLastNewId(id){
-  try{ if (id) localStorage.setItem(MI_LOG_LASTNEW_KEY, String(id)); }catch(e){}
+  try{
+    // allow clearing the marker so the "new row" animation doesn't replay
+    if (id) localStorage.setItem(MI_LOG_LASTNEW_KEY, String(id));
+    else localStorage.removeItem(MI_LOG_LASTNEW_KEY);
+  }catch(e){}
 }
+
 function miGetLastNewId(){
   try{ return localStorage.getItem(MI_LOG_LASTNEW_KEY) || ""; }catch(e){ return ""; }
 }
@@ -4176,7 +4349,7 @@ function miRenderShelf(){
     if (newestRow){
       newestRow.classList.add("is-new");
       miSetLastNewId(""); // remove marker so it doesn't animate forever
-      setTimeout(() => newestRow.classList.remove("is-new"), 520);
+      setTimeout(() => newestRow.classList.remove("is-new"), 2000);
     }
   }
 
@@ -4271,6 +4444,7 @@ function miObserveShelfPhases(){
 document.addEventListener("DOMContentLoaded", () => {
   miInitShelf();
   miObserveShelfPhases();
+  initVersionPatchNotes();
 });
 
 function miPickBandLine(block, gapKey) {
@@ -4324,7 +4498,10 @@ function miSetVerdictCopy({ winner, loser, gapKey }) {
 
     if (_cache.has(cacheKey)) return _cache.get(cacheKey) || "";
 
-    const bucket = (block[bandKey] != null) ? block[bandKey] : block.default;
+    const bucket =
+      (block[bandKey] != null) ? block[bandKey] :
+      (String(bandKey || '').startsWith('tiny_') && block.tiny_gap != null) ? block.tiny_gap :
+      block.default;
     let pool = [];
 
     if (Array.isArray(bucket)) pool = bucket.filter(Boolean);
@@ -5044,6 +5221,10 @@ function renderSummary({ a, b, miA, miB, diff, absDiff, predicted, interactions,
   const primaryTpl = pickTplStable(primaryCfg, gapKey, "primary");
   const primaryText = renderTpl(primaryTpl, tokens).trim();
 
+  // Sentence 2 (subheadline #1): secondary_text (stable-random, calibrated)
+  const secondaryTpl = pickTplStable(secondaryCfg, gapKey, "secondary");
+  const secondaryFlavorText = renderTpl(secondaryTpl, tokens).trim();
+
   // ===== Deterministic interaction driver ranking (no output yet) =====
   let __rankedDrivers = [];
 
@@ -5073,7 +5254,7 @@ function renderSummary({ a, b, miA, miB, diff, absDiff, predicted, interactions,
     __rankedDrivers = nonZero;
   }
   
-    // ===== Secondary driver state machine (selection only; no rendering yet) =====
+  // = Secondary driver state machine (selection only; no rendering yet)
   let __secondaryPlan = {
     caseId: "case4",
     drivers: [],
@@ -5135,38 +5316,37 @@ function renderSummary({ a, b, miA, miB, diff, absDiff, predicted, interactions,
     __secondaryPlan.hasBalanceClause = false;
   }
 
-  // ===== Deterministic secondary text generation =====
-  let secondaryText = "";
+    // ===== Sentence 3 (subheadline #2): secondary_dynamic (deterministic driver sentence) =====
+  let secondaryDynamicText = "";
 
   const metricsCopy = (window.MI_COPY && window.MI_COPY.verdict && window.MI_COPY.verdict.metrics)
     ? window.MI_COPY.verdict.metrics
     : null;
 
   if (metricsCopy && metricsCopy.secondary_dynamic && metricsCopy.secondary_driver_phrases) {
-
     const dyn = metricsCopy.secondary_dynamic;
     const phraseMap = metricsCopy.secondary_driver_phrases;
 
-    const d1 = __secondaryPlan.drivers[0] ? phraseMap[__secondaryPlan.drivers[0]] : null;
-    const d2 = __secondaryPlan.drivers[1] ? phraseMap[__secondaryPlan.drivers[1]] : null;
-    const d3 = __secondaryPlan.drivers[2] ? phraseMap[__secondaryPlan.drivers[2]] : null;
+    const d1 = __secondaryPlan.drivers[0] ? phraseMap[__secondaryPlan.drivers[0]] : "";
+    const d2 = __secondaryPlan.drivers[1] ? phraseMap[__secondaryPlan.drivers[1]] : "";
+    const d3 = __secondaryPlan.drivers[2] ? phraseMap[__secondaryPlan.drivers[2]] : "";
 
     function inject(template) {
-      return template
-        .replace(/{{DRIVER_1}}/g, d1 || "")
-        .replace(/{{DRIVER_2}}/g, d2 || "")
-        .replace(/{{DRIVER_3}}/g, d3 || "")
-        .replace(/{{WINNER}}/g, winName)
-        .replace(/{{LOSER}}/g, loseName);
+      return String(template || "")
+        .replace(/{{DRIVER_1}}/g, d1)
+        .replace(/{{DRIVER_2}}/g, d2)
+        .replace(/{{DRIVER_3}}/g, d3)
+        .replace(/{{WINNER}}/g, winName || "")
+        .replace(/{{LOSER}}/g, loseName || "");
     }
 
     let bank = null;
 
     if (__secondaryPlan.caseId === "case1") {
-      bank = (d3 && dyn.case1_major3) ? dyn.case1_major3 : dyn.case1;
+      bank = (d3 && Array.isArray(dyn.case1_major3) && dyn.case1_major3.length) ? dyn.case1_major3 : dyn.case1;
     }
     else if (__secondaryPlan.caseId === "case2") {
-      bank = (d3 && dyn.case2_major3) ? dyn.case2_major3 : dyn.case2;
+      bank = (d3 && Array.isArray(dyn.case2_major3) && dyn.case2_major3.length) ? dyn.case2_major3 : dyn.case2;
     }
     else if (__secondaryPlan.caseId === "case3") {
       bank = dyn.case3;
@@ -5177,11 +5357,17 @@ function renderSummary({ a, b, miA, miB, diff, absDiff, predicted, interactions,
 
     if (Array.isArray(bank) && bank.length > 0) {
       const tpl = bank[0]; // deterministic: always first entry
-      secondaryText = inject(tpl).trim();
+      secondaryDynamicText = inject(tpl).trim();
     }
   }
 
-  const combinedVerdict = [primaryText, secondaryText].filter(Boolean).join(' ');
+  // Build verdict line in intended order:
+  // 1) primary_text (headline)
+  // 2) secondary_text (subheadline sentence #1)
+  // 3) secondary_dynamic (subheadline sentence #2)
+  const combinedVerdict = [primaryText, secondaryFlavorText, secondaryDynamicText]
+    .filter(Boolean)
+    .join(' ');
 
   const lineEl = document.getElementById('miVerdictLine');
   if (lineEl) {
@@ -6040,8 +6226,6 @@ function enterMatchupQuickEdit() {
   slotB.setAttribute('aria-hidden', 'false');
   slotR.setAttribute('aria-hidden', 'false');
 
-  ensureQuickEditSandboxToggle();
-
   // Show actions container
   const actions = matchupBar.querySelector('.matchup-quick-actions');
   if (actions) {
@@ -6049,14 +6233,274 @@ function enterMatchupQuickEdit() {
     actions.inert = false;
   }
 
-  // Move existing controls into the bar
-  slotA.appendChild(aWrap);
-  slotR.appendChild(rWrap);
-  slotB.appendChild(bWrap);
+  // =========================================================
+  // QUICK EDIT: build dedicated controls (DO NOT MOVE home UI)
+  // =========================================================
 
-  // Focus Team A for speed
-  const teamASelect = document.getElementById('teamA');
-  if (teamASelect) teamASelect.focus();
+  slotA.innerHTML = '';
+  slotB.innerHTML = '';
+  slotR.innerHTML = '';
+
+  // --- Team A ---
+  const aWrapQ = document.createElement('div');
+  aWrapQ.className = 'select-wrap quick-team-select';
+  aWrapQ.id = 'teamAQuickSelectWrap';
+
+  const aSelQ = document.createElement('select');
+  aSelQ.id = 'teamAQuick';
+  aSelQ.setAttribute('data-dd-context', 'quick');
+  aSelQ.innerHTML = `<option value="" disabled selected>Select Team A</option>`;
+
+  const homeA = document.getElementById('teamA');
+  if (homeA) {
+    for (const opt of homeA.options) {
+      if (opt.value === '') continue;
+      aSelQ.appendChild(opt.cloneNode(true));
+    }
+    if (homeA.value) aSelQ.value = homeA.value;
+  }
+
+  aWrapQ.appendChild(aSelQ);
+  slotA.appendChild(aWrapQ);
+
+  // --- Team B ---
+  const bWrapQ = document.createElement('div');
+  bWrapQ.className = 'select-wrap quick-team-select';
+  bWrapQ.id = 'teamBQuickSelectWrap';
+
+  const bSelQ = document.createElement('select');
+  bSelQ.id = 'teamBQuick';
+  bSelQ.setAttribute('data-dd-context', 'quick');
+  bSelQ.innerHTML = `<option value="" disabled selected>Select Team B</option>`;
+
+  const homeB = document.getElementById('teamB');
+  if (homeB) {
+    for (const opt of homeB.options) {
+      if (opt.value === '') continue;
+      bSelQ.appendChild(opt.cloneNode(true));
+    }
+    if (homeB.value) bSelQ.value = homeB.value;
+  }
+
+  bWrapQ.appendChild(bSelQ);
+  slotB.appendChild(bWrapQ);
+
+  // --- Round (custom button UI + hidden select backing model) ---
+  const rWrapQ = document.createElement('div');
+  rWrapQ.className = 'select-wrap quick-round-select';
+  rWrapQ.id = 'roundQuickSelectWrap';
+
+  // Button that should look like the home button
+  const rBtnQ = document.createElement('button');
+  rBtnQ.id = 'roundSelectBtnQuick';
+  rBtnQ.className = 'btn ghost round-btn';
+  rBtnQ.type = 'button';
+  rBtnQ.setAttribute('aria-haspopup', 'listbox');
+  rBtnQ.setAttribute('aria-expanded', 'false');
+  rBtnQ.textContent = 'Select Round';
+
+  // Dropdown panel (we’ll fill with .round-option divs)
+  const rDdQ = document.createElement('div');
+  rDdQ.id = 'roundDropdownQuick';
+  rDdQ.className = 'round-dropdown'; // important: matches home class if your CSS is class-scoped
+  rDdQ.setAttribute('role', 'listbox');
+  rDdQ.hidden = true;
+
+  // Hidden select (keeps your existing round constraint logic intact)
+  const rSelQ = document.createElement('select');
+  rSelQ.id = 'roundSelectorQuick';
+  rSelQ.setAttribute('data-dd-context', 'quick');
+  rSelQ.hidden = true;
+  rSelQ.innerHTML = `<option value="" disabled selected>Select Round</option>`;
+
+  // Build both: <option> list AND custom panel items from home roundDropdown
+  const homeRoundDd = document.getElementById('roundDropdown');
+  if (homeRoundDd) {
+    homeRoundDd.querySelectorAll('.round-option[data-round]').forEach(div => {
+      const roundVal = div.dataset.round;
+      const roundLabel = div.textContent.trim();
+
+      // option for the hidden select
+      const opt = document.createElement('option');
+      opt.value = roundVal;
+      opt.textContent = roundLabel;
+      rSelQ.appendChild(opt);
+
+      // visible item for the custom dropdown
+      const item = document.createElement('div');
+      item.className = 'round-option';
+      item.dataset.round = roundVal;
+      item.textContent = roundLabel;
+      item.setAttribute('role', 'option');
+
+      item.addEventListener('click', () => {
+        // set model
+        rSelQ.value = roundVal;
+        // reflect on button
+        rBtnQ.textContent = roundLabel;
+        rBtnQ.dataset.selected = roundVal;
+
+        // drive your existing listener path
+        rSelQ.dispatchEvent(new Event('change', { bubbles: true }));
+
+        // close panel
+        rDdQ.hidden = true;
+        rBtnQ.setAttribute('aria-expanded', 'false');
+      });
+
+      rDdQ.appendChild(item);
+    });
+  }
+
+  // Initialize from current home selection if present
+  const currentRoundBtn = document.getElementById('roundSelectBtn');
+  if (currentRoundBtn && currentRoundBtn.dataset.selected) {
+    const val = currentRoundBtn.dataset.selected;
+    rSelQ.value = val;
+    rBtnQ.dataset.selected = val;
+
+    const matchOpt = [...rSelQ.options].find(o => o.value === val);
+    if (matchOpt) rBtnQ.textContent = matchOpt.textContent;
+  }
+
+  // Button toggle behavior
+  rBtnQ.addEventListener('click', (e) => {
+    e.preventDefault();
+    const nowOpen = rDdQ.hidden;
+    rDdQ.hidden = !nowOpen;
+    rBtnQ.setAttribute('aria-expanded', nowOpen ? 'true' : 'false');
+  });
+
+  // Click-away close
+  document.addEventListener('click', (e) => {
+    if (rDdQ.hidden) return;
+    if (e.target === rBtnQ || rDdQ.contains(e.target)) return;
+    rDdQ.hidden = true;
+    rBtnQ.setAttribute('aria-expanded', 'false');
+  });
+
+  // Mount
+  rWrapQ.appendChild(rBtnQ);
+  rWrapQ.appendChild(rDdQ);
+  rWrapQ.appendChild(rSelQ);
+  slotR.appendChild(rWrapQ);
+
+  // =========================================================
+  // ROUND CONSTRAINT FILTER
+  // Reads seeds from the selected option's data-seed attribute,
+  // then enables only the rounds that are valid for that matchup.
+  // When sandbox mode is on, all rounds are enabled.
+  // =========================================================
+  function updateQuickRoundOptions() {
+    const sandboxOn =
+      !!(typeof window !== 'undefined' && window.SANDBOX_MODE) ||
+      !!(typeof SANDBOX_MODE !== 'undefined' && SANDBOX_MODE);
+  
+    const teamAName = aSelQ.value || '';
+    const teamBName = bSelQ.value || '';
+
+    const teamA = teamAName ? getTeamByName(teamAName) : null;
+    const teamB = teamBName ? getTeamByName(teamBName) : null;
+
+    const seedA = teamA && teamA.seed != null ? teamA.seed : null;
+    const seedB = teamB && teamB.seed != null ? teamB.seed : null;
+
+    const hasBothSeeds = seedA != null && seedB != null && seedA !== '' && seedB !== '';
+
+    let possibleRounds = null;
+    if (!sandboxOn && hasBothSeeds) {
+      possibleRounds = getPossibleRoundsForSeeds(seedA, seedB);
+    }
+
+    for (const opt of rSelQ.options) {
+      if (opt.value === '') continue; // placeholder stays visible
+
+      if (sandboxOn || !hasBothSeeds || !possibleRounds) {
+        opt.hidden = false;
+        opt.disabled = false;
+      } else {
+        const ok = possibleRounds.includes(opt.value);
+        opt.hidden = !ok;      // ✅ match home behavior: only show possible rounds
+        opt.disabled = !ok;
+      }
+    }
+
+    // Mirror the select's hidden/disabled state onto the custom dropdown items
+    const quickItems = slotR.querySelectorAll('#roundDropdownQuick .round-option[data-round]');
+    quickItems.forEach(item => {
+      const val = item.dataset.round;
+      const opt = [...rSelQ.options].find(o => o.value === val);
+      if (!opt) return;
+
+      // match home behavior: hide impossible rounds
+      item.style.display = (opt.hidden || opt.disabled) ? 'none' : '';
+    });
+
+    // If selected round became invalid/hidden, reset
+    if (rSelQ.value) {
+      const sel = rSelQ.options[rSelQ.selectedIndex];
+        if (sel && (sel.disabled || sel.hidden)) rSelQ.value = '';
+    }
+
+    if (!rSelQ.value) {
+      rBtnQ.textContent = 'Select Round';
+      delete rBtnQ.dataset.selected;
+    }
+  }
+
+  // Run once on open with whatever is already selected
+  updateQuickRoundOptions();
+
+  // --- Sync listeners ---
+  aSelQ.addEventListener('change', () => {
+    const home = document.getElementById('teamA');
+    if (home) { home.value = aSelQ.value; home.dispatchEvent(new Event('change', { bubbles: true })); }
+    updateQuickRoundOptions();
+  });
+
+  bSelQ.addEventListener('change', () => {
+    const home = document.getElementById('teamB');
+    if (home) { home.value = bSelQ.value; home.dispatchEvent(new Event('change', { bubbles: true })); }
+    updateQuickRoundOptions();
+  });
+
+  rSelQ.addEventListener('change', () => {
+    const matching = document.querySelector(
+      `#roundDropdown .round-option[data-round="${rSelQ.value}"]`
+    );
+    if (matching) matching.click();
+  });
+
+  // --- Searchable dropdowns ---
+  ensureSearchableTeamDropdown(aSelQ, aWrapQ, 'Select Team A', 'quick');
+  ensureSearchableTeamDropdown(bSelQ, bWrapQ, 'Select Team B', 'quick');
+
+  // --- Sandbox toggle ---
+  ensureQuickEditSandboxToggle();
+
+  const sandboxLabel = document.getElementById('miSandboxQuickLabel');
+  if (sandboxLabel && slotR) {
+    const clone = sandboxLabel.cloneNode(true);
+    clone.id = 'miSandboxQuickLabelBar';
+    const cloneInput = clone.querySelector('input');
+    if (cloneInput) {
+      cloneInput.id = 'sandboxModeToggleQuickBar';
+      const original = document.getElementById('sandboxModeToggleQuick');
+      if (original) cloneInput.checked = original.checked;
+      cloneInput.addEventListener('change', () => {
+        const orig = document.getElementById('sandboxModeToggleQuick');
+        if (orig && orig.checked !== cloneInput.checked) {
+          orig.checked = cloneInput.checked;
+          orig.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+        // Re-filter round options immediately when sandbox toggles
+        updateQuickRoundOptions();
+      });
+    }
+    slotR.appendChild(clone);
+  }
+
+  aSelQ.focus();
 }
 
 function exitMatchupQuickEdit() {
@@ -6069,7 +6513,6 @@ function exitMatchupQuickEdit() {
 
   const actions = matchupBar.querySelector('.matchup-quick-actions');
 
-  // --- A11y: don't aria-hide a region while a descendant still has focus ---
   const active = document.activeElement;
   const focusIsInside =
     !!active &&
@@ -6081,7 +6524,6 @@ function exitMatchupQuickEdit() {
     );
 
   if (focusIsInside) {
-    // Prefer to focus a stable, always-visible control outside quick-edit regions.
     const fallback =
       document.getElementById('teamA') ||
       document.getElementById('teamB') ||
@@ -6095,7 +6537,6 @@ function exitMatchupQuickEdit() {
     }
   }
 
-  // Now it's safe to hide/toggle editing state
   matchupBar.classList.remove('is-editing');
   slotA?.setAttribute('aria-hidden', 'true');
   slotB?.setAttribute('aria-hidden', 'true');
@@ -6106,18 +6547,10 @@ function exitMatchupQuickEdit() {
     actions.inert = true;
   }
 
-  const aWrap = document.getElementById('teamASelectWrap');
-  const bWrap = document.getElementById('teamBSelectWrap');
-  const rWrap = document.getElementById('roundSelectorWrap');
+  slotA && (slotA.innerHTML = '');
+  slotB && (slotB.innerHTML = '');
+  slotR && (slotR.innerHTML = '');
 
-  if (__MI_QUICK_EDIT_HOME && aWrap && bWrap && rWrap) {
-    const { aParent, bParent, rParent, aNext, bNext, rNext } = __MI_QUICK_EDIT_HOME;
-    aParent?.insertBefore(aWrap, aNext || null);
-    bParent?.insertBefore(bWrap, bNext || null);
-    rParent?.insertBefore(rWrap, rNext || null);
-  }
-
-  // Close round dropdown if open (avoids weird floating menu)
   const roundDropdown = document.getElementById('roundDropdown');
   if (roundDropdown) roundDropdown.classList.add('hidden');
 }

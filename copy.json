@@ -6,52 +6,123 @@
     "subtitle": "Head-to-head NCAA Tournament matchup engine",
     "subtitle_highlight": "powered by advanced analytics."
   },
+  "patch_notes": {
+    "title": "Patch Notes",
+    "hint": "Click for Patch Notes",
+    "badge": "Version 1.0 (Build 4.1)",
+    "max_items": 6,
+    "items": [
+      {
+        "build": "Build 4.1",
+        "date": "2026-02-25",
+        "bullets": [
+          "Added 2024 Tournament Dataset."
+        ]
+      }
+    ]
+  },
   "verdict": {
     "metrics": {
       "primary_text": {
-        "tiny_gap": [
-          "The Madness Index gives {{WINNER}} a narrow edge over {{LOSER}} in this matchup. The margin is slim enough that normal game-to-game swings could easily flip the result.",
-          "The Madness Index leans toward {{WINNER}} against {{LOSER}} by a very small margin. This projects as highly competitive, with little separating the two profiles.",
-         "The Madness Index places {{WINNER}} just ahead of {{LOSER}}. The gap is minimal and leaves the outcome sensitive to performance variance.",
-          "The Madness Index sees {{WINNER}} as slightly stronger than {{LOSER}}. The difference is modest and unlikely to withstand major in-game momentum shifts.",
-          "The Madness Index identifies {{WINNER}} as the technical favorite over {{LOSER}}. The separation is thin and offers limited predictive cushion."
+        "tiny_0_25": [
+          "{{WINNER}} holds the narrowest measurable edge over {{LOSER}} in a matchup that likely projects to stay within one or two key possessions.",
+          "{{WINNER}} sits just ahead of {{LOSER}} in a matchup where the separation is minimal and the contest projects as highly competitive.",
+          "The separation here is near-zero, with {{WINNER}} only marginally ahead of {{LOSER}}, and normal variance presenting enough to swing the outcome either way.",
+          "{{WINNER}} edges {{LOSER}} by the slimmest of margins, making this a matchup likely to be decided in the smallest stretches of the game.",
+          "{{WINNER}} enters only slightly ahead of {{LOSER}}, with the gap small enough that either side can seize control over the course of the game."
+        ],
+        "tiny_0_50": [
+          "The Madness Index shows a slight statistical lean toward {{WINNER}} over {{LOSER}}, but the separation is fragile and highly sensitive to game flow.",
+          "{{WINNER}} comes out barely ahead of {{LOSER}} in the model, though the margin is thin enough that a single swing factor can flip it.",
+          "This projects as a volatile matchup with only minimal separation where {{WINNER}} has a small edge, but it doesn’t travel well through variance.",
+          "The model leans {{WINNER}} but only by a small margin, so expect this to behave like a toss-up with a faint statistical tilt.",
+          "{{WINNER}} is the technical pick, yet the distance is modest enough that the game could swing in either direction."
+        ],
+        "tiny_0_75": [
+          "{{WINNER}} holds a narrow edge over {{LOSER}}, yet the matchup still projects as tightly contested over the course of the game.",
+          "{{WINNER}} grades out slightly stronger than {{LOSER}}, though the separation is not large enough to imply reliability.",
+          "There’s a modest statistical advantage for {{WINNER}}, but it’s the kind that can disappear fast if the game tilts in either direction.",
+          "{{WINNER}} carries the clearer case over {{LOSER}}, even if the gap remains thin and competitive.",
+          "The comparison favors {{WINNER}} over {{LOSER}}, but the distance between them stays modest from start to finish."
+        ],
+        "tiny_1_00": [
+          "{{WINNER}} enters with a defined but still narrow edge over {{LOSER}}, creating a competitive projection across forty minutes.",
+          "The matchup tilts toward {{WINNER}} against {{LOSER}}, though the advantage stops short of true separation.",
+          "The gap favors {{WINNER}}, though it remains close enough that the outcome is still sensitive to momentum and execution.",
+          "{{WINNER}} stands ahead of {{LOSER}} in this pairing, yet the gap remains within reach throughout the game.",
+          "{{WINNER}} projects in front of {{LOSER}}, even if the distance between them remains modest."
         ],
         "small_gap": [
-          "The Madness Index favors {{WINNER}} over {{LOSER}} with a defined but manageable edge. The advantage is real, though the matchup remains competitive.",
-          "The Madness Index identifies {{WINNER}} as the stronger side against {{LOSER}}. The separation provides stability, but not insulation from volatility.",
-          "The Madness Index places {{WINNER}} ahead of {{LOSER}} with measurable support. The edge holds weight, though it does not signal dominance.",
-          "The Madness Index projects {{WINNER}} as the preferred profile over {{LOSER}}. The margin suggests steady footing without implying control.",
-          "The Madness Index evaluates {{WINNER}} as the better overall side in this pairing. The advantage is tangible, though still within reach for {{LOSER}}."
+          "{{WINNER}} holds the clearer edge in this matchup, even if {{LOSER}} keeps it competitive into the final stretch.",
+          "This matchup leans toward {{WINNER}} against {{LOSER}}, yet the margin still invites momentum swings.",
+          "Across extended stretches, {{WINNER}} carries a slightly firmer foundation than {{LOSER}}, even if the gap is not wide.",
+          "If {{LOSER}} disrupts the rhythm early, the pressure shifts, but {{WINNER}} maintains the clearer advantage entering tip-off.",
+          "In this pairing, {{WINNER}} separates from {{LOSER}} in ways that should matter over forty minutes, though resistance is likely.",
+          "Across forty minutes, {{WINNER}} is positioned to outlast {{LOSER}}, though resistance should be expected.",
+          "The projection favors {{WINNER}} over {{LOSER}} with steady confidence, without dismissing the possibility of resistance."
         ],
         "medium_gap": [
-          "The Madness Index favors {{WINNER}} over {{LOSER}} with clear separation. The profile strength suggests a stable and sustainable advantage.",
-          "The Madness Index evaluates {{WINNER}} as meaningfully stronger than {{LOSER}} in this matchup. The gap reflects consistent advantages across multiple areas.",
-          "The Madness Index places {{WINNER}} comfortably ahead of {{LOSER}}. The separation indicates dependable overall superiority.",
-          "The Madness Index positions {{WINNER}} as the stronger profile against {{LOSER}}. The margin signals reliable underlying advantages.",
-          "The Madness Index projects {{WINNER}} with noticeable distance over {{LOSER}}. The separation supports a confident but measured expectation."
+          "{{WINNER}} enters this matchup clearly ahead of {{LOSER}} and projects to control the tone from the outset.",
+          "{{WINNER}} enters this matchup with a strong enough edge to carry them past {{LOSER}} over the course of the game.",
+          "This matchup points firmly toward {{WINNER}} against {{LOSER}}, with sustained pressure shaping the flow.",
+          "While {{LOSER}} can compete in stretches, {{WINNER}} holds the stronger footing over the course of the game.",
+          "From opening possession through the final stretch, {{WINNER}} stands in front of {{LOSER}} with a defined edge.",
+          "{{WINNER}} stands well ahead of {{LOSER}} in overall profile strength, entering with a clearly defined advantage.",
+          "Across the full evaluation, {{WINNER}} separates meaningfully from {{LOSER}}, suggesting control over the broader game flow.",
+          "{{LOSER}} may generate competitive moments, but {{WINNER}} projects as the more stable and sustainable side.",
+          "The edge for {{WINNER}} over {{LOSER}} appears strong enough to hold across a complete performance."
         ],
         "large_gap": [
-          "The Madness Index strongly favors {{WINNER}} over {{LOSER}}. The gap signals decisive overall superiority in this matchup.",
-          "The Madness Index places {{WINNER}} well ahead of {{LOSER}}. The separation reflects a pronounced and consistent advantage.",
-          "The Madness Index identifies {{WINNER}} as the clear leader against {{LOSER}}. The margin suggests meaningful distance between the two profiles.",
-          "The Madness Index evaluates {{WINNER}} as substantially stronger than {{LOSER}}. The difference points to broad and sustained advantages.",
-          "The Madness Index projects {{WINNER}} as the dominant profile in this pairing. The separation indicates a significant and reinforced edge."
+          "{{WINNER}} enters with a commanding overall advantage compared to {{LOSER}}, creating a firmly tilted projection.",
+          "From the opening sequence onward, {{WINNER}} stands well ahead of {{LOSER}}.",
+          "{{WINNER}} holds a decisive edge in this matchup and is projected to finish clearly ahead of {{LOSER}}.",
+          "Across forty minutes, {{WINNER}} is expected to dictate the game against {{LOSER}}.",
+          "Even with competitive effort from {{LOSER}}, {{WINNER}} remains firmly in control entering this game.",
+          "The gap in this pairing points to {{WINNER}} separating from {{LOSER}} from tip to finish.",
+          "{{WINNER}} positions well above {{LOSER}} in the broader comparison, signaling a matchup that leans heavily in one direction.",
+          "The overall evaluation places {{WINNER}} comfortably ahead of {{LOSER}}, establishing strong control entering the game."
         ],
         "default": [
-          "The Madness Index evaluates {{WINNER}} and {{LOSER}} without producing meaningful separation. The profiles remain closely balanced under full model review.",
-        "The Madness Index places {{WINNER}} and {{LOSER}} in near analytical alignment. No clear structural advantage emerges.",
-        "The Madness Index finds limited distinction between {{WINNER}} and {{LOSER}} once baseline and matchup effects are applied. The outcome projects as evenly weighted.",
-        "The Madness Index concludes that {{WINNER}} and {{LOSER}} remain tightly grouped across model inputs. The separation is negligible.",
-        "The Madness Index frames this matchup as analytically balanced between {{WINNER}} and {{LOSER}}. The evaluation does not support a defined lean."
+          "This pairing between {{WINNER}} and {{LOSER}} projects as tightly contested from start to finish.",
+          "Neither {{WINNER}} nor {{LOSER}} enters with meaningful daylight between them.",
+          "Over the course of the game, {{WINNER}} and {{LOSER}} appear closely matched.",
+          "While {{WINNER}} is positioned slightly ahead of {{LOSER}}, the gap remains narrow.",
+          "In this matchup, {{WINNER}} and {{LOSER}} look capable of trading control across extended stretches.",
+          "{{WINNER}} and {{LOSER}} appear closely aligned in the overall comparison, with little meaningful separation detected.",
+          "The projection between {{WINNER}} and {{LOSER}} suggests a competitive environment where either side can assert control.",
+          "{{WINNER}} edges {{LOSER}} only marginally in the broader view, reinforcing the tight nature of the matchup.",
+          "Neither {{WINNER}} nor {{LOSER}} presents a decisive advantage, keeping expectations balanced.",
+          "The evaluation frames {{WINNER}} and {{LOSER}} as tightly grouped, pointing toward a game shaped by execution rather than clear disparity."
         ]
       },
       "secondary_text": {
-        "tiny_gap": [
+        "tiny_0_25": [
           "{{WINNER}} and {{LOSER}} counter each other’s strengths closely, leaving the outcome sensitive to small swings.",
-        "Both teams check similar boxes across key interactions, keeping the matchup fragile and variable.",
-        "Minor advantages surface for {{WINNER}}, but they are easily offset by {{LOSER}}’s counters.",
-        "The matchup remains fluid, with neither side exerting consistent leverage over the other.",
-        "Subtle differences appear, though neither profile clearly reshapes the game environment."
+          "Both teams check similar boxes across key interactions, keeping the matchup fragile and variable.",
+          "The matchup remains fluid, with neither side exerting consistent leverage over the other.",
+          "Subtle differences appear, though neither profile clearly reshapes the game environment.",
+          "Neither {{WINNER}} nor {{LOSER}} holds a decisive stylistic advantage, placing added weight on shot-making and late-game execution."
+        ],
+        "tiny_0_50": [
+          "{{WINNER}} and {{LOSER}} counter each other’s strengths closely, leaving the outcome sensitive to small swings.",
+          "Both teams check similar boxes across key interactions, keeping the matchup fragile and variable.",
+          "Minor advantages surface for {{WINNER}}, but they are easily offset by {{LOSER}}’s counters.",
+          "The matchup remains fluid, with neither side exerting consistent leverage over the other.",
+          "Subtle differences appear, though neither profile clearly reshapes the game environment."
+        ],
+        "tiny_0_75": [
+          "{{WINNER}} and {{LOSER}} counter each other’s strengths closely, leaving the outcome sensitive to small swings.",
+          "Both teams check similar boxes across key interactions, keeping the matchup fragile and variable.",
+          "Minor advantages surface for {{WINNER}}, but they are easily offset by {{LOSER}}’s counters.",
+          "The matchup remains fluid, with neither side exerting consistent leverage over the other.",
+          "Subtle differences appear, though neither profile clearly reshapes the game environment."
+        ],
+        "tiny_1_00": [
+          "{{WINNER}} and {{LOSER}} counter each other’s strengths closely, leaving the outcome sensitive to small swings.",
+          "Both teams check similar boxes across key interactions, keeping the matchup fragile and variable.",
+          "Minor advantages surface for {{WINNER}}, but they are easily offset by {{LOSER}}’s counters.",
+          "The matchup remains fluid, with neither side exerting consistent leverage over the other.",
+          "Subtle differences appear, though neither profile clearly reshapes the game environment."
         ],
         "small_gap": [
           "{{WINNER}} shows narrow advantages that matter if the game follows expected patterns.",
@@ -135,9 +206,21 @@
         "The matchup-adjusted view highlights how the comparison reshapes each team’s profile rather than simply restating season averages."
         ],
         "gap": {
-          "tiny_gap": [
-            "The small gap indicates the profiles remain tightly aligned, with limited separation between the two teams in this matchup.",
-            "Minimal separation suggests the matchup does little to distinguish one profile clearly from the other."
+          "tiny_0_25": [
+            "The ratings remain virtually aligned, with almost no measurable separation between the two profiles in this matchup.",
+            "At this margin, the comparison offers minimal structural distinction between the two teams."
+          ],
+          "tiny_0_50": [
+            "The profiles are still closely matched, with only slight separation emerging in this specific head-to-head context.",
+            "The comparison begins to show light differentiation, though overall alignment remains tight."
+          ],
+          "tiny_0_75": [
+            "Some separation is visible in the matchup view, though the overall profiles remain competitive against one another.",
+            "The head-to-head comparison introduces modest differentiation without creating clear structural distance."
+          ],
+          "tiny_0_100": [
+            "The gap shows noticeable but still limited separation between the two profiles in this matchup context.",
+            "There is emerging distinction in how the ratings compare, though the margin remains within a competitive range."
           ],
           "small_gap": [
             "The modest gap reflects some differentiation, though the teams still compare closely in this matchup.",
@@ -337,21 +420,37 @@
     "no_data_for_matchup": "No data available for this matchup."
   },
   "summary_phrases": {
-    "tiny_gap": {
-      "label": "Coin flip",
-      "description": "True toss-up. The model sees almost no separation between these teams."
+    "tiny_0_25": {
+      "label": "Minimal lean",
+      "description": "Almost no separation. Treat this as maximum volatility."
+    },
+    "tiny_0_50": {
+      "label": "Very slight lean",
+      "description": "The edge exists, but it is extremely fragile."
+    },
+    "tiny_0_75": {
+      "label": "Narrow lean",
+      "description": "A small statistical tilt with upset risk fully live."
+    },
+    "tiny_0_100": {
+      "label": "Slim lean",
+      "description": "There is a measurable edge, but it can flip quickly."
     },
     "small_gap": {
-      "label": "Slight lean",
-      "description": "A modest edge, but upset risk is very live."
+      "label": "Modest lean",
+      "description": "A modest edge, but upset risk remains possible."
     },
     "medium_gap": {
       "label": "Clear lean",
-      "description": "One side has a clear but not insurmountable advantage."
+      "description": "A defined edge, but not enough to dismiss variance."
     },
     "large_gap": {
-      "label": "Strong favorite",
-      "description": "The model strongly prefers this side barring extreme variance."
+      "label": "Strong lean",
+      "description": "Significant separation that likely holds barring extreme disruption."
+    },
+    "default": {
+      "label": "Lean",
+      "description": "Model edge detected."
     }
   },
   "controls": {
