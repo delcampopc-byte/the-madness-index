@@ -3501,14 +3501,8 @@ function miRankMatch(name, q) {
   const query = miNorm(q);
   if (!query) return 999;
 
+  // Only match beginning of full team name
   if (n.startsWith(query)) return 0;
-
-  // word-start match
-  const words = n.split(/\s+/);
-  if (words.some(w => w.startsWith(query))) return 1;
-
-  // contains
-  if (n.includes(query)) return 2;
 
   return 999;
 }
