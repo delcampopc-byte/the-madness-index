@@ -3485,6 +3485,20 @@ section#matchupBar.card.matchup-bar.visible:not(.is-editing){
   margin-bottom: 10px;
 }
 
+.result-layout{
+  align-items: stretch !important;
+}
+
+#cindCard,
+#favCard{
+  height: 100%;
+}
+
+#cindCard .flip-inner,
+#favCard .flip-inner{
+  height: 100% !important;
+}
+
 /* ========== TEAM CARD (WHOLE-CARD FLIP) ========== */
 
 .team-card {
@@ -3808,7 +3822,7 @@ section.profile-section.flip-tile{
   width: 100%;
   border-collapse: separate;
   border-spacing: 0;
-  margin-bottom: 4px;
+  margin-bottom: 9px;
   font-size: 12.5px;
   border-radius: 12px;
   overflow: hidden;
@@ -3914,28 +3928,6 @@ section.profile-section.flip-tile{
 .rule-row.neg     { background: linear-gradient(to right, rgba(248, 113, 22, 0.16), transparent); }
 .rule-row.neutral { background: rgba(2, 6, 23, 0.98); }
 
-/* ========== CORE TRAITS TILE (NO 3D FLIP) ========== */
-/* This tile is .profile-section.flip-tile and must expand naturally on back. */
-
-.profile-section.flip-tile { overflow: visible; }
-
-/* Disable 3D flip behavior in the inner */
-.profile-section.flip-tile .flip-tile-inner { transform: none !important; }
-
-/* Let faces flow normally (no absolute positioning) */
-.profile-section.flip-tile .tile-face {
-  position: relative;
-  inset: auto;
-  width: 100%;
-  height: auto;
-  backface-visibility: visible;
-  transform: none;
-}
-
-/* Default: show front, hide back */
-.profile-section.flip-tile .tile-face.tile-front { display: block; }
-.profile-section.flip-tile .tile-face.tile-back  { display: none; }
-
 /* Back face styling */
 .profile-section.flip-tile .tile-face.tile-back {
   padding: 9px 9px 8px;
@@ -3943,10 +3935,6 @@ section.profile-section.flip-tile{
   background: rgba(9, 9, 15, 0.98);
   border: 1px solid rgba(31, 41, 55, 0.98);
 }
-
-/* Flipped: hide front, show back */
-.profile-section.flip-tile.flipped .tile-face.tile-front { display: none; }
-.profile-section.flip-tile.flipped .tile-face.tile-back  { display: block; }
 
 /* Back-of-core layout */
 .core-back-container {
@@ -4008,6 +3996,250 @@ section.profile-section.flip-tile{
   font-size: 12px;
   color: var(--mi-text-primary);
   opacity: 0.9;
+}
+
+/* =========================================
+   Core back tile — MI Efficiency section
+   ========================================= */
+
+.core-back-eff-section{
+  position: relative;
+  margin-top: 10px;
+  padding-top: 16px;
+}
+
+.core-back-eff-section::before{
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    rgba(148, 163, 184, 0),
+    rgba(148, 163, 184, 0.32),
+    rgba(148, 163, 184, 0)
+  );
+}
+
+.core-back-eff-label{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  margin: 0 0 8px;
+  padding: 4px 10px;
+
+  border-radius: 999px;
+  border: 1px solid rgba(23, 95, 195, 0.28);
+  background: rgba(23, 95, 195, 0.10);
+
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(226, 232, 240, 0.88);
+}
+
+.core-back-eff-list{
+  margin-top: 0;
+}
+
+.core-back-eff-item .core-back-header{
+  margin-bottom: 3px;
+}
+
+.core-back-eff-item .core-back-metric{
+  color: rgba(229, 231, 235, 0.96);
+}
+
+.core-back-eff-item[data-band="strong_positive"] .core-back-metric{
+  color: #67e8f9;
+}
+
+.core-back-eff-item[data-band="positive"] .core-back-metric{
+  color: #bfdbfe;
+}
+
+.core-back-eff-item[data-band="neutral"] .core-back-metric{
+  color: rgba(229, 231, 235, 0.96);
+}
+
+.core-back-eff-item[data-band="negative"] .core-back-metric{
+  color: #fdba74;
+}
+
+.core-back-eff-item[data-band="strong_negative"] .core-back-metric{
+  color: #fca5a5;
+}
+
+/* =========================================
+   Core back tile — sectioned layout
+   ========================================= */
+
+.core-back-container{
+  display:flex;
+  flex-direction:column;
+  gap:0;
+}
+
+.core-back-main-section{
+  position:relative;
+}
+
+.core-back-main-label,
+.core-back-eff-label{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+
+  margin: 0 0 10px;
+  padding: 4px 10px;
+
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  line-height: 1;
+}
+
+.core-back-main-label{
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  background:
+    linear-gradient(180deg, rgba(148,163,184,0.10), rgba(148,163,184,0.04));
+  color: rgba(241,245,249,0.86);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.05),
+    0 0 0 1px rgba(255,255,255,0.015);
+}
+
+.core-back-eff-section{
+  position:relative;
+  margin-top: 14px;
+  padding-top: 20px;
+}
+
+.core-back-eff-section::before{
+  content:"";
+  position:absolute;
+  top:0;
+  left:0;
+  right:0;
+  height:2px;
+  border-radius:999px;
+  background:
+    linear-gradient(
+      90deg,
+      rgba(37,99,235,0),
+      rgba(56,189,248,0.24) 16%,
+      rgba(96,165,250,0.72) 50%,
+      rgba(56,189,248,0.24) 84%,
+      rgba(37,99,235,0)
+    );
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.02),
+    0 0 14px rgba(37,99,235,0.24),
+    0 0 28px rgba(56,189,248,0.12);
+}
+
+.core-back-eff-label{
+  border: 1px solid rgba(23, 95, 195, 0.34);
+  background:
+    linear-gradient(180deg, rgba(23,95,195,0.16), rgba(23,95,195,0.08));
+  color: rgba(226,232,240,0.92);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.05),
+    0 0 18px rgba(23,95,195,0.10);
+}
+
+.core-back-list{
+  list-style:none;
+  margin:0;
+  padding:0;
+}
+
+.core-back-main-section .core-back-list{
+  margin-bottom: 2px;
+}
+
+.core-back-eff-list{
+  margin-top: 2px;
+}
+
+.core-back-item{
+  padding: 6px 0 8px;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  border-bottom: 1px solid rgba(148,163,184,0.18);
+}
+
+.core-back-item:last-child{
+  border-bottom:none;
+}
+
+.core-back-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:baseline;
+  gap:0.4rem;
+  margin-bottom:4px;
+}
+
+.core-back-metric{
+  font-size:12px;
+  font-weight:800;
+  letter-spacing:0.03em;
+  text-transform:uppercase;
+  color:rgba(241,245,249,0.94);
+}
+
+.core-back-tier{
+  flex:0 0 auto;
+  font-size:10px;
+  font-weight:800;
+  letter-spacing:0.03em;
+  color:#dbeafe;
+  background:rgba(30,64,175,0.42);
+  border:1px solid rgba(96,165,250,0.24);
+  border-radius:999px;
+  padding:2px 8px;
+}
+
+.core-back-text{
+  font-size:12px;
+  line-height:1.45;
+  color:rgba(191,203,221,0.88);
+}
+
+.core-back-eff-item .core-back-header{
+  margin-bottom: 4px;
+}
+
+.core-back-eff-item .core-back-metric{
+  color: rgba(229,231,235,0.96);
+}
+
+.core-back-eff-item[data-band="strong_positive"] .core-back-metric{
+  color:#67e8f9;
+}
+
+.core-back-eff-item[data-band="positive"] .core-back-metric{
+  color:#bfdbfe;
+}
+
+.core-back-eff-item[data-band="neutral"] .core-back-metric{
+  color:rgba(229,231,235,0.96);
+}
+
+.core-back-eff-item[data-band="negative"] .core-back-metric{
+  color:#fdba74;
+}
+
+.core-back-eff-item[data-band="strong_negative"] .core-back-metric{
+  color:#fca5a5;
 }
 
 /* ========== CONTEXT TILES (IDENTITY / RESUME / MARKS / MI) ========== */
@@ -4738,6 +4970,34 @@ explain-table td:first-child{
 .explain-table td:nth-child(2){
   color: rgba(226, 232, 240, 0.72);
   font-size: 11.5px;
+}
+
+/* Column widths: 1=Battlefield, 2=Field Spread, 3=Team Score, 4=Tier, 5=Points */
+.explain-table th:nth-child(1),
+.explain-table td:nth-child(1){
+  width: 30%;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.explain-table th:nth-child(2),
+.explain-table td:nth-child(2){
+  width: 17%;
+}
+
+.explain-table th:nth-child(3),
+.explain-table td:nth-child(3){
+  width: 18%;
+}
+
+.explain-table th:nth-child(4),
+.explain-table td:nth-child(4){
+  width: 17%;
+}
+
+.explain-table th:nth-child(5),
+.explain-table td:nth-child(5){
+  width: 18%;
 }
 
 /* Context tiles */
@@ -6263,7 +6523,7 @@ button,
 }
 
 .int-console-text{
-  margin-top:8px;
+  margin-top:1.5px;
   line-height:1.35;
   color: rgba(226,232,240,.92);
 }
@@ -7101,6 +7361,7 @@ button,
 
 #verdictShell .mi-metrics-hint{
   margin-top: 6px;
+  padding-top: 6px;
   font-size: 10.5px;
   font-weight: 850;
   letter-spacing: 0.18em;
@@ -7157,10 +7418,13 @@ button,
 
 /* back */
 #verdictShell .mi-verdict-metrics-tile .tile-back{
-  display:grid;
+  display: flex;
   gap: 12px;
   padding: 6px;
   text-align: center;
+  align-items: center;
+  justify-content: center;
+  padding: 18px 20px;
 }
 
 #verdictShell .mi-metrics-back-title{
@@ -7171,9 +7435,15 @@ button,
 }
 
 #verdictShell .mi-metrics-back-text{
-  font-size: 16.75px;
-  line-height: 1.35;
+  font-size: 14.5px;
+  font-weight: 500px;
+  line-height: 1.45;
   color: var(--mi-text-primary);
+  max-width: 100%;
+  max-height: 100%;
+  text-align: center;
+  overflow: hidden;
+  text-wrap: balance;
 }
 
 #verdictShell .mi-metrics-open-btn{
@@ -7921,17 +8191,7 @@ button,
 
 /* --- Hard vertical divider between Team A / Team B --- */
 #miVerdictMetricsTile .mi-scorebug-grid::before{
-  content: "";
-  position: absolute;
-  top: 2px;
-  bottom: 44px; 
-  left: 50%;
-  width: 2px;
-  background: rgba(148,163,184,0.75);
-  box-shadow:
-    0 0 0 1px rgba(0,0,0,0.55); /* crispness on dark bg */
-  transform: translateX(-0.5px);
-  pointer-events: none;
+  display: none;
 }
 
 /* Slightly different sheen per side (subtle but clarifies split) */
@@ -9844,14 +10104,15 @@ button,
   color: rgba(249,246,238,0.78);
 }
 
-.subtotal-row {
-  justify-self: center;
-}
-
 /* Profile Subtotal Row */
 .subtotal-row {
   margin-top: 4px;
-  padding: 6px 6px;
+  padding: 8px 6px 6px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
 
   text-align: center;
 
@@ -9862,7 +10123,7 @@ button,
     rgba(255,255,255,0.00)
   );
 
-  border-top: 1px solid rgba(255,255,255,0.18);
+  border-top: 1px solid var(--mi-line-strong);
 
   font-size: 20px;
   letter-spacing: 0.3px;
@@ -9883,7 +10144,7 @@ button,
   background: linear-gradient(
     to right,
     transparent,
-    rgba(255,255,255,0.35),
+    var(--mi-brand-blue-a28),
     transparent
   );
 }
@@ -9891,8 +10152,440 @@ button,
 /* Emphasize the number itself */
 .subtotal-row strong,
 .subtotal-row .subtotal-value {
-  font-weight: 600;
+  font-weight: 700;
   color: #ffffff;
+}
+
+/* ==========================================
+   CORE PROFILE SUPPORT ROW
+   MI Efficiency + embedded Resume Context
+   ========================================== */
+
+.profile-support-row{
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+  gap: 14px;
+
+  margin-top: 16px;
+  padding-top: 9px;
+
+  align-items: stretch;
+}
+
+/* elegant divider separating table from support modules */
+.profile-support-row::before{
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 2px;
+  right: 2px;
+  height: 1px;
+  border-radius: 999px;
+
+  background: linear-gradient(
+    90deg,
+    rgba(255,255,255,0.00) 0%,
+    rgba(148,163,184,0.14) 12%,
+    rgba(23,95,195,0.38) 35%,
+    rgba(191,219,254,0.58) 50%,
+    rgba(23,95,195,0.38) 65%,
+    rgba(148,163,184,0.14) 88%,
+    rgba(255,255,255,0.00) 100%
+  );
+
+  box-shadow:
+    0 0 12px rgba(23,95,195,0.14),
+    0 0 24px rgba(56,189,248,0.08);
+}
+
+/* faint secondary glow under the divider */
+.profile-support-row::after{
+  content: "";
+  position: absolute;
+  top: -6px;
+  left: 18%;
+  right: 18%;
+  height: 14px;
+  pointer-events: none;
+  border-radius: 999px;
+
+  background: radial-gradient(
+    ellipse at center,
+    rgba(56,189,248,0.12) 0%,
+    rgba(56,189,248,0.05) 38%,
+    rgba(56,189,248,0.00) 72%
+  );
+}
+
+/* =========================
+   MI EFFICIENCY MODULE
+   ========================= */
+
+.mi-eff-module{
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+
+  padding: 10px 10px 9px;
+  border-radius: 14px;
+
+  background:
+    radial-gradient(120% 120% at 50% -10%, rgba(23,95,195,0.12), transparent 52%),
+    linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01) 28%, rgba(0,0,0,0.04) 100%),
+    rgba(5, 10, 24, 0.58);
+
+  border: 1px solid rgba(148,163,184,0.16);
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.05),
+    0 14px 32px rgba(0,0,0,0.34),
+    0 0 0 1px rgba(23,95,195,0.08);
+}
+
+/* top atmospheric sheen */
+.mi-eff-module::before{
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 44%;
+  pointer-events: none;
+
+  background: linear-gradient(
+    180deg,
+    rgba(191,219,254,0.06),
+    rgba(191,219,254,0.02) 45%,
+    rgba(191,219,254,0.00) 100%
+  );
+}
+
+/* subtle left accent rail */
+.mi-eff-module::after{
+  content: "";
+  position: absolute;
+  top: 12px;
+  bottom: 12px;
+  left: 0;
+  width: 2px;
+  border-radius: 999px;
+
+  background: linear-gradient(
+    180deg,
+    rgba(56,189,248,0.00),
+    rgba(56,189,248,0.55),
+    rgba(23,95,195,0.55),
+    rgba(56,189,248,0.00)
+  );
+  opacity: 0.9;
+}
+
+.mi-eff-header{
+  position: relative;
+  z-index: 1;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 0 4px 10px 8px;
+
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--mi-text-primary);
+
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.mi-eff-seg{
+  position: relative;
+  z-index: 1;
+
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+
+  padding: 12px 16px;
+  border-radius: 12px;
+
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.025), rgba(255,255,255,0.01)),
+    rgba(255,255,255,0.015);
+
+  border: 1px solid rgba(255,255,255,0.06);
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.03),
+    0 8px 18px rgba(0,0,0,0.18);
+}
+
+.mi-eff-seg:first-of-type{
+  margin-top: 0;
+}
+
+.mi-eff-seg:hover{
+  border-color: rgba(56,189,248,0.18);
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.035), rgba(255,255,255,0.012)),
+    rgba(23,95,195,0.05);
+}
+
+.mi-eff-seg.is-emphasis{
+  background:
+    radial-gradient(circle at 82% 50%, rgba(56,189,248,0.12), transparent 34%),
+    linear-gradient(90deg, rgba(23,95,195,0.16), rgba(255,255,255,0.02));
+
+  border-color: rgba(56,189,248,0.22);
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.04),
+    0 10px 24px rgba(0,0,0,0.22),
+    0 0 18px rgba(56,189,248,0.10);
+}
+
+.mi-eff-label{
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  min-width: 0;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  color: rgba(226, 232, 240, 0.84);
+}
+
+.mi-eff-label::before{
+  content: "";
+  width: 7px;
+  height: 7px;
+  flex: 0 0 7px;
+  border-radius: 999px;
+  background: rgba(148,163,184,0.42);
+  box-shadow: 0 0 0 3px rgba(148,163,184,0.08);
+}
+
+.mi-eff-seg:nth-of-type(1) .mi-eff-label::before{
+  background: rgba(56,189,248,0.85);
+  box-shadow: 0 0 0 3px rgba(56,189,248,0.10);
+}
+
+.mi-eff-seg:nth-of-type(2) .mi-eff-label::before{
+  background: rgba(251,191,36,0.75);
+  box-shadow: 0 0 0 3px rgba(251,191,36,0.08);
+}
+
+.mi-eff-seg.is-emphasis .mi-eff-label::before{
+  background: rgba(191,219,254,0.95);
+  box-shadow: 0 0 0 4px rgba(56,189,248,0.14);
+}
+
+.mi-eff-value{
+  font-size: 18px;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  line-height: 1;
+  color: #f8fafc;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+
+  text-shadow: 0 1px 10px rgba(0,0,0,0.32);
+}
+
+/* Embedded resume tile now lives inside core profile */
+.profile-support-row .context-tile.flip-tile{
+  padding: 7px 6px 6px;
+  border-radius: 12px;
+  background: rgba(2, 6, 23, 0.98);
+  border: 1px solid rgba(31, 41, 55, 0.98);
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.30), 0 0 0 1px rgba(15, 23, 42, 1) inset;
+}
+
+.profile-support-row .context-tile.flip-tile{
+  padding: 7px 6px 6px;
+  border-radius: 12px;
+  background: rgba(2, 6, 23, 0.98);
+  border: 1px solid rgba(31, 41, 55, 0.98);
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.30), 0 0 0 1px rgba(15, 23, 42, 1) inset;
+  align-self: stretch;
+}
+
+.profile-support-row .context-tile.flip-tile .flip-tile-inner{
+  border-radius: 10px;
+  background: radial-gradient(circle at top, rgba(15, 23, 42, 0.98), rgba(15, 23, 42, 0.94));
+  border: 1px solid rgba(30, 64, 175, 0.7);
+  min-height: 118px;
+  height: 100%;
+}
+
+.profile-resume-tile .tile-face.tile-front,
+.profile-resume-tile .tile-face.tile-back{
+  min-height: 104px;
+}
+.profile-support-row .context-subrow{
+  display: block;
+}
+
+.profile-support-row .context-tier{
+  font-size: 11px;
+  line-height: 1.35;
+  color: rgba(191, 219, 254, 0.84);
+  text-align: center;
+}
+
+/* ==========================================
+   PROFILE SUBTOTAL + INLINE TOURNAMENT IDENTITY
+   ========================================== */
+
+.profile-subtotal{
+  white-space:nowrap;
+}
+
+.profile-subtotal-row{
+  margin-top: 6px;
+  padding-top: 6px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(240px, auto);
+  gap: 14px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.subtotal-main{
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 10px;
+}
+
+.subtotal-identity{
+  justify-self: end;
+  min-width: 0;
+  max-width: 320px;
+  padding: 8px 10px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.10);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+}
+
+.identity-inline-kicker{
+  margin-bottom: 6px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(148, 163, 184, 0.82);
+  text-align: left;
+}
+
+.identity-inline-main{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.identity-inline-badge{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 72px;
+  padding: 6px 6px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 850;
+  letter-spacing: 0.05em;
+  background: rgba(2, 6, 23, 0.72);
+  border: 1px solid rgba(255,255,255,0.14);
+  color: #e5e7eb;
+  font-variant-numeric: tabular-nums;
+}
+
+.identity-inline-meta{
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  text-align: left;
+  line-height: 1.1;
+}
+
+.identity-inline-label{
+  font-size: 12px;
+  font-weight: 800;
+  color: rgba(248, 250, 252, 0.96);
+}
+
+.identity-inline-detail{
+  display: none;
+}
+
+.identity-inline-cinderella{
+  border-color: rgba(34, 197, 94, 0.34);
+  box-shadow: 0 0 18px rgba(34, 197, 94, 0.10);
+}
+
+.identity-inline-cinderella .identity-inline-badge{
+  border-color: rgba(34, 197, 94, 0.50);
+  color: #bbf7d0;
+  background: radial-gradient(circle at top, rgba(34,197,94,0.16), rgba(2,6,23,0.82));
+}
+
+.identity-inline-favorite{
+  border-color: rgba(249, 115, 22, 0.34);
+  box-shadow: 0 0 18px rgba(249, 115, 22, 0.10);
+}
+
+.identity-inline-favorite .identity-inline-badge{
+  border-color: rgba(249, 115, 22, 0.50);
+  color: #fed7aa;
+  background: radial-gradient(circle at top, rgba(249,115,22,0.16), rgba(2,6,23,0.82));
+}
+
+.identity-inline-neutral .identity-inline-badge{
+  color: #dbeafe;
+  border-color: rgba(96, 165, 250, 0.36);
+}
+
+.metric-score.score-elite {
+  color: #7fd6ff;
+  font-weight: 800;
+}
+
+.metric-score.score-strong {
+  color: #4fb0ff;
+  font-weight: 800;
+}
+
+.metric-score.score-neutral {
+  color: #d7deea;
+  font-weight: 700;
+}
+
+.metric-score.score-weak {
+  color: #ffb3b3;
+  font-weight: 800;
+}
+
+.metric-score.score-fragile {
+  color: #ff6b6b;
+  font-weight: 800;
+}
+
+@media (max-width: 920px){
+  .profile-support-row{
+    grid-template-columns: 1fr;
+  }
+
+  .profile-subtotal-row{
+    grid-template-columns: 1fr;
+  }
+
+  .subtotal-identity{
+    justify-self: stretch;
+  }
 }
 
 /* =========================================================
@@ -11337,6 +12030,7 @@ body::before{
 /* Reuse verdict-shell visual style everywhere */
 .mi-metrics-hint{
   margin-top: 6px;
+  padding-top: 20px;
   font-size: 10.5px;
   font-weight: 850;
   letter-spacing: 0.18em;
@@ -12003,4 +12697,5944 @@ body::before{
   font-family: "Rajdhani", system-ui, -apple-system, sans-serif;
   font-weight: 600;
   letter-spacing: 0.08em;
+}
+
+.threshold-stack{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:6px;
+  line-height:1;
+}
+
+.threshold-chip{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:24px;
+  padding:4px 8px;
+  border:1px solid rgba(120,170,255,.22);
+  border-radius:999px;
+  background:rgba(255,255,255,.03);
+  color:rgba(235,242,255,.82);
+  font-size:.78rem;
+  font-weight:600;
+  letter-spacing:.01em;
+  white-space:nowrap;
+}
+
+.team-score-block {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 72px;
+  font-weight: 700;
+}
+
+.team-score-value {
+  letter-spacing: 0.02em;
+}
+
+.score-elite .team-score-value {
+  color: var(--mi-pos-strong, #49d17d);
+}
+
+.score-strong .team-score-value {
+  color: var(--mi-pos, #7ee2a8);
+}
+
+.score-neutral .team-score-value {
+  color: var(--mi-text, #e8edf7);
+}
+
+.score-weak .team-score-value {
+  color: var(--mi-neg, #ff9a9a);
+}
+
+.score-fragile .team-score-value {
+  color: var(--mi-neg-strong, #ff6b6b);
+}
+
+/* ========== CORE TRAITS TILE (NO 3D FLIP) ========== */
+/* Only the OUTER core profile tile should use the front/back swap.
+   Nested tiles inside it (like the embedded résumé tile) must keep normal 3D flip behavior. */
+
+section.profile-section.flip-tile{
+  min-height: var(--mi-profile-sync-h, auto);
+  overflow: visible;
+}
+
+/* Only target the direct child inner of the core section */
+section.profile-section.flip-tile > .flip-tile-inner{
+  transform: none !important;
+}
+
+/* Only target the direct child faces of the core section */
+section.profile-section.flip-tile > .flip-tile-inner > .tile-face{
+  position: relative;
+  inset: auto;
+  width: 100%;
+  height: auto;
+  backface-visibility: visible;
+  transform: none;
+}
+
+section.profile-section.flip-tile > .flip-tile-inner > .tile-face.tile-front{
+  display: block;
+}
+
+section.profile-section.flip-tile > .flip-tile-inner > .tile-face.tile-back{
+  display: none;
+  padding: 9px 9px 8px;
+  border-radius: 12px;
+  background: rgba(9, 9, 15, 0.98);
+  border: 1px solid rgba(31, 41, 55, 0.98);
+}
+
+section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-front{
+  display: none;
+}
+
+section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-back{
+  display: block;
+}
+
+.mi-efficiency-box {
+  position: relative;
+  border: 1px solid rgba(90, 140, 255, 0.22);
+  border-radius: 16px;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.00)),
+    linear-gradient(180deg, rgba(20,32,68,0.78), rgba(7,15,36,0.92));
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.05),
+    inset 0 0 18px rgba(55,110,255,0.08);
+  overflow: hidden;
+}
+
+.mi-efficiency-box::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(90,140,255,0.06), transparent 38%);
+  pointer-events: none;
+}
+
+.mi-efficiency-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+}
+
+.mi-efficiency-row + .mi-efficiency-row {
+  border-top: 1px solid rgba(255,255,255,0.07);
+}
+
+.mi-efficiency-row.is-margin {
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+
+/* =========================================================
+   CORE PROFILE COHESION PASS
+   Unify header rhythm, metric typography, and support row styling
+   ========================================================= */
+
+:root{
+  --mi-kicker-size: var(--mi-font-size-sm);
+  --mi-kicker-weight: 800;
+  --mi-kicker-track: 0.16em;
+
+  --mi-label-size: var(--mi-font-size-body);
+  --mi-label-weight: 700;
+  --mi-label-track: 0.04em;
+
+  --mi-value-size: 30px;
+  --mi-value-size-sm: 16px;
+  --mi-value-weight: 800;
+
+  --mi-panel-radius: 16px;
+  --mi-panel-pad: 14px;
+  --mi-panel-gap: 12px;
+}
+
+/* Core profile section header should use one shared rhythm */
+.profile-section .section-header,
+.profile-section .profile-subtotal-row,
+.profile-support-row{
+  font-family: var(--mi-font-sans);
+}
+
+.profile-section .section-header h3,
+.profile-section .matchup-kicker,
+.profile-section .context-label,
+.mi-efficiency-headline,
+.mi-efficiency-kicker{
+  text-transform: uppercase;
+  letter-spacing: var(--mi-kicker-track);
+  font-weight: var(--mi-kicker-weight);
+}
+
+/* Keep the core traits title pill and nearby headers in one family */
+.profile-section .section-header h3{
+  font-size: var(--mi-kicker-size);
+  line-height: 1;
+  color: rgba(241, 245, 249, 0.94);
+}
+
+/* =========================================================
+   MI EFFICIENCY METRICS — cohesive unit, no dots, less segmentation
+   ========================================================= */
+
+.mi-efficiency-box{
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+
+  padding: 0;
+  border-radius: var(--mi-panel-radius);
+  overflow: hidden;
+
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.00)),
+    radial-gradient(circle at top, var(--mi-brand-blue-a08), rgba(2,6,23,0.94) 68%);
+  border: 1px solid var(--mi-line);
+  box-shadow:
+    var(--mi-depth-1),
+    inset 0 0 0 1px rgba(255,255,255,0.03);
+}
+
+/* Quiet integrated header strip */
+.mi-efficiency-box .section-header,
+.mi-efficiency-head{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+
+  padding: 12px 14px 10px;
+  margin: 0;
+
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.00));
+}
+
+.mi-efficiency-headline{
+  font-size: var(--mi-kicker-size);
+  line-height: 1;
+  color: rgba(241,245,249,0.94);
+}
+
+.mi-efficiency-kicker{
+  font-size: var(--mi-font-size-xs);
+  line-height: 1;
+  color: var(--mi-text-muted);
+  opacity: 0.8;
+}
+
+/* Stack rows like one data card, not separate pills */
+.mi-efficiency-row,
+.mi-eff-seg{
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: baseline;
+  column-gap: 12px;
+
+  padding: 12px 14px;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.mi-efficiency-row + .mi-efficiency-row,
+.mi-eff-seg + .mi-eff-seg{
+  border-top: 1px solid rgba(255,255,255,0.07);
+}
+
+/* Remove dots entirely */
+.mi-eff-label{
+  display: block;
+  min-width: 0;
+
+  font-size: var(--mi-label-size);
+  font-weight: var(--mi-label-weight);
+  letter-spacing: var(--mi-label-track);
+  color: rgba(226, 232, 240, 0.84);
+}
+
+.mi-eff-label::before{
+  content: none !important;
+  display: none !important;
+}
+
+.mi-eff-value{
+  font-size: var(--mi-value-size-sm);
+  font-weight: var(--mi-value-weight);
+  letter-spacing: 0.03em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: #f8fafc;
+  text-align: right;
+  text-shadow: none;
+}
+
+/* Make the combined margin feel like the payoff, not a different component */
+.mi-efficiency-row.is-total,
+.mi-eff-seg.is-emphasis{
+  background:
+    linear-gradient(180deg, rgba(23,95,195,0.10), rgba(23,95,195,0.04));
+}
+
+.mi-efficiency-row.is-total .mi-eff-label,
+.mi-eff-seg.is-emphasis .mi-eff-label{
+  color: var(--mi-text-invert-soft);
+}
+
+.mi-efficiency-row.is-total .mi-eff-value,
+
+/* =========================================================
+   SUPPORT ROW — make sibling panels feel cut from same cloth
+   ========================================================= */
+
+.profile-support-row{
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(250px, 0.9fr);
+  gap: 14px;
+  align-items: stretch;
+  margin-top: 6px;
+}
+
+.profile-support-row > *{
+  min-width: 0;
+}
+
+/* Embedded resume tile should match efficiency panel geometry more closely */
+.profile-support-row .context-tile.flip-tile{
+  padding: 0;
+  border-radius: var(--mi-panel-radius);
+  border: 1px solid var(--mi-line);
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.00)),
+    radial-gradient(circle at top, var(--mi-brand-blue-a08), rgba(2,6,23,0.94) 68%);
+  box-shadow:
+    var(--mi-depth-1),
+    inset 0 0 0 1px rgba(255,255,255,0.03);
+}
+
+.profile-support-row .context-tile.flip-tile .flip-tile-inner{
+  min-height: 100%;
+  border: none;
+  border-radius: inherit;
+  background: transparent;
+}
+
+.profile-support-row .context-tile .tile-face.tile-front,
+.profile-support-row .context-tile .tile-face.tile-back{
+  padding: 16px 16px 14px;
+  gap: 10px;
+}
+
+/* Unify resume tile typography with core profile panel language */
+.profile-support-row .context-label{
+  font-size: var(--mi-kicker-size);
+  font-weight: var(--mi-kicker-weight);
+  letter-spacing: var(--mi-kicker-track);
+  color: rgba(241,245,249,0.94);
+}
+
+.profile-support-row .context-score{
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+}
+
+.profile-support-row .context-tier,
+.profile-support-row .context-subrow,
+.profile-support-row .context-note{
+  font-size: 12px;
+  color: var(--mi-text-soft);
+}
+
+/* Optional: tighten table header styling a bit to match nearby panels */
+.explain-table th{
+  font-size: var(--mi-kicker-size);
+  font-weight: var(--mi-kicker-weight);
+  letter-spacing: 0.10em;
+}
+
+.explain-table td{
+  font-size: var(--mi-label-size);
+}
+
+.mi-eff-module{
+  display:flex;
+  flex-direction:column;
+  border:1px solid var(--mi-line);
+  border-radius:18px;
+  overflow:hidden;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0)),
+    radial-gradient(circle at top, rgba(37,99,235,0.12), rgba(2,6,23,0.96) 72%);
+  box-shadow: var(--mi-depth-1);
+}
+
+.mi-eff-header{
+  display:flex;
+  flex-direction:column;
+  padding: 7px 9px;
+  border-bottom:1px solid rgba(255,255,255,0.08);
+}
+
+.mi-eff-title{
+  font-size:14px;
+  font-weight:800;
+  letter-spacing:0.18em;
+  text-transform:uppercase;
+  color:rgba(241,245,249,0.96);
+}
+
+.mi-eff-subtitle{
+  font-size:11px;
+  font-weight:700;
+  letter-spacing:0.04em;
+  color:rgba(148,163,184,0.82);
+}
+
+.mi-eff-seg{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  align-items:center;
+  gap:12px;
+  padding:14px 16px;
+}
+
+.mi-eff-seg + .mi-eff-seg{
+  border-top:1px solid rgba(255,255,255,0.06);
+}
+
+.mi-eff-label{
+  font-size:14px;
+  font-weight:700;
+  color:rgba(226,232,240,0.92);
+}
+
+.mi-eff-value{
+  font-size:16px;
+  font-weight:700;
+  font-variant-numeric:tabular-nums;
+  color:#f8fafc;
+}
+
+.mi-eff-seg.is-emphasis{
+  border-top:1px solid rgba(191,219,254,0.16);
+  background:linear-gradient(180deg, rgba(30,64,175,0.14), rgba(30,64,175,0.05));
+}
+
+.mi-eff-seg.is-emphasis .mi-eff-label{
+  color:rgba(239,246,255,0.98);
+}
+
+.mi-eff-seg.is-emphasis .mi-eff-value{
+  font-size:20px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: var(--mi-accent-cyan);
+}
+
+/* =========================================================
+   CORE PROFILE SECTION ROWS
+   Make Offensive / Defensive labels feel like integrated dividers,
+   not normal spreadsheet rows
+   ========================================================= */
+
+.explain-table .core-section-row td {
+  padding: 10px 14px 9px;
+  border-right: none !important;
+  border-bottom: 1px solid rgba(56, 189, 248, 0.20) !important;
+  background:
+    linear-gradient(
+      90deg,
+      rgba(23, 95, 195, 0.10),
+      rgba(23, 95, 195, 0.04) 28%,
+      rgba(2, 6, 23, 0.00) 100%
+    );
+  text-align: left !important;
+}
+
+.explain-table .core-section-row:hover td {
+  background:
+    linear-gradient(
+      90deg,
+      rgba(23, 95, 195, 0.14),
+      rgba(23, 95, 195, 0.06) 28%,
+      rgba(2, 6, 23, 0.00) 100%
+    );
+}
+
+.explain-table .core-section-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: rgba(226, 232, 240, 0.92);
+}
+
+.explain-table .core-section-label::after {
+  content: "";
+  display: block;
+  width: 120px;
+  max-width: 18vw;
+  height: 1px;
+  margin-left: 4px;
+  background: linear-gradient(
+    90deg,
+    rgba(56, 189, 248, 0.35),
+    rgba(56, 189, 248, 0.00)
+  );
+}
+
+/* Kill zebra striping behavior on the section rows */
+.explain-table tbody tr.core-section-row:nth-child(odd),
+.explain-table tbody tr.core-section-row:nth-child(even) {
+  background: transparent;
+}
+
+/* Keep the next metric row from feeling jammed into the divider */
+.explain-table .core-section-row + tr td {
+  padding-top: 12px;
+}
+
+/* ==========================================
+   PROFILE SUBTOTAL + INLINE TOURNAMENT IDENTITY
+   Stronger separation / subtotal hero treatment
+   ========================================== */
+
+.profile-subtotal-row{
+  position: relative;
+  margin-top: 10px;
+  padding-top: 10px;
+
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(260px, auto);
+  gap: 18px;
+  align-items: stretch;
+  justify-content: space-between;
+}
+
+.profile-subtotal-row::before{
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 4px;
+  right: 4px;
+  height: 1px;
+  border-radius: 999px;
+  background: linear-gradient(
+    90deg,
+    rgba(255,255,255,0.00) 0%,
+    rgba(148,163,184,0.10) 12%,
+    rgba(23,95,195,0.34) 35%,
+    rgba(191,219,254,0.56) 50%,
+    rgba(23,95,195,0.34) 65%,
+    rgba(148,163,184,0.10) 88%,
+    rgba(255,255,255,0.00) 100%
+  );
+  box-shadow:
+    0 0 10px rgba(23,95,195,0.14),
+    0 0 22px rgba(56,189,248,0.08);
+}
+
+/* LEFT: make subtotal feel like the anchor metric */
+.subtotal-main{
+  position: relative;
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 12px;
+
+  min-width: 0;
+  padding: 14px 18px;
+  border-radius: 16px;
+
+  background:
+    radial-gradient(
+      120% 160% at 20% 50%,
+      rgba(56,189,248,0.16) 0%,
+      rgba(23,95,195,0.08) 28%,
+      rgba(2,6,23,0.00) 72%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(255,255,255,0.05),
+      rgba(255,255,255,0.015)
+    );
+
+  border: 1px solid rgba(56,189,248,0.18);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.04),
+    0 0 0 1px rgba(23,95,195,0.04),
+    0 14px 28px rgba(0,0,0,0.22);
+}
+
+/* soft internal glow for subtotal only */
+.subtotal-main::before{
+  content: "";
+  position: absolute;
+  inset: -8px;
+  border-radius: 20px;
+  pointer-events: none;
+  background: radial-gradient(
+    circle at 24% 50%,
+    rgba(56,189,248,0.12),
+    rgba(56,189,248,0.04) 35%,
+    rgba(56,189,248,0.00) 72%
+  );
+  filter: blur(8px);
+  opacity: 0.95;
+}
+
+.subtotal-main > *{
+  position: relative;
+  z-index: 1;
+}
+
+/* optional label/value tuning */
+.subtotal-main .subtotal-label{
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: rgba(241,245,249,0.90);
+}
+
+.subtotal-main .subtotal-value{
+  font-size: 2rem;
+  font-weight: 850;
+  letter-spacing: 0.01em;
+  color: #ffffff;
+  text-shadow:
+    0 0 18px rgba(56,189,248,0.12),
+    0 2px 12px rgba(0,0,0,0.38);
+}
+
+/* RIGHT: identity remains contextual, but more separated */
+.subtotal-identity{
+  position: relative;
+  justify-self: end;
+  min-width: 0;
+
+  padding: 10px 12px 10px 18px;
+  border-radius: 14px;
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255,255,255,0.04),
+      rgba(255,255,255,0.02)
+    );
+  border: 1px solid rgba(255,255,255,0.10);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.04),
+    0 10px 20px rgba(0,0,0,0.18);
+}
+
+/* vertical fade divider between subtotal + identity */
+.subtotal-identity::before{
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 12%;
+  bottom: 12%;
+  width: 1px;
+  background: linear-gradient(
+    180deg,
+    rgba(56,189,248,0.00),
+    rgba(56,189,248,0.30),
+    rgba(56,189,248,0.00)
+  );
+}
+
+/* tighten / polish the identity content */
+.identity-inline-kicker{
+  margin-bottom: 6px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(148,163,184,0.78);
+  text-align: center;
+}
+
+.identity-inline-main{
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.identity-inline-badge{
+  min-width: 78px;
+  padding: 6px 6px;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.04),
+    0 6px 14px rgba(0,0,0,0.18);
+}
+
+.identity-inline-meta{
+  gap: 2px;
+}
+
+.identity-inline-label{
+  font-size: 11px;
+  font-weight: 800;
+  margin-right: 3px;
+}
+
+.identity-inline-detail{
+  font-size: 6.75px;
+  line-height: 1.1;
+  white-space: nowrap;
+  color: rgba(148,163,184,0.90);
+  margin-right: 3px;
+}
+
+@media (max-width: 920px){
+  .profile-subtotal-row{
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .subtotal-identity{
+    justify-self: stretch;
+    padding-left: 12px;
+  }
+
+  .subtotal-identity::before{
+    display: none;
+  }
+}
+
+/* ==========================================
+   PROFILE SUBTOTAL + INLINE TOURNAMENT IDENTITY
+   Softer, more unified version
+   ========================================== */
+
+.profile-subtotal-row{
+  position: relative;
+  margin-top: 10px;
+  padding-top: 10px;
+
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 14px;
+  align-items: center;
+}
+
+.profile-subtotal-row::before{
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 4px;
+  right: 4px;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    rgba(255,255,255,0.00),
+    rgba(148,163,184,0.12),
+    rgba(56,189,248,0.18),
+    rgba(148,163,184,0.12),
+    rgba(255,255,255,0.00)
+  );
+}
+
+/* LEFT SIDE: keep it integrated, not boxed */
+.subtotal-main{
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 14px;
+
+  min-width: 0;
+  padding: 10px 6px 10px 2px;
+  border: none;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+}
+
+/* subtle vignette only, not a card */
+.subtotal-main::before{
+  content: "";
+  position: absolute;
+  inset: -6px -12px -6px -10px;
+  border-radius: 18px;
+  pointer-events: none;
+  background: radial-gradient(
+    circle at 28% 50%,
+    rgba(56,189,248,0.10) 0%,
+    rgba(23,95,195,0.05) 32%,
+    rgba(2,6,23,0.00) 72%
+  );
+  filter: blur(10px);
+  opacity: 0.9;
+}
+
+.subtotal-main > *{
+  position: relative;
+  z-index: 1;
+}
+
+.subtotal-main .subtotal-label{
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  line-height: 1.2;
+  color: rgba(241,245,249,0.88);
+}
+
+.subtotal-main .subtotal-value{
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  color: #ffffff;
+  text-shadow: 0 0 14px rgba(56,189,248,0.08);
+}
+
+/* RIGHT SIDE: keep existing box, but let it be the only “tile” */
+.subtotal-identity{
+  position: relative;
+  justify-self: end;
+  min-width: 250px;
+  max-width: 260px;
+  padding-left: 18px;
+}
+
+/* faint inner divider instead of a hard split */
+.subtotal-identity::before{
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 16%;
+  bottom: 16%;
+  width: 1px;
+  background: linear-gradient(
+    180deg,
+    rgba(56,189,248,0.00),
+    rgba(56,189,248,0.18),
+    rgba(56,189,248,0.00)
+  );
+}
+
+/* tone down identity container slightly if needed */
+.identity-inline{
+  min-height: 86px;
+  display: flex;
+  align-items: center;
+}
+
+/* optional: center the internal identity content more neatly */
+.identity-inline-main{
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.identity-inline-meta{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+}
+
+@media (max-width: 920px){
+  .profile-subtotal-row{
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .subtotal-main{
+    justify-content: center;
+    text-align: center;
+  }
+
+  .subtotal-identity{
+    min-width: 0;
+    width: 100%;
+    padding-left: 0;
+    justify-self: stretch;
+  }
+
+  .subtotal-identity::before{
+    display: none;
+  }
+}
+
+/* Identity Credibility Meter */
+
+.identity-meter{
+  width: 100px;
+  height: 5px;
+  margin-top: 6px;
+  margin-left: 12px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 3px;
+
+  overflow: hidden;
+}
+
+.identity-meter-fill{
+  height: 100%;
+  width: 0%;
+  border-radius: 3px;
+
+  background: linear-gradient(
+    90deg,
+    rgba(110,220,255,0.9),
+    rgba(60,150,255,0.9)
+  );
+
+  box-shadow: 0 0 6px rgba(80,200,255,0.35);
+
+  transition: width 300ms ease;
+}
+
+/* =========================================================
+   PRIMARY SCORECARD FRAME
+   Lens-driven premium frame for both scorecards
+   ========================================================= */
+
+#cindCard,
+#favCard{
+  position: relative;
+  isolation: isolate;
+  border-radius: 16px;
+
+  /* neutral fallback */
+  --mi-card-accent: rgba(148,163,184,0.70);
+  --mi-card-accent-soft: rgba(148,163,184,0.16);
+  --mi-card-accent-ring: rgba(148,163,184,0.35);
+  --mi-card-accent-solid: rgb(148,163,184);
+
+  border: 2px solid var(--mi-card-accent);
+
+  box-shadow:
+    0 14px 40px rgba(2,6,23,0.65),
+    0 0 0 1px var(--mi-card-accent-ring),
+    0 0 0 1px rgba(15,23,42,0.95) inset,
+    0 0 0 2px var(--mi-card-accent-soft) inset;
+
+  background: linear-gradient(
+    180deg,
+    rgba(15,23,42,0.98),
+    rgba(9,9,15,0.98)
+  );
+}
+
+/* Top accent line */
+#cindCard::before,
+#favCard::before{
+  content:"";
+  position:absolute;
+  top:0;
+  left:0;
+  right:0;
+  height:2px;
+  border-radius:16px 16px 0 0;
+  opacity:.9;
+  background: linear-gradient(90deg, transparent, var(--mi-card-accent-solid), transparent);
+}
+
+/* Inner metallic edge */
+#cindCard::after,
+#favCard::after{
+  content: "";
+  position: absolute;
+  inset: 4px;
+  border-radius: 12px;
+  pointer-events: none;
+
+  border: 1px solid rgba(255,255,255,0.06);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.10),
+    inset 0 0 0 1px rgba(255,255,255,0.025);
+}
+
+/* ===== Standard roles ===== */
+#cindCard[data-lens="cinderella"],
+#favCard[data-lens="cinderella"]{
+  --mi-card-accent: rgba(34,197,94,0.70);
+  --mi-card-accent-soft: rgba(34,197,94,0.16);
+  --mi-card-accent-ring: rgba(34,197,94,0.35);
+  --mi-card-accent-solid: rgb(34,197,94);
+}
+
+#cindCard[data-lens="favorite"],
+#favCard[data-lens="favorite"]{
+  --mi-card-accent: rgba(249,115,22,0.70);
+  --mi-card-accent-soft: rgba(249,115,22,0.16);
+  --mi-card-accent-ring: rgba(249,115,22,0.35);
+  --mi-card-accent-solid: rgb(249,115,22);
+}
+
+/* ===== Mirror roles ===== */
+#cindCard[data-lens="chalk_mirror"],
+#favCard[data-lens="chalk_mirror"]{
+  --mi-card-accent: rgba(59,130,246,0.72);
+  --mi-card-accent-soft: rgba(59,130,246,0.18);
+  --mi-card-accent-ring: rgba(59,130,246,0.36);
+  --mi-card-accent-solid: rgb(59,130,246);
+}
+
+#cindCard[data-lens="chaos_mirror"],
+#favCard[data-lens="chaos_mirror"]{
+  --mi-card-accent: rgba(239,68,68,0.72);
+  --mi-card-accent-soft: rgba(239,68,68,0.18);
+  --mi-card-accent-ring: rgba(239,68,68,0.36);
+  --mi-card-accent-solid: rgb(239,68,68);
+}
+
+#cindCard[data-lens="neutral_mirror"],
+#favCard[data-lens="neutral_mirror"]{
+  --mi-card-accent: rgba(168,85,247,0.72);
+  --mi-card-accent-soft: rgba(168,85,247,0.18);
+  --mi-card-accent-ring: rgba(168,85,247,0.36);
+  --mi-card-accent-solid: rgb(168,85,247);
+}
+
+/* =========================================================
+   PRIMARY SCORECARD FRAME — dual-edge premium treatment
+   ========================================================= */
+
+#cindCard,
+#favCard{
+  position: relative;
+  isolation: isolate;
+}
+
+#cindCard::after,
+#favCard::after{
+  content: "";
+  position: absolute;
+  inset: 4px;
+  border-radius: 12px;
+  pointer-events: none;
+
+  border: 1px solid rgba(255,255,255,0.06);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.10),
+    inset 0 0 0 1px rgba(255,255,255,0.025);
+}
+
+.result-layout{
+  gap: 14px;
+}
+
+/* =========================================================
+   MATCHUP DIAGNOSTICS — Volatility Meter + Notes
+   ========================================================= */
+
+#interactionsSection .interactions-grid{
+  grid-template-columns: minmax(0, 1.2fr) minmax(340px, 0.8fr);
+  align-items: stretch;
+}
+
+#interactionsSection .interactions-right.interactions-diagnostics-tile{
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 100%;
+  background: rgba(9, 9, 15, 0.96);
+  border: 1px solid rgba(75, 85, 99, 0.9);
+  border-radius: 14px;
+  padding: 12px;
+  overflow: hidden;
+}
+
+/* ---------- shared heads ---------- */
+
+.volatility-head,
+.interaction-notes-head{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 2px;
+}
+
+/* ---------- notes panel ---------- */
+
+.interaction-notes-panel{
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  flex: 1 1 auto;
+  gap: 10px;
+}
+
+.interaction-notes-panel .int-console-body{
+  flex: 1 1 auto;
+  min-height: 220px;
+  max-height: 360px;
+}
+
+/* ---------- mobile ---------- */
+
+@media (max-width: 980px){
+  #interactionsSection .interactions-grid{
+    grid-template-columns: 1fr;
+  }
+
+  #interactionsSection .interactions-right.interactions-diagnostics-tile{
+    min-height: auto;
+  }
+
+  .volatility-score-row{
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .volatility-quarters{
+    grid-template-columns: 1fr;
+  }
+}
+
+/* =========================================================
+   v4.2 — MATCHUP DIAGNOSTICS / ARC VOLATILITY GAUGE
+   ========================================================= */
+
+#interactionsSection .interactions-grid{
+  grid-template-columns: minmax(0, 1.15fr) minmax(360px, 0.85fr) !important;
+  align-items: stretch !important;
+  height: auto !important;
+  max-height: none !important;
+}
+
+#interactionsSection .interactions-right.interactions-diagnostics-tile{
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 12px;
+  min-height: clamp(520px, 62vh, 720px);
+  height: auto !important;
+  overflow: hidden !important;
+  padding: 12px;
+  border-radius: 16px;
+  background:
+    linear-gradient(180deg, rgba(3,7,18,0.92), rgba(2,6,23,0.98)),
+    radial-gradient(circle at top, rgba(56,189,248,0.08), transparent 55%);
+  border: 1px solid rgba(148,163,184,0.18);
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,0.02),
+    0 14px 34px rgba(0,0,0,0.30);
+}
+
+.volatility-head,
+.interaction-notes-head{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.interaction-notes-panel{
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 220px;
+  gap: 10px;
+}
+
+.interaction-notes-panel .int-console-body{
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+@media (max-width: 980px){
+  #interactionsSection .interactions-grid{
+    grid-template-columns: 1fr !important;
+  }
+
+  #interactionsSection .interactions-right.interactions-diagnostics-tile{
+    min-height: auto;
+  }
+
+  .volatility-quarters{
+    grid-template-columns: 1fr;
+  }
+
+  .volatility-gauge{
+    --size: min(100%, 320px);
+  }
+}
+
+.syn-center-inner {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 18px;
+}
+
+.syn-volatility-mini {
+  width: min(100%, 430px);
+  margin: 0 auto;
+  padding: 10px 14px 8px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.syn-volatility-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.syn-volatility-label {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.72);
+}
+
+.syn-volatility-score {
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  color: #f5f7ff;
+}
+
+.syn-volatility-bar {
+  position: relative;
+  height: 10px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: rgba(255,255,255,0.08);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.05);
+}
+
+.syn-volatility-fill {
+  display: block;
+  height: 100%;
+  width: 0%;
+  border-radius: inherit;
+  background: linear-gradient(
+    90deg,
+    #39b8ff 0%,
+    #7fe0ff 18%,
+    #f5d90a 50%,
+    #ff9f43 74%,
+    #ff5a4f 100%
+  );
+  transition: width 240ms ease;
+}
+
+.syn-volatility-meta {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  margin-top: 8px;
+}
+
+.syn-volatility-beneficiary {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #aeb7cb;
+}
+
+.syn-volatility-mini.is-a .syn-volatility-beneficiary {
+  color: var(--mi-team-a, #59b8ff);
+}
+
+.syn-volatility-mini.is-b .syn-volatility-beneficiary {
+  color: var(--mi-team-b, #ff9a4d);
+}
+
+.syn-volatility-mini.is-balanced .syn-volatility-beneficiary {
+  color: #aeb7cb;
+}
+
+/* Ensure rows share height instead of stretching first row */
+.summary-synthesis-table {
+  table-layout: fixed;
+}
+
+/* Prevent rowspan cell from forcing the row height */
+.syn-final {
+  vertical-align: middle;
+  padding: 0;
+}
+
+/* Make the purple Final MI tile stretch internally instead */
+.syn-final-inner {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  height: 100%;
+  padding: 18px 14px;
+}
+
+/* Give synthesis rows a consistent height baseline */
+.summary-synthesis-table tbody tr {
+  height: 48px;
+}
+
+/* =========================================================
+   FINAL INTERACTION / VOLATILITY SIZING LOCK
+   Replaces lingering console-era sizing behavior
+   ========================================================= */
+
+#interactionsSection .interactions-grid{
+  display: grid !important;
+  grid-template-columns: minmax(0, 1.18fr) minmax(320px, 0.82fr) !important;
+  grid-template-rows: auto !important;
+  column-gap: 14px !important;
+  row-gap: 0 !important;
+  align-items: stretch !important;
+  margin-top: 0 !important;
+}
+
+/* Kill old console-era forced placement */
+#interactionsSection .interactions-left,
+#interactionsSection .interactions-right{
+  grid-column: auto !important;
+  grid-row: auto !important;
+  align-self: stretch !important;
+  min-height: 0 !important;
+}
+
+/* Outer tiles */
+#interactionsSection .interactions-left,
+#interactionsSection .interactions-right{
+  padding: 8px !important;
+  border-radius: 14px;
+}
+
+/* Left panel should feel fuller */
+#interactionsSection .interactions-left{
+  display: flex;
+  flex-direction: column;
+}
+
+#interactionsSection .interactions-left-tile{
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 100%;
+  padding: 0 !important;
+  background: transparent !important;
+  border: none !important;
+}
+
+/* Tighten the right tile so the whole section comes down in height */
+#interactionsSection .interactions-right{
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: stretch;
+  overflow: hidden !important;
+}
+
+#interactionsSection .volatility-tile,
+#interactionsSection .matchup-volatility-tile,
+#interactionsSection .interactions-console-tile{
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: flex-start;
+  height: 100%;
+  min-height: 0 !important;
+  padding: 12px 14px !important;
+  overflow: hidden !important;
+}
+
+/* =========================
+   Interaction table sizing
+   ========================= */
+
+#interactionsSection .interaction-table{
+  table-layout: fixed;
+  width: 100%;
+}
+
+#interactionsSection .interaction-table thead th{
+  padding: 10px 10px !important;
+  font-size: 12px !important;
+}
+
+#interactionsSection .interaction-table td{
+  padding: 12px 10px !important;
+  font-size: 13px !important;
+}
+
+#interactionsSection .interaction-table .int-name{
+  width: 21% !important;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+#interactionsSection .interaction-table .int-edge{
+  width: 27% !important;
+}
+
+#interactionsSection .interaction-table .col-intensity{
+  width: 13% !important;
+}
+
+#interactionsSection .interaction-table .int-adj{
+  width: 19% !important;
+}
+
+#interactionsSection .interaction-totals-bar{
+  margin-top: 10px !important;
+  padding: 12px 14px !important;
+}
+
+/* =========================
+   Volatility panel tightening
+   ========================= */
+
+#interactionsSection .volatility-gauge,
+#interactionsSection .matchup-volatility-gauge{
+  width: min(100%, 300px) !important;
+  margin: 0 auto 8px !important;
+}
+
+#interactionsSection .volatility-gauge__score{
+  font-size: 31px !important;
+}
+
+#interactionsSection .volatility-gauge__label{
+  font-size: 10px !important;
+}
+
+#interactionsSection .volatility-gauge-scale{
+  width: min(100%, 300px) !important;
+  font-size: 9px !important;
+}
+
+#interactionsSection .volatility-summary-text{
+  display: none;
+}
+
+#interactionsSection .volatility-quarters{
+  gap: 8px !important;
+}
+
+#interactionsSection .vol-q-card{
+  gap: 4px !important;
+}
+
+#interactionsSection .vol-q-label,
+#interactionsSection .vol-q-value{
+  font-size: 9.5px !important;
+}
+
+#interactionsSection .vol-q-bar{
+  height: 7px !important;
+}
+
+/* Optional: if the volatility tile still feels a touch too tall */
+#interactionsSection .interaction-notes-panel{
+  min-height: 0 !important;
+  gap: 8px !important;
+}
+
+/* Shared wrapper for narrative-style back faces */
+#resumeTileA .tile-face.tile-back,
+#resumeTileB .tile-face.tile-back,
+.mi-metrics-back-text {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 14px 16px;
+}
+
+/* Shared narrative copy styling */
+#resumeTileA .tile-face.tile-back p,
+#resumeTileB .tile-face.tile-back p,
+.mi-metrics-back-text p,
+.mi-metrics-back-text {
+  max-width: 34ch;
+  margin: 0 auto;
+  font-size: 0.77rem;
+  line-height: 1.52;
+  font-weight: 560;
+  letter-spacing: 0.005em;
+  color: rgba(236, 242, 255, 0.92);
+  text-shadow: 0 1px 10px rgba(0, 0, 0, 0.22);
+  text-wrap: balance;
+}
+
+/* =========================================================
+   Interaction Metrics Flip Tile
+   ========================================================= */
+
+#interactionsSection .interactions-left-tile.flip-tile{
+  display: block;
+  min-height: 100%;
+  perspective: 1400px;
+}
+
+#interactionsSection .interactions-left-tile.flip-tile .flip-tile-inner{
+  height: 100%;
+  min-height: 100%;
+}
+
+#interactionsSection .interactions-left-tile.flip-tile .tile-face{
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 100%;
+}
+
+#interactionsSection .interactions-front-face{
+  gap: 10px;
+}
+
+#interactionsSection .interactions-back-face{
+  justify-content: flex-start;
+  gap: 12px;
+  padding: 16px 16px 14px;
+  overflow: auto;
+}
+
+#interactionsSection .interactions-back-head{
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+#interactionsSection .interactions-back-title{
+  margin: 0;
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(241,245,249,0.96);
+}
+
+#interactionsSection .interactions-back-intro{
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.45;
+  color: rgba(226,232,240,0.84);
+}
+
+#interactionsSection .interactions-back-list{
+  margin: 0;
+  padding-left: 18px;
+  display: grid;
+  gap: 8px;
+}
+
+#interactionsSection .interactions-back-list li{
+  font-size: 12px;
+  line-height: 1.45;
+  color: rgba(226,232,240,0.90);
+}
+
+#interactionsSection .interactions-back-note{
+  margin: 2px 0 0;
+  font-size: 12px;
+  line-height: 1.45;
+  color: rgba(191,219,254,0.82);
+  border-top: 1px solid rgba(148,163,184,0.14);
+  padding-top: 10px;
+}
+
+#interactionsSection .interactions-back-helper{
+  display: none;
+}
+
+#interactionsSection .interactions-flip-hint{
+  margin-top: 8px;
+  align-self: center;
+}
+
+/* =========================================
+   Core back tile — section labels
+   Plain text, not kicker pills
+   ========================================= */
+
+.core-back-main-label,
+.core-back-eff-label{
+  display: block;
+  margin: 0 0 10px;
+  padding: 0;
+
+  border: none;
+  background: transparent;
+  box-shadow: none;
+  border-radius: 0;
+
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  line-height: 1.1;
+
+  color: rgba(226, 232, 240, 0.78);
+}
+
+.core-back-main-label{
+  margin-bottom: 12px;
+}
+
+.core-back-eff-label{
+  margin-bottom: 12px;
+  color: rgba(191, 219, 254, 0.82);
+}
+
+/* =========================================
+   Core back tile — stronger section break
+   ========================================= */
+
+.core-back-eff-section{
+  position: relative;
+  margin-top: 16px;
+  padding-top: 18px;
+}
+
+.core-back-eff-section::before{
+  content:"";
+  position:absolute;
+  top:2px;
+  left:8%;
+  right:8%;
+  height:3px;
+  border-radius:999px;
+
+  background:
+    radial-gradient(
+      ellipse at center,
+      rgba(96,165,250,0.95) 0%,
+      rgba(56,189,248,0.75) 20%,
+      rgba(37,99,235,0.35) 45%,
+      rgba(37,99,235,0.08) 65%,
+      rgba(23,95,195,0) 80%
+    );
+
+  filter: blur(.3px);
+
+  box-shadow:
+    0 0 6px rgba(96,165,250,0.35),
+    0 0 18px rgba(56,189,248,0.18);
+}
+
+/* =========================================
+   MI efficiency back rows — use existing strength palette
+   ========================================= */
+
+.core-back-eff-item .core-back-header{
+  margin-bottom: 4px;
+}
+
+.core-back-eff-item .core-back-metric{
+  color: #d7deea; /* same family as score-neutral */
+}
+
+/* Positive/negative mapping aligned to existing score colors */
+.core-back-eff-item[data-band="strong_positive"] .core-back-metric{
+  color: #7fd6ff; /* same as .metric-score.score-elite */
+}
+
+.core-back-eff-item[data-band="positive"] .core-back-metric{
+  color: #4fb0ff; /* same as .metric-score.score-strong */
+}
+
+.core-back-eff-item[data-band="neutral"] .core-back-metric{
+  color: #d7deea; /* same as .metric-score.score-neutral */
+}
+
+.core-back-eff-item[data-band="negative"] .core-back-metric{
+  color: #ffb3b3; /* same as .metric-score.score-weak */
+}
+
+.core-back-eff-item[data-band="strong_negative"] .core-back-metric{
+  color: #ff6b6b; /* same as .metric-score.score-fragile */
+}
+
+/* =========================================
+   Core back tile — section headers
+   ========================================= */
+
+.core-back-main-label,
+.core-back-eff-label{
+  position: relative;
+  text-align: center;
+
+  display: block;
+  margin: 0 0 14px;
+  padding-bottom: 6px;
+
+  font-size: 16px;
+  font-weight: 850;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+
+  color: rgba(226,232,240,0.9);
+}
+
+/* editorial-style header underline (distinct from MI divider) */
+.core-back-main-label::after,
+.core-back-eff-label::after{
+  content:"";
+  position:absolute;
+  left:6%;
+  right:55%;
+  bottom:-2px;
+  height:1px;
+
+  background: rgba(148,163,184,0.35);
+
+  box-shadow:
+    0 -1px 0 rgba(255,255,255,0.05); /* subtle highlight */
+}
+
+/* MI section gets brand tint */
+.core-back-eff-label{
+  margin-top: 6px;
+  color: rgba(191,219,254,0.95);
+}
+
+.core-back-eff-label::after{
+  background: linear-gradient(
+    90deg,
+    rgba(37,99,235,0),
+    rgba(96,165,250,0.34) 22%,
+    rgba(191,219,254,0.62) 50%,
+    rgba(96,165,250,0.34) 78%,
+    rgba(37,99,235,0)
+  );
+}
+
+.core-back-item{
+  position:relative;
+  padding: 6px 0 8px;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
+
+.core-back-item::after{
+  content:"";
+  position:absolute;
+  left:2px;
+  right:2px;
+  bottom:0;
+  height:1px;
+
+  background: linear-gradient(
+    90deg,
+    rgba(148,163,184,0),
+    rgba(148,163,184,0.10) 10%,
+    rgba(148,163,184,0.18) 50%,
+    rgba(148,163,184,0.10) 90%,
+    rgba(148,163,184,0)
+  );
+}
+
+.core-back-item:last-child::after{
+  display:none;
+}
+
+.core-back-item{
+  padding-left: 2px;
+  padding-right: 2px;
+}
+
+/* =========================================================
+   CORE BACK TILE — FINAL OVERRIDE PASS
+   Put this at the VERY BOTTOM of styles2.css
+   ========================================================= */
+
+/* -------- Section labels: one clean source of truth -------- */
+.core-back-main-label,
+.core-back-eff-label{
+  position: relative !important;
+  display: block !important;
+  width: 100% !important;
+  margin: 0 0 3px !important;
+  padding: 0 0 10px !important;
+
+  text-align: center !important;
+  font-size: 14px !important;
+  font-weight: 900 !important;
+  letter-spacing: 0.16em !important;
+  text-transform: uppercase !important;
+  line-height: 1.05 !important;
+
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.core-back-main-label{
+  color: rgba(232, 238, 248, 0.94) !important;
+}
+
+.core-back-eff-label{
+  margin-top: 8px !important;
+  color: rgba(201, 220, 250, 0.95) !important;
+}
+
+/* identical centered underlines for both headers */
+.core-back-main-label::after,
+.core-back-eff-label::after{
+  content: "" !important;
+  position: absolute !important;
+  left: 50% !important;
+  bottom: 0 !important;
+  transform: translateX(-50%) !important;
+
+  width: 132px !important;
+  height: 1px !important;
+  border-radius: 999px !important;
+
+  background: linear-gradient(
+    90deg,
+    rgba(148,163,184,0) 0%,
+    rgba(148,163,184,0.22) 18%,
+    rgba(226,232,240,0.46) 50%,
+    rgba(148,163,184,0.22) 82%,
+    rgba(148,163,184,0) 100%
+  ) !important;
+
+  box-shadow:
+    0 -1px 0 rgba(255,255,255,0.04),
+    0 0 8px rgba(148,163,184,0.06) !important;
+}
+
+/* -------- MI section divider: distinct from header underlines -------- */
+.core-back-eff-section{
+  position: relative !important;
+  margin-top: 18px !important;
+  padding-top: 22px !important;
+}
+
+.core-back-eff-section::before{
+  content: "" !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 7% !important;
+  right: 7% !important;
+  height: 3px !important;
+  border-radius: 999px !important;
+
+  background:
+    radial-gradient(
+      ellipse at center,
+      rgba(96,165,250,0.92) 0%,
+      rgba(56,189,248,0.74) 18%,
+      rgba(37,99,235,0.30) 42%,
+      rgba(23,95,195,0.05) 65%,
+      rgba(23,95,195,0) 82%
+    ) !important;
+
+  box-shadow:
+    0 0 6px rgba(96,165,250,0.24),
+    0 0 16px rgba(56,189,248,0.10) !important;
+}
+
+/* -------- Row segmentation: softer and less repetitive -------- */
+.core-back-list{
+  list-style: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.core-back-item{
+  position: relative !important;
+  padding: 8px 2px 10px !important;
+
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+.core-back-item::after{
+  content: "" !important;
+  position: absolute !important;
+  left: 8px !important;
+  right: 8px !important;
+  bottom: 0 !important;
+  height: 1px !important;
+
+  background: linear-gradient(
+    90deg,
+    rgba(148,163,184,0) 0%,
+    rgba(148,163,184,0.07) 14%,
+    rgba(148,163,184,0.14) 50%,
+    rgba(148,163,184,0.07) 86%,
+    rgba(148,163,184,0) 100%
+  ) !important;
+}
+
+.core-back-item:last-child::after{
+  display: none !important;
+}
+
+/* -------- Typography cleanup -------- */
+.core-back-header{
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: baseline !important;
+  gap: 0.5rem !important;
+  margin-bottom: 5px !important;
+}
+
+.core-back-metric{
+  font-size: 12px !important;
+  font-weight: 850 !important;
+  letter-spacing: 0.03em !important;
+  text-transform: uppercase !important;
+  color: rgba(241,245,249,0.96) !important;
+}
+
+.core-back-tier{
+  flex: 0 0 auto !important;
+  font-size: 10px !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.03em !important;
+  padding: 2px 8px !important;
+  border-radius: 999px !important;
+
+  color: #dbeafe !important;
+  background: rgba(30,64,175,0.42) !important;
+  border: 1px solid rgba(96,165,250,0.24) !important;
+}
+
+.core-back-text{
+  font-size: 12px !important;
+  line-height: 1.5 !important;
+  color: rgba(191,203,221,0.88) !important;
+}
+
+/* -------- MI labels keep your strength coloring, but nothing else leaks in -------- */
+.core-back-eff-item .core-back-header{
+  margin-bottom: 5px !important;
+}
+
+.core-back-eff-item .core-back-metric{
+  color: #d7deea !important;
+}
+
+.core-back-eff-item[data-band="strong_positive"] .core-back-metric{
+  color: #7fd6ff !important;
+}
+
+.core-back-eff-item[data-band="positive"] .core-back-metric{
+  color: #4fb0ff !important;
+}
+
+.core-back-eff-item[data-band="neutral"] .core-back-metric{
+  color: #d7deea !important;
+}
+
+.core-back-eff-item[data-band="negative"] .core-back-metric{
+  color: #ffb3b3 !important;
+}
+
+.core-back-eff-item[data-band="strong_negative"] .core-back-metric{
+  color: #ff6b6b !important;
+}
+
+/* =========================================================
+   Interaction flip back — narrative host
+   ========================================================= */
+
+#interactionsSection .interactions-back-face{
+  overflow: hidden;
+}
+
+#interactionsSection .interactions-narrative-host{
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 6px 4px 2px;
+  border-radius: 14px;
+  background: rgba(2, 8, 23, 0.38);
+  border: 1px solid rgba(148, 163, 184, 0.14);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.025);
+}
+
+#interactionsSection .interactions-back-face .int-console-card{
+  border-radius: 14px;
+  padding: 6px 6px;
+  background: rgba(15, 23, 42, 0.52);
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.025);
+  margin-bottom: 3px;
+  transition:
+    border-color 160ms ease,
+    background 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms ease;
+}
+
+#interactionsSection .interactions-back-face .int-console-card:last-child{
+  margin-bottom: 0;
+}
+
+#interactionsSection .interactions-back-face .int-console-card.is-active{
+  border-color: rgba(56, 189, 248, 0.42);
+  background: rgba(20, 33, 58, 0.72);
+  box-shadow:
+    inset 0 0 0 1px rgba(56,189,248,0.14),
+    0 0 0 1px rgba(56,189,248,0.08);
+  transform: translateY(-1px);
+}
+
+#interactionsSection .interactions-back-face .int-console-label{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+#interactionsSection .interactions-back-face .int-console-title{
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: rgba(241,245,249,0.92);
+}
+
+#interactionsSection .interactions-back-face .int-console-text{
+  font-size: 11px;
+  line-height: 1.46;
+  color: rgba(226,232,240,0.90);
+}
+
+#interactionsSection .interaction-table tbody tr.is-console-active{
+  background: rgba(56, 189, 248, 0.10) !important;
+  box-shadow: inset 0 0 0 1px rgba(56, 189, 248, 0.18);
+}
+
+/* =========================================================
+   INTERACTIONS SECTION — HARD OVERRIDE
+   Equal-width two-panel layout, bottom-paste safe
+   ========================================================= */
+
+#interactionsSection .interactions-grid{
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+  grid-template-rows: minmax(0, 1fr) !important;
+  gap: 20px !important;
+  align-items: stretch !important;
+  margin-top: 0 !important;
+  height: auto !important;
+  max-height: none !important;
+  min-height: 0 !important;
+}
+
+#interactionsSection .interactions-left,
+#interactionsSection .interactions-right{
+  grid-column: auto !important;
+  grid-row: auto !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  height: 100% !important;
+  max-height: none !important;
+  align-self: stretch !important;
+  overflow: hidden !important;
+}
+
+#interactionsSection .interactions-left-tile,
+#interactionsSection .interactions-console-tile,
+#interactionsSection .interactions-right-tile{
+  width: 100% !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  height: 100% !important;
+  max-height: none !important;
+  box-sizing: border-box !important;
+}
+
+/* left side */
+#interactionsSection .interactions-left-tile{
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+}
+
+#interactionsSection .interaction-table-wrap{
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  overflow: auto !important;
+}
+
+#interactionsSection .interaction-table{
+  width: 100% !important;
+  table-layout: fixed !important;
+}
+
+/* right side */
+#interactionsSection .interactions-console-tile{
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+}
+
+#interactionsSection .int-console-body,
+#interactionsSection #interactionConsoleBody{
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+}
+
+/* responsive fallback */
+@media (max-width: 980px){
+  #interactionsSection .interactions-grid{
+    grid-template-columns: 1fr !important;
+    grid-template-rows: auto auto !important;
+    height: auto !important;
+  }
+}
+
+/* =========================================================
+   CLEAN ANALYTICS VOLATILITY GAUGE — HARD OVERRIDE
+   ========================================================= */
+
+#interactionsSection .volatility-panel{
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 14px !important;
+  padding: 14px !important;
+  border-radius: 16px !important;
+  background:
+    linear-gradient(180deg, rgba(8, 14, 28, 0.96), rgba(4, 9, 20, 0.98)) !important;
+  border: 1px solid rgba(148,163,184,0.14) !important;
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,0.02),
+    0 12px 28px rgba(0,0,0,0.26) !important;
+}
+
+#interactionsSection .volatility-head{
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 10px !important;
+  margin: 0 !important;
+}
+
+#interactionsSection .volatility-tier-pill{
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-width: 100px !important;
+  height: 32px !important;
+  padding: 0 14px !important;
+  border-radius: 999px !important;
+  font-size: 11px !important;
+  font-weight: 900 !important;
+  letter-spacing: 0.12em !important;
+  text-transform: uppercase !important;
+  background: rgba(15,23,42,0.68) !important;
+  border: 1px solid rgba(148,163,184,0.18) !important;
+  color: rgba(241,245,249,0.94) !important;
+  box-shadow: none !important;
+}
+
+#interactionsSection .volatility-tier-pill.is-stable{
+  color: #86efac !important;
+  border-color: rgba(34,197,94,0.30) !important;
+}
+#interactionsSection .volatility-tier-pill.is-low{
+  color: #7dd3fc !important;
+  border-color: rgba(56,189,248,0.30) !important;
+}
+#interactionsSection .volatility-tier-pill.is-moderate{
+  color: #fde68a !important;
+  border-color: rgba(250,204,21,0.30) !important;
+}
+#interactionsSection .volatility-tier-pill.is-high{
+  color: #fdba74 !important;
+  border-color: rgba(249,115,22,0.32) !important;
+}
+#interactionsSection .volatility-tier-pill.is-extreme{
+  color: #fca5a5 !important;
+  border-color: rgba(239,68,68,0.34) !important;
+}
+
+#interactionsSection .volatility-gauge-wrap{
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 10px !important;
+}
+
+#interactionsSection .volatility-gauge-shell{
+  width: min(100%, 340px) !important;
+  margin: 0 auto !important;
+  position: relative !important;
+}
+
+#interactionsSection .volatility-gauge-svg{
+  display: block !important;
+  width: 100% !important;
+  height: auto !important;
+  overflow: visible !important;
+}
+
+#interactionsSection .volatility-gauge-track{
+  fill: none !important;
+  stroke: rgba(148,163,184,0.20) !important;
+  stroke-width: 16 !important;
+  stroke-linecap: round !important;
+}
+
+#interactionsSection .volatility-gauge-fill{
+  fill: none !important;
+  stroke: url(#volatilityArcGradient) !important;
+  stroke-width: 16 !important;
+  stroke-linecap: round !important;
+  filter: url(#volatilityArcSoftGlow) !important;
+  transition: stroke-dasharray 420ms cubic-bezier(.22,1,.36,1) !important;
+}
+
+#interactionsSection .volatility-gauge-ticks line{
+  stroke-linecap: round !important;
+}
+
+#interactionsSection .volatility-gauge-ticks line.is-major{
+  stroke: rgba(226,232,240,0.62) !important;
+  stroke-width: 2.8 !important;
+}
+
+#interactionsSection .volatility-gauge-ticks line.is-minor{
+  stroke: rgba(148,163,184,0.32) !important;
+  stroke-width: 1.8 !important;
+}
+
+#interactionsSection .volatility-gauge-threshold{
+  stroke: rgba(250,204,21,0.88) !important;
+  stroke-width: 1.9 !important;
+  stroke-linecap: round !important;
+  opacity: 0.9 !important;
+  transition: transform 420ms cubic-bezier(.22,1,.36,1) !important;
+  transform-origin: 170px 170px !important;
+}
+
+#interactionsSection .volatility-gauge-threshold-dot{
+  fill: rgba(250,204,21,0.98) !important;
+  stroke: rgba(8,14,28,0.92) !important;
+  stroke-width: 1.8 !important;
+  opacity: 0.98 !important;
+  transition: transform 420ms cubic-bezier(.22,1,.36,1) !important;
+  transform-origin: 170px 170px !important;
+}
+
+#interactionsSection .volatility-gauge-needle{
+  transition: transform 420ms cubic-bezier(.22,1,.36,1) !important;
+  transform-origin: 170px 170px !important;
+}
+
+#interactionsSection .volatility-gauge-needle-stem{
+  stroke: rgba(241,245,249,0.94) !important;
+  stroke-width: 4 !important;
+  stroke-linecap: round !important;
+}
+
+#interactionsSection .volatility-gauge-needle-cap{
+  fill: rgba(12, 19, 34, 0.98) !important;
+  stroke: rgba(148,163,184,0.20) !important;
+  stroke-width: 1.8 !important;
+}
+
+#interactionsSection .volatility-gauge-needle-core{
+  fill: #f8fafc !important;
+}
+
+#interactionsSection .volatility-gauge-score{
+  font-size: 38px !important;
+  font-weight: 900 !important;
+  letter-spacing: 0.01em !important;
+  fill: rgba(241,245,249,0.98) !important;
+}
+
+#interactionsSection .volatility-gauge-label{
+  font-size: 10px !important;
+  font-weight: 900 !important;
+  letter-spacing: 0.18em !important;
+  fill: rgba(148,163,184,0.72) !important;
+}
+
+#interactionsSection .volatility-gauge-zones text{
+  font-size: 10px !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase !important;
+  fill: rgba(148,163,184,0.62) !important;
+}
+
+#interactionsSection .volatility-summary-text{
+  width: min(100%, 320px) !important;
+  margin: 0 auto !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  line-height: 1.45 !important;
+  text-align: center !important;
+  color: rgba(226,232,240,0.86) !important;
+}
+
+#interactionsSection .volatility-threshold-text{
+  display: block !important;
+  width: min(100%, 320px) !important;
+  margin: 0 auto !important;
+  font-size: 10px !important;
+  font-weight: 900 !important;
+  line-height: 1.45 !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase !important;
+  text-align: center !important;
+  color: rgba(250,204,21,0.90) !important;
+}
+
+#interactionsSection .volatility-quarters{
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 10px !important;
+}
+
+#interactionsSection .vol-q-card{
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 6px !important;
+  padding: 10px 11px !important;
+  border-radius: 12px !important;
+  background: rgba(255,255,255,0.015) !important;
+  border: 1px solid rgba(148,163,184,0.10) !important;
+  box-shadow: none !important;
+}
+
+#interactionsSection .vol-q-top{
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 8px !important;
+}
+
+#interactionsSection .vol-q-label,
+#interactionsSection .vol-q-value{
+  font-size: 12px !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase !important;
+}
+
+#interactionsSection .vol-q-label{
+  color: rgba(203,213,225,0.84) !important;
+}
+
+#interactionsSection .vol-q-value{
+  color: rgba(241,245,249,0.90) !important;
+}
+
+#interactionsSection .vol-q-bar{
+  position: relative !important;
+  height: 8px !important;
+  border-radius: 999px !important;
+  overflow: hidden !important;
+  background: rgba(148,163,184,0.12) !important;
+  box-shadow: none !important;
+}
+
+#interactionsSection .vol-q-fill{
+  display: block !important;
+  height: 100% !important;
+  border-radius: 999px !important;
+  background: linear-gradient(90deg, #38bdf8 0%, #facc15 56%, #ef4444 100%) !important;
+  transition: width 420ms cubic-bezier(.22,1,.36,1) !important;
+}
+
+#interactionsSection .vol-q-meta{
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 10px !important;
+  min-height: 14px !important;
+}
+
+#interactionsSection .vol-q-driver,
+#interactionsSection .vol-q-lean{
+  font-size: 12px !important;
+  font-weight: 850 !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase !important;
+  line-height: 1 !important;
+}
+
+#interactionsSection .vol-q-driver{
+  color: rgba(226,232,240,0.74) !important;
+}
+
+#interactionsSection .vol-q-driver.is-balanced{
+  color: rgba(148,163,184,0.68) !important;
+}
+
+#interactionsSection .vol-q-driver.is-a{
+  color: rgba(96,165,250,0.96) !important;
+}
+
+#interactionsSection .vol-q-driver.is-b{
+  color: rgba(251,146,60,0.96) !important;
+}
+
+#interactionsSection .vol-q-lean{
+  display: none;
+}
+
+@media (max-width: 980px){
+  #interactionsSection .volatility-gauge-shell{
+    width: min(100%, 310px) !important;
+  }
+
+  #interactionsSection .volatility-quarters{
+    grid-template-columns: 1fr !important;
+  }
+
+  #interactionsSection .volatility-summary-text,
+  #interactionsSection .volatility-threshold-text{
+    width: min(100%, 290px) !important;
+  }
+}
+
+/* Remove physical gauge pointers completely */
+#interactionsSection #volatilityGaugeNeedle,
+#interactionsSection #volatilityGaugeThreshold,
+#interactionsSection #volatilityGaugeThresholdDot{
+  display: none !important;
+}
+
+/* ==========================================================================
+   CORE TRAITS TABLE — TEAM STANDING BAR OVERRIDE
+   Paste at very bottom of styles2.css
+   Depends on:
+   - .mi-core-table
+   - .mi-core-section-row
+   - .mi-core-metric-row
+   - .mi-standing-wrap
+   - .mi-standing-bar
+   - .mi-standing-fill
+   - .mi-standing-median
+   - .mi-core-impact-value
+   ========================================================================== */
+
+/* ---------- table shell ---------- */
+
+.explain-table.mi-core-table{
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  table-layout: fixed;
+  overflow: hidden;
+  border-radius: 14px;
+}
+
+/* Keep header geometry aligned with your existing scorecard style */
+.explain-table.mi-core-table thead th{
+  padding: 9px 10px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-align: center;
+  color: rgba(226,232,240,0.92);
+
+  background:
+    linear-gradient(180deg, rgba(2,6,23,0.92), rgba(2,6,23,0.78));
+  border-top: 1px solid rgba(56,189,248,0.18);
+  border-bottom: 1px solid rgba(56,189,248,0.22);
+  border-right: 1px solid rgba(56,189,248,0.16);
+}
+
+.explain-table.mi-core-table thead th:first-child{
+  border-left: 1px solid rgba(56,189,248,0.16);
+  border-top-left-radius: 12px;
+}
+
+.explain-table.mi-core-table thead th:last-child{
+  border-top-right-radius: 12px;
+}
+
+/* Column widths tuned to current scorecard proportions */
+.explain-table.mi-core-table .mi-core-col-battlefield{ width: 34%; }
+.explain-table.mi-core-table .mi-core-col-spread{ width: 14%; }
+.explain-table.mi-core-table .mi-core-col-standing{ width: 20%; }
+.explain-table.mi-core-table .mi-core-col-tier{ width: 17%; }
+.explain-table.mi-core-table .mi-core-col-impact{ width: 15%; }
+
+/* ---------- section rows (Offensive Profile / Defensive Profile) ---------- */
+
+.explain-table.mi-core-table .mi-core-section-row th.mi-core-section-title{
+  padding: 9px 14px;
+  text-align: left;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  color: rgba(226,232,240,0.92);
+
+  background:
+    linear-gradient(90deg,
+      rgba(30,41,59,0.78) 0%,
+      rgba(30,41,59,0.52) 42%,
+      rgba(15,23,42,0.24) 100%
+    );
+
+  border-left: 1px solid rgba(56,189,248,0.18);
+  border-right: 1px solid rgba(56,189,248,0.18);
+  border-bottom: 1px solid rgba(56,189,248,0.16);
+}
+
+/* ---------- metric rows ---------- */
+
+.explain-table.mi-core-table .mi-core-metric-row td{
+  padding: 10px 10px;
+  vertical-align: middle;
+  text-align: center;
+
+  background:
+    linear-gradient(180deg, rgba(8,13,27,0.90), rgba(6,10,22,0.94));
+
+  border-right: 1px solid rgba(23,95,195,0.22);
+  border-bottom: 1px solid rgba(23,95,195,0.22);
+}
+
+.explain-table.mi-core-table .mi-core-metric-row td:first-child{
+  border-left: 1px solid rgba(23,95,195,0.22);
+}
+
+.explain-table.mi-core-table .mi-core-metric-row:last-of-type td:first-child{
+  border-bottom-left-radius: 12px;
+}
+
+.explain-table.mi-core-table .mi-core-metric-row:last-of-type td:last-child{
+  border-bottom-right-radius: 12px;
+}
+
+/* Battlefield label */
+.explain-table.mi-core-table .mi-core-battlefield{
+  text-align: left;
+  color: rgba(241,245,249,0.94);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+/* Spread pill cell */
+.explain-table.mi-core-table .mi-core-spread{
+  text-align: center;
+}
+
+.explain-table.mi-core-table .mi-core-spread-pill{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 54px;
+  min-height: 26px;
+  padding: 0 10px;
+
+  border-radius: 999px;
+  border: 1px solid rgba(148,163,184,0.26);
+
+  background:
+    linear-gradient(180deg, rgba(30,41,59,0.60), rgba(15,23,42,0.70));
+
+  color: rgba(226,232,240,0.82);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.03) inset,
+    0 6px 14px rgba(0,0,0,0.22);
+}
+
+/* ---------- TEAM STANDING BAR ---------- */
+
+.explain-table.mi-core-table .mi-core-standing-cell{
+  padding-left: 12px;
+  padding-right: 12px;
+}
+
+.explain-table.mi-core-table .mi-standing-wrap{
+  position: relative;
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+
+/* Rail */
+.explain-table.mi-core-table .mi-standing-bar{
+  position: relative;
+  width: 100%;
+  height: 12px;
+  border-radius: 999px;
+  overflow: hidden;
+
+  background:
+    linear-gradient(180deg, rgba(2,6,23,0.98), rgba(15,23,42,0.92));
+
+  border: 1px solid rgba(148,163,184,0.18);
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.04),
+    inset 0 0 0 1px rgba(255,255,255,0.02),
+    0 6px 14px rgba(0,0,0,0.26);
+}
+
+/* Optional segmentation for a broadcast / scorecard feel */
+.explain-table.mi-core-table .mi-standing-bar::after{
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 3;
+
+  background-image: repeating-linear-gradient(
+    to right,
+    transparent 0,
+    transparent calc(10% - 1px),
+    rgba(255,255,255,0.06) calc(10% - 1px),
+    rgba(255,255,255,0.06) 10%
+  );
+
+  opacity: 0.55;
+}
+
+/* Fill */
+.explain-table.mi-core-table .mi-standing-fill{
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 0%;
+  z-index: 1;
+
+  border-radius: 999px;
+
+  background:
+    linear-gradient(90deg,
+      rgba(56,189,248,0.92) 0%,
+      rgba(29,100,199,0.95) 68%,
+      rgba(23,95,195,0.98) 100%
+    );
+
+  box-shadow:
+    0 0 10px rgba(56,189,248,0.22),
+    0 0 18px rgba(23,95,195,0.12);
+}
+
+/* median marker */
+.explain-table.mi-core-table .mi-standing-median{
+  position: absolute;
+  top: -2px;
+  bottom: -2px;
+  left: 50%;
+  width: 2px;
+  z-index: 2;
+
+  border-radius: 999px;
+  transform: translateX(-50%);
+
+  background: rgba(226,232,240,0.82);
+
+  box-shadow:
+    0 0 0 1px rgba(2,6,23,0.55),
+    0 0 6px rgba(226,232,240,0.22);
+}
+
+/* Screen-reader only support */
+.explain-table.mi-core-table .sr-only{
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+/* ---------- tier ---------- */
+
+.explain-table.mi-core-table .mi-core-tier{
+  color: rgba(226,232,240,0.84);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.15;
+}
+
+/* Optional tier nuance if your JS adds tier classes to the td */
+.explain-table.mi-core-table .mi-core-tier.is-elite{ color: rgba(186,230,253,0.98); }
+.explain-table.mi-core-table .mi-core-tier.is-above-average{ color: rgba(191,219,254,0.94); }
+.explain-table.mi-core-table .mi-core-tier.is-average{ color: rgba(226,232,240,0.84); }
+.explain-table.mi-core-table .mi-core-tier.is-weak{ color: rgba(252,165,165,0.90); }
+.explain-table.mi-core-table .mi-core-tier.is-fragile{ color: rgba(248,113,113,0.96); }
+
+/* ---------- impact ---------- */
+
+.explain-table.mi-core-table .mi-core-impact{
+  text-align: center;
+}
+
+.explain-table.mi-core-table .mi-core-impact-value{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 38px;
+
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  color: rgba(226,232,240,0.94);
+}
+
+.explain-table.mi-core-table .mi-core-impact-value.is-pos{
+  color: #60a5fa;
+}
+
+.explain-table.mi-core-table .mi-core-impact-value.is-neg{
+  color: #fca5a5;
+}
+
+.explain-table.mi-core-table .mi-core-impact-value.is-flat{
+  color: rgba(226,232,240,0.70);
+}
+
+/* ---------- row hover / polish ---------- */
+
+.explain-table.mi-core-table .mi-core-metric-row:hover td{
+  background:
+    linear-gradient(180deg, rgba(12,18,36,0.94), rgba(8,13,27,0.98));
+}
+
+/* ---------- mobile tightening ---------- */
+
+@media (max-width: 720px){
+  .explain-table.mi-core-table thead th{
+    padding: 8px 6px;
+    font-size: 10px;
+    letter-spacing: 0.06em;
+  }
+
+  .explain-table.mi-core-table .mi-core-metric-row td{
+    padding: 9px 6px;
+  }
+
+  .explain-table.mi-core-table .mi-core-battlefield{
+    font-size: 11px;
+  }
+
+  .explain-table.mi-core-table .mi-core-tier{
+    font-size: 11px;
+  }
+
+  .explain-table.mi-core-table .mi-standing-bar{
+    height: 10px;
+  }
+
+  .explain-table.mi-core-table .mi-standing-median{
+    top: -1px;
+    bottom: -1px;
+  }
+}
+
+/* ==========================================================================
+   INTERACTION METRICS TABLE — LEVERAGE BAR OVERRIDE
+   Paste at very bottom of styles2.css
+   Depends on:
+   - .mi-interaction-table
+   - .mi-int-row
+   - .mi-int-bar
+   - .mi-int-bar-center
+   - .mi-int-bar-fill-a
+   - .mi-int-bar-fill-b
+   - .mi-int-intensity-pill
+   Volatility panel intentionally untouched.
+   ========================================================================== */
+
+/* ---------- table shell ---------- */
+
+.interaction-table.mi-interaction-table{
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  table-layout: fixed;
+  overflow: hidden;
+  border-radius: 14px;
+}
+
+.interaction-table.mi-interaction-table thead th{
+  padding: 9px 10px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-align: center;
+  color: rgba(226,232,240,0.92);
+
+  background:
+    linear-gradient(180deg, rgba(2,6,23,0.92), rgba(2,6,23,0.78));
+  border-top: 1px solid rgba(56,189,248,0.18);
+  border-bottom: 1px solid rgba(56,189,248,0.22);
+  border-right: 1px solid rgba(56,189,248,0.16);
+}
+
+.interaction-table.mi-interaction-table thead th:first-child{
+  border-left: 1px solid rgba(56,189,248,0.16);
+  border-top-left-radius: 12px;
+}
+
+.interaction-table.mi-interaction-table thead th:last-child{
+  border-top-right-radius: 12px;
+}
+
+/* Column proportions */
+.interaction-table.mi-interaction-table .mi-int-col-label{ width: 39%; }
+.interaction-table.mi-interaction-table .mi-int-col-bar{ width: 41%; }
+.interaction-table.mi-interaction-table .mi-int-col-intensity{ width: 20%; }
+
+/* ---------- rows ---------- */
+
+.interaction-table.mi-interaction-table .mi-int-row td{
+  padding: 11px 10px;
+  vertical-align: middle;
+  text-align: center;
+
+  background:
+    linear-gradient(180deg, rgba(8,13,27,0.90), rgba(6,10,22,0.94));
+
+  border-right: 1px solid rgba(23,95,195,0.22);
+  border-bottom: 1px solid rgba(23,95,195,0.22);
+}
+
+.interaction-table.mi-interaction-table .mi-int-row td:first-child{
+  border-left: 1px solid rgba(23,95,195,0.22);
+}
+
+.interaction-table.mi-interaction-table .mi-int-row:last-child td:first-child{
+  border-bottom-left-radius: 12px;
+}
+
+.interaction-table.mi-interaction-table .mi-int-row:last-child td:last-child{
+  border-bottom-right-radius: 12px;
+}
+
+.interaction-table.mi-interaction-table .mi-int-row:hover td{
+  background:
+    linear-gradient(180deg, rgba(12,18,36,0.94), rgba(8,13,27,0.98));
+}
+
+/* ---------- label cell ---------- */
+
+.interaction-table.mi-interaction-table .mi-int-label-cell{
+  text-align: left;
+}
+
+.interaction-table.mi-interaction-table .mi-int-label-main{
+  color: rgba(241,245,249,0.95);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.15;
+}
+
+.interaction-table.mi-interaction-table .mi-int-label-sub{
+  margin-top: 3px;
+  color: rgba(148,163,184,0.90);
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: 0.01em;
+}
+
+/* ---------- leverage bar ---------- */
+
+.interaction-table.mi-interaction-table .mi-int-bar-cell{
+  padding-left: 12px;
+  padding-right: 12px;
+}
+
+.interaction-table.mi-interaction-table .mi-int-bar-wrap{
+  position: relative;
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.interaction-table.mi-interaction-table .mi-int-bar{
+  position: relative;
+  width: 100%;
+  height: 14px;
+  border-radius: 999px;
+  overflow: hidden;
+
+  background:
+    linear-gradient(180deg, rgba(2,6,23,0.98), rgba(15,23,42,0.92));
+
+  border: 1px solid rgba(148,163,184,0.18);
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.04),
+    inset 0 0 0 1px rgba(255,255,255,0.02),
+    0 6px 14px rgba(0,0,0,0.26);
+}
+
+/* subtle segmentation */
+.interaction-table.mi-interaction-table .mi-int-bar::after{
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 4;
+
+  background-image: repeating-linear-gradient(
+    to right,
+    transparent 0,
+    transparent calc(10% - 1px),
+    rgba(255,255,255,0.05) calc(10% - 1px),
+    rgba(255,255,255,0.05) 10%
+  );
+
+  opacity: 0.55;
+}
+
+/* center line */
+.interaction-table.mi-interaction-table .mi-int-bar-center{
+  position: absolute;
+  top: -2px;
+  bottom: -2px;
+  left: 50%;
+  width: 2px;
+  z-index: 3;
+  transform: translateX(-50%);
+  border-radius: 999px;
+
+  background: rgba(226,232,240,0.82);
+
+  box-shadow:
+    0 0 0 1px rgba(2,6,23,0.55),
+    0 0 6px rgba(226,232,240,0.20);
+}
+
+/* shared fill */
+.interaction-table.mi-interaction-table .mi-int-bar-fill{
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 0%;
+  z-index: 2;
+}
+
+/* Team A / left side */
+.interaction-table.mi-interaction-table .mi-int-bar-fill-a{
+  right: 50%;
+  border-top-left-radius: 999px;
+  border-bottom-left-radius: 999px;
+
+  background:
+    linear-gradient(270deg,
+      rgba(56,189,248,0.94) 0%,
+      rgba(29,100,199,0.96) 68%,
+      rgba(23,95,195,0.98) 100%
+    );
+
+  box-shadow:
+    0 0 10px rgba(56,189,248,0.20),
+    0 0 18px rgba(23,95,195,0.10);
+}
+
+/* Team B / right side */
+.interaction-table.mi-interaction-table .mi-int-bar-fill-b{
+  left: 50%;
+  border-top-right-radius: 999px;
+  border-bottom-right-radius: 999px;
+
+  background:
+    linear-gradient(90deg,
+      rgba(251,146,60,0.94) 0%,
+      rgba(249,115,22,0.96) 68%,
+      rgba(234,88,12,0.98) 100%
+    );
+
+  box-shadow:
+    0 0 10px rgba(251,146,60,0.20),
+    0 0 18px rgba(234,88,12,0.10);
+}
+
+/* ---------- intensity thickness tiers ---------- */
+/* Apply these classes to .mi-int-row from JS */
+
+.interaction-table.mi-interaction-table .mi-int-row.tier-high .mi-int-bar{
+  height: 16px;
+}
+
+.interaction-table.mi-interaction-table .mi-int-row.tier-mid .mi-int-bar{
+  height: 13px;
+}
+
+.interaction-table.mi-interaction-table .mi-int-row.tier-low .mi-int-bar{
+  height: 10px;
+}
+
+/* ---------- intensity pill ---------- */
+
+.interaction-table.mi-interaction-table .mi-int-intensity-cell{
+  text-align: center;
+}
+
+.interaction-table.mi-interaction-table .mi-int-intensity-pill{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 66px;
+  min-height: 28px;
+  padding: 0 10px;
+
+  border-radius: 999px;
+  border: 1px solid rgba(148,163,184,0.24);
+
+  background:
+    linear-gradient(180deg, rgba(30,41,59,0.60), rgba(15,23,42,0.70));
+
+  color: rgba(226,232,240,0.90);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.03) inset,
+    0 6px 14px rgba(0,0,0,0.22);
+}
+
+.interaction-table.mi-interaction-table .mi-int-intensity-pill.is-high{
+  color: rgba(186,230,253,0.98);
+  border-color: rgba(56,189,248,0.34);
+}
+
+.interaction-table.mi-interaction-table .mi-int-intensity-pill.is-mid{
+  color: rgba(226,232,240,0.92);
+  border-color: rgba(148,163,184,0.30);
+}
+
+.interaction-table.mi-interaction-table .mi-int-intensity-pill.is-low{
+  color: rgba(203,213,225,0.84);
+  border-color: rgba(100,116,139,0.30);
+}
+
+/* ---------- accessibility helper ---------- */
+
+.interaction-table.mi-interaction-table .sr-only{
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+/* ---------- mobile tightening ---------- */
+
+@media (max-width: 720px){
+  .interaction-table.mi-interaction-table thead th{
+    padding: 8px 6px;
+    font-size: 10px;
+    letter-spacing: 0.06em;
+  }
+
+  .interaction-table.mi-interaction-table .mi-int-row td{
+    padding: 9px 6px;
+  }
+
+  .interaction-table.mi-interaction-table .mi-int-label-main{
+    font-size: 11px;
+  }
+
+  .interaction-table.mi-interaction-table .mi-int-label-sub{
+    font-size: 9px;
+  }
+
+  .interaction-table.mi-interaction-table .mi-int-bar{
+    height: 12px;
+  }
+
+  .interaction-table.mi-interaction-table .mi-int-row.tier-high .mi-int-bar{
+    height: 14px;
+  }
+
+  .interaction-table.mi-interaction-table .mi-int-row.tier-mid .mi-int-bar{
+    height: 12px;
+  }
+
+  .interaction-table.mi-interaction-table .mi-int-row.tier-low .mi-int-bar{
+    height: 9px;
+  }
+
+  .interaction-table.mi-interaction-table .mi-int-intensity-pill{
+    min-width: 58px;
+    min-height: 25px;
+    font-size: 10px;
+    padding: 0 8px;
+  }
+}
+
+/* ==========================================================================
+   INTERACTION TABLE — SPACE MAXIMIZATION PASS
+   Paste at VERY bottom of styles2.css
+   ========================================================================== */
+
+/* ---------- overall container tightening ---------- */
+
+.interaction-table.mi-interaction-table{
+  border-radius: 16px;
+}
+
+/* reduce row padding slightly to free horizontal space */
+.interaction-table.mi-interaction-table .mi-int-row td{
+  padding: 9px 8px;
+}
+
+/* ---------- column balance (THIS IS THE BIG ONE) ---------- */
+
+/* make leverage dominate visually */
+.interaction-table.mi-interaction-table .mi-int-col-label{ width: 30%; }
+.interaction-table.mi-interaction-table .mi-int-col-bar{ width: 50%; }
+.interaction-table.mi-interaction-table .mi-int-col-intensity{ width: 20%; }
+
+/* ---------- label tightening ---------- */
+
+.interaction-table.mi-interaction-table .mi-int-label-cell{
+  padding-right: 6px;
+}
+
+.interaction-table.mi-interaction-table .mi-int-label-main{
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.interaction-table.mi-interaction-table .mi-int-label-sub{
+  font-size: 10px;
+  margin-top: 2px;
+  opacity: 0.85;
+}
+
+/* ---------- leverage bar expansion ---------- */
+
+.interaction-table.mi-interaction-table .mi-int-bar-cell{
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+/* make bar visually larger */
+.interaction-table.mi-interaction-table .mi-int-bar{
+  height: 16px;
+}
+
+/* stronger hierarchy by tier */
+.interaction-table.mi-interaction-table .mi-int-row.tier-high .mi-int-bar{
+  height: 18px;
+}
+
+.interaction-table.mi-interaction-table .mi-int-row.tier-mid .mi-int-bar{
+  height: 15px;
+}
+
+.interaction-table.mi-interaction-table .mi-int-row.tier-low .mi-int-bar{
+  height: 12px;
+}
+
+/* soften segmentation so bar reads as continuous */
+.interaction-table.mi-interaction-table .mi-int-bar::after{
+  opacity: 0.35;
+}
+
+/* slightly dim center line so it doesn't compete with fill */
+.interaction-table.mi-interaction-table .mi-int-bar-center{
+  opacity: 0.65;
+}
+
+/* ---------- intensity column tightening ---------- */
+
+.interaction-table.mi-interaction-table .mi-int-intensity-cell{
+  padding-left: 6px;
+  padding-right: 6px;
+}
+
+/* make pill smaller so bar gets priority */
+.interaction-table.mi-interaction-table .mi-int-intensity-pill{
+  min-width: 58px;
+  min-height: 26px;
+  font-size: 10px;
+  padding: 0 8px;
+}
+
+/* ---------- row vertical density ---------- */
+
+.interaction-table.mi-interaction-table .mi-int-row{
+  height: 44px;
+}
+
+/* ---------- subtle row separation (cleaner scan) ---------- */
+
+.interaction-table.mi-interaction-table .mi-int-row td{
+  border-bottom: 1px solid rgba(56,189,248,0.12);
+}
+
+/* ---------- optional: give bar slight glow emphasis ---------- */
+
+.interaction-table.mi-interaction-table .mi-int-bar-fill-a{
+  box-shadow:
+    0 0 12px rgba(56,189,248,0.25),
+    0 0 20px rgba(23,95,195,0.12);
+}
+
+.interaction-table.mi-interaction-table .mi-int-bar-fill-b{
+  box-shadow:
+    0 0 12px rgba(251,146,60,0.25),
+    0 0 20px rgba(234,88,12,0.12);
+}
+
+/* ==========================================================================
+   FINAL UI-FRIENDLY METRICS REFINEMENT PASS
+   Covers:
+   1) MI Efficiency Metrics modules
+   2) Verdict-shell scorebug mini metric bars
+   3) Score Synthesis inline contribution bars
+   Paste at VERY bottom of styles2.css
+   ========================================================================== */
+
+/* ==========================================================================
+   1) MI EFFICIENCY METRICS — DISPLAY TOTALS MODULE
+   ========================================================================== */
+
+.mi-eff-module{
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  min-height: 100%;
+}
+
+.mi-eff-module .mi-eff-header{
+  margin-bottom: 4px;
+}
+
+.mi-eff-module .mi-eff-seg{
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 0;
+  border-top: 1px solid rgba(255,255,255,0.05);
+}
+
+.mi-eff-module .mi-eff-seg:first-of-type{
+  border-top: 0;
+}
+
+.mi-eff-module .mi-eff-seg.is-emphasis{
+  margin-top: 4px;
+  padding: 13px 0 11px;
+  border-top: 1px solid rgba(56,189,248,0.16);
+
+  background:
+    linear-gradient(180deg, rgba(12,24,56,0.22), rgba(4,10,26,0.04));
+}
+
+.mi-eff-module .mi-eff-meta{
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.mi-eff-module .mi-eff-label{
+  color: rgba(241,245,249,0.95);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: 0.01em;
+}
+
+.mi-eff-module .mi-eff-helper{
+  color: rgba(148,163,184,0.84);
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1.05;
+  letter-spacing: 0.01em;
+  text-transform: none;
+}
+
+.mi-eff-module .mi-eff-value{
+  min-width: 52px;
+  text-align: right;
+  color: rgba(241,245,249,0.98);
+  font-size: 14px;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: 0.01em;
+}
+
+.mi-eff-module .mi-eff-seg.is-emphasis .mi-eff-label{
+  color: rgba(241,245,249,0.98);
+  font-size: 13px;
+}
+
+.mi-eff-module .mi-eff-seg.is-emphasis .mi-eff-helper{
+  color: rgba(148,163,184,0.90);
+}
+
+.mi-eff-module .mi-eff-seg.is-emphasis .mi-eff-value{
+  font-size: 16px;
+  font-weight: 900;
+}
+
+/* value state colors — JS can add these classes if desired */
+.mi-eff-module .mi-eff-value.is-pos{
+  color: #60a5fa;
+}
+
+.mi-eff-module .mi-eff-value.is-neg{
+  color: #fdba74;
+}
+
+.mi-eff-module .mi-eff-value.is-flat{
+  color: rgba(226,232,240,0.72);
+}
+
+/* ==========================================================================
+   2) VERDICT SCOREBUG — MINI METRIC BARS
+   ========================================================================== */
+
+.mi-verdict-metrics-tile .mi-scorebug-grid{
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-areas:
+    "teamA teamB"
+    "gap gap"
+    "footer footer";
+  gap: 10px 14px;
+}
+
+.mi-verdict-metrics-tile .mi-scorebug-team--a{ grid-area: teamA; }
+.mi-verdict-metrics-tile .mi-scorebug-team--b{ grid-area: teamB; }
+.mi-verdict-metrics-tile .mi-scorebug-gap{ grid-area: gap; }
+.mi-verdict-metrics-tile .mi-scorebug-footer{ grid-area: footer; }
+
+.mi-verdict-metrics-tile .mi-scorebug-team{
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mi-verdict-metrics-tile .mi-scorebug-team-name{
+  color: rgba(241,245,249,0.96);
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: 0.01em;
+  text-align: center;
+  padding-bottom: 2px;
+}
+
+.mi-verdict-metrics-tile .mi-scorebug-team-lines{
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mi-verdict-metrics-tile .mi-scorebug-team-line--metric{
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+
+  padding: 8px 10px 9px;
+  border-radius: 10px;
+
+  background:
+    linear-gradient(180deg, rgba(15,23,42,0.52), rgba(2,6,23,0.68));
+
+  border: 1px solid rgba(148,163,184,0.12);
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.03),
+    0 6px 14px rgba(0,0,0,0.18);
+}
+
+.mi-verdict-metrics-tile .mi-scorebug-mini-label{
+  color: rgba(226,232,240,0.84);
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  text-align: left;
+}
+
+.mi-verdict-metrics-tile .mi-scorebug-mini-metric{
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.mi-verdict-metrics-tile .mi-scorebug-mini-bar{
+  position: relative;
+  width: 100%;
+  height: 10px;
+  border-radius: 999px;
+  overflow: hidden;
+
+  background:
+    linear-gradient(180deg, rgba(2,6,23,0.98), rgba(15,23,42,0.92));
+
+  border: 1px solid rgba(148,163,184,0.16);
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.04),
+    inset 0 0 0 1px rgba(255,255,255,0.02),
+    0 4px 10px rgba(0,0,0,0.22);
+}
+
+.mi-verdict-metrics-tile .mi-scorebug-mini-bar::after{
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 4;
+
+  background-image: repeating-linear-gradient(
+    to right,
+    transparent 0,
+    transparent calc(10% - 1px),
+    rgba(255,255,255,0.05) calc(10% - 1px),
+    rgba(255,255,255,0.05) 10%
+  );
+
+  opacity: 0.28;
+}
+
+.mi-verdict-metrics-tile .mi-scorebug-mini-center{
+  position: absolute;
+  top: -2px;
+  bottom: -2px;
+  left: 50%;
+  width: 2px;
+  z-index: 3;
+  transform: translateX(-50%);
+  border-radius: 999px;
+
+  background: rgba(226,232,240,0.80);
+
+  box-shadow:
+    0 0 0 1px rgba(2,6,23,0.55),
+    0 0 5px rgba(226,232,240,0.18);
+}
+
+.mi-verdict-metrics-tile .mi-scorebug-mini-fill{
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 0%;
+  z-index: 2;
+}
+
+.mi-verdict-metrics-tile .mi-scorebug-mini-fill-pos{
+  left: 50%;
+  border-top-right-radius: 999px;
+  border-bottom-right-radius: 999px;
+
+  background:
+    linear-gradient(90deg,
+      rgba(56,189,248,0.94) 0%,
+      rgba(29,100,199,0.96) 68%,
+      rgba(23,95,195,0.98) 100%
+    );
+
+  box-shadow:
+    0 0 10px rgba(56,189,248,0.22),
+    0 0 18px rgba(23,95,195,0.10);
+}
+
+.mi-verdict-metrics-tile .mi-scorebug-mini-fill-neg{
+  right: 50%;
+  border-top-left-radius: 999px;
+  border-bottom-left-radius: 999px;
+
+  background:
+    linear-gradient(270deg,
+      rgba(251,146,60,0.94) 0%,
+      rgba(249,115,22,0.96) 68%,
+      rgba(234,88,12,0.98) 100%
+    );
+
+  box-shadow:
+    0 0 10px rgba(251,146,60,0.22),
+    0 0 18px rgba(234,88,12,0.10);
+}
+
+.mi-verdict-metrics-tile .mi-scorebug-mini-value{
+  min-width: 44px;
+  text-align: right;
+  color: rgba(241,245,249,0.96);
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: 0.01em;
+}
+
+.mi-verdict-metrics-tile .mi-scorebug-mini-value.is-pos{
+  color: #60a5fa;
+}
+
+.mi-verdict-metrics-tile .mi-scorebug-mini-value.is-neg{
+  color: #fdba74;
+}
+
+.mi-verdict-metrics-tile .mi-scorebug-mini-value.is-flat{
+  color: rgba(226,232,240,0.72);
+}
+
+.mi-verdict-metrics-tile .mi-scorebug-gap{
+  margin-top: 2px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(56,189,248,0.14);
+}
+
+.mi-verdict-metrics-tile .mi-scorebug-gap-label{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+
+  width: 100%;
+  color: rgba(226,232,240,0.86);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.mi-verdict-metrics-tile .mi-scorebug-gap-value{
+  margin-top: 4px;
+  text-align: center;
+  font-size: 18px;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: 0.01em;
+  color: rgba(241,245,249,0.98);
+}
+
+.mi-verdict-metrics-tile .mi-scorebug-footer{
+  padding-top: 2px;
+}
+
+.mi-verdict-metrics-tile .mi-scorebug-footer .mi-metrics-hint{
+  text-align: center;
+  font-size: 10px;
+  opacity: 0.74;
+}
+
+/* ==========================================================================
+   3) SCORE SYNTHESIS — INLINE CONTRIBUTION BARS
+   ========================================================================== */
+
+.summary-synthesis-table.mi-summary-synthesis-table{
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  table-layout: fixed;
+}
+
+.summary-synthesis-table.mi-summary-synthesis-table .syn-title{
+  padding: 0 0 12px;
+  border: 0;
+  background: transparent;
+}
+
+.summary-synthesis-table.mi-summary-synthesis-table .syn-kicker{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.summary-synthesis-table.mi-summary-synthesis-table .syn-team{
+  padding: 10px 12px 12px;
+  text-align: center;
+  vertical-align: middle;
+
+  background:
+    linear-gradient(180deg, rgba(2,6,23,0.92), rgba(2,6,23,0.78));
+
+  border-top: 1px solid rgba(56,189,248,0.18);
+  border-bottom: 1px solid rgba(56,189,248,0.18);
+}
+
+.summary-synthesis-table.mi-summary-synthesis-table .syn-team-a{
+  border-left: 1px solid rgba(56,189,248,0.18);
+  border-top-left-radius: 14px;
+}
+
+.summary-synthesis-table.mi-summary-synthesis-table .syn-team-b{
+  border-right: 1px solid rgba(56,189,248,0.18);
+  border-top-right-radius: 14px;
+}
+
+.summary-synthesis-table.mi-summary-synthesis-table .syn-team span{
+  color: rgba(241,245,249,0.96);
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  line-height: 1.05;
+}
+
+.summary-synthesis-table.mi-summary-synthesis-table .syn-center{
+  width: 22%;
+  min-width: 180px;
+  padding: 10px 14px;
+  text-align: center;
+  vertical-align: middle;
+
+  background:
+    linear-gradient(180deg, rgba(8,13,27,0.90), rgba(6,10,22,0.94));
+
+  border-top: 1px solid rgba(56,189,248,0.18);
+  border-bottom: 1px solid rgba(23,95,195,0.22);
+  border-left: 1px solid rgba(23,95,195,0.22);
+  border-right: 1px solid rgba(23,95,195,0.22);
+}
+
+.summary-synthesis-table.mi-summary-synthesis-table .syn-center-inner{
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: center;
+  gap: 14px;
+  min-height: 100%;
+}
+
+.summary-synthesis-table.mi-summary-synthesis-table .syn-lean-line{
+  color: rgba(241,245,249,0.96);
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.15;
+  text-align: center;
+}
+
+.summary-synthesis-table.mi-summary-synthesis-table .syn-volatility-mini{
+  padding: 10px 10px 8px;
+  border-radius: 12px;
+
+  background:
+    linear-gradient(180deg, rgba(15,23,42,0.70), rgba(2,6,23,0.78));
+
+  border: 1px solid rgba(148,163,184,0.16);
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.03),
+    0 8px 20px rgba(0,0,0,0.22);
+}
+
+.summary-synthesis-table.mi-summary-synthesis-table .syn-volatility-top{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.summary-synthesis-table.mi-summary-synthesis-table .syn-volatility-label{
+  color: rgba(226,232,240,0.80);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.summary-synthesis-table.mi-summary-synthesis-table .syn-volatility-score{
+  color: rgba(241,245,249,0.96);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.summary-synthesis-table.mi-summary-synthesis-table .syn-volatility-bar{
+  position: relative;
+  height: 8px;
+  border-radius: 999px;
+  overflow: hidden;
+
+  background:
+    linear-gradient(180deg, rgba(2,6,23,0.98), rgba(15,23,42,0.92));
+
+  border: 1px solid rgba(148,163,184,0.14);
+}
+
+.summary-synthesis-table.mi-summary-synthesis-table .syn-volatility-fill{
+  display: block;
+  height: 100%;
+  width: 0%;
+  border-radius: 999px;
+}
+
+.summary-synthesis-table.mi-summary-synthesis-table .syn-volatility-meta{
+  margin-top: 6px;
+  text-align: center;
+}
+
+.summary-synthesis-table.mi-summary-synthesis-table .syn-volatility-beneficiary{
+  color: rgba(203,213,225,0.86);
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.summary-synthesis-table.mi-summary-synthesis-table .syn-delta{
+  padding-top: 2px;
+  border-top: 1px solid rgba(56,189,248,0.12);
+}
+
+.summary-synthesis-table.mi-summary-synthesis-table .syn-delta-label{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+
+  width: 100%;
+  color: rgba(226,232,240,0.86);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.summary-synthesis-table.mi-summary-synthesis-table .syn-delta-value{
+  display: block;
+  margin-top: 4px;
+  color: rgba(241,245,249,0.98);
+  font-size: 18px;
+  font-weight: 900;
+  line-height: 1;
+  text-align: center;
+}
+
+.summary-synthesis-table.mi-summary-synthesis-table .syn-label{
+  padding: 11px 12px;
+  vertical-align: middle;
+
+  background:
+    linear-gradient(180deg, rgba(8,13,27,0.90), rgba(6,10,22,0.94));
+
+  border-bottom: 1px solid rgba(23,95,195,0.22);
+}
+
+.summary-synthesis-table.mi-summary-synthesis-table .syn-label-a{
+  border-left: 1px solid rgba(23,95,195,0.22);
+  text-align: left;
+}
+
+.summary-synthesis-table.mi-summary-synthesis-table .syn-label-b{
+  border-right: 1px solid rgba(23,95,195,0.22);
+  text-align: right;
+}
+
+.summary-synthesis-table.mi-summary-synthesis-table .syn-label-stack{
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.summary-synthesis-table.mi-summary-synthesis-table .syn-label-main{
+  color: rgba(241,245,249,0.95);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.15;
+}
+
+.summary-synthesis-table.mi-summary-synthesis-table .syn-label-hint{
+  color: rgba(148,163,184,0.88);
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1.15;
+}
+
+.summary-synthesis-table.mi-summary-synthesis-table .syn-contrib-cell{
+  padding: 10px 10px;
+  vertical-align: middle;
+  text-align: center;
+
+  background:
+    linear-gradient(180deg, rgba(8,13,27,0.90), rgba(6,10,22,0.94));
+
+  border-bottom: 1px solid rgba(23,95,195,0.22);
+}
+
+.summary-synthesis-table.mi-summary-synthesis-table .syn-val-a{
+  border-right: 1px solid rgba(23,95,195,0.22);
+}
+
+.summary-synthesis-table.mi-summary-synthesis-table .syn-val-b{
+  border-left: 1px solid rgba(23,95,195,0.22);
+}
+
+.summary-synthesis-table.mi-summary-synthesis-table .mi-synth-inline-wrap{
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.summary-synthesis-table.mi-summary-synthesis-table .mi-synth-inline-bar{
+  position: relative;
+  width: 100%;
+  height: 14px;
+  border-radius: 999px;
+  overflow: hidden;
+
+  background:
+    linear-gradient(180deg, rgba(2,6,23,0.98), rgba(15,23,42,0.92));
+
+  border: 1px solid rgba(148,163,184,0.18);
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.04),
+    inset 0 0 0 1px rgba(255,255,255,0.02),
+    0 6px 14px rgba(0,0,0,0.26);
+}
+
+.summary-synthesis-table.mi-summary-synthesis-table .mi-synth-inline-bar::after{
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 4;
+
+  background-image: repeating-linear-gradient(
+    to right,
+    transparent 0,
+    transparent calc(10% - 1px),
+    rgba(255,255,255,0.05) calc(10% - 1px),
+    rgba(255,255,255,0.05) 10%
+  );
+
+  opacity: 0.35;
+}
+
+.summary-synthesis-table.mi-summary-synthesis-table .mi-synth-inline-center{
+  position: absolute;
+  top: -2px;
+  bottom: -2px;
+  left: 50%;
+  width: 2px;
+  z-index: 3;
+  transform: translateX(-50%);
+  border-radius: 999px;
+
+  background: rgba(226,232,240,0.82);
+
+  box-shadow:
+    0 0 0 1px rgba(2,6,23,0.55),
+    0 0 6px rgba(226,232,240,0.20);
+}
+
+.summary-synthesis-table.mi-summary-synthesis-table .mi-synth-inline-fill{
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 0%;
+  z-index: 2;
+}
+
+.summary-synthesis-table.mi-summary-synthesis-table .mi-synth-inline-fill-pos{
+  left: 50%;
+  border-top-right-radius: 999px;
+  border-bottom-right-radius: 999px;
+
+  background:
+    linear-gradient(90deg,
+      rgba(56,189,248,0.94) 0%,
+      rgba(29,100,199,0.96) 68%,
+      rgba(23,95,195,0.98) 100%
+    );
+
+  box-shadow:
+    0 0 12px rgba(56,189,248,0.24),
+    0 0 20px rgba(23,95,195,0.12);
+}
+
+.summary-synthesis-table.mi-summary-synthesis-table .mi-synth-inline-fill-neg{
+  right: 50%;
+  border-top-left-radius: 999px;
+  border-bottom-left-radius: 999px;
+
+  background:
+    linear-gradient(270deg,
+      rgba(251,146,60,0.94) 0%,
+      rgba(249,115,22,0.96) 68%,
+      rgba(234,88,12,0.98) 100%
+    );
+
+  box-shadow:
+    0 0 12px rgba(251,146,60,0.24),
+    0 0 20px rgba(234,88,12,0.12);
+}
+
+.summary-synthesis-table.mi-summary-synthesis-table .mi-synth-inline-value{
+  min-width: 44px;
+  text-align: right;
+  color: rgba(226,232,240,0.94);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  line-height: 1;
+}
+
+.summary-synthesis-table.mi-summary-synthesis-table .mi-synth-inline-value.is-pos{
+  color: #60a5fa;
+}
+
+.summary-synthesis-table.mi-summary-synthesis-table .mi-synth-inline-value.is-neg{
+  color: #fdba74;
+}
+
+.summary-synthesis-table.mi-summary-synthesis-table .mi-synth-inline-value.is-flat{
+  color: rgba(226,232,240,0.72);
+}
+
+.summary-synthesis-table.mi-summary-synthesis-table .syn-final{
+  width: 18%;
+  min-width: 130px;
+  padding: 10px 10px;
+  vertical-align: middle;
+  text-align: center;
+
+  background:
+    linear-gradient(180deg, rgba(10,16,32,0.94), rgba(5,9,20,0.98));
+
+  border-bottom: 1px solid rgba(23,95,195,0.22);
+}
+
+.summary-synthesis-table.mi-summary-synthesis-table .syn-final-a{
+  border-right: 1px solid rgba(23,95,195,0.22);
+}
+
+.summary-synthesis-table.mi-summary-synthesis-table .syn-final-b{
+  border-left: 1px solid rgba(23,95,195,0.22);
+}
+
+.summary-synthesis-table.mi-summary-synthesis-table .syn-final-inner{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+
+  min-height: 100%;
+  padding: 8px 8px 10px;
+  border-radius: 12px;
+
+  background:
+    linear-gradient(180deg, rgba(15,23,42,0.62), rgba(2,6,23,0.78));
+
+  border: 1px solid rgba(148,163,184,0.16);
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.03),
+    0 8px 20px rgba(0,0,0,0.24);
+}
+
+.summary-synthesis-table.mi-summary-synthesis-table .syn-final-label{
+  color: rgba(226,232,240,0.84);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  text-align: center;
+}
+
+.summary-synthesis-table.mi-summary-synthesis-table .syn-final-hint{
+  color: rgba(148,163,184,0.82);
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1.15;
+  text-align: center;
+}
+
+.summary-synthesis-table.mi-summary-synthesis-table .syn-final-value{
+  color: rgba(241,245,249,0.98);
+  font-size: 19px;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: 0.01em;
+}
+
+.summary-synthesis-table.mi-summary-synthesis-table tr:last-child .syn-label-a{
+  border-bottom-left-radius: 14px;
+}
+
+.summary-synthesis-table.mi-summary-synthesis-table tr:last-child .syn-label-b{
+  border-bottom-right-radius: 14px;
+}
+
+.summary-synthesis-table.mi-summary-synthesis-table tr:hover .syn-label,
+.summary-synthesis-table.mi-summary-synthesis-table tr:hover .syn-contrib-cell,
+.summary-synthesis-table.mi-summary-synthesis-table tr:hover .syn-final,
+.summary-synthesis-table.mi-summary-synthesis-table tr:hover .syn-center{
+  background:
+    linear-gradient(180deg, rgba(12,18,36,0.94), rgba(8,13,27,0.98));
+}
+
+/* ==========================================================================
+   UTILITY / SHARED
+   ========================================================================== */
+
+.sr-only{
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+/* ==========================================================================
+   RESPONSIVE
+   ========================================================================== */
+
+@media (max-width: 980px){
+  .mi-eff-module .mi-eff-label{
+    font-size: 11px;
+  }
+
+  .mi-eff-module .mi-eff-helper{
+    font-size: 9px;
+  }
+
+  .mi-eff-module .mi-eff-value{
+    font-size: 13px;
+  }
+
+  .mi-eff-module .mi-eff-seg.is-emphasis .mi-eff-value{
+    font-size: 15px;
+  }
+
+  .mi-verdict-metrics-tile .mi-scorebug-grid{
+    gap: 8px 10px;
+  }
+
+  .mi-verdict-metrics-tile .mi-scorebug-team-name{
+    font-size: 12px;
+  }
+
+  .mi-verdict-metrics-tile .mi-scorebug-mini-value{
+    min-width: 40px;
+    font-size: 11px;
+  }
+
+  .summary-synthesis-table.mi-summary-synthesis-table .syn-team span{
+    font-size: 13px;
+  }
+
+  .summary-synthesis-table.mi-summary-synthesis-table .syn-label-main{
+    font-size: 11px;
+  }
+
+  .summary-synthesis-table.mi-summary-synthesis-table .syn-label-hint{
+    font-size: 9px;
+  }
+
+  .summary-synthesis-table.mi-summary-synthesis-table .mi-synth-inline-bar{
+    height: 12px;
+  }
+
+  .summary-synthesis-table.mi-summary-synthesis-table .mi-synth-inline-value{
+    min-width: 40px;
+    font-size: 11px;
+  }
+
+  .summary-synthesis-table.mi-summary-synthesis-table .syn-final-value{
+    font-size: 17px;
+  }
+
+  .summary-synthesis-table.mi-summary-synthesis-table .syn-center{
+    min-width: 160px;
+  }
+}
+
+@media (max-width: 720px){
+  .mi-eff-module .mi-eff-seg{
+    gap: 8px;
+    padding: 10px 0;
+  }
+
+  .mi-eff-module .mi-eff-helper{
+    display: none;
+  }
+
+  .mi-verdict-metrics-tile .mi-scorebug-grid{
+    gap: 8px 10px;
+  }
+
+  .mi-verdict-metrics-tile .mi-scorebug-team-line--metric{
+    padding: 7px 8px 8px;
+  }
+
+  .mi-verdict-metrics-tile .mi-scorebug-mini-label{
+    font-size: 9px;
+  }
+
+  .mi-verdict-metrics-tile .mi-scorebug-mini-value{
+    min-width: 36px;
+    font-size: 10px;
+  }
+
+  .mi-verdict-metrics-tile .mi-scorebug-mini-bar{
+    height: 9px;
+  }
+
+  .mi-verdict-metrics-tile .mi-scorebug-gap-value{
+    font-size: 16px;
+  }
+
+  .summary-synthesis-table.mi-summary-synthesis-table .syn-team{
+    padding: 8px 8px 10px;
+  }
+
+  .summary-synthesis-table.mi-summary-synthesis-table .syn-label,
+  .summary-synthesis-table.mi-summary-synthesis-table .syn-contrib-cell,
+  .summary-synthesis-table.mi-summary-synthesis-table .syn-final,
+  .summary-synthesis-table.mi-summary-synthesis-table .syn-center{
+    padding: 8px 6px;
+  }
+
+  .summary-synthesis-table.mi-summary-synthesis-table .syn-label-main{
+    font-size: 10px;
+  }
+
+  .summary-synthesis-table.mi-summary-synthesis-table .syn-label-hint{
+    display: none;
+  }
+
+  .summary-synthesis-table.mi-summary-synthesis-table .mi-synth-inline-wrap{
+    grid-template-columns: minmax(0, 1fr);
+    gap: 5px;
+  }
+
+  .summary-synthesis-table.mi-summary-synthesis-table .mi-synth-inline-value{
+    min-width: 0;
+    text-align: center;
+    font-size: 10px;
+  }
+
+  .summary-synthesis-table.mi-summary-synthesis-table .syn-final-value{
+    font-size: 15px;
+  }
+
+  .summary-synthesis-table.mi-summary-synthesis-table .syn-delta-value{
+    font-size: 16px;
+  }
+
+  .summary-synthesis-table.mi-summary-synthesis-table .syn-center{
+    min-width: 140px;
+  }
+}
+
+/* VERDICT SCOREBUG SAFETY OVERRIDE */
+#miVerdictMetricsTile .tile-front{
+  display: grid !important;
+}
+
+#miVerdictMetricsTile .mi-scorebug-grid{
+  width: 100%;
+}
+
+/* ============================= */
+/* MI EFFICIENCY METRICS — CENTERED LAYOUT FIX */
+/* ============================= */
+
+.mi-eff-module {
+  text-align: center;
+}
+
+/* Each metric block becomes vertical instead of horizontal */
+.mi-eff-seg {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  text-align: center;
+  gap: 3px; /* controls spacing between label/helper/value */
+
+  padding: 10px 0;
+}
+
+/* Center the label + helper stack */
+.mi-eff-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  text-align: center;
+  gap: 2px;
+}
+
+/* Label */
+.mi-eff-label {
+  text-align: center;
+}
+
+/* Helper text */
+.mi-eff-helper {
+  text-align: center;
+  opacity: 0.65;
+}
+
+/* Value — give it presence and separation */
+.mi-eff-value {
+  display: block;
+  text-align: center;
+
+  margin-top: 4px;
+}
+
+/* Emphasis row (Combined Margin) — keep centered */
+.mi-eff-seg.is-emphasis {
+  align-items: center;
+  text-align: center;
+}
+
+/* =========================================================
+   VERDICT SCOREBUG — final width + de-noise + bar emphasis
+   Paste at VERY BOTTOM of styles2.css
+   ========================================================= */
+
+/* 1) Rebalance the verdict shell so the scorebug gets more real estate */
+#verdictShell .mi-verdict-grid{
+  display: grid !important;
+  grid-template-columns: minmax(0, 1.18fr) minmax(420px, 0.92fr) !important;
+  gap: 22px !important;
+  align-items: stretch !important;
+}
+
+/* Let the left proclamation breathe, but not dominate */
+#verdictShell .mi-verdict-main{
+  min-width: 0;
+}
+
+#verdictShell .mi-scorebug-top{
+  height: 100%;
+  min-width: 0;
+}
+
+/* Slightly tighten headline width so the left side stops over-claiming space */
+#verdictShell .mi-scorebug-line{
+  max-width: 34ch !important;
+  min-height: 0 !important;
+}
+
+/* 2) Give the right rail full width and stop it from collapsing inward */
+#verdictShell .mi-verdict-rail{
+  min-width: 0;
+  width: 100%;
+  display: flex;
+  align-items: stretch;
+}
+
+#miVerdictMetricsTile{
+  width: 100%;
+  min-width: 0;
+  align-self: stretch;
+}
+
+/* 3) Remove dead padding / nested capsule feel */
+#miVerdictMetricsTile .flip-tile-inner{
+  padding: 0 !important;
+  height: 100%;
+}
+
+#miVerdictMetricsTile .tile-front{
+  display: grid !important;
+  grid-template-rows: 1fr auto !important;
+  gap: 12px !important;
+  height: 100%;
+  min-height: 0;
+  padding: 16px 16px 12px !important;
+}
+
+/* Make the outer tile a little cleaner and less “glowy noisy” */
+#verdictShell .mi-scorebug-score.mi-verdict-metrics-tile{
+  padding: 0 !important;
+  border-radius: 16px !important;
+  border: 1px solid rgba(148,163,184,0.22) !important;
+  background:
+    radial-gradient(140% 140% at 50% -10%,
+      rgba(56,189,248,0.08),
+      transparent 58%
+    ),
+    linear-gradient(180deg,
+      rgba(10,15,28,0.96),
+      rgba(4,8,18,0.98)
+    ) !important;
+  box-shadow:
+    0 14px 30px rgba(0,0,0,0.38),
+    inset 0 1px 0 rgba(255,255,255,0.04) !important;
+}
+
+/* 4) Expand internal grid spacing */
+.mi-verdict-metrics-tile .mi-scorebug-grid{
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+  grid-template-areas:
+    "teamA teamB"
+    "gap gap"
+    "footer footer";
+  gap: 14px 18px !important;
+  width: 100%;
+  min-width: 0;
+}
+
+/* 5) Team blocks should feel lighter so the bar becomes the star */
+.mi-verdict-metrics-tile .mi-scorebug-team{
+  gap: 10px !important;
+}
+
+.mi-verdict-metrics-tile .mi-scorebug-team-name{
+  font-size: 14px !important;
+  font-weight: 850 !important;
+  letter-spacing: 0.005em !important;
+  padding-bottom: 4px !important;
+}
+
+.mi-verdict-metrics-tile .mi-scorebug-team-lines{
+  gap: 10px !important;
+}
+
+/* Reduce panel noise around each metric row */
+.mi-verdict-metrics-tile .mi-scorebug-team-line--metric{
+  gap: 6px !important;
+  padding: 8px 10px 10px !important;
+  border-radius: 11px !important;
+
+  background:
+    linear-gradient(180deg,
+      rgba(255,255,255,0.02),
+      rgba(255,255,255,0.01)
+    ),
+    rgba(9,14,26,0.58) !important;
+
+  border: 1px solid rgba(148,163,184,0.10) !important;
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.025) !important;
+}
+
+.mi-verdict-metrics-tile .mi-scorebug-mini-label{
+  font-size: 10px !important;
+  letter-spacing: 0.045em !important;
+  color: rgba(226,232,240,0.76) !important;
+}
+
+/* 6) Give the actual bar lane more space */
+.mi-verdict-metrics-tile .mi-scorebug-mini-metric{
+  grid-template-columns: minmax(0, 1fr) minmax(48px, auto) !important;
+  gap: 12px !important;
+}
+
+/* 7) Make bars taller, cleaner, brighter */
+.mi-verdict-metrics-tile .mi-scorebug-mini-bar{
+  height: 14px !important;
+  border-radius: 999px !important;
+  background:
+    linear-gradient(180deg,
+      rgba(2,6,23,0.92),
+      rgba(13,20,36,0.96)
+    ) !important;
+  border: 1px solid rgba(148,163,184,0.14) !important;
+  box-shadow:
+    inset 0 1px 1px rgba(255,255,255,0.03),
+    inset 0 0 0 1px rgba(255,255,255,0.015) !important;
+}
+
+/* Remove the segmented stripe overlay — it’s part of the visual clutter */
+.mi-verdict-metrics-tile .mi-scorebug-mini-bar::after{
+  display: none !important;
+}
+
+/* Make the zero-line thinner and quieter */
+.mi-verdict-metrics-tile .mi-scorebug-mini-center{
+  top: -1px !important;
+  bottom: -1px !important;
+  width: 1px !important;
+  background: rgba(226,232,240,0.72) !important;
+  box-shadow:
+    0 0 0 1px rgba(2,6,23,0.42),
+    0 0 6px rgba(226,232,240,0.10) !important;
+}
+
+/* Stronger fills so they read first */
+.mi-verdict-metrics-tile .mi-scorebug-mini-fill{
+  top: 1px !important;
+  bottom: 1px !important;
+}
+
+.mi-verdict-metrics-tile .mi-scorebug-mini-fill-pos{
+  background:
+    linear-gradient(90deg,
+      rgba(125,211,252,0.98) 0%,
+      rgba(56,189,248,0.98) 38%,
+      rgba(23,95,195,1) 100%
+    ) !important;
+  box-shadow:
+    0 0 12px rgba(56,189,248,0.34),
+    0 0 22px rgba(23,95,195,0.18) !important;
+}
+
+.mi-verdict-metrics-tile .mi-scorebug-mini-fill-neg{
+  background:
+    linear-gradient(270deg,
+      rgba(253,186,116,0.98) 0%,
+      rgba(249,115,22,0.98) 38%,
+      rgba(234,88,12,1) 100%
+    ) !important;
+  box-shadow:
+    0 0 12px rgba(251,146,60,0.30),
+    0 0 22px rgba(234,88,12,0.16) !important;
+}
+
+/* Slightly stronger value text */
+.mi-verdict-metrics-tile .mi-scorebug-mini-value{
+  min-width: 50px !important;
+  font-size: 13px !important;
+  font-weight: 900 !important;
+  letter-spacing: 0 !important;
+}
+
+/* 8) Clean up the delta row */
+.mi-verdict-metrics-tile .mi-scorebug-gap{
+  margin-top: 0 !important;
+  padding-top: 10px !important;
+  border-top: 1px solid rgba(148,163,184,0.12) !important;
+  column-gap: 14px !important;
+}
+
+.mi-verdict-metrics-tile .mi-scorebug-gap-label{
+  justify-self: start !important;
+  gap: 8px !important;
+  color: rgba(226,232,240,0.92) !important;
+  font-size: 11px !important;
+  font-weight: 850 !important;
+  letter-spacing: 0.045em !important;
+  text-transform: uppercase !important;
+}
+
+.mi-verdict-metrics-tile .mi-scorebug-gap-value{
+  justify-self: end !important;
+  font-size: 20px !important;
+  font-weight: 950 !important;
+  letter-spacing: -0.01em !important;
+}
+
+/* 9) Footer hint should recede */
+#miVerdictMetricsTile .mi-scorebug-footer{
+  position: static !important;
+  margin: 0 !important;
+  padding-top: 2px !important;
+}
+
+#miVerdictMetricsTile .mi-flip-hint{
+  opacity: 0.56 !important;
+  font-size: 10px !important;
+  letter-spacing: 0.06em !important;
+  text-transform: uppercase !important;
+}
+
+/* 10) Slightly more equal shell on mid-size screens */
+@media (max-width: 1180px){
+  #verdictShell .mi-verdict-grid{
+    grid-template-columns: minmax(0, 1.04fr) minmax(360px, 0.96fr) !important;
+    gap: 18px !important;
+  }
+
+  #verdictShell .mi-scorebug-line{
+    max-width: 30ch !important;
+    font-size: 24px !important;
+  }
+}
+
+/* 11) Before mobile stack, protect the scorebug first */
+@media (max-width: 980px){
+  #verdictShell .mi-verdict-grid{
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+  }
+
+  #verdictShell .mi-verdict-rail{
+    width: 100%;
+  }
+
+  #miVerdictMetricsTile .tile-front{
+    padding: 14px 14px 12px !important;
+  }
+}
+
+/* =========================================================
+   SCORE SYNTHESIS — final spacing / bar visibility pass
+   Paste at very bottom of styles2.css
+   ========================================================= */
+
+#summarySection.card.summary-card{
+  padding: 8px 10px 10px;
+}
+
+#summarySection .summary-synthesis-wrap{
+  width: 100%;
+}
+
+/* Rebalance the 7-lane table so the side contribution bars get real room */
+#summarySection .summary-synthesis-table{
+  --syn-w-label: 15%;
+  --syn-w-val: 12%;
+  --syn-w-final: 9%;
+  --syn-w-center: 20%;
+
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+
+  background:
+    linear-gradient(180deg, rgba(4, 10, 24, 0.88), rgba(2, 6, 23, 0.94));
+  border: 1px solid rgba(148, 163, 184, 0.20);
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow:
+    0 14px 34px rgba(0,0,0,0.34),
+    inset 0 1px 0 rgba(255,255,255,0.03);
+}
+
+/* Slightly cleaner cell treatment */
+#summarySection .summary-synthesis-table th,
+#summarySection .summary-synthesis-table td{
+  padding: 4px;
+  border-color: rgba(148, 163, 184, 0.16);
+}
+
+/* Header row */
+#summarySection .summary-synthesis-table .syn-title{
+  padding: 6px 6px 8px;
+}
+
+#summarySection .summary-synthesis-table .syn-kicker{
+  min-height: 32px;
+}
+
+/* Team headers */
+#summarySection .summary-synthesis-table .syn-team{
+  padding: 12px 12px 13px;
+  background:
+    linear-gradient(180deg, rgba(10, 18, 38, 0.82), rgba(4, 10, 24, 0.72));
+}
+
+#summarySection .summary-synthesis-table .syn-team span{
+  font-size: 15px;
+  font-weight: 900;
+  letter-spacing: 0.01em;
+}
+
+/* Center column should not bully the rest of the layout */
+#summarySection .summary-synthesis-table .syn-center{
+  width: auto;
+  min-width: 0;
+  padding: 10px 12px;
+  background:
+    linear-gradient(180deg, rgba(8,13,27,0.72), rgba(6,10,22,0.82));
+}
+
+#summarySection .summary-synthesis-table .syn-center-inner{
+  gap: 12px;
+}
+
+#summarySection .summary-synthesis-table .syn-lean-line{
+  font-size: 14px;
+  line-height: 1.12;
+}
+
+#summarySection .summary-synthesis-table .syn-volatility-mini{
+  padding: 10px 10px 9px;
+  border-radius: 10px;
+  border-color: rgba(148,163,184,0.12);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.03),
+    0 6px 16px rgba(0,0,0,0.18);
+}
+
+/* Make the delta banner feel cleaner and less crowded */
+#summarySection .summary-synthesis-table .syn-delta{
+  padding: 12px 14px;
+  gap: 12px;
+}
+
+#summarySection .summary-synthesis-table .syn-delta-label{
+  font-size: 15px;
+  letter-spacing: 0.12em;
+}
+
+#summarySection .summary-synthesis-table .syn-delta-value{
+  font-size: 18px;
+}
+
+/* Side label cells */
+#summarySection .summary-synthesis-table .syn-label{
+  background: rgba(15, 23, 42, 0.24);
+}
+
+#summarySection .summary-synthesis-table .syn-label-stack{
+  gap: 3px;
+}
+
+#summarySection .summary-synthesis-table .syn-label-main{
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.12;
+}
+
+/* Keep hints hidden like your current design */
+#summarySection .summary-synthesis-table .syn-label-hint,
+.syn-label-hint{
+  display: none !important;
+}
+
+/* Contribution cells get a little more usable interior width */
+.summary-synthesis-table.mi-summary-synthesis-table .syn-contrib-cell{
+  padding: 8px 8px;
+  background:
+    linear-gradient(180deg, rgba(8,13,27,0.72), rgba(6,10,22,0.82));
+}
+
+/* This is the key fix: bar area gets more room and cleaner spacing */
+.summary-synthesis-table.mi-summary-synthesis-table .mi-synth-inline-wrap{
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  width: 100%;
+}
+
+/* Make the bars visibly substantial */
+.summary-synthesis-table.mi-summary-synthesis-table .mi-synth-inline-bar{
+  height: 18px;
+  border-radius: 999px;
+  overflow: hidden;
+  border: 1px solid rgba(148,163,184,0.14);
+  background:
+    linear-gradient(180deg, rgba(2,6,23,0.96), rgba(15,23,42,0.88));
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.04),
+    inset 0 0 0 1px rgba(255,255,255,0.02),
+    0 4px 12px rgba(0,0,0,0.18);
+}
+
+/* Tone down the tick noise so the fill stands out more */
+.summary-synthesis-table.mi-summary-synthesis-table .mi-synth-inline-bar::after{
+  opacity: 0.18;
+}
+
+/* Slightly stronger center marker inside each bar */
+.summary-synthesis-table.mi-summary-synthesis-table .mi-synth-inline-center{
+  width: 2px;
+  background: rgba(226,232,240,0.88);
+  box-shadow: 0 0 8px rgba(255,255,255,0.18);
+}
+
+/* Make the value readouts compact so they stop stealing width from the bars */
+.summary-synthesis-table.mi-summary-synthesis-table .mi-synth-inline-value,
+.summary-synthesis-table.mi-summary-synthesis-table .syn-val{
+  min-width: 40px;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.01em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Final MI side boxes */
+#summarySection .summary-synthesis-table .syn-final{
+  background: rgba(3, 7, 18, 0.52);
+}
+
+#summarySection .summary-synthesis-table .syn-final-inner{
+  min-height: 144px;
+  gap: 5px;
+}
+
+#summarySection .summary-synthesis-table .syn-final-label{
+  font-size: 13px;
+  letter-spacing: 0.12em;
+}
+
+#summarySection .summary-synthesis-table .syn-final-value{
+  font-size: 19px;
+}
+
+/* Desktop-only: give the whole section a little more horizontal calm */
+@media (min-width: 1100px){
+  #summarySection.card.summary-card{
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  #summarySection .summary-synthesis-table{
+    --syn-w-label: 14%;
+    --syn-w-val: 13%;
+    --syn-w-final: 9%;
+    --syn-w-center: 18%;
+  }
+}
+
+/* =========================================================
+   VERDICT SCOREBUG — Madness Delta row repair
+   Paste at VERY BOTTOM of styles2.css
+   ========================================================= */
+
+#miVerdictMetricsTile .mi-scorebug-gap{
+  grid-area: gap !important;
+
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 12px !important;
+
+  width: 100% !important;
+  min-width: 0 !important;
+
+  margin-top: 2px !important;
+  padding-top: 10px !important;
+
+  border-top: 1px solid rgba(148,163,184,0.12) !important;
+}
+
+#miVerdictMetricsTile .mi-scorebug-gap-label{
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 10px !important;
+
+  white-space: nowrap !important;
+  min-width: 0 !important;
+
+  font-size: 18px !important;
+  line-height: 1 !important;
+  color: rgba(226,232,240,0.84) !important;
+}
+
+#miVerdictMetricsTile .mi-scorebug-gap-value{
+  display: inline-block !important;
+
+  font-size: 22px !important;
+  font-weight: 900 !important;
+  line-height: 1 !important;
+  letter-spacing: 0.01em !important;
+  font-variant-numeric: tabular-nums !important;
+
+  color: rgba(241,245,249,0.98) !important;
+  text-align: left !important;
+  white-space: nowrap !important;
+  min-width: 0 !important;
+}
+
+#miVerdictMetricsTile .mi-scorebug-gap-label .mi-delta-mark{
+  width: auto !important;
+  height: 1.05em !important;
+  flex: 0 0 auto !important;
+  vertical-align: 0 !important;
+}
+
+/* ==========================================================================
+   INTERACTIONS LEFT PANEL — COHESION + SPACE UTILIZATION OVERRIDE
+   Purpose:
+   1) Make the left side fill its allotted height more convincingly
+   2) Make the table + totals row read as one unified scorecard module
+   3) Reduce the “floating separate box” feeling
+   Paste at VERY BOTTOM of styles2.css
+   ========================================================================== */
+
+#interactionsSection .interactions-left.interactions-left-tile{
+  display: block !important;
+  min-height: 100% !important;
+  height: 100% !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  border-radius: 18px !important;
+
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.00) 28%),
+    radial-gradient(140% 120% at 50% -18%, rgba(23,95,195,0.10), transparent 62%),
+    rgba(4, 10, 24, 0.96) !important;
+
+  border: 1px solid rgba(56,189,248,0.18) !important;
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,0.03),
+    0 14px 34px rgba(0,0,0,0.38) !important;
+}
+
+#interactionsSection .interactions-left-tile.flip-tile .flip-tile-inner{
+  min-height: 100% !important;
+  height: 100% !important;
+}
+
+#interactionsSection .interactions-left-tile.flip-tile .tile-face.interactions-front-face{
+  display: grid !important;
+  grid-template-rows: minmax(0, 1fr) auto auto !important;
+  gap: 8px !important;
+
+  min-height: 100% !important;
+  height: 100% !important;
+
+  padding: 12px 12px 10px !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* =========================
+   TABLE REGION
+   ========================= */
+
+#interactionsSection .interaction-table-wrap{
+  min-height: 0 !important;
+  height: 100% !important;
+  overflow: hidden !important;
+
+  display: flex !important;
+  flex-direction: column !important;
+
+  border-radius: 14px 14px 0 0 !important;
+  border: 1px solid rgba(56,189,248,0.16) !important;
+  border-bottom: none !important;
+
+  background:
+    linear-gradient(180deg, rgba(10,18,36,0.96), rgba(6,10,22,0.96)) !important;
+
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,0.025) !important;
+}
+
+/* cancel earlier "display:block/scroll table" overrides */
+#interactionsSection .interaction-table.mi-interaction-table{
+  display: table !important;
+  width: 100% !important;
+  height: 100% !important;
+  table-layout: fixed !important;
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+  margin: 0 !important;
+  border-radius: 0 !important;
+  overflow: hidden !important;
+  background: transparent !important;
+}
+
+/* slightly wider leverage column so the bars feel more important */
+#interactionsSection .interaction-table.mi-interaction-table .mi-int-col-label{
+  width: 30% !important;
+}
+#interactionsSection .interaction-table.mi-interaction-table .mi-int-col-bar{
+  width: 50% !important;
+}
+#interactionsSection .interaction-table.mi-interaction-table .mi-int-col-intensity{
+  width: 20% !important;
+}
+
+#interactionsSection .interaction-table.mi-interaction-table thead th{
+  position: relative;
+  padding: 10px 10px !important;
+  font-size: 11px !important;
+  border-top: none !important;
+}
+
+#interactionsSection .interaction-table.mi-interaction-table thead th:first-child{
+  border-top-left-radius: 13px !important;
+}
+#interactionsSection .interaction-table.mi-interaction-table thead th:last-child{
+  border-top-right-radius: 13px !important;
+}
+
+/* increase row footprint so the left panel uses vertical space better */
+#interactionsSection .interaction-table.mi-interaction-table .mi-int-row td{
+  padding-top: 13px !important;
+  padding-bottom: 13px !important;
+}
+
+#interactionsSection .interaction-table.mi-interaction-table .mi-int-row{
+  height: 56px !important;
+}
+
+#interactionsSection .interaction-table.mi-interaction-table .mi-int-label-main{
+  font-size: 13px !important;
+  font-weight: 800 !important;
+}
+
+#interactionsSection .interaction-table.mi-interaction-table .mi-int-label-sub{
+  font-size: 10px !important;
+  margin-top: 3px !important;
+  opacity: 0.82 !important;
+}
+
+#interactionsSection .interaction-table.mi-interaction-table .mi-int-bar-cell{
+  padding-left: 8px !important;
+  padding-right: 8px !important;
+}
+
+#interactionsSection .interaction-table.mi-interaction-table .mi-int-bar{
+  height: 18px !important;
+  border-radius: 999px !important;
+}
+
+#interactionsSection .interaction-table.mi-interaction-table .mi-int-row.tier-high .mi-int-bar{
+  height: 20px !important;
+}
+
+#interactionsSection .interaction-table.mi-interaction-table .mi-int-row.tier-mid .mi-int-bar{
+  height: 17px !important;
+}
+
+#interactionsSection .interaction-table.mi-interaction-table .mi-int-row.tier-low .mi-int-bar{
+  height: 14px !important;
+}
+
+#interactionsSection .interaction-table.mi-interaction-table .mi-int-intensity-pill{
+  min-width: 60px !important;
+  min-height: 28px !important;
+  font-size: 10px !important;
+}
+
+/* =========================
+   TOTALS ROW — stitch directly to table
+   ========================= */
+
+#interactionsSection #interactionTotalsBar,
+#interactionsSection .interaction-totals-bar{
+  flex: 0 0 auto !important;
+  margin-top: -1px !important; /* visually stitches to the table shell */
+
+  border-radius: 0 0 14px 14px !important;
+  border: 1px solid rgba(56,189,248,0.16) !important;
+  border-top: 1px solid rgba(56,189,248,0.10) !important;
+
+  background:
+    linear-gradient(180deg, rgba(12,18,36,0.98), rgba(8,12,24,0.98)) !important;
+
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,0.025) !important;
+
+  padding: 12px 14px !important;
+  min-height: 60px !important;
+}
+
+#interactionsSection .interaction-totals-bar .totals-left{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 3px;
+  min-width: 0;
+}
+
+#interactionsSection .interaction-totals-bar .totals-title{
+  font-size: 12px !important;
+  font-weight: 900 !important;
+  letter-spacing: 0.06em !important;
+}
+
+#interactionsSection .interaction-totals-bar .totals-favored{
+  margin-top: 0 !important;
+  font-size: 11px !important;
+  letter-spacing: 0.05em !important;
+}
+
+#interactionsSection .interaction-totals-bar .totals-right{
+  gap: 10px !important;
+}
+
+#interactionsSection .interaction-totals-bar .totals-val{
+  font-size: 15px !important;
+  font-weight: 900 !important;
+}
+
+/* =========================
+   FLIP HINT — keep it tucked in, not floating
+   ========================= */
+
+#interactionsSection .interactions-flip-hint{
+  margin-top: 2px !important;
+  align-self: center !important;
+  opacity: 0.82;
+}
+
+/* =========================
+   MOBILE
+   ========================= */
+
+@media (max-width: 980px){
+  #interactionsSection .interactions-left-tile.flip-tile .tile-face.interactions-front-face{
+    padding: 10px 10px 9px !important;
+  }
+
+  #interactionsSection .interaction-table.mi-interaction-table .mi-int-row{
+    height: 52px !important;
+  }
+
+  #interactionsSection .interaction-totals-bar{
+    padding: 11px 12px !important;
+  }
+}
+
+/* ==========================================================================
+   INTERACTIONS LEFT TILE — FINAL ALIGNMENT POLISH
+   1) tighten flip hint alignment
+   2) move/format "Leans Team X" beneath leverage bars
+   ========================================================================== */
+
+/* first column now only carries the main interaction title */
+#interactionsSection .interaction-table.mi-interaction-table .mi-int-label-cell{
+  text-align: center !important;
+  vertical-align: middle !important;
+}
+
+#interactionsSection .interaction-table.mi-interaction-table .mi-int-label-main{
+  display: block !important;
+  line-height: 1.15 !important;
+}
+
+/* once JS moves the sublabel into the bar cell, hide old spacing behavior */
+#interactionsSection .interaction-table.mi-interaction-table .mi-int-label-cell > .mi-int-label-sub{
+  margin-top: 0 !important;
+}
+
+/* leverage cell becomes a stacked mini-layout: bar, then sublabel */
+#interactionsSection .interaction-table.mi-interaction-table .mi-int-bar-cell{
+  padding-top: 10px !important;
+  padding-bottom: 8px !important;
+}
+
+#interactionsSection .interaction-table.mi-interaction-table .mi-int-bar-wrap{
+  width: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+#interactionsSection .interaction-table.mi-interaction-table .mi-int-bar-sub{
+  display: block !important;
+  margin-top: 6px !important;
+  padding-top: 6px;
+  text-align: center !important;
+
+  color: rgba(148,163,184,0.92) !important;
+  font-size: 12px !important;
+  font-weight: 800 !important;
+  line-height: 1.1 !important;
+  letter-spacing: 0.01em !important;
+}
+
+/* make the row feel balanced now that the sublabel sits under the bar */
+#interactionsSection .interaction-table.mi-interaction-table .mi-int-row td{
+  vertical-align: middle !important;
+}
+
+/* flip hint: treat it like a centered footer note directly under totals */
+#interactionsSection .interactions-flip-hint{
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 100% !important;
+
+  margin: 0 !important;
+  padding: 2px 0 0 !important;
+
+  line-height: 1 !important;
+  text-align: center !important;
+  align-self: stretch !important;
+
+  position: relative !important;
+  top: 0 !important;
+  left: 0 !important;
+  transform: none !important;
+
+  opacity: 0.78 !important;
+}
+
+/* if the icon/text baseline still feels slightly low, this nudges it into line */
+#interactionsSection .interactions-flip-hint::before{
+  position: relative;
+  top: -1px;
+}
+
+@media (max-width: 980px){
+  #interactionsSection .interaction-table.mi-interaction-table .mi-int-bar-sub{
+    margin-top: 5px !important;
+    font-size: 9px !important;
+  }
+
+  #interactionsSection .interactions-flip-hint{
+    padding-top: 3px !important;
+  }
+}
+
+/* ==========================================================================
+   INTERACTION TOTALS BAR — INLINE TEAM/VALUE FORMAT
+   Replaces title/favored split with centered:
+   Team A -0.455 / Team B +0.357
+   ========================================================================== */
+
+#interactionsSection #interactionTotalsBar,
+#interactionsSection .interaction-totals-bar{
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+}
+
+#interactionsSection .interaction-totals-bar .totals-left,
+#interactionsSection .interaction-totals-bar .totals-right,
+#interactionsSection .interaction-totals-bar .totals-title,
+#interactionsSection .interaction-totals-bar .totals-favored{
+  display: none !important;
+}
+
+#interactionsSection .interaction-totals-bar .totals-inline{
+  display: inline-flex !important;
+  align-items: baseline !important;
+  justify-content: center !important;
+  flex-wrap: wrap !important;
+  gap: 8px !important;
+
+  width: 100%;
+  max-width: 100%;
+
+  font-size: 15px !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.01em !important;
+  line-height: 1.2 !important;
+}
+
+#interactionsSection .interaction-totals-bar .totals-team{
+  color: #f3f4f6 !important;
+  font-weight: 800 !important;
+  white-space: nowrap !important;
+}
+
+#interactionsSection .interaction-totals-bar .totals-val{
+  font-size: 15px !important;
+  font-weight: 900 !important;
+  letter-spacing: 0.02em !important;
+  white-space: nowrap !important;
+}
+
+#interactionsSection .interaction-totals-bar .totals-sep{
+  opacity: 0.55 !important;
+  font-weight: 700 !important;
+  margin: 0 2px !important;
+}
+
+@media (max-width: 980px){
+  #interactionsSection .interaction-totals-bar .totals-inline{
+    gap: 6px !important;
+    font-size: 14px !important;
+  }
+
+  #interactionsSection .interaction-totals-bar .totals-val{
+    font-size: 14px !important;
+  }
+}
+
+/* =========================================================
+   VERDICT SCOREBUG — FINAL REPAIR PASS
+   Paste at absolute bottom of styles2.css
+   ========================================================= */
+
+#miVerdictMetricsTile .flip-tile-inner,
+#miVerdictMetricsTile .tile-face{
+  height: 100%;
+}
+
+#miVerdictMetricsTile .flip-tile-inner{
+  padding: 0 !important;
+}
+
+#miVerdictMetricsTile .tile-front{
+  display: grid !important;
+  grid-template-rows: 1fr auto !important;
+  align-content: stretch !important;
+  gap: 12px !important;
+  min-height: 0 !important;
+  height: 100% !important;
+  padding: 16px 16px 14px !important;
+}
+
+/* Main internal scorebug grid */
+#miVerdictMetricsTile .mi-scorebug-grid{
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+  grid-template-areas:
+    "teamA teamB"
+    "gap gap"
+    "footer footer" !important;
+  gap: 14px 18px !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  align-content: stretch !important;
+}
+
+#miVerdictMetricsTile .mi-scorebug-team--a{ grid-area: teamA !important; }
+#miVerdictMetricsTile .mi-scorebug-team--b{ grid-area: teamB !important; }
+
+#miVerdictMetricsTile .mi-scorebug-team{
+  min-width: 0 !important;
+  align-self: stretch !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  padding: 14px 14px 12px !important;
+  border-radius: 12px !important;
+  border: 1px solid rgba(148,163,184,0.22) !important;
+  background:
+    linear-gradient(180deg, rgba(15,23,42,0.48), rgba(2,6,23,0.68)) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.03),
+    0 6px 16px rgba(0,0,0,0.20) !important;
+}
+
+#miVerdictMetricsTile .mi-scorebug-team-name{
+  text-align: center !important;
+  font-size: 13px !important;
+  font-weight: 850 !important;
+  line-height: 1.05 !important;
+  letter-spacing: 0.01em !important;
+  color: rgba(241,245,249,0.96) !important;
+  padding-bottom: 4px !important;
+}
+
+#miVerdictMetricsTile .mi-scorebug-team-lines{
+  display: grid !important;
+  align-content: center !important;
+  gap: 10px !important;
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+}
+
+#miVerdictMetricsTile .mi-scorebug-team-line--metric{
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 5px !important;
+  padding: 8px 10px 9px !important;
+  border-radius: 10px !important;
+  background:
+    linear-gradient(180deg, rgba(15,23,42,0.56), rgba(2,6,23,0.72)) !important;
+  border: 1px solid rgba(148,163,184,0.14) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.03),
+    0 4px 12px rgba(0,0,0,0.18) !important;
+}
+
+#miVerdictMetricsTile .mi-scorebug-mini-label{
+  color: rgba(226,232,240,0.82) !important;
+  font-size: 10px !important;
+  font-weight: 800 !important;
+  line-height: 1 !important;
+  letter-spacing: 0.05em !important;
+  text-transform: uppercase !important;
+  text-align: left !important;
+}
+
+#miVerdictMetricsTile .mi-scorebug-mini-metric{
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  align-items: center !important;
+  gap: 8px !important;
+  min-width: 0 !important;
+}
+
+#miVerdictMetricsTile .mi-scorebug-mini-value{
+  min-width: 52px !important;
+  text-align: right !important;
+  font-size: 13px !important;
+  font-weight: 950 !important;
+  line-height: 1 !important;
+  letter-spacing: 0 !important;
+  font-variant-numeric: tabular-nums !important;
+}
+
+/* Madness Delta row — single clean outlined strip */
+#miVerdictMetricsTile .mi-scorebug-gap{
+  grid-area: gap !important;
+  grid-column: 1 / -1 !important;
+
+  display: grid !important;
+  grid-template-columns: 1fr auto !important;
+  align-items: center !important;
+  gap: 12px !important;
+
+  width: 100% !important;
+  min-width: 0 !important;
+  min-height: 46px !important;
+
+  margin: 0 !important;
+  padding: 10px 14px !important;
+
+  border: 1px solid rgba(148,163,184,0.20) !important;
+  border-radius: 12px !important;
+  background:
+    linear-gradient(180deg, rgba(4,8,18,0.82), rgba(2,6,23,0.92)) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.04),
+    0 6px 14px rgba(0,0,0,0.20) !important;
+}
+
+#miVerdictMetricsTile .mi-scorebug-gap-label{
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  min-width: 0 !important;
+  white-space: nowrap !important;
+
+  font-size: 13px !important;
+  font-weight: 850 !important;
+  letter-spacing: 0.06em !important;
+  text-transform: uppercase !important;
+  line-height: 1 !important;
+  color: rgba(226,232,240,0.90) !important;
+}
+
+#miVerdictMetricsTile .mi-scorebug-gap-value{
+  justify-self: end !important;
+  text-align: right !important;
+  white-space: nowrap !important;
+  min-width: 0 !important;
+
+  font-size: 22px !important;
+  font-weight: 950 !important;
+  line-height: 1 !important;
+  letter-spacing: -0.01em !important;
+  font-variant-numeric: tabular-nums !important;
+}
+
+#miVerdictMetricsTile .mi-scorebug-gap-label .mi-delta-mark{
+  width: auto !important;
+  height: 1.02em !important;
+  flex: 0 0 auto !important;
+  vertical-align: 0 !important;
+}
+
+/* Footer hint — centered true footer, visually below the delta strip */
+#miVerdictMetricsTile .mi-scorebug-footer{
+  grid-area: footer !important;
+  grid-column: 1 / -1 !important;
+
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  margin: 0 !important;
+  padding: 2px 0 0 !important;
+  min-height: 18px !important;
+
+  position: static !important;
+  align-self: end !important;
+}
+
+#miVerdictMetricsTile .mi-flip-hint,
+#miVerdictMetricsTile .mi-scorebug-footer .mi-metrics-hint{
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  font-size: 9px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase !important;
+  line-height: 1 !important;
+
+  color: rgba(148,163,184,0.74) !important;
+  opacity: 1 !important;
+}
+
+/* =========================================================
+   SCOREBUG — maximize bar width + move values below bars
+   ========================================================= */
+
+.mi-verdict-metrics-tile .mi-scorebug-team-line--metric{
+  padding: 8px 8px 10px !important;
+}
+
+.mi-verdict-metrics-tile .mi-scorebug-mini-metric{
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) !important;
+  grid-template-rows: auto auto !important;
+  gap: 6px !important;
+  align-items: stretch !important;
+  justify-items: stretch !important;
+}
+
+.mi-verdict-metrics-tile .mi-scorebug-mini-bar{
+  width: 100% !important;
+  min-width: 0 !important;
+  justify-self: stretch !important;
+}
+
+.mi-verdict-metrics-tile .mi-scorebug-mini-value{
+  display: block !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  text-align: center !important;
+  justify-self: stretch !important;
+  margin: 0 !important;
+  padding-top: 1px !important;
+  font-size: 13px !important;
+  line-height: 1 !important;
+}
+
+/* =========================================================
+   SCOREBUG — HARD OVERRIDE
+   Force metric values below bars + bars use full lane width
+   Paste at absolute bottom of styles2.css
+   ========================================================= */
+
+#miVerdictMetricsTile .mi-scorebug-grid{
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+  gap: 12px 16px !important;
+}
+
+#miVerdictMetricsTile .mi-scorebug-team{
+  min-width: 0 !important;
+  width: 100% !important;
+}
+
+#miVerdictMetricsTile .mi-scorebug-team-lines{
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 10px !important;
+  width: 100% !important;
+  min-width: 0 !important;
+}
+
+#miVerdictMetricsTile .mi-scorebug-team-line--metric{
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  justify-content: flex-start !important;
+  gap: 6px !important;
+
+  width: 100% !important;
+  min-width: 0 !important;
+
+  padding: 8px 8px 10px !important;
+}
+
+#miVerdictMetricsTile .mi-scorebug-mini-label{
+  display: block !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  text-align: left !important;
+}
+
+#miVerdictMetricsTile .mi-scorebug-mini-metric{
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  justify-content: flex-start !important;
+  gap: 6px !important;
+
+  width: 100% !important;
+  min-width: 0 !important;
+
+  grid-template-columns: none !important;
+  grid-template-rows: none !important;
+}
+
+#miVerdictMetricsTile .mi-scorebug-mini-bar{
+  display: block !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  flex: 0 0 auto !important;
+  justify-self: auto !important;
+  align-self: stretch !important;
+
+  height: 14px !important;
+  margin: 0 !important;
+}
+
+#miVerdictMetricsTile .mi-scorebug-mini-value{
+  display: block !important;
+  order: 2 !important;
+
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: none !important;
+
+  margin: 0 !important;
+  padding-top: 2px !important;
+
+  text-align: center !important;
+  justify-self: auto !important;
+  align-self: stretch !important;
+
+  font-size: 13px !important;
+  line-height: 1 !important;
+  white-space: nowrap !important;
+}
+
+#miVerdictMetricsTile .mi-scorebug-mini-metric > .mi-scorebug-mini-bar{
+  order: 1 !important;
+}
+
+#miVerdictMetricsTile .mi-scorebug-mini-metric > .mi-scorebug-mini-value{
+  order: 2 !important;
+}
+
+/* Prevent any inherited lane constraints from shrinking the bar */
+#miVerdictMetricsTile .mi-scorebug-mini-metric > *{
+  min-width: 0 !important;
+}
+
+/* Slightly reduce inner chrome so the bar lane feels wider */
+#miVerdictMetricsTile .mi-scorebug-team-line--metric{
+  border-radius: 10px !important;
+}
+
+#miVerdictMetricsTile .mi-scorebug-team{
+  gap: 8px !important;
+}
+
+/* =========================================================
+   SCORE SYNTHESIS — restore strong lens presence (bottom paste)
+   Uses existing token wiring:
+   - #summarySection[data-lens="..."] => --mi-role-active*
+   - #summarySection[data-side-a/b="..."] => --syn-role-a/b*
+   ========================================================= */
+
+#summarySection.card.summary-card{
+  position: relative;
+  overflow: hidden; /* keep glows inside the card silhouette */
+}
+
+/* Outer “lens” wash (environment: chalk/chaos/neutral/standard fallback) */
+#summarySection.card.summary-card::before{
+  content:"";
+  position:absolute;
+  inset:-2px;
+  pointer-events:none;
+  z-index: 0;
+
+  /* Stronger than current: a real broadcast wash */
+  background:
+    radial-gradient(120% 140% at 50% -18%,
+      rgba(var(--mi-role-active-rgb), 0.26),
+      rgba(0,0,0,0) 62%
+    ),
+    radial-gradient(100% 120% at 50% 110%,
+      rgba(var(--mi-role-active-rgb), 0.14),
+      rgba(0,0,0,0) 60%
+    );
+  filter: saturate(1.15);
+  opacity: 1;
+}
+
+/* Border + halo (this is the “missing glow”) */
+#summarySection.card.summary-card::after{
+  content:"";
+  position:absolute;
+  inset: 6px;
+  border-radius: 14px;
+  pointer-events:none;
+  z-index: 0;
+
+  box-shadow:
+    0 0 0 1px rgba(var(--mi-role-active-rgb), 0.32),
+    0 0 22px rgba(var(--mi-role-active-rgb), 0.18),
+    0 0 46px rgba(var(--mi-role-active-rgb), 0.10);
+  opacity: 1;
+}
+
+/* Ensure table renders above the glow layers */
+#summarySection .summary-synthesis-wrap,
+#summarySection .summary-synthesis-table{
+  position: relative;
+  z-index: 1;
+}
+
+/* Stronger team header plates (A/B) */
+#summarySection .summary-synthesis-table .syn-team-a{
+  background:
+    linear-gradient(180deg,
+      rgba(var(--syn-role-a-rgb), 0.42),
+      rgba(15, 23, 42, 0.58)
+    ) !important;
+  border-color: rgba(var(--syn-role-a-rgb), 0.42) !important;
+  box-shadow:
+    inset 0 -1px 0 rgba(0,0,0,0.25),
+    0 0 18px rgba(var(--syn-role-a-rgb), 0.16) !important;
+}
+
+#summarySection .summary-synthesis-table .syn-team-b{
+  background:
+    linear-gradient(180deg,
+      rgba(var(--syn-role-b-rgb), 0.42),
+      rgba(15, 23, 42, 0.58)
+    ) !important;
+  border-color: rgba(var(--syn-role-b-rgb), 0.42) !important;
+  box-shadow:
+    inset 0 -1px 0 rgba(0,0,0,0.25),
+    0 0 18px rgba(var(--syn-role-b-rgb), 0.16) !important;
+}
+
+/* Stronger Final MI boxes */
+#summarySection .summary-synthesis-table .syn-final-a{
+  box-shadow:
+    inset 0 0 0 1px rgba(var(--syn-role-a-rgb), 0.18),
+    0 0 22px rgba(var(--syn-role-a-rgb), 0.12) !important;
+}
+
+#summarySection .summary-synthesis-table .syn-final-b{
+  box-shadow:
+    inset 0 0 0 1px rgba(var(--syn-role-b-rgb), 0.18),
+    0 0 22px rgba(var(--syn-role-b-rgb), 0.12) !important;
+}
+
+/* =========================================================
+   SCORE SYNTHESIS — wrapper lens correction support + delta shrink
+   Paste at VERY BOTTOM of styles2.css
+   ========================================================= */
+
+/* Standard environments should never visually read as neutral mirror. 
+   JS will now set data-lens to cinderella/favorite for standard matchups,
+   but this keeps the section stable and compact. */
+
+#summarySection .summary-synthesis-table .syn-center{
+  min-width: 0 !important;
+}
+
+#summarySection .summary-synthesis-table .syn-center-inner{
+  min-width: 0 !important;
+  overflow: hidden !important;
+}
+
+#summarySection .summary-synthesis-table .syn-delta{
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 10px !important;
+
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+
+  padding: 10px 10px !important;
+  margin-top: 8px !important;
+
+  overflow: hidden !important;
+}
+
+#summarySection .summary-synthesis-table .syn-delta::before{
+  display: none !important;
+}
+
+#summarySection .summary-synthesis-table .syn-delta::after{
+  left: 18% !important;
+  right: 18% !important;
+  opacity: 0.45 !important;
+}
+
+#summarySection .summary-synthesis-table .syn-delta-label{
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0 !important;
+
+  min-width: 0 !important;
+  flex: 0 0 auto !important;
+
+  font-size: 0 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+  white-space: nowrap !important;
+}
+
+#summarySection .summary-synthesis-table .syn-delta-label .mi-delta-mark{
+  width: 18px !important;
+  height: 18px !important;
+  display: inline-block !important;
+  flex: 0 0 18px !important;
+}
+
+#summarySection .summary-synthesis-table .syn-delta-value{
+  min-width: 0 !important;
+  flex: 0 1 auto !important;
+
+  font-size: 18px !important;
+  line-height: 1 !important;
+  letter-spacing: 0.02em !important;
+  white-space: nowrap !important;
+  text-align: center !important;
+}
+
+/* ============================= */
+/* FIX: MADNESS DELTA ALIGNMENT  */
+/* ============================= */
+
+.mi-scorebug-gap {
+  display: flex !important;
+  justify-content: center !important;   /* center the whole unit */
+  align-items: center !important;
+  gap: 10px !important;                /* tight spacing between label + value */
+  width: 100% !important;
+  text-align: center;
+}
+
+/* Keep label + icon tight */
+.mi-scorebug-gap-label {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  white-space: nowrap;
+}
+
+/* Make value feel like part of same phrase */
+.mi-scorebug-gap-value {
+  display: inline-block;
+  margin-left: 4px;
+}
+
+/* =========================================================
+   SCOREBUG — FINAL MADNESS DELTA CENTERING FIX
+   Keep label + value grouped together in the exact center
+   ========================================================= */
+
+#miVerdictMetricsTile .mi-scorebug-gap{
+  grid-area: gap !important;
+  grid-column: 1 / -1 !important;
+
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+
+  width: 100% !important;
+  min-width: 0 !important;
+  min-height: 46px !important;
+
+  margin: 0 !important;
+  padding: 10px 14px !important;
+
+  border: 1px solid rgba(148,163,184,0.20) !important;
+  border-radius: 12px !important;
+  background:
+    linear-gradient(180deg, rgba(4,8,18,0.82), rgba(2,6,23,0.92)) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.04),
+    0 6px 14px rgba(0,0,0,0.20) !important;
+
+  text-align: center !important;
+}
+
+#miVerdictMetricsTile .mi-scorebug-gap-label{
+  display: inline-flex !important;
+  flex: 0 0 auto !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 12px !important;
+
+  min-width: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+
+  white-space: nowrap !important;
+  text-align: center !important;
+
+  font-size: 13px !important;
+  font-weight: 850 !important;
+  letter-spacing: 0.06em !important;
+  text-transform: uppercase !important;
+  line-height: 1 !important;
+  color: rgba(226,232,240,0.90) !important;
+}
+
+#miVerdictMetricsTile .mi-scorebug-gap-value{
+  display: inline-block !important;
+  flex: 0 0 auto !important;
+
+  justify-self: auto !important;
+  align-self: left !important;
+
+  margin: 0 !important;
+  padding: 0 !important;
+
+  text-align: left !important;
+  white-space: nowrap !important;
+  min-width: 0 !important;
+
+  font-size: 22px !important;
+  font-weight: 950 !important;
+  line-height: 1 !important;
+  letter-spacing: -0.01em !important;
+  font-variant-numeric: tabular-nums !important;
+}
+
+#miVerdictMetricsTile .mi-scorebug-gap-label .mi-delta-mark{
+  width: auto !important;
+  height: 1.02em !important;
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+  vertical-align: middle !important;
+}
+
+/* =========================================
+   MADNESS DELTA — HARD RESET (FINAL FIX)
+   ========================================= */
+
+#miVerdictMetricsTile .mi-scorebug-gap {
+  display: block !important;
+  text-align: center !important;
+  flex-wrap:nowrap;
+}
+
+/* Create a fake inline container */
+#miVerdictMetricsTile .mi-scorebug-gap-label,
+#miVerdictMetricsTile .mi-scorebug-gap-value {
+  display: inline-block !important;
+  vertical-align: middle !important;
+}
+
+/* Kill ALL positioning forces */
+#miVerdictMetricsTile .mi-scorebug-gap-value {
+  justify-self: unset !important;
+  align-self: unset !important;
+  margin-left: 8px !important;
+}
+
+/* Keep icon aligned nicely */
+#miVerdictMetricsTile .mi-scorebug-gap-label {
+  white-space: nowrap !important;
+}
+
+/* =========================================================
+   SCORE SYNTHESIS — FINAL MADNESS DELTA CLEAN FIX
+   SVG + value only, centered, no overlap
+   ========================================================= */
+
+#summarySection .summary-synthesis-table .syn-center{
+  overflow: hidden !important;
+}
+
+#summarySection .summary-synthesis-table .syn-center-inner{
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 14px !important;
+  min-width: 0 !important;
+  width: 100% !important;
+  overflow: hidden !important;
+}
+
+#summarySection .summary-synthesis-table .syn-delta{
+  position: relative !important;
+  isolation: auto !important;
+
+  display: inline-flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+
+  width: auto !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+
+  margin: 2px auto 0 !important;
+  padding: 8px 12px !important;
+
+  background: rgba(2, 6, 23, 0.22) !important;
+  border-top: 0 !important;
+  border-bottom: 0 !important;
+  border-radius: 12px !important;
+  box-shadow: none !important;
+
+  text-align: center !important;
+  overflow: hidden !important;
+}
+
+#summarySection .summary-synthesis-table .syn-delta::before,
+#summarySection .summary-synthesis-table .syn-delta::after{
+  content: none !important;
+  display: none !important;
+}
+
+#summarySection .summary-synthesis-table .syn-delta-label{
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex: 0 0 auto !important;
+
+  width: auto !important;
+  min-width: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+
+  font-size: 0 !important;
+  line-height: 1 !important;
+  letter-spacing: 0 !important;
+  white-space: nowrap !important;
+}
+
+#summarySection .summary-synthesis-table .syn-delta-label .mi-delta-mark{
+  display: block !important;
+  width: 18px !important;
+  height: 18px !important;
+  flex: 0 0 18px !important;
+}
+
+#summarySection .summary-synthesis-table .syn-delta-value{
+  display: inline-block !important;
+  flex: 0 0 auto !important;
+
+  min-width: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+
+  font-size: 20px !important;
+  font-weight: 900 !important;
+  line-height: 1 !important;
+  letter-spacing: 0.01em !important;
+  font-variant-numeric: tabular-nums !important;
+  white-space: nowrap !important;
+  text-align: center !important;
+  color: rgba(241,245,249,0.98) !important;
 }

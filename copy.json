@@ -6,22 +6,71 @@
     "subtitle": "Head-to-head NCAA Tournament matchup engine",
     "subtitle_highlight": "powered by advanced analytics."
   },
+  "core_profile_ui": {
+    "title_label": "Battlefield",
+    "spread_label": "Field Spread",
+    "spread_short_label": "σ",
+    "score_label": "Team Score",
+    "percentile_label": "Percentile",
+    "tier_label": "Tier",
+    "points_label": "Points",
+    "avg_label": "Avg",
+    "sd_label": "SD",
+    "breadth_label": "Breadth",
+    "no_data_text": "No core battlefield data.",
+    "spread_tooltip": "Standard deviation of the battlefield across the tournament field. Larger spread means more separation between teams in this area.",
+    "score_tooltip": "Standardized team score in this battlefield. 0 = tournament average. Positive values are above average; negative values are below average.",
+    "percentile_tooltip": "Approximate percentile of this battlefield score relative to the tournament field.",
+    "points_tooltip": "Contribution of this battlefield to the internal efficiency foundation before breadth and résumé calibration.",
+    "row_labels": {
+      "offense_domain": "Offensive Efficiency",
+      "defense_domain": "Defensive Efficiency",
+      "possession_domain": "Possession Control",
+      "rebounding_domain": "Rebounding Control",
+      "adjem_stabilizer": "Efficiency Margin"
+    },
+    "row_tooltips": {
+      "offense_domain": "Internal offensive efficiency built from ORB, eFG, turnover avoidance, and free throw rate.",
+      "defense_domain": "Internal defensive efficiency built from def eFG suppression, DRB, forced turnovers, and opp FTR suppression.",
+      "possession_domain": "Possession-level control and stability within the team profile.",
+      "rebounding_domain": "Missed-shot control and second-chance environment.",
+      "adjem_stabilizer": "Overall efficiency margin signal used as a broad profile stabilizer."
+    }
+  },
   "patch_notes": {
     "title": "Patch Notes",
     "hint": "Click for Patch Notes",
-    "badge": "Version 1.0 (Build 4.1)",
-    "max_items": 6,
+    "badge": "Version 2.0 (Build 5.0)",
+    "max_items": 10,
     "items": [
       {
-        "build": "Build 4.1",
-        "date": "2026-03-02",
+        "build": "Build 5.0",
+        "date": "2026-03-17",
         "bullets": [
-          "Added 2023 and 2024 Tournament Datasets.",
-          "Refined narrative language across the app.",
-          "Updated interaction metrics gating for accuracy."
+          "The 2026 dataset is now live! First Four teams included. List will be updated once those games have been settled.",
+          "Brand new scoring engine (MI 2.0) designed to refine scoring and predictive logic.",
+          "Previous years' tournaments are currently unavailable while I rework their datasets to incorporate changes to MI 2.0."
         ]
       }
     ]
+  },
+  "volatility": {
+    "copy": {
+      "environment": {
+        "empty": "Run a matchup to populate the volatility environment.",
+        "stable": "Game control should closely reflect the teams' baseline strength.",
+        "low": "The flow of play should remain steady with only minor swings.",
+        "moderate": "Momentum and matchup pressure may begin to shift control in stretches.",
+        "high": "Extended runs and pressure points could tilt the balance of the game.",
+        "extreme": "Momentum swings and shot variance could repeatedly reshape the balance."
+      },
+      "chaos_line": {
+        "empty": "Run a matchup to reveal the chaos line.",
+        "balanced": "Chaos line: balanced matchup • neither side shows a strong volatility ownership edge.",
+        "favors_a": "Chaos line: {{threshold}} • above this, {{team}} benefits more from volatility.",
+        "favors_b": "Chaos line: {{threshold}} • above this, {{team}} benefits more from volatility."
+      }
+    }
   },
   "verdict": {
     "metrics": {
@@ -156,16 +205,13 @@
         ]
       },
       "secondary_driver_phrases": {
-        "3pt": "perimeter shot-making and spacing pressure",
-        "ft": "foul generation and free-throw reliability",
-        "paint": "consistent paint scoring",
-        "to": "possession control",
-        "glass": "second-chance opportunities",
-        "phys": "physical interior play",
-        "shotq": "shot quality and offensive rhythm",
-        "var": "game-to-game volatility",
+        "turnover_pressure": "turnover pressure and ball security",
+        "rebounding_pressure": "rebounding pressure and second-chance control",
+        "foul_pressure": "foul pressure and free-throw leverage",
+        "rim_access_pressure": "rim pressure and interior access",
+        "perimeter_variance_pressure": "perimeter variance and three-point pressure",
         "mibs": "overall profile strength",
-        "breadth": "scoring versatility"
+        "breadth": "possession balance across the floor"
       },
       "secondary_dynamic": {
         "case1": [
@@ -198,14 +244,14 @@
       ],
       "back_text": {
         "base": [
-        "The Baseline Madness Index reflects each team’s full-season profile, combining performance quality, efficiency, and contextual factors into a single strength rating.",
-        "Baseline ratings summarize how strong each team looks on its own, before accounting for the specific opponent or game dynamics.",
-        "The Baseline Madness Index represents a team’s overall profile strength based on season-long results and context."
+          "The Baseline Madness Index measures each team’s underlying strength using possession-level performance across the full season.",
+          "Eight core possession battles shape the profile: shooting efficiency, rebounding, ball security, and foul pressure on both ends of the floor.",
+          "The résumé then calibrates how much trust to place in that profile, anchoring extreme signals toward the tournament field when results are less proven."
         ],
         "matchup": [
-        "The matchup-adjusted rating shows how those baseline profiles change when the two teams are evaluated directly against each other.",
-        "Matchup ratings reflect how each team’s strengths and weaknesses interact in this specific head-to-head context.",
-        "The matchup-adjusted view highlights how the comparison reshapes each team’s profile rather than simply restating season averages."
+          "The matchup-adjusted rating shows how those baseline profiles change when the two teams are evaluated against each other directly.",
+          "Five stylistic pressure channels — turnovers, rebounding, fouls, rim access, and perimeter variance — measure where one team can stress the other.",
+          "These pressures reshape the baseline comparison, revealing which team’s style gains leverage in this specific game environment."
         ],
         "gap": {
           "tiny_0_25": [
@@ -398,19 +444,25 @@
     "help": "",
     "howto_title": "How to read this table",
     "howto_items": [
-    "Each row corresponds to a single pressure channel.",
-    "The edge pill shows which team holds the leverage in that channel, or if it’s essentially even.",
-    "Row shading mirrors the edge: soft teal tint for the Cinderella card, warm orange tint for the Favorite card, and neutral for even.",
-    "Edges come from matchup-based adjustments, not just the raw team ratings — a strong unit can still be neutralized by a great counter.",
-    "The totals row at the bottom summarizes net interaction leverage: how many channels tilt toward each team once everything is blended."
-    ],  
-    "howto_note": "Think of this like your matchup chessboard: each row is one pressure point. The totals tell you who wins that board overall."
+      "Each row corresponds to a single pressure channel.",
+      "The edge pill shows which team holds the leverage in that channel, or if it’s essentially even.",
+      "Row shading mirrors the edge: soft teal tint for the Cinderella card, warm orange tint for the Favorite card, and neutral for even.",
+      "Edges come from matchup-based adjustments, not just the raw team ratings — a strong unit can still be neutralized by a great counter.",
+      "The totals row at the bottom summarizes net interaction leverage: how many channels tilt toward each team once everything is blended."
+    ],
+    "howto_note": "Think of this like your matchup chessboard: each row is one pressure point. The totals tell you who wins that board overall.",
+    "flip_tile": {
+      "front_hint": "Flip for channel guide",
+      "back_intro": "These five channels describe where one team can create directional matchup pressure. The front face shows who benefits; the back face explains how to interpret those edges.",
+      "back_helper": "Tap again to return to the interaction metrics."
+    }
   },
   "rounds": {
     "R64": "Round of 64",
     "R32": "Round of 32",
     "S16": "Sweet Sixteen",
     "E8": "Elite Eight",
+    "First4": "First Four",
     "F4": "Final Four",
     "Champ": "Championship"
   },
@@ -867,37 +919,37 @@
       "tile": "The Breadth summary highlights how many core metrics clear the above-average threshold and how much bonus that coverage adds."
     },
     "resume": {
-      "card": "Résumé Context blends record and schedule strength into a single index. Elite résumés earn a small boost; fragile or inflated résumés receive a stronger skepticism penalty.",
-      "tile": "This tile summarizes how the team's win percentage and schedule difficulty stack up versus the field and how that converts into a résumé adjustment.",
+      "card": "Résumé Context Score V2 evaluates how a team’s results hold up under competitive context. It blends stabilized Q1 and Q2 performance, quality-win volume, bad-loss resistance, opponent-quality share, win percentage, and strength of schedule into a single field-relative résumé index.",
+      "tile": "This tile summarizes how the team’s résumé reads against the tournament field once quality wins, bad-loss resistance, opponent mix, win percentage, and schedule strength are standardized together. That résumé index then determines the team’s résumé trust tier.",
       "tier_tile": {
         "Elite": [
-          "This résumé reflects substantial success across one of the most demanding schedules in all of college basketball.",
-          "It provides strong contextual validation for how this team's profile reads relative to other teams in the field."
-       ],
+          "This résumé combines high-end win quality, meaningful quality-win volume, and strong resistance to damaging losses.",
+          "It reflects a profile that remains highly credible once schedule hardness and opponent mix are fully accounted for."
+        ],
         "Strong": [
-          "This résumé reflects consistent success against a high-quality level of competition.",
-          "It indicates a profile whose strengths hold up well under context rather than relying on favorable game conditions."
-       ],
-       "Above Average": [
-         "This résumé presents a record that is supported by a reasonably demanding slate of opponents.",
-         "It suggests a profile whose signals are strengthened by the competition it has faced."
-       ],
-       "Average": [
-         "This résumé reflects results that track with the level of competition faced, without clear over- or under-performance.",
-         "It suggests a profile that reads as expected once record and competition are considered together."
-       ],
-       "Weak": [
-         "This résumé shows limited evidence of success once the quality of competition is elevated.",
-         "It suggests a profile that may look stronger on paper, and may not have been fully clarified by higher-level opposition."
-       ],
-       "Fragile": [
-         "This résumé presents modest results and performance combined with limited exposure to stronger competition.",
-         "It suggests a profile that becomes increasingly difficult to interpret as competition levels rise."
-       ],
-       "fallback": [
-         "This résumé tier reflects how the team’s results and schedule context compare to the tournament field."
-       ]
-     }
+          "This résumé shows durable quality through strong upper-quadrant performance and solid contextual support.",
+          "It reflects a profile whose results continue to hold up well after schedule strength and résumé depth are standardized."
+        ],
+        "Above Average": [
+          "This résumé carries legitimate strength through a healthy mix of quality wins and stable contextual support.",
+          "It reflects a profile that is supported more often than challenged once the full résumé environment is weighed."
+        ],
+        "Average": [
+          "This résumé lands near the middle of the field once quality, volume, schedule, and loss resistance are blended together.",
+          "It reflects a profile with neither especially strong validation nor especially strong résumé fragility."
+        ],
+        "Weak": [
+          "This résumé shows limited contextual strength once upper-end results, bad-loss resistance, and schedule quality are evaluated together.",
+          "It reflects a profile that does not gain much trust from its full résumé composition relative to the field."
+        ],
+        "Fragile": [
+          "This résumé struggles to establish strong contextual credibility once quality-win signals and damaging-loss pressure are fully incorporated.",
+          "It reflects a profile whose résumé support weakens meaningfully when compared against the full tournament field."
+        ],
+        "fallback": [
+          "This résumé tier reflects how the team’s full Résumé Context Score compares with the rest of the tournament field."
+        ]
+      }
     },
     "marks": {
       "card": "Profile Marks are diagnostic flags. They do not change the score directly, but they reveal structural strengths or vulnerabilities that may matter in specific matchups.",
@@ -908,239 +960,284 @@
     }
   },
   "core_explain": {
-    "paragraph_prefix": "{{team}}'s core profile shows the following pattern:",
-    "fallback_template": "{{team}} shows a generally balanced core profile with no extreme strengths or weaknesses.",
+    "metric_order": [
+      "orb",
+      "efg",
+      "to_inv",
+      "ftr",
+      "def_efg",
+      "drb",
+      "opp_to",
+      "opp_ftr"
+    ],
+    "paragraph_prefix": "{{team}}'s core profile shows the following possession-battlefield pattern:",
+    "fallback_template": "{{team}} shows a broadly mixed profile across the eight possession battlefields, without one clearly defining structural edge.",
     "metrics": {
-      "offeff": {
-        "label": "Offensive Efficiency",
-        "role": "primary scoring engine",
+      "orb": {
+        "label": "Offensive Rebounding",
+        "role": "second-chance generation and missed-shot pressure",
         "phrases": {
-          "Elite": "an elite scoring engine",
-          "Strong": "a strong scoring attack",
-          "Above Average": "a capable offense",
-          "Average": "an offense that can hold its own",
-          "Weak": "an inconsistent scoring output",
-          "Fragile": "a fragile scoring identity"
+          "Elite": "elite offensive rebounding pressure",
+          "Strong": "strong offensive rebounding pressure",
+          "Above Average": "above-average offensive rebounding pressure",
+          "Average": "roughly average offensive rebounding pressure",
+          "Weak": "limited offensive rebounding pressure",
+          "Fragile": "fragile offensive rebounding pressure"
         },
         "back_phrases": {
-          "Elite": "This offense reliably turns possessions into high-quality results, flowing into strong chances and finishing them with poise. They maintain pressure throughout the game and are difficult to disrupt without major defensive adjustments.",
-           "Strong": "Their offense produces steady, repeatable scoring by creating workable looks and converting them at a strong clip. Opponents can slow them in stretches, but they generally find their way back into rhythm.",
-           "Above Average": "They generate enough clean chances to keep pace against most opponents, especially when spacing and tempo break their way. While not dominant, their scoring can carry stretches when the game opens up.",
-           "Average": "Their offense is capable but not forceful, relying more on solid execution than natural advantage. They can score within the flow of the game but rarely dictate terms without help from pace or matchups.",
-           "Weak": "They struggle to create or finish quality looks consistently, leading to long, momentum-halting possessions. When the game tightens, their scoring can fade and leave them searching for answers.",
-           "Fragile": "This offense often breaks down before good opportunities develop, resulting in extended droughts that opponents can exploit. They seldom find stable scoring rhythm and rely heavily on game script going their way."
+          "Elite": "This team consistently extends possessions on the offensive glass, creating real second-chance pressure and extra scoring opportunities.",
+          "Strong": "The offensive rebounding profile adds useful pressure, helping this team recover misses and keep defenses under stress.",
+          "Above Average": "This team usually gives itself some second-chance support, even if it does not dominate the glass outright.",
+          "Average": "The offensive rebounding profile is mostly neutral, unlikely to create major separation on its own.",
+          "Weak": "This team does not recover enough misses to create reliable extra-possession value.",
+          "Fragile": "The offensive glass provides very little support here, shrinking the margin for error when initial shots fail."
         },
         "back_phrases_alt": {
-          "Elite": "Their offense operates with a clarity and steadiness that carries possessions on its own. They create clean chances early or late in the clock and rarely need favorable conditions to sustain pressure.",
-          "Strong": "Their scoring approach holds firm across most game states, giving them a dependable rhythm even against disciplined defenses. They stay productive without needing extended runs or unusually soft coverages.",
-          "Above Average": "Their offense generally moves possessions in the right direction, leaning on workable spacing and reliable touch. They tend to capitalize when defenses slip but won’t consistently tilt the floor by themselves.",
-          "Average": "Their scoring output is serviceable but rarely dictates terms. They can keep pace when the game stays orderly, though they depend more on flow, matchups, or occasional bursts to maintain momentum.",
-          "Weak": "Their offense often needs help from pace, turnovers, or timely shot-making to stay afloat. When possessions tighten, they struggle to maintain rhythm and have difficulty generating steady pressure.",
-          "Fragile": "Their scoring profile leaves little margin for error, as productive stretches are difficult to sustain. Halfcourt possessions frequently stall, and they rely heavily on external factors to keep games within reach."
-        }
-      },
-      "defeff": {
-        "label": "Defensive Efficiency",
-        "role": "defensive floor",
-        "phrases": {
-          "Elite": "an elite defensive floor",
-          "Strong": "a strong defensive core",
-          "Above Average": "a reliably solid defense",
-          "Average": "a defense that can survive most matchups",
-          "Weak": "a leaky defense that can be stressed",
-          "Fragile": "a fragile defensive core that invites pressure"
-        },
-        "back_phrases": {
-          "Elite": "This defense consistently takes opponents out of their comfort zones, limiting clean looks and forcing them into difficult decisions. They set the tone for how games are played and rarely allow easy scoring stretches.",
-          "Strong": "Their defense reliably contests shots and closes off preferred actions, making opponents work hard for points. They can steady a game when the offense stalls and respond well to different styles.",
-          "Above Average": "They defend with enough structure and discipline to keep most opponents from fully settling in. While not overpowering, they avoid major breakdowns and remain dependable from possession to possession.",
-          "Average": "They compete on defense but lack a defining element that consistently turns stops into momentum. When connected, they hold up well, but sharp opponents can still find scoring lanes.",
-          "Weak": "Their defense often allows opponents to reach the spots they want, opening windows for rhythm scoring. They have difficulty managing surges and can lose control when pressure increases.",
-          "Fragile": "Their defensive structure breaks easily, yielding clean looks and allowing opponents to dictate pace. They rarely generate resistance and often rely on outscoring problems instead of solving them."
-        },
-        "back_phrases_alt": {
-          "Elite": "Their defense consistently shrinks possessions, removing clean looks and forcing opponents into difficult decisions. They control the terms of engagement, allowing almost no comfortable rhythm to develop.",
-          "Strong": "Their defensive structure holds up against most styles, limiting efficient chances and slowing opposing momentum. Even when beaten initially, they recover well enough to keep outcomes in manageable ranges.",
-          "Above Average": "Their defense reliably challenges first options and steers opponents into less efficient routes. They may bend at times, but they rarely give up effortless stretches without resistance.",
-          "Average": "Their defensive presence is stable but unspecialized. They can contain straightforward actions, yet stronger offenses often find workable solutions as possessions wear on.",
-          "Weak": "Their defense frequently concedes accessible paths to scoring, struggling to disrupt flow or remove high-quality looks. Opponents can maintain comfort for long stretches without being pushed off plan.",
-          "Fragile": "Their defensive resistance breaks easily under pressure, offering little deterrence once opponents initiate actions. Clean windows appear often, creating an uphill battle on most trips down the floor."
-        }
-      },
-      "adjem": {
-        "label": "Adj. Efficiency Margin",
-        "role": "overall efficiency margin",
-        "phrases": {
-          "Elite": "an elite overall efficiency margin",
-          "Strong": "a strong overall efficiency margin",
-          "Above Average": "an above-average overall margin",
-          "Average": "a roughly average overall margin",
-          "Weak": "a thin overall margin",
-          "Fragile": "a fragile overall margin"
-        },
-        "back_phrases": {
-          "Elite": "Their overall performance reflects a team that consistently wins the possession battle on both ends. They impose their identity regardless of opponent style and maintain control across long stretches of play.",
-          "Strong": "They show a sturdy blend of scoring punch and defensive reliability, giving them an advantage that travels across most matchups. Games tend to bend toward their preferred rhythm.",
-          "Above Average": "Their balanced profile allows them to stay competitive against a wide range of opponents. While not overpowering, they bring enough consistency to stay within striking distance in most scenarios.",
-          "Average": "They play roughly to the level of their opponents, with neither end of the floor pulling them significantly ahead. Matchups, pace, and game script often dictate their results.",
-          "Weak": "Their combined performance shows noticeable strain, with one or both ends of the floor struggling to hold firm. They often need favorable conditions to stay in control.",
-          "Fragile": "They have difficulty sustaining competitiveness across possessions, with gaps that opponents can exploit early and often. Their ability to dictate games is limited, forcing them into uphill battles."
-        },
-        "back_phrases_alt": {
-          "Elite": "Their overall profile leaves almost no weak entry points—both sides of the ball reinforce each other, producing steady control over game flow. They rarely need ideal conditions to create separation.",
-          "Strong": "Their combined strengths give them a reliable foothold in most matchups. Even when one phase cools off, the other is steady enough to keep them in command for long stretches.",
-          "Above Average": "Their balance across offense and defense typically places them on the favorable side of game pressure. They may not overwhelm, but they accumulate small edges that add up over time.",
-          "Average": "Their performance level keeps most games within a workable margin. They can trade punches effectively but don’t consistently generate the cushion that higher-tier teams create.",
-          "Weak": "Their overall efficiency blend often puts them behind the curve. They struggle to build lasting leads and rely more on opponent mistakes or short-lived momentum swings to stay competitive.",
-          "Fragile": "Their combined profile creates constant strain, as neither phase reliably supports the other. They face uphill battles to stay within reach and often require highly specific conditions to avoid slipping behind."
-        }
-      },
-      "ts": {
-        "label": "True Shooting %",
-        "role": "shot quality and efficiency",
-        "phrases": {
-          "Elite": "elite shot quality and efficiency",
-          "Strong": "strong shot selection and efficiency",
-          "Above Average": "above-average shot quality",
-          "Average": "steady, average shot quality",
-          "Weak": "shot selection and efficiency concerns",
-          "Fragile": "high-risk, low-return shot quality"
-        },
-        "back_phrases": {
-          "Elite": "This team extracts maximum value from its scoring chances, pairing sharp shot selection with confident finishing. They pressure defenses by capitalizing on quality looks, earning trips to the line, and converting at a rate that forces opponents to adjust.",
-          "Strong": "They consistently turn good decisions into points, balancing perimeter accuracy, touch around the rim, and steady free-throw production. Their efficiency keeps their offense on schedule even when the game tightens.",
-          "Above Average": "They make solid use of the shots they create, rewarding well-run possessions with dependable scoring. Their efficiency rises when spacing and rhythm align, giving them stretches of real offensive lift.",
-          "Average": "Their shot value generally matches the opportunities they generate. They can score effectively within their comfort zone, but their efficiency doesn’t naturally elevate the offense without matchup support.",
-          "Weak": "They often leave points on the table through rushed attempts, limited finishing, or inconsistent free-throw results. Even good possessions can end without payoff, putting pressure on pace and defense to compensate.",
-          "Fragile": "Their shot profile yields low returns, with frequent empty possessions that stall momentum. Missed clean looks and unreliable conversion make it difficult for them to sustain rhythm or punish defensive mistakes."
-        },
-        "back_phrases_alt": {
-          "Elite": "Their shot profile is built on unwavering precision, turning even modest openings into high-value results. Defenses must react early or concede, as their efficiency rarely fluctuates across game states.",
-          "Strong": "Their finishing touch consistently rewards good possessions, allowing them to stay productive without needing heavy volume. They convert the chances they earn and punish lapses with dependable accuracy.",
-          "Above Average": "Their scoring efficiency holds up well over the course of a game. They make the most of clean looks and generally keep their offense on schedule, even if they don’t elevate every possession.",
-          "Average": "Their shooting output is stable but unspectacular. They can finish opportunities when created, though they don't reliably lift the team when possessions stall or shot quality dips.",
-          "Weak": "Their touch wavers, leaving solid possessions undercut by missed chances. They often need extra opportunities—through tempo, turnovers, or the glass—to offset inconsistent finishing.",
-          "Fragile": "Their scoring efficiency gives them little room for error, as even quality looks may not translate into steady production. Long dry spells are common and can shift control of the game quickly."
+          "Elite": "Their offensive rebounding gives them a recurring way to bend possession volume in their favor.",
+          "Strong": "Their work on the offensive glass regularly helps stabilize scoring stretches after imperfect shot-making.",
+          "Above Average": "Their offensive rebounding usually helps more than it hurts, even if it is not a defining strength.",
+          "Average": "Their offensive rebounding tends to track the game rather than tilt it.",
+          "Weak": "Their inability to recover misses leaves too many possessions unfinished.",
+          "Fragile": "Their offensive rebounding offers almost no protection against cold shooting stretches."
         }
       },
       "efg": {
-        "label": "Effective FG %",
-        "role": "shooting efficiency and spacing",
+        "label": "Effective FG%",
+        "role": "shot-making efficiency and scoring conversion",
         "phrases": {
-          "Elite": "elite shooting efficiency and spacing",
-          "Strong": "strong perimeter efficiency and spacing",
-          "Above Average": "above-average shooting efficiency",
-          "Average": "serviceable shooting efficiency",
-          "Weak": "shaky shooting efficiency",
-          "Fragile": "fragile shooting profile"
+          "Elite": "elite shot-making efficiency",
+          "Strong": "strong shot-making efficiency",
+          "Above Average": "above-average shot-making efficiency",
+          "Average": "roughly average shot-making efficiency",
+          "Weak": "limited shot-making efficiency",
+          "Fragile": "fragile shot-making efficiency"
         },
         "back_phrases": {
-          "Elite": "Their shooters and finishers convert at a level that stresses defenses from the opening tip. They pair confident perimeter touch with efficient inside scoring, creating a shot profile that consistently produces high-value returns.",
-          "Strong": "They generate reliable scoring from both the arc and the paint, making opponents respect multiple levels of the floor. Even when contested, their overall accuracy keeps their offense functioning smoothly.",
-          "Above Average": "Their shooting provides a steady lift, with enough perimeter and interior efficiency to support long possessions. When their spacing is clean, they convert chances at a rate that can tilt stretches of play.",
-          "Average": "Their shooting output generally mirrors the quality of looks they create. They can keep pace when the ball moves well, but their accuracy alone does not naturally separate them from most opponents.",
-          "Weak": "They struggle to convert at a strong rate, forcing them to work harder for the same scoring return as more efficient teams. Missed perimeter shots and inconsistent finishing can flatten offensive momentum.",
-          "Fragile": "Their shot-making is unreliable, with poor conversion both at the rim and beyond the arc. Defenses can collapse confidently, knowing this team rarely capitalizes at the rate needed to stay competitive."
+          "Elite": "This team converts scoring chances at an elite level, turning shot quality into real point pressure possession after possession.",
+          "Strong": "The shooting profile is efficient and dependable, allowing this team to cash in on its offensive structure.",
+          "Above Average": "This team usually finishes well enough to keep its offense in productive territory.",
+          "Average": "The shot-making profile is functional but not especially forceful, often needing other areas to create separation.",
+          "Weak": "This team leaves too much scoring value on the table through ordinary shot conversion.",
+          "Fragile": "Poor shot conversion makes the offense vulnerable to droughts and wasted possessions."
         },
         "back_phrases_alt": {
-          "Elite": "Their shot selection and accuracy work seamlessly together, producing clean, high-yield possessions from all levels. Opponents must overextend to contest, knowing that even modest space often becomes efficient scoring.",
-          "Strong": "Their shooting discipline consistently generates quality outcomes. They identify and convert the right shots, maintaining pressure without requiring an exceptional volume of attempts.",
-          "Above Average": "Their shot distribution leans in productive directions, giving them a steady baseline of efficiency. While not overpowering, they reliably turn good looks into points and avoid low-value attempts.",
-          "Average": "Their effectiveness rises and falls with shot quality. They capitalize when possessions unfold cleanly but don’t consistently create the sort of looks that elevate an offense on their own.",
-          "Weak": "Their shooting profile limits how much value they extract from each possession. Contested or lower-quality attempts appear too often, making it difficult to sustain scoring against organized defenses.",
-          "Fragile": "Their shot diet rarely yields efficient returns, as both selection and accuracy struggle to hold up under pressure. Opponents can guard them honestly and still expect favorable outcomes possession to possession."
+          "Elite": "Their shot-making gives the offense real leverage, converting workable possessions into scoreboard pressure at a high rate.",
+          "Strong": "Their scoring efficiency helps the offense travel because clean looks are usually rewarded.",
+          "Above Average": "Their shot-making usually supports the rest of the profile rather than dragging it down.",
+          "Average": "Their shot conversion can hold up, but it rarely imposes itself.",
+          "Weak": "Their offense does not finish efficiently enough to consistently reward its own creation.",
+          "Fragile": "Their shot-making is too thin to support stable offensive control over time."
+        }
+      },
+      "to_inv": {
+        "label": "Turnover Avoidance",
+        "role": "ball security and possession preservation",
+        "phrases": {
+          "Elite": "elite turnover avoidance",
+          "Strong": "strong turnover avoidance",
+          "Above Average": "above-average turnover avoidance",
+          "Average": "roughly average turnover avoidance",
+          "Weak": "shaky turnover avoidance",
+          "Fragile": "fragile turnover avoidance"
+        },
+        "back_phrases": {
+          "Elite": "This team protects possessions exceptionally well, limiting waste and keeping its offense on schedule.",
+          "Strong": "Ball security is a real strength here, helping this team avoid empty trips and disruption.",
+          "Above Average": "This team usually takes care of the ball well enough to support a stable offensive floor.",
+          "Average": "Possession security is mixed, with solid stretches but enough slippage to prevent clear separation.",
+          "Weak": "Turnovers create too much drag on the offense, cutting into otherwise workable possessions.",
+          "Fragile": "Possession waste is a major structural issue here, making sustained offensive rhythm difficult to maintain."
+        },
+        "back_phrases_alt": {
+          "Elite": "Their ball security gives the profile a clean possession backbone, forcing opponents to earn stops instead of receiving them.",
+          "Strong": "Their turnover avoidance helps preserve offensive continuity over long stretches.",
+          "Above Average": "Their ball security is more helpful than harmful in most game environments.",
+          "Average": "Their possession habits can survive, but they do not consistently resist pressure.",
+          "Weak": "Their turnovers add too much internal friction to the offense.",
+          "Fragile": "Their inability to protect possessions leaves the offense vulnerable before the shot even goes up."
+        }
+      },
+      "ftr": {
+        "label": "Free Throw Rate",
+        "role": "foul pressure and line-access creation",
+        "phrases": {
+          "Elite": "elite free-throw pressure",
+          "Strong": "strong free-throw pressure",
+          "Above Average": "above-average free-throw pressure",
+          "Average": "roughly average free-throw pressure",
+          "Weak": "limited free-throw pressure",
+          "Fragile": "fragile free-throw pressure"
+        },
+        "back_phrases": {
+          "Elite": "This team puts real pressure on defenses by generating frequent trips to the line and stressing physical coverage.",
+          "Strong": "Free-throw creation is a meaningful offensive lever, helping this team score efficiently even when shots are not falling cleanly.",
+          "Above Average": "This team gets enough line access to add useful scoring support across a game.",
+          "Average": "The foul-pressure profile is mostly neutral, neither clearly helping nor clearly limiting the offense.",
+          "Weak": "This team does not pressure the rim or defenders enough to generate reliable line value.",
+          "Fragile": "Without meaningful free-throw pressure, the offense becomes too dependent on live-ball shot-making."
+        },
+        "back_phrases_alt": {
+          "Elite": "Their ability to draw fouls gives them a steady scoring release valve when possessions get tight.",
+          "Strong": "Their line pressure adds a dependable secondary scoring path.",
+          "Above Average": "Their free-throw creation usually gives the offense some structural support.",
+          "Average": "Their foul pressure tends to blend into the background rather than shape the game.",
+          "Weak": "Their offense lacks the line-access pressure needed to stabilize tougher stretches.",
+          "Fragile": "Their inability to earn free points leaves too much offensive burden on jump-shot conversion."
         }
       },
       "def_efg": {
-        "label": "Defensive eFG %",
-        "role": "shot suppression",
+        "label": "Opponent eFG Suppression",
+        "role": "shot suppression and defensive shot-quality resistance",
         "phrases": {
-          "Elite": "elite suppression of opponent shot quality",
-          "Strong": "strong shot suppression",
-          "Above Average": "solid shot contesting",
-          "Average": "serviceable shot defense",
-          "Weak": "a defense that gives up clean looks",
-          "Fragile": "a defense that consistently surrenders efficient shots"
+          "Elite": "elite opponent shot suppression",
+          "Strong": "strong opponent shot suppression",
+          "Above Average": "above-average opponent shot suppression",
+          "Average": "roughly average opponent shot suppression",
+          "Weak": "vulnerable opponent shot suppression",
+          "Fragile": "fragile opponent shot suppression"
         },
         "back_phrases": {
-          "Elite": "This defense consistently forces opponents into low-value attempts, taking away clean looks both at the rim and from the perimeter. Their contests are disciplined and disruptive, making efficient scoring unusually difficult.",
-          "Strong": "They limit the quality of opponent shots with solid positioning and timely contests. Opponents rarely find extended rhythm, and clean looks tend to be the exception rather than the norm.",
-          "Above Average": "They defend with enough structure to make opponents work for strong chances. While not suffocating, they contest well and generally prevent opponents from finding easy scoring outlets.",
-          "Average": "They can hold up when connected, but their shot defense doesn’t consistently erase opponent strengths. Good execution still generates workable looks against them, especially over longer stretches.",
-          "Weak": "They allow too many comfortable attempts, giving opponents clean windows at the rim or in space. Once a team finds rhythm, this defense struggles to break possessions apart.",
-          "Fragile": "Opponents generate high-value shots with regularity, facing little resistance at key moments. This defense rarely forces difficult decisions, allowing efficient scoring to build quickly and repeatedly."
+          "Elite": "This defense consistently reduces opponent conversion quality, forcing difficult scoring conditions over time.",
+          "Strong": "The defense does a strong job shrinking clean windows and keeping opponent efficiency in check.",
+          "Above Average": "This team usually makes opponents work for quality conversion, even if not at a dominant level.",
+          "Average": "The shot-suppression profile is serviceable but not forceful, often depending on the matchup to hold shape.",
+          "Weak": "Opponents find too many efficient scoring windows against this defense.",
+          "Fragile": "This defense struggles badly to suppress efficient shot-making, leaving it exposed to sustained scoring pressure."
         },
         "back_phrases_alt": {
-          "Elite": "They consistently erase high-quality attempts, forcing opponents into uncomfortable angles or rushed releases. Few teams can maintain rhythm against this level of shot disruption.",
-          "Strong": "They limit the value of opponent looks with steady contests and disciplined positioning. Even when opponents execute well, clean windows are hard to come by for long stretches.",
-          "Above Average": "They regularly challenge primary options and steer offenses into less efficient shots. While not entirely suffocating, their presence makes opponents work harder than usual for good outcomes.",
-          "Average": "They can hold their ground against standard actions, though stronger offenses may still find dependable looks. Their shot defense helps in spurts but doesn’t consistently tilt the floor.",
-          "Weak": "They allow opponents to reach comfortable scoring spots too frequently. Contest quality varies, creating stretches where opposing offenses operate with little resistance.",
-          "Fragile": "They provide minimal deterrence at the point of attack or in space, giving up clean, in-rhythm attempts throughout the game. Opponents often dictate terms without significant adjustment required."
+          "Elite": "Their defensive shot suppression gives opponents very little easy scoring air.",
+          "Strong": "Their defense usually forces harder-than-normal conversion conditions.",
+          "Above Average": "Their resistance is real enough to keep games manageable in most matchups.",
+          "Average": "Their shot suppression can survive, but it does not consistently tilt control.",
+          "Weak": "Their defense leaves too many clean scoring outcomes available.",
+          "Fragile": "Their inability to suppress efficient offense makes the rest of the defensive structure hard to protect."
         }
       },
-      "epr": {
-        "label": "Effective Possession Ratio",
-        "role": "possession stability",
+      "drb": {
+        "label": "Defensive Rebounding",
+        "role": "ending possessions and denying second chances",
         "phrases": {
-          "Elite": "elite possession stability",
-          "Strong": "strong control of possessions",
-          "Above Average": "solid possession management",
-          "Average": "roughly average possession control",
-          "Weak": "possession-control concerns",
-          "Fragile": "fragile possession structure"
+          "Elite": "elite defensive rebounding",
+          "Strong": "strong defensive rebounding",
+          "Above Average": "above-average defensive rebounding",
+          "Average": "roughly average defensive rebounding",
+          "Weak": "limited defensive rebounding",
+          "Fragile": "fragile defensive rebounding"
         },
         "back_phrases": {
-          "Elite": "Their possessions are remarkably stable, rarely ending without a meaningful scoring chance. They value the ball, stay organized under pressure, and string together productive trips that wear opponents down over time.",
-          "Strong": "They manage possessions with confidence, routinely creating chances or earning free throws rather than wasting trips. Even when tempo rises, they maintain enough control to stay in rhythm.",
-          "Above Average": "They show generally steady possession habits, avoiding long stretches of empty trips. Their structure holds up well when the offense is flowing, though they may need alignment in spacing or pacing to sustain it.",
-          "Average": "Their possession control mirrors the flow of the game. When organized, they create clean chances, but lapses in spacing or decision-making can lead to uneven stretches that level out their impact.",
-          "Weak": "They experience too many possessions that fail to produce pressure, whether through turnovers, stalled actions, or poor late-clock decisions. These gaps make it difficult to sustain momentum against steady opponents.",
-          "Fragile": "Their possession structure unravels easily, leading to frequent empty trips that compound quickly. Opponents can disrupt them with modest resistance, and they struggle to generate reliable opportunities across a full game."
+          "Elite": "This team consistently finishes defensive possessions by clearing the glass and denying extra chances.",
+          "Strong": "Defensive rebounding is a reliable stabilizer, helping this team protect stops once they are earned.",
+          "Above Average": "This team rebounds well enough defensively to avoid giving away too much second-chance damage.",
+          "Average": "The defensive rebounding profile is mostly neutral, unlikely to swing the game on its own.",
+          "Weak": "Too many stops remain unfinished because this team gives back possessions on the glass.",
+          "Fragile": "Defensive rebounding is a real structural liability, allowing opponents to extend too many trips."
         },
         "back_phrases_alt": {
-          "Elite": "Their possessions stay remarkably clean, with few wasted trips and steady conversion of opportunities. This stability shapes game flow, giving them control even before shot-making comes into play.",
-          "Strong": "They manage possessions with discipline, keeping empty trips to a minimum and maintaining forward pressure. Opponents rarely gain extra chances or easy momentum off their mistakes.",
-          "Above Average": "Their possession structure is generally reliable, producing more productive trips than damaging ones. While not airtight, it provides a consistent enough backbone to support their broader style.",
-          "Average": "Their trips vary in quality, mixing solid sequences with occasional breakdowns. They can maintain balance, but they don’t consistently generate the clean possessions that separate stronger teams.",
-          "Weak": "Their possession outcomes often drift off-script, with too many trips failing to create pressure. This inconsistency forces them to rely on hot shooting or matchup breaks to stay level.",
-          "Fragile": "Their possessions unravel frequently, limiting their ability to sustain runs or control tempo. Empty or chaotic trips accumulate quickly, putting immediate stress on every other phase of their profile."
+          "Elite": "Their defensive rebounding consistently closes possessions cleanly and protects the integrity of the defense.",
+          "Strong": "Their work on the glass helps translate good defense into actual possession wins.",
+          "Above Average": "Their defensive rebounding usually holds up well enough to support the broader profile.",
+          "Average": "Their defensive rebounding tends to mirror the game rather than control it.",
+          "Weak": "Their inability to finish stops leaves the defense too vulnerable to extra-possession stress.",
+          "Fragile": "Their defensive rebounding gives opponents too many second lives to sustain control."
         }
       },
-      "to": {
-        "label": "Turnover %",
-        "role": "ball security",
+      "opp_to": {
+        "label": "Forcing Turnovers",
+        "role": "disruption, pressure, and possession theft",
         "phrases": {
-          "Elite": "elite ball security",
-          "Strong": "strong ball protection",
-          "Above Average": "reliable ball handling",
-          "Average": "manageable turnover profile",
-          "Weak": "turnover issues that can stall runs",
-          "Fragile": "severe turnover risk"
+          "Elite": "elite turnover creation",
+          "Strong": "strong turnover creation",
+          "Above Average": "above-average turnover creation",
+          "Average": "roughly average turnover creation",
+          "Weak": "limited turnover creation",
+          "Fragile": "fragile turnover creation"
         },
         "back_phrases": {
-          "Elite": "This team protects the ball with exceptional poise, rarely offering opponents free possessions. Their offense stays organized under pressure, allowing them to fully capitalize on the scoring chances they create.",
-          "Strong": "They show reliable ball security, keeping turnovers to a manageable level even when the game speeds up. Their possessions stay intact, and opponents struggle to generate easy transition opportunities.",
-          "Above Average": "They generally handle the ball well, avoiding the kind of mistakes that stall momentum. Turnovers pop up occasionally but rarely define long stretches of their offensive flow.",
-          "Average": "Their ball control fluctuates with game rhythm. They can execute cleanly for long stretches, but pressure or pace can push them into pockets of sloppiness that level out their offensive impact.",
-          "Weak": "Turnovers interrupt their possessions too frequently, cutting off scoring chances and feeding opponent runs. They struggle to maintain rhythm when defenses apply consistent pressure.",
-          "Fragile": "Their ball security breaks down easily, leading to frequent giveaways that opponents convert into immediate scoring threats. These mistakes disrupt their entire offensive structure and create uphill battles."
+          "Elite": "This defense actively disrupts opponents, generating takeaways and breaking offensive flow.",
+          "Strong": "Turnover creation gives this team a real pressure channel, adding extra possessions and defensive leverage.",
+          "Above Average": "This team creates enough disruption to meaningfully support the defense.",
+          "Average": "The pressure profile is mixed, with some disruption but no consistent possession-theft edge.",
+          "Weak": "This defense does not force enough mistakes to create meaningful disruption value.",
+          "Fragile": "Opponents operate with too much comfort because this defense rarely steals possessions through pressure."
         },
         "back_phrases_alt": {
-          "Elite": "They protect the ball with remarkable consistency, keeping opponents from gaining free possessions or transition chances. Their offense stays connected because they rarely surrender control of the possession.",
-          "Strong": "Their ball security holds firm under typical pressure, allowing them to run their sets cleanly and stay on schedule. Opponents must work to create mistakes rather than waiting for them to appear.",
-          "Above Average": "They generally manage the ball well, limiting the kinds of giveaways that swing momentum. While not flawless, their turnover profile supports steady offensive flow.",
-          "Average": "Their ball handling is serviceable, mixing stable stretches with occasional lapses. They can maintain rhythm when focused, though they don’t provide a built-in safety net against pressure.",
-          "Weak": "Their giveaways show up often enough to interrupt runs and stall possessions. Opponents gain extra chances without having to overextend, narrowing the margin for any offensive efficiency they create.",
-          "Fragile": "They struggle to keep possession intact, with turnovers emerging from both pressure and routine situations. These breakdowns place constant strain on their offense and feed opponents easy scoring opportunities."
+          "Elite": "Their defensive pressure regularly breaks possession structure and creates immediate leverage.",
+          "Strong": "Their turnover creation gives the defense a live disruptive edge.",
+          "Above Average": "Their pressure usually contributes something useful, even if it is not overwhelming.",
+          "Average": "Their disruption comes and goes without clearly defining the profile.",
+          "Weak": "Their defense lacks the pressure needed to regularly distort opponent possessions.",
+          "Fragile": "Their inability to force mistakes leaves opponents too free to play cleanly."
+        }
+      },
+      "opp_ftr": {
+        "label": "Free Throw Prevention",
+        "role": "foul discipline and line denial",
+        "phrases": {
+          "Elite": "elite free-throw prevention",
+          "Strong": "strong free-throw prevention",
+          "Above Average": "above-average free-throw prevention",
+          "Average": "roughly average free-throw prevention",
+          "Weak": "shaky free-throw prevention",
+          "Fragile": "fragile free-throw prevention"
+        },
+        "back_phrases": {
+          "Elite": "This defense stays disciplined while still competing, denying opponents easy points at the line.",
+          "Strong": "Foul discipline is a real asset here, helping this team avoid giving away efficient scoring chances.",
+          "Above Average": "This team generally keeps opponent line access in check well enough to support its defense.",
+          "Average": "The foul-discipline profile is mostly neutral, with neither major control nor major exposure.",
+          "Weak": "This defense gives up too many free-throw opportunities, softening otherwise decent possessions.",
+          "Fragile": "Poor foul discipline creates an easy scoring pathway for opponents and undermines defensive stability."
+        },
+        "back_phrases_alt": {
+          "Elite": "Their defensive discipline protects the paint and the whistle at the same time.",
+          "Strong": "Their line denial helps keep opponents from cashing in on contact.",
+          "Above Average": "Their foul discipline usually works in their favor over a full game.",
+          "Average": "Their free-throw prevention tends to sit in the middle without strongly shaping outcomes.",
+          "Weak": "Their foul profile gives back too many cheap points.",
+          "Fragile": "Their inability to stay out of the bonus leaves the defense structurally exposed."
         }
       }
     },
     "support_phrases": {
-      "two_plus_elite": "With multiple elite core metrics, this profile tends to travel well into tougher rounds.",
-      "one_elite_plus_depth": "One standout core strength supported by several solid traits gives this team a stable identity.",
-      "balanced": "Even without a single overwhelming strength, the balance across the core metrics keeps the floor reasonably high.",
-      "polarized": "The gap between the best and weakest cores creates a polarized profile that can look very different game-to-game."
+      "two_plus_elite": "With multiple elite possession battlefields, this profile has several ways to carry control.",
+      "one_elite_plus_depth": "One major battlefield advantage supported by several solid areas gives this team a stable structural base.",
+      "balanced": "Even without one overwhelming spike, the profile can still hold shape through balance across the possession battlefields.",
+      "polarized": "The gap between the strongest and weakest battlefields creates a more volatile structural profile."
+    }
+  },
+  "mi_efficiency_explain": {
+    "section_label": "MI Efficiency Metrics",
+    "metrics": {
+      "mi_off_eff_base": {
+        "label": "Offensive Signal",
+        "bands": {
+          "strong_positive": "This team brings a strong offensive signal into the game, with its base possession profile creating real scoring pressure before matchup effects are even applied.",
+          "positive": "This team carries a positive offensive signal, giving it a workable scoring foundation across its core offensive drivers.",
+          "neutral": "The offensive signal is fairly neutral, so this side is not bringing a clear built-in scoring push from its base possession profile alone.",
+          "negative": "The offensive signal is below field level, meaning this team starts from a weaker scoring foundation before any matchup-specific lift shows up.",
+          "strong_negative": "This team enters with a clearly negative offensive signal, leaving its scoring profile under real pressure at the foundation level."
+        }
+      },
+      "mi_def_eff_base": {
+        "label": "Defensive Signal",
+        "bands": {
+          "strong_positive": "This team carries a strong defensive signal, giving it multiple ways to make offense harder before matchup effects are layered in.",
+          "positive": "The defensive signal is positive, pointing to a base profile that can hold up and force tougher possessions.",
+          "neutral": "The defensive signal is close to neutral, so the profile does not start with a major built-in edge in controlling opponent offense.",
+          "negative": "The defensive signal is below field level, which means opponents are more likely to find workable offense against the base profile.",
+          "strong_negative": "This team comes in with a clearly negative defensive signal, leaving the foundation vulnerable before matchup-specific resistance can help."
+        }
+      },
+      "mi_eff_margin_base": {
+        "label": "Combined Margin",
+        "bands": {
+          "strong_positive": "Taken together, the offensive and defensive signals produce a strong combined margin, giving this team a sturdy possession-level base profile.",
+          "positive": "The combined margin is positive, so this team starts from the stronger overall possession base.",
+          "neutral": "The combined margin sits near the middle, leaving the broader possession foundation relatively balanced.",
+          "negative": "The combined margin is negative, so this team begins from a weaker overall possession base than the field average.",
+          "strong_negative": "The combined margin is clearly negative, showing a possession-level foundation that gives back too much ground before other layers of the model step in."
+        }
+      }
     }
   },
   "core_profile": {
@@ -1320,6 +1417,7 @@
       "S16": "In the Sweet 16, structural strengths and weaknesses tend to show up more reliably over 40 minutes.",
       "E8": "In the Elite Eight, a strong MI tier often reflects both quality and survivor bias from earlier rounds.",
       "F4": "Final Four matchups exaggerate tiny gaps; any edge here is real but not deterministic.",
+      "First4": "In the First Four, this is best read as a play-in environment: early-round pressure, but without a true favorite-versus-Cinderella identity lens.",
       "Champ": "In the title game, the Madness Index behaves more like a probability nudge than a guarantee."
     },
     "driver_phrases": {
@@ -1338,7 +1436,7 @@
     "defaults": {
       "pair_count_default": 1,
       "pair_count_if_top_driver": 2,
-      "pair_count_if_strength_at_least": "moderate",
+      "pair_count_if_strength_at_least": "thin",
       "matchup_anchor_required": true,
       "ambiguity_required": true
     }

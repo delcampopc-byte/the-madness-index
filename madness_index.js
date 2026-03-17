@@ -147,6 +147,8 @@ function applyCopyToDOM(copy) {
 
     if (typeof value === 'string') {
       el.textContent = value;
+    } else if (Array.isArray(value)) {
+      el.textContent = value.filter(Boolean).join(' ');
     }
   });
 }
@@ -451,7 +453,6 @@ function loadCopyJSON() {
       miRenderPatchNotesFromCopy(data);
       buildGlossaryFromCopy(data);
       populateBackExplanations(data);
-      populateInteractionsHowToList(data);
 
       // 🔁 Glossary arrives empty on first init — refresh once copy exists
       if (typeof window.miRefreshGlossary === 'function') {
@@ -773,40 +774,57 @@ function buildGlossaryFromCopy(copy) {
   });
 }
 
-// Map internal core keys to the keys we store in JSON (core_explain.metrics)
-// All 8 core traits from team.coreDetails:
-const CORE_KEYS_FOR_EXPLAIN = [
-  'offeff',   // Offensive Efficiency
-  'defeff',   // Defensive Efficiency
-  'adjem',    // Adjusted Efficiency Margin
-  'ts',       // True Shooting %
-  'efg',      // Effective FG %
-  'def_efg',  // Defensive eFG %
-  'epr',      // Effective Possession Ratio
-  'to'        // Turnover %
-];
+function getCoreExplainKeys(team, copy) {
+  const cx = copy && copy.core_explain ? copy.core_explain : {};
+  const jsonOrder = Array.isArray(cx.metric_order) ? cx.metric_order.filter(Boolean) : [];
 
-// getCoreTierForMetric(team, key) { Reads team.coreDetails to find the row for a given core metric key and returns its tier label (“Elite”, “Strong”, etc.), or null if missing.
+  if (jsonOrder.length) return jsonOrder;
 
-function getCoreTierForMetric(team, key) {
- 
-  if (!team.coreDetails) return null;
-  const row = team.coreDetails.find(r => r.key === key);
-  return row ? row.tier : null;
+  if (team && Array.isArray(team.coreDetails) && team.coreDetails.length) {
+    return team.coreDetails.map(row => row.key).filter(Boolean);
+  }
+
+  if (Array.isArray(CORE_KEYS_FOR_EXPLAIN) && CORE_KEYS_FOR_EXPLAIN.length) {
+    return CORE_KEYS_FOR_EXPLAIN;
+  }
+
+  return [];
 }
 
-// Generates the full core-traits scouting paragraph for one team by looping through the 8 core metrics and stitching together tier-aware back_phrases (plus the breadth sentence).
+function getBreadthTierFromValue(value) {
+  const v = Number(value);
+  if (!Number.isFinite(v)) return null;
+
+  if (v >= 0.135) return 'Elite';
+  if (v >= 0.105) return 'Strong';
+  if (v >= 0.060) return 'Above Average';
+  if (v >= 0.010) return 'Average';
+  if (v >= -0.020) return 'Weak';
+  return 'Fragile';
+}
+
+function getCoreTierForMetric(team, key) {
+  if (!team) return null;
+
+  if (key === 'off_breadth') {
+    return getBreadthTierFromValue(team.offBreadth);
+  }
+
+  if (key === 'def_breadth') {
+    return getBreadthTierFromValue(team.defBreadth);
+  }
+
+  if (!Array.isArray(team.coreDetails)) return null;
+  const row = team.coreDetails.find(r => r && r.key === key);
+  return row && row.tier ? row.tier : null;
+}
 
 function buildCoreBackTextForTeam(team, copy, variantMap) {
   if (!team || !copy || !copy.core_explain) return '';
 
   const cx = copy.core_explain;
   const metricsConfig = cx.metrics || {};
-
-  // Prefer explicit ordering from JSON if present, otherwise fall back
-  const metricKeys = Array.isArray(cx.metric_order) && cx.metric_order.length
-    ? cx.metric_order
-    : CORE_KEYS_FOR_EXPLAIN;
+  const metricKeys = getCoreExplainKeys(team, copy);
 
   const sentences = [];
 
@@ -814,11 +832,14 @@ function buildCoreBackTextForTeam(team, copy, variantMap) {
     const cfg = metricsConfig[key];
     if (!cfg) return;
 
-    const tier = getCoreTierForMetric(team, key); // "Elite", "Strong", etc.
+    const tier = getCoreTierForMetric(team, key);
     if (!tier) return;
 
-    // Should this metric use the alt phrase for this team?
-    const useAlt = !!(variantMap && Object.prototype.hasOwnProperty.call(variantMap, key) && variantMap[key]);
+    const useAlt = !!(
+      variantMap &&
+      Object.prototype.hasOwnProperty.call(variantMap, key) &&
+      variantMap[key]
+    );
 
     const sentence = selectCoreBackSentence(cfg, tier, useAlt);
     if (sentence) {
@@ -826,14 +847,13 @@ function buildCoreBackTextForTeam(team, copy, variantMap) {
     }
   });
 
-  // Nothing resolved → fallback template
   if (!sentences.length) {
-    const fallback = cx.fallback_template ||
-      '{{team}} shows a generally balanced core profile with no extreme strengths or weaknesses.';
+    const fallback =
+      cx.fallback_template ||
+      '{{team}} shows a generally balanced cross-domain profile.';
     return fallback.replace('{{team}}', team.name || 'This team');
   }
 
-  // Optional paragraph prefix (includes team name once)
   let paragraph = sentences.join(' ');
   if (cx.paragraph_prefix) {
     const prefix = cx.paragraph_prefix.replace('{{team}}', team.name || 'This team');
@@ -843,30 +863,23 @@ function buildCoreBackTextForTeam(team, copy, variantMap) {
   return paragraph.trim();
 }
 
-// For a given metric config, tier, and variant flag, returns the appropriate back-phrase string. Handles primary vs. alternate phrases and fallback behavior.
-
 function selectCoreBackSentence(cfg, tier, useAltVariant) {
   if (!cfg || !tier) return '';
 
   const baseMap = cfg.back_phrases || {};
-  const altMap  = cfg.back_phrases_alt || {};
+  const altMap = cfg.back_phrases_alt || {};
 
   let sentence = '';
 
-  // 1) Try alternate phrase if flagged and available
-  if (useAltVariant && altMap && typeof altMap[tier] === 'string') {
+  if (useAltVariant && typeof altMap[tier] === 'string') {
     const trimmed = altMap[tier].trim();
-    if (trimmed) {
-      sentence = trimmed;
-    }
+    if (trimmed) sentence = trimmed;
   }
 
-  // 2) Fallback to primary back_phrases
-  if (!sentence && baseMap && typeof baseMap[tier] === 'string') {
+  if (!sentence && typeof baseMap[tier] === 'string') {
     sentence = baseMap[tier];
   }
 
-  // 3) Final fallback: short tier phrase as a sentence
   if (!sentence && cfg.phrases && typeof cfg.phrases[tier] === 'string') {
     sentence = cfg.phrases[tier];
     if (!/[.!?]\s*$/.test(sentence)) {
@@ -877,77 +890,12 @@ function selectCoreBackSentence(cfg, tier, useAltVariant) {
   return sentence;
 }
 
-// Builds a structured representation of the team’s core explanation: an array of { key, label, tier, text } objects for the UI bullet layout instead of one long string.
-
-function buildCoreBackStructured(team, copy) {
-  if (!team || !copy || !copy.core_explain) return [];
-
-  const cx = copy.core_explain;
-  const metricsConfig = cx.metrics || {};
-
-  // Use JSON ordering if present, otherwise fall back to the hard-coded array
-  const metricKeys = Array.isArray(cx.metric_order) && cx.metric_order.length
-    ? cx.metric_order
-    : CORE_KEYS_FOR_EXPLAIN;
-
-  const out = [];
-
-  metricKeys.forEach(key => {
-    const cfg = metricsConfig[key];
-    if (!cfg) return;
-
-    const tier = getCoreTierForMetric(team, key); // "Elite", "Strong", etc.
-    if (!tier) return;
-
-    // Prefer the long back phrase; fall back to the short phrase if needed
-    const phrase =
-      (cfg.back_phrases && cfg.back_phrases[tier]) ||
-      (cfg.phrases && cfg.phrases[tier]);
-
-    if (!phrase) return;
-
-    out.push({
-      label: cfg.label || key, // e.g. "Offensive Efficiency"
-      text: phrase             // the sentence you already wrote in JSON
-    });
-  });
-
-  return out;
-}
-
-// Convenience wrapper: calls buildCoreBackStructured for a team and tile, then pipes that into renderCoreBackList to render the list inside the specified element.
-
-function renderStructuredCoreBack(el, items) {
-  if (!el) return;
-
-  // Clear anything that was there before
-  el.innerHTML = "";
-
-  items.forEach(item => {
-    const block = document.createElement("div");
-    block.className = "core-back-block";
-
-    block.innerHTML = `
-      <div class="core-back-label">${item.label}</div>
-      <div class="core-back-text">${item.text}</div>
-    `;
-
-    el.appendChild(block);
-  });
-}
-
-// Core worker for structured backs: uses getCoreTierForMetric + JSON config to return the array of items { key, label, tier, text } in display order.
-
 function buildCoreBackItemsForTeam(team, copy, variantMap) {
   if (!team || !copy || !copy.core_explain) return [];
 
   const cx = copy.core_explain;
   const metricsConfig = cx.metrics || {};
-
-  // Prefer explicit JSON ordering if present, fall back to CORE_KEYS_FOR_EXPLAIN
-  const metricKeys = Array.isArray(cx.metric_order) && cx.metric_order.length
-    ? cx.metric_order
-    : CORE_KEYS_FOR_EXPLAIN;
+  const metricKeys = getCoreExplainKeys(team, copy);
 
   const items = [];
 
@@ -955,41 +903,33 @@ function buildCoreBackItemsForTeam(team, copy, variantMap) {
     const cfg = metricsConfig[key];
     if (!cfg) return;
 
-    const tier = getCoreTierForMetric(team, key); // "Elite", "Strong", etc.
+    const tier = getCoreTierForMetric(team, key);
     if (!tier) return;
 
-    // Prefer label from team.coreDetails (matches Core Traits table UI)
-    let label = key;
+    let label = cfg.label || key;
+
     if (Array.isArray(team.coreDetails)) {
-      const row = team.coreDetails.find(r => r.key === key);
+      const row = team.coreDetails.find(r => r && r.key === key);
       if (row && row.label) {
         label = row.label;
       }
-    } else if (cfg.label) {
-      // Optional: if you later store a label in JSON
-      label = cfg.label;
     }
 
-    // Decide whether to use the alt phrase for this metric
     const useAlt = !!(
       variantMap &&
       Object.prototype.hasOwnProperty.call(variantMap, key) &&
       variantMap[key]
     );
 
-    // Try to pull the tiered back phrase (primary/alt) using the same helper
     let text = selectCoreBackSentence(cfg, tier, useAlt);
 
-    // Fallback: if no back_phrases exist, use the shorter "phrases" map
     if (!text) {
       const baseMap = cfg.phrases || {};
       text = (baseMap[tier] || '').trim();
     }
 
-    // If we still don't have anything, skip this metric
     if (!text) return;
 
-    // Ensure each row ends with punctuation
     if (!/[.!?]\s*$/.test(text)) {
       text += '.';
     }
@@ -1005,68 +945,161 @@ function buildCoreBackItemsForTeam(team, copy, variantMap) {
   return items;
 }
 
-// Given a DOM container and the structured core items, builds a <ul> where each item shows metric label, tier pill, and explanation text.
+function getMiEfficiencyBand(value) {
+  const v = Number(value);
+  if (!Number.isFinite(v)) return 'neutral';
 
-function renderCoreBackList(containerId, items, fallbackText) {
+  if (v >= 0.75) return 'strong_positive';
+  if (v >= 0.15) return 'positive';
+  if (v <= -0.75) return 'strong_negative';
+  if (v <= -0.15) return 'negative';
+  return 'neutral';
+}
+
+function buildMiEfficiencyBackItemsForTeam(team, copy) {
+  const cfg = copy && copy.mi_efficiency_explain ? copy.mi_efficiency_explain : null;
+  if (!team || !cfg || !cfg.metrics) return [];
+
+  const defs = [
+    {
+      key: 'mi_off_eff_base',
+      value: team.miOffEffBase,
+      fallbackValue: team.mi_off_eff_base
+    },
+    {
+      key: 'mi_def_eff_base',
+      value: team.miDefEffBase,
+      fallbackValue: team.mi_def_eff_base
+    },
+    {
+      key: 'mi_eff_margin_base',
+      value: team.miEffMarginBase,
+      fallbackValue: team.mi_eff_margin_base
+    }
+  ];
+
+  return defs.map(def => {
+    const metricCfg = cfg.metrics[def.key];
+    if (!metricCfg) return null;
+
+    const rawValue = Number.isFinite(def.value) ? def.value : def.fallbackValue;
+    const value = Number.isFinite(rawValue) ? rawValue : 0;
+    const band = getMiEfficiencyBand(value);
+
+    return {
+      key: def.key,
+      label: metricCfg.label || def.key,
+      value,
+      band,
+      text: (metricCfg.bands && metricCfg.bands[band]) || ''
+    };
+  }).filter(Boolean);
+}
+
+function renderCoreBackComposite(containerId, coreItems, effItems, fallbackText, sectionLabel) {
   const container = document.getElementById(containerId);
   if (!container) return;
 
-  // Clear any previous content
   container.innerHTML = '';
 
-  // If for some reason we have no items, fall back to the paragraph version
-  if (!items || !items.length) {
-    if (fallbackText) {
-      container.textContent = fallbackText;
-    }
+  const hasCore = Array.isArray(coreItems) && coreItems.length;
+  const hasEff = Array.isArray(effItems) && effItems.length;
+
+  if (!hasCore && !hasEff) {
+    if (fallbackText) container.textContent = fallbackText;
     return;
   }
 
-  const ul = document.createElement('ul');
-  ul.className = 'core-back-list';
+  const wrap = document.createElement('div');
+  wrap.className = 'core-back-container';
 
-  items.forEach(item => {
-    const li = document.createElement('li');
-    li.className = 'core-back-item';
-    li.innerHTML = `
-      <div class="core-back-header">
-        <span class="core-back-metric">${item.label}</span>
-        <span class="core-back-tier">${item.tier}</span>
-      </div>
-      <div class="core-back-text">${item.text}</div>
-    `;
-    ul.appendChild(li);
-  });
+  if (hasCore) {
+    const mainSection = document.createElement('div');
+    mainSection.className = 'core-back-main-section';
 
-  container.appendChild(ul);
+    const mainLabel = document.createElement('div');
+    mainLabel.className = 'core-back-main-label';
+    mainLabel.textContent = 'Core Traits Profile';
+    mainSection.appendChild(mainLabel);
+
+    const ul = document.createElement('ul');
+    ul.className = 'core-back-list';
+
+    coreItems.forEach(item => {
+      const li = document.createElement('li');
+      li.className = 'core-back-item';
+      li.innerHTML = `
+        <div class="core-back-header">
+          <span class="core-back-metric">${item.label}</span>
+          <span class="core-back-tier">${item.tier}</span>
+        </div>
+        <div class="core-back-text">${item.text}</div>
+      `;
+      ul.appendChild(li);
+    });
+
+    mainSection.appendChild(ul);
+    wrap.appendChild(mainSection);
+  }
+
+  if (hasEff) {
+    const effWrap = document.createElement('div');
+    effWrap.className = 'core-back-eff-section';
+
+    const effLabel = document.createElement('div');
+    effLabel.className = 'core-back-eff-label';
+    effLabel.textContent = sectionLabel || 'MI Efficiency Metrics';
+    effWrap.appendChild(effLabel);
+
+    const effList = document.createElement('ul');
+    effList.className = 'core-back-list core-back-eff-list';
+
+    effItems.forEach(item => {
+      const li = document.createElement('li');
+      li.className = 'core-back-item core-back-eff-item';
+      li.setAttribute('data-band', item.band);
+      li.innerHTML = `
+        <div class="core-back-header">
+          <span class="core-back-metric">${item.label}</span>
+        </div>
+        <div class="core-back-text">${item.text}</div>
+      `;
+      effList.appendChild(li);
+    });
+
+    effWrap.appendChild(effList);
+    wrap.appendChild(effWrap);
+  }
+
+  container.appendChild(wrap);
 }
 
 function pickCoreSupportPhraseKey(team) {
-  if (!team || !team.coreZ) return 'balanced';
+  const rows = Array.isArray(team?.coreDomainDetails) ? team.coreDomainDetails : [];
+  if (!rows.length) return 'balanced';
 
-  const vals = Object.values(team.coreZ).filter(v => typeof v === 'number');
+  const vals = rows
+    .map(row => row && typeof row.value === 'number' ? row.value : null)
+    .filter(v => Number.isFinite(v));
+
   if (!vals.length) return 'balanced';
 
-  const eliteCount  = vals.filter(v => v >= 1.0).length;
+  const eliteCount = vals.filter(v => v >= 1.0).length;
   const strongCount = vals.filter(v => v >= 0.8 && v < 1.0).length;
 
-  // FIXED: spread the array into Math.min / Math.max
   const worst = Math.min(...vals);
-  const best  = Math.max(...vals);
+  const best = Math.max(...vals);
 
   if (eliteCount >= 2) return 'two_plus_elite';
   if (eliteCount >= 1 && (eliteCount + strongCount) >= 3) return 'one_elite_plus_depth';
-  if (best - worst >= 1.5) return 'polarized';
+  if ((best - worst) >= 1.5) return 'polarized';
   return 'balanced';
 }
 
 function buildCoreVariantMaps(result, copy) {
   const cx = copy.core_explain;
   const metricsConfig = cx.metrics || {};
-
-  const metricKeys = Array.isArray(cx.metric_order) && cx.metric_order.length
-    ? cx.metric_order
-    : CORE_KEYS_FOR_EXPLAIN;
+  const metricKeys = getCoreExplainKeys(result?.a, copy);
 
   const variantsA = {};
   const variantsB = {};
@@ -1079,16 +1112,13 @@ function buildCoreVariantMaps(result, copy) {
     const tierB = getCoreTierForMetric(result.b, key);
     if (!tierA || !tierB) return;
 
-    // Only care when both teams are in the same tier for this metric
     if (tierA !== tierB) return;
 
     const altMap = cfg.back_phrases_alt || {};
-    const alt = altMap && typeof altMap[tierA] === 'string' ? altMap[tierA].trim() : '';
+    const alt = typeof altMap[tierA] === 'string' ? altMap[tierA].trim() : '';
 
-    // If no alt is provided for this tier, just skip – both sides use primary
     if (!alt) return;
 
-    // Design choice: Team A uses primary, Team B uses alt when both are same tier
     variantsA[key] = false;
     variantsB[key] = true;
   });
@@ -1100,10 +1130,8 @@ function updateCoreBacksForResult(result) {
   const copy = window.MI_COPY;
   if (!copy || !copy.core_explain || !result || !result.a || !result.b) return;
 
-  // 1) Decide which metrics use alt phrases for each team
   const { variantsA, variantsB } = buildCoreVariantMaps(result, copy);
 
-  // 2) Build the long paragraph text for each team (full-card backs)
   const textA = buildCoreBackTextForTeam(result.a, copy, variantsA);
   const textB = buildCoreBackTextForTeam(result.b, copy, variantsB);
 
@@ -1113,98 +1141,145 @@ function updateCoreBacksForResult(result) {
   if (cardBackA) cardBackA.textContent = textA || '';
   if (cardBackB) cardBackB.textContent = textB || '';
 
-  // 3) Build metric-aware rows for the flip tiles
   const itemsA = buildCoreBackItemsForTeam(result.a, copy, variantsA);
   const itemsB = buildCoreBackItemsForTeam(result.b, copy, variantsB);
 
-  // These use the new metric/tier layout:
-  // - metric label top-left
-  // - tier pill top-right
-  // - JSON phrase underneath
-  renderCoreBackList('backCoreTileA', itemsA, textA);
-  renderCoreBackList('backCoreTileB', itemsB, textB);
+  const effItemsA = buildMiEfficiencyBackItemsForTeam(result.a, copy);
+  const effItemsB = buildMiEfficiencyBackItemsForTeam(result.b, copy);
+
+  const sectionLabel =
+    (copy.mi_efficiency_explain && copy.mi_efficiency_explain.section_label) ||
+    'MI Efficiency Metrics';
+
+  renderCoreBackComposite('backCoreTileA', itemsA, effItemsA, textA, sectionLabel);
+  renderCoreBackComposite('backCoreTileB', itemsB, effItemsB, textB, sectionLabel);
 }
 
 function buildBreadthBackTextForTeam(team, copy) {
   if (!team || !copy || !copy.breadth_explain) return '';
 
   const bx = copy.breadth_explain;
-  const template = bx.template || "{{team}}’s breadth score reflects {{summary}}.";
-  const fallbackTemplate = bx.fallback_template || "{{team}} shows a narrow core profile.";
 
-  const lanesCfg = bx.lanes || {};
+  const template =
+    bx.template_v2 ||
+    bx.template ||
+    "{{team}}’s breadth score reflects how evenly its strength is distributed across the eight possession battlefields. Lower dispersion produces stronger balance support, while a more uneven profile lowers breadth.";
 
-  const effHits   = team.breadthEffHits   != null ? team.breadthEffHits   : 0;
-  const shootHits = team.breadthShootHits != null ? team.breadthShootHits : 0;
-  const possHits  = team.breadthPossHits  != null ? team.breadthPossHits  : 0;
-  const totalHits = team.breadthTotalHits != null ? team.breadthTotalHits : 0;
+  const fallbackTemplate =
+    bx.fallback_template_v2 ||
+    bx.fallback_template ||
+    "{{team}} shows a mixed structural balance profile across the eight possession battlefields.";
 
-  // Helper to pick key "0" / "1" / "2plus"
-  const laneKey = (hits, maxTwoPlus) => {
-    if (hits <= 0) return "0";
-    if (hits === 1) return "1";
-    if (maxTwoPlus && hits >= maxTwoPlus) return "2plus";
-    return "1";
+  const z = team.internalEffZ || null;
+  const breadth =
+    (typeof team.breadth === 'number' && Number.isFinite(team.breadth))
+      ? team.breadth
+      : 0;
+
+  const breadthSD =
+    (typeof team.breadthSD === 'number' && Number.isFinite(team.breadthSD))
+      ? team.breadthSD
+      : null;
+
+  if (!z) {
+    return fallbackTemplate
+      .replace('{{team}}', team.name || 'This team')
+      .replace('{{breadth}}', fmt(breadth, 3))
+      .replace('{{breadth_sd}}', fmt(breadthSD ?? 0, 3));
+  }
+
+  const driverRows = [
+    { key: 'orb',      label: 'offensive rebounding',            value: z.orb },
+    { key: 'efg',      label: 'shot-making efficiency',          value: z.efg },
+    { key: 'to_inv',   label: 'turnover avoidance',              value: z.to_inv },
+    { key: 'ftr',      label: 'free-throw pressure',             value: z.ftr },
+    { key: 'def_efg',  label: 'opponent shot suppression',       value: z.def_efg },
+    { key: 'drb',      label: 'defensive rebounding',            value: z.drb },
+    { key: 'opp_to',   label: 'turnover creation',               value: z.opp_to },
+    { key: 'opp_ftr',  label: 'foul-discipline defense',         value: z.opp_ftr }
+  ];
+
+  const finiteRows = driverRows.filter(row =>
+    typeof row.value === 'number' && Number.isFinite(row.value)
+  );
+
+  if (!finiteRows.length) {
+    return fallbackTemplate
+      .replace('{{team}}', team.name || 'This team')
+      .replace('{{breadth}}', fmt(breadth, 3))
+      .replace('{{breadth_sd}}', fmt(breadthSD ?? 0, 3));
+  }
+
+  const positiveRows = finiteRows
+    .filter(row => row.value > 0)
+    .sort((a, b) => b.value - a.value);
+
+  const negativeRows = finiteRows
+    .filter(row => row.value <= 0)
+    .sort((a, b) => a.value - b.value);
+
+  const balanceBand =
+    breadth >= 0.22 ? 'high' :
+    breadth >= 0.12 ? 'good' :
+    breadth >= 0.02 ? 'mixed' :
+    breadth >= -0.06 ? 'narrow' :
+    'volatile';
+
+  const supportText =
+    (bx.support_phrases && bx.support_phrases[balanceBand]) ||
+    '';
+
+  const topSupport = positiveRows.slice(0, 3).map(row => row.label);
+  const topLeak = negativeRows.slice(0, 2).map(row => row.label);
+
+  const joinNatural = (items) => {
+    if (!items || !items.length) return '';
+    if (items.length === 1) return items[0];
+    if (items.length === 2) return `${items[0]} and ${items[1]}`;
+    return `${items.slice(0, -1).join(', ')}, and ${items[items.length - 1]}`;
   };
 
-  const effLaneKey   = laneKey(effHits,   2); // 0–1–2+ for efficiency
-  const shootLaneKey = laneKey(shootHits, 2); // 0–1–2+ for shooting
-  const possLaneKey  = laneKey(possHits,  2); // 0–1–2+ for possession
+  const summary =
+    topSupport.length
+      ? `support from ${joinNatural(topSupport)}`
+      : 'an otherwise uneven profile';
 
-  const effPhrase =
-    lanesCfg.efficiency &&
-    lanesCfg.efficiency[effLaneKey] || '';
-
-  const shootPhrase =
-    lanesCfg.shooting &&
-    lanesCfg.shooting[shootLaneKey] || '';
-
-  const possPhrase =
-    lanesCfg.possession &&
-    lanesCfg.possession[possLaneKey] || '';
-
-  const parts = [effPhrase, shootPhrase, possPhrase].filter(Boolean);
-
-  if (!parts.length) {
-    return fallbackTemplate.replace('{{team}}', team.name);
-  }
-
-  // Build a natural-sounding summary string
-  let summary = '';
-  if (parts.length === 1) {
-    summary = parts[0];
-  } else if (parts.length === 2) {
-    summary = `${parts[0]} and ${parts[1]}`;
-  } else {
-    summary = `${parts[0]}, ${parts[1]}, and ${parts[2]}`;
-  }
-
-  // Choose support phrase based on total hits
-  const supportKey = pickBreadthSupportKey(totalHits);
-  const supportText =
-    bx.support_phrases &&
-    bx.support_phrases[supportKey] || '';
+  const caution =
+    topLeak.length
+      ? `The profile is less stable where it gives back ground in ${joinNatural(topLeak)}.`
+      : '';
 
   let text = template
-    .replace('{{team}}', team.name)
-    .replace('{{summary}}', summary);
+    .replace('{{team}}', team.name || 'This team')
+    .replace('{{summary}}', summary)
+    .replace('{{breadth}}', fmt(breadth, 3))
+    .replace('{{breadth_sd}}', fmt(breadthSD ?? 0, 3))
+    .replace('{{balance_band}}', balanceBand);
 
   if (supportText) {
-    // Ensure we only add a space if template didn't already end with punctuation
     if (!/[.!?]\s*$/.test(text)) text += '.';
     text += ' ' + supportText;
+  }
+
+  if (caution) {
+    if (!/[.!?]\s*$/.test(text)) text += '.';
+    text += ' ' + caution;
   }
 
   return text;
 }
 
+// needs to be updated
 function pickBreadthSupportKey(totalHits) {
-  if (totalHits >= 5) return 'high';
-  if (totalHits >= 3) return 'medium';
-  if (totalHits >= 1) return 'low';
+  const hits = Number.isFinite(totalHits) ? totalHits : 0;
+
+  if (hits >= 4) return 'high';
+  if (hits >= 2) return 'medium';
+  if (hits >= 1) return 'low';
   return 'none';
 }
 
+// need to update
 function updateBreadthBacksForResult(result) {
   const copy = window.MI_COPY;
   if (!copy || !copy.breadth_explain || !result || !result.a || !result.b) return;
@@ -1215,8 +1290,8 @@ function updateBreadthBacksForResult(result) {
   const elA = document.getElementById('backBreadthA');
   const elB = document.getElementById('backBreadthB');
 
-  if (elA && textA) elA.textContent = textA;
-  if (elB && textB) elB.textContent = textB;
+  if (elA) elA.textContent = textA || '';
+  if (elB) elB.textContent = textB || '';
 }
 
 function buildResumeBackTextForTeam(team, copy) {
@@ -1224,11 +1299,16 @@ function buildResumeBackTextForTeam(team, copy) {
 
   const rx = copy.resume_explain;
 
-  const tier    = team.resumeRTier || 'Average';
-  const rIndex  = typeof team.resumeIndex === 'number' ? team.resumeIndex : 0;
-  const rAdjust = typeof team.resumeR     === 'number' ? team.resumeR     : 0;
+  const tier = team.resumeTier || 'Average';
+  const rIndex = (typeof team.resumeIndex === 'number' && Number.isFinite(team.resumeIndex))
+    ? team.resumeIndex
+    : 0;
 
-  const isPositive = rAdjust >= 0;
+  const baseTrust = (typeof team.resumeBaseTrust === 'number' && Number.isFinite(team.resumeBaseTrust))
+    ? team.resumeBaseTrust
+    : 1.00;
+
+  const isPositive = baseTrust >= 1.00;
 
   const template =
     (isPositive ? rx.template_positive : rx.template_negative) ||
@@ -1250,19 +1330,23 @@ function buildResumeBackTextForTeam(team, copy) {
       ? rx.impact_phrases[tier]
       : '';
 
-  // If we somehow have nothing to say, fall back to generic
-  if (!recordPhrase && !schedulePhrase) {
-    return (rx.fallback_template || '').replace('{{team}}', team.name);
+  // If we somehow have nothing résumé-specific to say, fall back to generic
+  if (!recordPhrase && !schedulePhrase && !impactPhrase) {
+    return (rx.fallback_template || "{{team}} shows a roughly average résumé once record and schedule are blended together.")
+      .replace('{{team}}', team.name || 'This team')
+      .replace('{{tier}}', tier)
+      .replace('{{resume_index}}', fmt(rIndex, 3))
+      .replace('{{resume_trust}}', fmt(baseTrust, 3));
   }
 
-  const text = template
-    .replace('{{team}}', team.name)
+  return template
+    .replace('{{team}}', team.name || 'This team')
     .replace('{{tier}}', tier)
     .replace('{{record}}', recordPhrase)
     .replace('{{schedule}}', schedulePhrase)
-    .replace('{{impact}}', impactPhrase);
-
-  return text;
+    .replace('{{impact}}', impactPhrase)
+    .replace('{{resume_index}}', fmt(rIndex, 3))
+    .replace('{{resume_trust}}', fmt(baseTrust, 3));
 }
 
 function updateResumeBacksForResult(result) {
@@ -1305,23 +1389,88 @@ function buildFormulaBackTextForSide(side, result, copy) {
   if (!team || !result) return '';
 
   const tpl =
+    (copy && copy.formula_explain && copy.formula_explain.template_v2) ||
     (copy && copy.formula_explain && copy.formula_explain.template) ||
-    "Team Total ({{total}}) = Core Traits ({{core}}) + Breadth Bonus ({{breadth}}) + Résumé Context ({{resume}}) + Matchup Interactions ({{interactions}}).";
+    "Team Total ({{total}}) = MI Base ({{mi_base}}) + Matchup Interactions ({{interactions}}). MI Base now starts with Foundation ({{foundation}}), which is the team’s internal MI Efficiency Margin, and Breadth ({{breadth}}), which rewards balance across the eight possession battlefields. Those combine into Raw Base ({{raw_base}}). Raw Base is then calibrated by Résumé Base Trust ({{resume_base_trust}}) toward the field mean baseline ({{field_mean_base}}).";
 
-  const core = team.mibs || 0;
-  const breadth = team.breadth || 0;
-  const resume = team.resumeR || 0;
-  const total = side === 'A' ? (result.miA ?? 0) : (result.miB ?? 0);
-  const interactions = side === 'A'
-    ? (result.interactions?.a ?? 0)
-    : (result.interactions?.b ?? 0);
+  const foundation =
+    (typeof team.foundation === 'number' && Number.isFinite(team.foundation))
+      ? team.foundation
+      : ((typeof team.mi_eff_margin === 'number' && Number.isFinite(team.mi_eff_margin))
+          ? team.mi_eff_margin
+          : 0);
+
+  const breadth =
+    (typeof team.breadth === 'number' && Number.isFinite(team.breadth))
+      ? team.breadth
+      : 0;
+
+  const rawBase =
+    (typeof team.raw_base === 'number' && Number.isFinite(team.raw_base))
+      ? team.raw_base
+      : (foundation + breadth);
+
+  const resumeBaseTrust =
+    (typeof team.resumeBaseTrust === 'number' && Number.isFinite(team.resumeBaseTrust))
+      ? team.resumeBaseTrust
+      : 1.00;
+
+  const fieldMeanBase =
+    (typeof team.field_mean_base === 'number' && Number.isFinite(team.field_mean_base))
+      ? team.field_mean_base
+      : (typeof result?.v2?.fieldMean === 'number' && Number.isFinite(result.v2.fieldMean)
+          ? result.v2.fieldMean
+          : rawBase);
+
+  const miBase =
+    (typeof team.mi_base === 'number' && Number.isFinite(team.mi_base))
+      ? team.mi_base
+      : ((resumeBaseTrust * rawBase) + ((1 - resumeBaseTrust) * fieldMeanBase));
+
+  const total =
+    side === 'A'
+      ? (result.miA_raw ?? result.miA ?? 0)
+      : (result.miB_raw ?? result.miB ?? 0);
+
+  const interactions =
+    side === 'A'
+      ? ((typeof result.intA === 'number' && Number.isFinite(result.intA))
+          ? result.intA
+          : (result.interactions?.a ?? 0))
+      : ((typeof result.intB === 'number' && Number.isFinite(result.intB))
+          ? result.intB
+          : (result.interactions?.b ?? 0));
 
   return miFillTemplate(tpl, {
     total: fmt(total, 3),
-    core: fmt(core, 3),
+    mi_base: fmt(miBase, 3),
+    foundation: fmt(foundation, 3),
     breadth: fmt(breadth, 3),
-    resume: fmt(resume, 3),
-    interactions: fmt(interactions, 3)
+    raw_base: fmt(rawBase, 3),
+    resume_base_trust: fmt(resumeBaseTrust, 3),
+    field_mean_base: fmt(fieldMeanBase, 3),
+    interactions: fmt(interactions, 3),
+
+    // new explicit V4 baseline pieces
+    mi_off_eff: fmt(
+      (typeof team.mi_off_eff === 'number' && Number.isFinite(team.mi_off_eff)) ? team.mi_off_eff : 0,
+      3
+    ),
+    mi_def_eff: fmt(
+      (typeof team.mi_def_eff === 'number' && Number.isFinite(team.mi_def_eff)) ? team.mi_def_eff : 0,
+      3
+    ),
+    mi_eff_margin: fmt(
+      (typeof team.mi_eff_margin === 'number' && Number.isFinite(team.mi_eff_margin)) ? team.mi_eff_margin : foundation,
+      3
+    ),
+    breadth_sd: fmt(
+      (typeof team.breadthSD === 'number' && Number.isFinite(team.breadthSD)) ? team.breadthSD : 0,
+      3
+    ),
+
+    // legacy placeholder preserved so old template tokens do not break hard
+    identity_edge: fmt(0, 3)
   });
 }
 
@@ -1392,6 +1541,17 @@ function miIdentityBucketKey(value0to100) {
 function miFillTeamToken(text, teamName) {
   const name = teamName || "This team";
   return String(text || "").replaceAll("{{team}}", name);
+}
+
+function getMITierKeyForRating(rating) {
+  if (rating == null || isNaN(rating)) return 'Balanced';
+
+  if (rating >= 90) return 'Top';
+  if (rating >= 75) return 'High';
+  if (rating >= 60) return 'Solid';
+  if (rating >= 40) return 'Balanced';
+  if (rating >= 25) return 'Low';
+  return 'Fragile';
 }
 
 function buildIdentityBackTextForTeam(team, copy) {
@@ -1615,20 +1775,6 @@ function miClearVerdictCopyCache(){
   __miVerdictCopyCache.clear();
 }
 
-
-// ---------- Madness Index Tier Helper (1–99 cosmetic rating) ----------
-
-function getMITierKeyForRating(rating) {
-  if (rating == null || isNaN(rating)) return 'Balanced';
-
-  if (rating >= 90) return 'Top';
-  if (rating >= 75) return 'High';
-  if (rating >= 60) return 'Solid';
-  if (rating >= 40) return 'Balanced';
-  if (rating >= 25) return 'Low';
-  return 'Fragile';
-}
-
 // ========== SEED / BRACKET LOGIC HELPERS ==========
 //
 // We treat seeds 1–16 as if they belong to the standard NCAA region structure:
@@ -1714,7 +1860,14 @@ function getIntraRegionRound(seedA, seedB) {
 }
 
 // Global order for sorting rounds
-const ROUND_ORDER = ['R64', 'R32', 'S16', 'E8', 'F4', 'Champ'];
+const ROUND_ORDER = ['R64', 'R32', 'S16', 'E8', 'First4', 'F4', 'Champ'];
+
+function isFirstFourSeedPlayIn(seedA, seedB) {
+  const a = Number(seedA);
+  const b = Number(seedB);
+  if (!Number.isFinite(a) || !Number.isFinite(b)) return false;
+  return a === b && (a === 11 || a === 16);
+}
 
 // All possible rounds this *pair of seeds* can meet in,
 // across all valid bracket layouts (same region vs different region).
@@ -1724,6 +1877,19 @@ function getPossibleRoundsForSeeds(seedA, seedB) {
   if (!Number.isFinite(a) || !Number.isFinite(b)) return [];
 
   const possible = new Set();
+
+  // Canonical First Four play-ins:
+  // two 11-seeds or two 16-seeds may meet in the First Four,
+  // and can also still legally meet cross-region in F4 / Champ.
+  if (isFirstFourSeedPlayIn(a, b)) {
+    possible.add('First4');
+    possible.add('F4');
+    possible.add('Champ');
+
+    return Array.from(possible).sort((r1, r2) =>
+      ROUND_ORDER.indexOf(r1) - ROUND_ORDER.indexOf(r2)
+    );
+  }
 
   if (a !== b) {
     const intra = getIntraRegionRound(a, b);
@@ -1744,6 +1910,27 @@ function getPossibleRoundsForSeeds(seedA, seedB) {
 function isRoundPossibleForSeeds(seedA, seedB, roundCode) {
   const possible = getPossibleRoundsForSeeds(seedA, seedB);
   return possible.includes(roundCode);
+}
+
+// Build a small descriptor we can attach to the matchup result
+function getSeedRoundMeta(seedA, seedB, roundCode) {
+  const a = Number(seedA);
+  const b = Number(seedB);
+  if (!Number.isFinite(a) || !Number.isFinite(b)) return null;
+
+  const possible = getPossibleRoundsForSeeds(a, b);
+  const isAllowed = possible.includes(roundCode);
+  const earliest = possible.length
+    ? possible[0]
+    : null;
+
+  return {
+    seedA: a,
+    seedB: b,
+    possible,    // e.g. ['First4','F4','Champ']
+    isAllowed,   // true if current round is compatible with these seeds
+    earliest,    // earliest possible round in standard bracket order
+  };
 }
 
 // Build a small descriptor we can attach to the matchup result
@@ -1790,11 +1977,6 @@ function miUpdateMatchupRoundPill(roundCode) {
 const ALIASES = {
   team: ['Team','TEAM','team','School','Team Name','TeamName','Team_Name','School Name','SchoolName','School_Name'],
   seed: ['Seed', 'seed'],
-
-  // Core metrics
-  offeff: ['OffEff', 'offeff', 'AdjOE', 'AdjO', 'Offensive Efficiency'],
-  defeff: ['DefEff', 'defeff', 'AdjDE', 'AdjD', 'Defensive Efficiency'],
-  adjem: ['AdjEM', 'adjem', 'AdjEMargin', 'AdjEMarg', 'Efficiency Margin'],
   ts: ['TS', 'TS%', 'ts', 'TS_pct', 'True Shooting %'],
   efg: ['eFG', 'eFG%', 'efg'],
   tempo: ['Tempo', 'tempo', 'Pace'],
@@ -1805,6 +1987,14 @@ const ALIASES = {
   wp: ['Win%', 'Win Pct', 'Win Percentage', 'WPCT', 'W-L%'],
   sos: ['SOS', 'sos', 'Sos'],
   cgw: ['CGW%', 'CGW_pct', 'CGW pct', 'Close Game Win %'],
+  q1w: ['Q1W', 'Q1 W'],
+  q1l: ['Q1L', 'Q1 L'],
+  q2w: ['Q2W', 'Q2 W'],
+  q2l: ['Q2L', 'Q2 L'],
+  q3w: ['Q3W', 'Q3 W'],
+  q3l: ['Q3L', 'Q3 L'],
+  q4w: ['Q4W', 'Q4 W'],
+  q4l: ['Q4L', 'Q4 L'],
 
   // Shooting / FT / distribution
   threepr: ['3P Rate', '3P_Rate', '3PR', '3P_Att_Rate', '3PAr'],
@@ -1820,6 +2010,7 @@ const ALIASES = {
   def_efg: ['Def. eFG %', 'DEFG%', 'Opp eFG%', 'Opp eFG', 'Def. eFG_pct', 'Def. eFG pct'],
   opp_2p_pct: ['Opp2P%', 'Opp 2P%'],
   oapp: ['Opp. Asst./Poss.', 'Opp Asst/Poss',],
+  opp_ast_poss: ['Opp. Asst./Poss.', 'Opp Asst/Poss', 'Opp AST/Poss', 'OppAstPoss'],
 
   // Foul / FT rate
   ftr: ['FTR', 'FT Rate', 'FTr'],
@@ -1849,7 +2040,7 @@ function normalizePercentMaybe(v) {
 
 // Metrics that require field stats for z-scoring
 const METRICS_FOR_Z = [
-  'offeff', 'defeff', 'adjem', 'ts', 'efg', 'tempo', 'epr', 'to',
+  'ts', 'efg', 'tempo', 'epr', 'to',
   'threepr', 'threepp', 'pct_pts_3', 'pct_pts_2', 'pct_pts_ft',
   'opp_3pr', 'opp_3pp', 'ftr', 'opp_ftr', 'ft_pct',
   'nb2', 'def_efg', 'blk',
@@ -1937,6 +2128,19 @@ function getTierLabelFromZ(z) {
   if (z >= 0.00) return 'Average';
   if (z >= -0.80) return 'Weak';
   return 'Fragile';
+}
+
+function getCoreFieldSpreadText(rowKey) {
+  const fs = FIELD_STATS_DOMAIN?.[rowKey];
+  const sd = fs && Number.isFinite(fs.sd) ? fs.sd : null;
+
+  return `
+    <div class="threshold-stack">
+      <span class="threshold-chip" title="Standard deviation of the domain across the tournament field. Domain means are approximately 0 because values are standardized using z-scores.">
+        σ ${sd == null ? '—' : fmt(sd, 3)}
+      </span>
+    </div>
+  `;
 }
 
 function updateInteractionHeadersFromSelections() {
@@ -2043,54 +2247,60 @@ function _normHeader(h) {
 // EXACT map for the official dataset headers (normalized via _normHeader)
 const HEADER_MAP = new Map([
   // identity
-  ['team',                      'name'],
-  ['seed',                      'seed'],
+  ['team',                       'name'],
+  ['seed',                       'seed'],
 
-  // core 8
-  ['off eff',                   'offeff'],      // "OFF. Eff."
-  ['def eff',                   'defeff'],      // "DEF. Eff."
-  ['efficiency margin',         'adjem'],
-  ['true shooting pct',         'ts'],          // "True Shooting %"
-  ['efg',                       'efg'],
-  ['tempo',                     'tempo'],
-  ['effective possession ratio','epr'],
-  ['to pct',                    'to'],          // "TO%"
+  // core dataset columns still used
+  ['true shooting pct',          'ts'],
+  ['efg',                        'efg'],
+  ['tempo',                      'tempo'],
+  ['effective possession ratio', 'epr'],
+  ['to pct',                     'to'],
 
   // defensive eFG
-  ['def efg pct',               'def_efg'],      // "Def. eFG%"
+  ['def efg pct',                'def_efg'],
 
-  // distribution (points share)
-  ['pct of points from 2',      'pct_pts_2'],
-  ['pct of points from 3',      'pct_pts_3'],
-  ['pct of points from ft',     'pct_pts_ft'],
+  // distribution
+  ['pct of points from 2',       'pct_pts_2'],
+  ['pct of points from 3',       'pct_pts_3'],
+  ['pct of points from ft',      'pct_pts_ft'],
 
   // shooting + rates
-  ['3p pct',                    'threepp'],     // "3P%"
-  ['3p rate',                   'threepr'],     // "3P Rate"
-  ['ft',                        'ft_pct'],      // "FT"
-  ['ftr',                       'ftr'],
+  ['3p pct',                     'threepp'],
+  ['3p rate',                    'threepr'],
+  ['ft',                         'ft_pct'],
+  ['ftr',                        'ftr'],
 
   // extras
-  ['extra scoring chances game','scpg'],        // "Extra Scoring Chances/game"
-  ['non blocked 2pt pct',       'nb2'],         // "Non-blocked 2pt %"
-  ['orb pct',                   'orb'],         // "ORB %"
-  ['drb pct',                   'drb'],         // "DRB %"
-  ['block pct',                 'blk'],         // "Block %"
-  ['steals per possession',     'spp'],         // "Steals per Possession"
+  ['extra scoring chances game', 'scpg'],
+  ['non blocked 2pt pct',        'nb2'],
+  ['orb pct',                    'orb'],
+  ['drb pct',                    'drb'],
+  ['block pct',                  'blk'],
+  ['steals per possession',      'spp'],
 
   // opponent / defensive shooting
-  ['opp 3p pct',                'opp_3pp'],     // "Opp. 3P%"
-  ['opp 3p rate',               'opp_3pr'],     // "Opp. 3P Rate"
-  ['opp asst poss',             'opp_ast_poss'],// "Opp. Asst./Poss"
-  ['opp to poss',               'otpp'],        // "Opp. TO/poss"
-  ['opp fta fga',               'opp_ftr'],     // "Opp. FTA/FGA"
+  ['opp 3p pct',                 'opp_3pp'],
+  ['opp 3p rate',                'opp_3pr'],
+  ['opp asst poss',              'opp_ast_poss'],
+  ['opp to poss',                'otpp'],
+  ['opp fta fga',                'opp_ftr'],
 
   // résumé
-  ['close game win pct',        'close_win_pct'],
-  ['win pct', 'wp'],
-  ['win%',    'wp'],
-  ['win percentage', 'wp'],
-  ['strength of schedule',      'sos'],
+  ['close game win pct',         'close_win_pct'],
+  ['win pct',                    'wp'],
+  ['win percentage',             'wp'],
+  ['strength of schedule',       'sos'],
+
+  // quadrant records
+  ['q1w',                        'q1w'],
+  ['q1l',                        'q1l'],
+  ['q2w',                        'q2w'],
+  ['q2l',                        'q2l'],
+  ['q3w',                        'q3w'],
+  ['q3l',                        'q3l'],
+  ['q4w',                        'q4w'],
+  ['q4l',                        'q4l'],
 ]);
 
 // Build index: CSV header -> internal key
@@ -2110,8 +2320,6 @@ function makeHeaderIndex(headers) {
   index.__raw = headers;
   index.__norm = normed;
   return index;
-
-  console.log('NORM HEADERS:', headers.map(_normHeader));
 }
 
 // Live gain constants (locked “starting constants”)
@@ -2153,10 +2361,6 @@ function buildTeamsFromCSV(headers, rows) {
       name:   cleanName,
       seed:   getNum(row, 'seed'),
 
-      // core 8
-      offeff: getNum(row, 'offeff'),
-      defeff: getNum(row, 'defeff'),
-      adjem:  getNum(row, 'adjem'),
       ts:     getNum(row, 'ts'),
       efg:    getNum(row, 'efg'),
       tempo:  getNum(row, 'tempo'),
@@ -2189,8 +2393,22 @@ function buildTeamsFromCSV(headers, rows) {
       // résumé
       close_win_pct: getNum(row, 'close_win_pct'),
       wp:            getNum(row, 'wp'),
+      q1w:           getNum(row, 'q1w'),
+      q1l:           getNum(row, 'q1l'),
+      q2w:           getNum(row, 'q2w'),
+      q2l:           getNum(row, 'q2l'),
+      q3w:           getNum(row, 'q3w'),
+      q3l:           getNum(row, 'q3l'),
+      q4w:           getNum(row, 'q4w'),
+      q4l:           getNum(row, 'q4l'),
       sos:           getNum(row, 'sos'),
     };
+
+    team.q1g = (team.q1w || 0) + (team.q1l || 0);
+    team.q2g = (team.q2w || 0) + (team.q2l || 0);
+    team.q3g = (team.q3w || 0) + (team.q3l || 0);
+    team.q4g = (team.q4w || 0) + (team.q4l || 0);
+    team.total_quad_games = team.q1g + team.q2g + team.q3g + team.q4g;
 
     if (!team.name) continue; // skip empties
 
@@ -2263,596 +2481,1129 @@ function computeFieldStats() {
   }
 }
 
-// ---------- Core Metric Layer + Breadth ----------
-function computeCoreForTeam(team) {
-  // 1) Core z-scores (v3.2 Core set: 8 metrics, Tempo removed)
-  const zOff    = getZ(team, 'offeff',  false);
-  const zDef    = getZ(team, 'defeff',  true);   // lower DefEff better
-  const zAdjEM  = getZ(team, 'adjem',   false);
-  const zTS     = getZ(team, 'ts',      false);
-  const zEFG    = getZ(team, 'efg',     false);
-  const zDefEFG = getZ(team, 'def_efg', true);   // lower Def eFG% better
-  const zEPR    = getZ(team, 'epr',     false);
-  const zTO     = getZ(team, 'to',      true);   // lower TO% better
+// ============================================================
+// CANONICAL V4 ENGINE
+// Full replacement scoring / comparison path
+// ============================================================
 
-  // Store for downstream layers (Breadth, Profile Marks, Interactions)
-  team.coreZ = {
-    offeff:  zOff,
-    defeff:  zDef,
-    adjem:   zAdjEM,
-    ts:      zTS,
-    efg:     zEFG,
+const MI_V2_DEFAULTS = {
+  useResumeBaseTrust: true,
+  useResumeInteractionTrust: true,
+  useResumeConfidenceTrust: true,
+};
+
+// ------------------------------------------------------------
+// Madness Index v4 baseline helpers
+// ------------------------------------------------------------
+function miClamp(min, value, max) {
+  return Math.max(min, Math.min(max, value));
+}
+
+function getBaselineFieldTeams() {
+  return (TEAM_LIST || [])
+    .map(name => TEAMS[name])
+    .filter(Boolean);
+}
+
+function computeBaselineFieldMean(opts = MI_V2_DEFAULTS) {
+  const teams = getBaselineFieldTeams();
+  if (!teams.length) return 0;
+
+  const rawVals = teams.map(team => {
+    if (!Number.isFinite(team.foundation)) {
+      computeCoreForTeam(team, opts);
+    }
+
+    const rawBase = Number.isFinite(team.foundation) ? team.foundation : 0;
+
+    team.raw_base = rawBase;
+    team.raw_base_v2 = rawBase;
+
+    return rawBase;
+  }).filter(Number.isFinite);
+
+  if (!rawVals.length) return 0;
+  return rawVals.reduce((sum, v) => sum + v, 0) / rawVals.length;
+}
+
+const MI_INTERNAL_EFF_WEIGHTS = {
+  off: {
+    orb: 0.35,
+    efg: 0.30,
+    to_inv: 0.25,
+    ftr: 0.10
+  },
+  def: {
+    def_efg: 0.35,
+    drb: 0.30,
+    opp_to: 0.25,
+    opp_ftr: 0.10
+  }
+};
+
+// ------------------------------------------------------------
+// Canonical key patch for Opponent Assists / Possession
+// Keeps backward compatibility with old "oapp" ingestion
+// ------------------------------------------------------------
+(function ensureOppAstPossAlias() {
+  if (!ALIASES.opp_ast_poss) {
+    ALIASES.opp_ast_poss = ['Opp. Asst./Poss.', 'Opp Asst/Poss', 'opp_ast_poss', 'OAPP'];
+  }
+  if (!METRICS_FOR_Z.includes('opp_ast_poss')) {
+    METRICS_FOR_Z.push('opp_ast_poss');
+  }
+})();
+
+// ------------------------------------------------------------
+// Resume helpers
+// ------------------------------------------------------------
+function getResumeTierFromIndexV2(R) {
+  if (R >= 1.00) return 'Elite';
+  if (R >= 0.80) return 'Strong';
+  if (R >= 0.60) return 'Above Average';
+  if (R >= 0.00) return 'Average';
+  if (R > -0.80) return 'Weak';
+  return 'Fragile';
+}
+
+function getResumeBaseTrustFactorV2(tier) {
+  switch (tier) {
+    case 'Elite':         return 1.03;
+    case 'Strong':        return 1.01;
+    case 'Above Average': return 1.00;
+    case 'Average':       return 0.98;
+    case 'Weak':          return 0.95;
+    case 'Fragile':       return 0.92;
+    default:              return 1.00;
+  }
+}
+
+function getResumeInteractionFactorV2(tier) {
+  switch (tier) {
+    case 'Elite':         return 1.05;
+    case 'Strong':        return 1.02;
+    case 'Above Average': return 1.00;
+    case 'Average':       return 0.97;
+    case 'Weak':          return 0.93;
+    case 'Fragile':       return 0.88;
+    default:              return 1.00;
+  }
+}
+
+function getResumeConfidenceFactorV2(tier) {
+  switch (tier) {
+    case 'Elite':         return 1.02;
+    case 'Strong':        return 1.01;
+    case 'Above Average': return 1.00;
+    case 'Average':       return 0.99;
+    case 'Weak':          return 0.97;
+    case 'Fragile':       return 0.95;
+    default:              return 1.00;
+  }
+}
+
+// ------------------------------------------------------------
+// IdentityEdge helpers
+// ------------------------------------------------------------
+function bucketedIdentityBonus(raw, thresholds = [0.40, 0.90, 1.40], values = [0.00, 0.10, 0.20, 0.25]) {
+  if (raw < thresholds[0]) return values[0];
+  if (raw < thresholds[1]) return values[1];
+  if (raw < thresholds[2]) return values[2];
+  return values[3];
+}
+
+// ------------------------------------------------------------
+// Canonical MI internal efficiency construction
+// Base-only signals from the 8 possession drivers
+// ------------------------------------------------------------
+function computeInternalEfficiencyMetricsForTeam(team) {
+  const w = MI_INTERNAL_EFF_WEIGHTS;
+
+  // Offensive drivers
+  const zORB   = getZ(team, 'orb', false);
+  const zEFG   = getZ(team, 'efg', false);
+  const zTOInv = getZ(team, 'to', true);         // inverse turnover rate
+  const zFTR   = getZ(team, 'ftr', false);
+
+  // Defensive drivers
+  const zDefEFG = getZ(team, 'def_efg', true);   // lower opp eFG allowed = better
+  const zDRB    = getZ(team, 'drb', false);
+  const zOppTO  = getZ(team, 'otpp', false);     // forced-turnover proxy
+  const zOppFTR = getZ(team, 'opp_ftr', true);   // lower opp FTR allowed = better
+
+  const miOffEffBase =
+      w.off.orb    * zORB
+    + w.off.efg    * zEFG
+    + w.off.to_inv * zTOInv
+    + w.off.ftr    * zFTR;
+
+  const miDefEffBase =
+      w.def.def_efg * zDefEFG
+    + w.def.drb     * zDRB
+    + w.def.opp_to  * zOppTO
+    + w.def.opp_ftr * zOppFTR;
+
+  const miEffMarginBase = miOffEffBase + miDefEffBase;
+
+  const zPack = {
+    orb: zORB,
+    efg: zEFG,
+    to_inv: zTOInv,
+    ftr: zFTR,
     def_efg: zDefEFG,
-    epr:     zEPR,
-    to:      zTO,
+    drb: zDRB,
+    opp_to: zOppTO,
+    opp_ftr: zOppFTR
   };
 
-  // Core tier points (explain-mode only; do not affect MIBS)
-  team.coreTierPts = {};
-  Object.keys(team.coreZ).forEach((key) => {
-    team.coreTierPts[key] = getTierPointsFromZ(team.coreZ[key]);
-  });
+  team.internalEffZ = zPack;
+  team.internalEffZ_v2 = { ...zPack };
 
-  // 2) Core weighted composite — MIBS (v3.2 weights)
-  // OffEff + -DefEff = 45%
-  // TS% + eFG% + -Def eFG% = 35%
-  // EPR + -TO% = 20%
-  // AdjEM = stabilizer lane
-  const wOffDef = 0.45 / 2.0;  // 0.225 each
-  const wShoot  = 0.35 / 3.0;  // ≈0.1167 each
-  const wPoss   = 0.20 / 2.0;  // 0.10 each
-  const wAdjEM  = 0.10;        // stabilizer
+  // direct z convenience fields
+  team.z_orb = zORB;
+  team.z_efg = zEFG;
+  team.z_to_inv = zTOInv;
+  team.z_ftr = zFTR;
+  team.z_def_efg = zDefEFG;
+  team.z_drb = zDRB;
+  team.z_opp_to = zOppTO;
+  team.z_opp_ftr = zOppFTR;
 
-  const mibsCore =
-    wOffDef * zOff +
-    wOffDef * zDef +
-    wShoot  * zTS +
-    wShoot  * zEFG +
-    wShoot  * zDefEFG +
-    wPoss   * zEPR +
-    wPoss   * zTO;
+  // ----------------------------------------------------------
+  // Base-only signals
+  // ----------------------------------------------------------
+  team.mi_off_eff_base = miOffEffBase;
+  team.mi_off_eff_base_v2 = miOffEffBase;
 
-  const mibs = mibsCore + wAdjEM * zAdjEM;
-  team.mibs = mibs;
+  team.mi_def_eff_base = miDefEffBase;
+  team.mi_def_eff_base_v2 = miDefEffBase;
 
-  // 3) Per-stat rows for the Core Traits table (UI only)
-  const fsOff    = FIELD_STATS.offeff  || {};
-  const fsDef    = FIELD_STATS.defeff  || {};
-  const fsAdjEM  = FIELD_STATS.adjem   || {};
-  const fsTS     = FIELD_STATS.ts      || {};
-  const fsEFG    = FIELD_STATS.efg     || {};
-  const fsDefEFG = FIELD_STATS.def_efg || {};
-  const fsEPR    = FIELD_STATS.epr     || {};
-  const fsTO     = FIELD_STATS.to      || {};
+  team.mi_eff_margin_base = miEffMarginBase;
+  team.mi_eff_margin_base_v2 = miEffMarginBase;
 
-  const L = getTierLabelFromZ;
+  // ----------------------------------------------------------
+  // Compatibility aliases
+  // For now these still point to base values until computeCoreForTeam
+  // overwrites the adjusted canonical values.
+  // ----------------------------------------------------------
+  team.mi_off_eff = miOffEffBase;
+  team.mi_off_eff_v2 = miOffEffBase;
 
-  team.coreDetails = [
+  team.mi_def_eff = miDefEffBase;
+  team.mi_def_eff_v2 = miDefEffBase;
+
+  team.mi_eff_margin = miEffMarginBase;
+  team.mi_eff_margin_v2 = miEffMarginBase;
+
+  return {
+    miOffEffBase,
+    miDefEffBase,
+    miEffMarginBase,
+    zPack
+  };
+}
+
+function buildInternalEfficiencyRows(team) {
+  const z = team.internalEffZ || {};
+
+  const getFieldSd = (fieldKey) => {
+    const sd = FIELD_STATS?.[fieldKey]?.sd;
+    return Number.isFinite(sd) ? sd : null;
+  };
+
+  const rows = [
     {
-      key:   'offeff',
-      label: 'Offensive Efficiency',
-      mean:  fsOff.mean,
-      sd:    fsOff.sd,
-      value: team.offeff,
-      z:     zOff,
-      tier:  L(zOff),
-      weight: wOffDef,
-      points: wOffDef * zOff,
+      key: 'orb',
+      label: 'Offensive Rebounding',
+      value: Number.isFinite(z.orb) ? z.orb : 0,
+      tier: getTierLabelFromZ(Number.isFinite(z.orb) ? z.orb : 0),
+      weight: 0.35,
+      points: 0.35 * (Number.isFinite(z.orb) ? z.orb : 0),
+      sd: getFieldSd('orb')
     },
     {
-      key:   'defeff',
-      label: 'Defensive Efficiency',
-      mean:  fsDef.mean,
-      sd:    fsDef.sd,
-      value: team.defeff,
-      z:     zDef,
-      tier:  L(zDef),
-      weight: wOffDef,
-      points: wOffDef * zDef,
+      key: 'efg',
+      label: 'Effective FG%',
+      value: Number.isFinite(z.efg) ? z.efg : 0,
+      tier: getTierLabelFromZ(Number.isFinite(z.efg) ? z.efg : 0),
+      weight: 0.30,
+      points: 0.30 * (Number.isFinite(z.efg) ? z.efg : 0),
+      sd: getFieldSd('efg')
     },
     {
-      key:   'adjem',
-      label: 'Efficiency Margin',
-      mean:  fsAdjEM.mean,
-      sd:    fsAdjEM.sd,
-      value: team.adjem,
-      z:     zAdjEM,
-      tier:  L(zAdjEM),
-      weight: wAdjEM,
-      points: wAdjEM * zAdjEM,
+      key: 'to_inv',
+      label: 'Turnover Avoidance',
+      value: Number.isFinite(z.to_inv) ? z.to_inv : 0,
+      tier: getTierLabelFromZ(Number.isFinite(z.to_inv) ? z.to_inv : 0),
+      weight: 0.25,
+      points: 0.25 * (Number.isFinite(z.to_inv) ? z.to_inv : 0),
+      sd: getFieldSd('to')
     },
     {
-      key:   'ts',
-      label: 'True Shooting %',
-      mean:  fsTS.mean,
-      sd:    fsTS.sd,
-      value: team.ts,
-      z:     zTS,
-      tier:  L(zTS),
-      weight: wShoot,
-      points: wShoot * zTS,
+      key: 'ftr',
+      label: 'Free Throw Rate',
+      value: Number.isFinite(z.ftr) ? z.ftr : 0,
+      tier: getTierLabelFromZ(Number.isFinite(z.ftr) ? z.ftr : 0),
+      weight: 0.10,
+      points: 0.10 * (Number.isFinite(z.ftr) ? z.ftr : 0),
+      sd: getFieldSd('ftr')
     },
     {
-      key:   'efg',
-      label: 'Effective FG %',
-      mean:  fsEFG.mean,
-      sd:    fsEFG.sd,
-      value: team.efg,
-      z:     zEFG,
-      tier:  L(zEFG),
-      weight: wShoot,
-      points: wShoot * zEFG,
+      key: 'def_efg',
+      label: 'Opponent eFG%',
+      value: Number.isFinite(z.def_efg) ? z.def_efg : 0,
+      tier: getTierLabelFromZ(Number.isFinite(z.def_efg) ? z.def_efg : 0),
+      weight: 0.35,
+      points: 0.35 * (Number.isFinite(z.def_efg) ? z.def_efg : 0),
+      sd: getFieldSd('def_efg')
     },
     {
-      key:   'def_efg',
-      label: 'Defensive eFG %',
-      mean:  fsDefEFG.mean,
-      sd:    fsDefEFG.sd,
-      value: team.def_efg,
-      z:     zDefEFG,
-      tier:  L(zDefEFG),
-      weight: wShoot,
-      points: wShoot * zDefEFG,
+      key: 'drb',
+      label: 'Defensive Rebounding',
+      value: Number.isFinite(z.drb) ? z.drb : 0,
+      tier: getTierLabelFromZ(Number.isFinite(z.drb) ? z.drb : 0),
+      weight: 0.30,
+      points: 0.30 * (Number.isFinite(z.drb) ? z.drb : 0),
+      sd: getFieldSd('drb')
     },
     {
-      key:   'epr',
-      label: 'Effective Possession Ratio',
-      mean:  fsEPR.mean,
-      sd:    fsEPR.sd,
-      value: team.epr,
-      z:     zEPR,
-      tier:  L(zEPR),
-      weight: wPoss,
-      points: wPoss * zEPR,
+      key: 'opp_to',
+      label: 'Forcing Turnovers',
+      value: Number.isFinite(z.opp_to) ? z.opp_to : 0,
+      tier: getTierLabelFromZ(Number.isFinite(z.opp_to) ? z.opp_to : 0),
+      weight: 0.25,
+      points: 0.25 * (Number.isFinite(z.opp_to) ? z.opp_to : 0),
+      sd: getFieldSd('otpp')
     },
     {
-      key:   'to',
-      label: 'Turnover %',
-      mean:  fsTO.mean,
-      sd:    fsTO.sd,
-      value: team.to,
-      z:     zTO,
-      tier:  L(zTO),
-      weight: wPoss,
-      points: wPoss * zTO,
-    },
+      key: 'opp_ftr',
+      label: 'Free Throw Prevention',
+      value: Number.isFinite(z.opp_ftr) ? z.opp_ftr : 0,
+      tier: getTierLabelFromZ(Number.isFinite(z.opp_ftr) ? z.opp_ftr : 0),
+      weight: 0.10,
+      points: 0.10 * (Number.isFinite(z.opp_ftr) ? z.opp_ftr : 0),
+      sd: getFieldSd('opp_ftr')
+    }
   ];
+
+  return rows;
 }
 
+// ------------------------------------------------------------
+// V4.2 core / foundation
+//
+// Base offense/defense signals are computed first.
+// Then split breadth is applied to each side independently.
+//
+// MI_OffEff_Adjusted = MI_OffEff_Base + offBreadth
+// MI_DefEff_Adjusted = MI_DefEff_Base + defBreadth
+// MI_EffMargin       = MI_OffEff_Adjusted + MI_DefEff_Adjusted
+//
+// foundation = MI_EffMargin
+// ------------------------------------------------------------
+function computeCoreForTeam(team, opts = MI_V2_DEFAULTS) {
+  const {
+    miOffEffBase,
+    miDefEffBase,
+    miEffMarginBase
+  } = computeInternalEfficiencyMetricsForTeam(team);
+
+  const {
+    offBreadth = 0,
+    defBreadth = 0,
+    totalBreadth = 0,
+    offBreadthSD = 0,
+    defBreadthSD = 0
+  } = computeBreadthForTeam(team) || {};
+
+  const miOffEffAdj = miOffEffBase + offBreadth;
+  const miDefEffAdj = miDefEffBase + defBreadth;
+  const miEffMargin = miOffEffAdj + miDefEffAdj;
+
+  // ----------------------------------------------------------
+  // Canonical adjusted efficiency signals
+  // ----------------------------------------------------------
+  team.mi_off_eff = miOffEffAdj;
+  team.mi_off_eff_v2 = miOffEffAdj;
+
+  team.mi_def_eff = miDefEffAdj;
+  team.mi_def_eff_v2 = miDefEffAdj;
+
+  team.mi_eff_margin = miEffMargin;
+  team.mi_eff_margin_v2 = miEffMargin;
+
+  team.foundation = miEffMargin;
+  team.foundation_v2 = miEffMargin;
+
+  // backward compatibility
+  team.mibs = miEffMargin;
+  team.mibs_v2 = miEffMargin;
+
+  // explicit adjusted aliases for cleaner rendering/debug
+  team.mi_off_eff_adj = miOffEffAdj;
+  team.mi_off_eff_adj_v2 = miOffEffAdj;
+
+  team.mi_def_eff_adj = miDefEffAdj;
+  team.mi_def_eff_adj_v2 = miDefEffAdj;
+
+  // explicit breadth references
+  team.offBreadth = Number.isFinite(offBreadth) ? offBreadth : 0;
+  team.offBreadth_v2 = team.offBreadth;
+
+  team.defBreadth = Number.isFinite(defBreadth) ? defBreadth : 0;
+  team.defBreadth_v2 = team.defBreadth;
+
+  team.offBreadthSD = Number.isFinite(offBreadthSD) ? offBreadthSD : 0;
+  team.offBreadthSD_v2 = team.offBreadthSD;
+
+  team.defBreadthSD = Number.isFinite(defBreadthSD) ? defBreadthSD : 0;
+  team.defBreadthSD_v2 = team.defBreadthSD;
+
+  team.breadth = Number.isFinite(totalBreadth) ? totalBreadth : 0;
+  team.breadth_v2 = team.breadth;
+
+  team.miOffEffBase = Number.isFinite(miOffEffBase) ? miOffEffBase : 0;
+  team.miDefEffBase = Number.isFinite(miDefEffBase) ? miDefEffBase : 0;
+  team.miEffMarginBase = Number.isFinite(miEffMarginBase) ? miEffMarginBase : 0;
+
+  team.mi_off_eff_base = team.miOffEffBase;
+  team.mi_def_eff_base = team.miDefEffBase;
+  team.mi_eff_margin_base = team.miEffMarginBase;
+
+  // Compatibility-only shell
+  team.domains = {};
+  team.domains_v2 = {};
+
+  // Compact debug/detail rows
+  team.coreDomainDetails = [
+    {
+      key: 'mi_off_eff_base',
+      label: 'MI Offensive Efficiency (Base)',
+      value: miOffEffBase,
+      weight: 1.00,
+      points: miOffEffBase
+    },
+    {
+      key: 'off_breadth',
+      label: 'Offensive Breadth',
+      value: offBreadth,
+      weight: 1.00,
+      points: offBreadth
+    },
+    {
+      key: 'mi_off_eff',
+      label: 'MI Offensive Efficiency',
+      value: miOffEffAdj,
+      weight: 1.00,
+      points: miOffEffAdj
+    },
+    {
+      key: 'mi_def_eff_base',
+      label: 'MI Defensive Efficiency (Base)',
+      value: miDefEffBase,
+      weight: 1.00,
+      points: miDefEffBase
+    },
+    {
+      key: 'def_breadth',
+      label: 'Defensive Breadth',
+      value: defBreadth,
+      weight: 1.00,
+      points: defBreadth
+    },
+    {
+      key: 'mi_def_eff',
+      label: 'MI Defensive Efficiency',
+      value: miDefEffAdj,
+      weight: 1.00,
+      points: miDefEffAdj
+    },
+    {
+      key: 'mi_eff_margin',
+      label: 'MI Efficiency Margin',
+      value: miEffMargin,
+      weight: 1.00,
+      points: miEffMargin
+    }
+  ];
+  team.coreDomainDetails_v2 = team.coreDomainDetails.map(row => ({ ...row }));
+
+  // Canonical front-side / table detail rows
+  team.coreDetails = buildInternalEfficiencyRows(team);
+  team.coreDetails_v2 = team.coreDetails.map(row => ({ ...row }));
+
+  return miEffMargin;
+}
+
+// ------------------------------------------------------------
+// V4.2 split breadth
+//
+// Offensive breadth is computed only from the 4 offensive driver z-scores:
+//   ORB, eFG, TO_inv, FTR
+//
+// Defensive breadth is computed only from the 4 defensive driver z-scores:
+//   def_eFG, DRB, opp_TO, opp_FTR
+//
+// Each side gets its own SD and breadth adjustment.
+// The combined breadth is retained only for compatibility.
+//
+// Suggested side formula:
+//   SideBreadthScore = clamp(-0.05, 0.15 - 0.20 * SideBreadthSD, 0.15)
+//
+// Total max combined effect remains +0.30.
+// ------------------------------------------------------------
 function computeBreadthForTeam(team) {
-  const z = team.coreZ || {};
+  if (!team.internalEffZ) {
+    computeInternalEfficiencyMetricsForTeam(team);
+  }
 
-  // v3.2 hit criterion: z ≥ 0.60
-  const isHit = (val) => typeof val === 'number' && val >= 0.60;
+  const z = team.internalEffZ || {};
 
-  // A. Efficiency Quartet (OffEff, -DefEff, AdjEM, -Def eFG%) — max +0.40
-  let effHits = 0;
-  if (isHit(z.offeff))  effHits++;
-  if (isHit(z.defeff))  effHits++;
-  if (isHit(z.adjem))   effHits++;
-  if (isHit(z.def_efg)) effHits++;
+  const offVals = [
+    z.orb,
+    z.efg,
+    z.to_inv,
+    z.ftr
+  ].map(v => Number.isFinite(v) ? v : 0);
 
-  let effBonus = 0;
-  if (effHits === 1)      effBonus = 0.10;
-  else if (effHits === 2) effBonus = 0.20;
-  else if (effHits === 3) effBonus = 0.30;
-  else if (effHits === 4) effBonus = 0.40;
+  const defVals = [
+    z.def_efg,
+    z.drb,
+    z.opp_to,
+    z.opp_ftr
+  ].map(v => Number.isFinite(v) ? v : 0);
 
-  // B. Shooting Pair (TS%, eFG%) — max +0.30
-  let shootHits = 0;
-  if (isHit(z.ts))  shootHits++;
-  if (isHit(z.efg)) shootHits++;
+  function calcSD(vals) {
+    if (!Array.isArray(vals) || !vals.length) return 0;
+    const mean = vals.reduce((sum, v) => sum + v, 0) / vals.length;
+    const variance = vals.reduce((sum, v) => sum + Math.pow(v - mean, 2), 0) / vals.length;
+    return Math.sqrt(variance);
+  }
 
-  let shootBonus = 0;
-  if (shootHits === 1)      shootBonus = 0.15;
-  else if (shootHits === 2) shootBonus = 0.30;
+  const offBreadthSD = calcSD(offVals);
+  const defBreadthSD = calcSD(defVals);
 
-  // C. Possession Stability Pair (EPR, -TO%) — max +0.30
-  let possHits = 0;
-  if (isHit(z.epr)) possHits++;
-  if (isHit(z.to))  possHits++; // already inverted in z
+  const offBreadth = miClamp(-0.05, 0.15 - 0.20 * offBreadthSD, 0.15);
+  const defBreadth = miClamp(-0.05, 0.15 - 0.20 * defBreadthSD, 0.15);
 
-  let possBonus = 0;
-  if (possHits === 1)      possBonus = 0.15;
-  else if (possHits === 2) possBonus = 0.30;
+  const totalBreadth = offBreadth + defBreadth;
 
-  const breadth = effBonus + shootBonus + possBonus;
+  // ----------------------------------------------------------
+  // Canonical split breadth fields
+  // ----------------------------------------------------------
+  team.offBreadthSD = offBreadthSD;
+  team.offBreadthSD_v2 = offBreadthSD;
 
-  // For debugging / UI
-  team.breadthEffHits   = effHits;
-  team.breadthShootHits = shootHits;
-  team.breadthPossHits  = possHits;
-  team.breadthTotalHits = effHits + shootHits + possHits;
+  team.defBreadthSD = defBreadthSD;
+  team.defBreadthSD_v2 = defBreadthSD;
 
-  team.breadth = breadth;                   // BreadthWeight = 1.00
-  team.breadthHits = team.breadthTotalHits; // backwards-compatible
+  team.offBreadth = offBreadth;
+  team.offBreadth_v2 = offBreadth;
+
+  team.defBreadth = defBreadth;
+  team.defBreadth_v2 = defBreadth;
+
+  // ----------------------------------------------------------
+  // Compatibility aggregate fields
+  // ----------------------------------------------------------
+  team.breadth = totalBreadth;
+  team.breadth_v2 = totalBreadth;
+
+  // breadthSD no longer has one canonical meaning, but keep a
+  // compatibility value for older surfaces that still reference it
+  team.breadthSD = offBreadthSD + defBreadthSD;
+  team.breadthSD_v2 = team.breadthSD;
+
+  // ----------------------------------------------------------
+  // Compatibility-only hit counts
+  // ----------------------------------------------------------
+  const offSupportive = offVals.filter(v => v > 0).length;
+  const defSupportive = defVals.filter(v => v > 0).length;
+  const supportive = offSupportive + defSupportive;
+
+  team.offBreadthHits = offSupportive;
+  team.defBreadthHits = defSupportive;
+
+  team.breadthHits = supportive;
+  team.breadthHits_v2 = supportive;
+
+  team.breadthDomainHits = {
+    positiveDrivers: supportive,
+    negativeDrivers: 8 - supportive,
+    offensivePositiveDrivers: offSupportive,
+    defensivePositiveDrivers: defSupportive
+  };
+  team.breadthDomainHits_v2 = { ...team.breadthDomainHits };
+
+  team.breadthEffHits = supportive;
+  team.breadthShootHits = 0;
+  team.breadthPossHits = supportive;
+  team.breadthTotalHits = supportive;
+
+  return {
+    offBreadth,
+    defBreadth,
+    totalBreadth,
+    offBreadthSD,
+    defBreadthSD
+  };
 }
 
-// ---------- Résumé Context Score (R) — MI_base Component ----------
+// ------------------------------------------------------------
+// Resume Context V2 prep
+// ------------------------------------------------------------
+let RESUME_CONTEXT_STATS_V2 = null;
 
-function computeResumeContextForTeam(team) {
-  // If we’re missing résumé data or field stats, treat as neutral résumé.
-  if (!FIELD_STATS.wp || !FIELD_STATS.P || team.wp == null || team.P == null) {
-    team.resumeIndex = 0;          // underlying R index
-    team.resumeR     = 0;          // adjustment actually added to MI_base
-    team.resumeRTier = 'Average';
+function _safeNum(v, fallback = 0) {
+  return Number.isFinite(v) ? v : fallback;
+}
 
-    computeMIBase(team);
+function _safeDiv(a, b, fallback = 0) {
+  return (Number.isFinite(a) && Number.isFinite(b) && b !== 0) ? (a / b) : fallback;
+}
+
+function _mean(values) {
+  const arr = values.filter(Number.isFinite);
+  if (!arr.length) return 0;
+  return arr.reduce((s, v) => s + v, 0) / arr.length;
+}
+
+function _sd(values, mean = null) {
+  const arr = values.filter(Number.isFinite);
+  if (arr.length < 2) return 0;
+  const m = (mean == null) ? _mean(arr) : mean;
+  const variance = arr.reduce((s, v) => s + Math.pow(v - m, 2), 0) / arr.length;
+  return Math.sqrt(variance);
+}
+
+function _zFromStats(value, stats) {
+  if (!Number.isFinite(value) || !stats) return 0;
+  const sd = stats.sd || 0;
+  if (!Number.isFinite(sd) || sd <= 1e-9) return 0;
+  return (value - stats.mean) / sd;
+}
+
+function _makeStats(values) {
+  const mean = _mean(values);
+  const sd = _sd(values, mean);
+  return { mean, sd };
+}
+
+function _stabilizedWinRate(w, l, priorMean, priorWeight = 4) {
+  const W = _safeNum(w, 0);
+  const L = _safeNum(l, 0);
+  const G = W + L;
+  return (W + priorMean * priorWeight) / (G + priorWeight);
+}
+
+function prepareResumeContextStatsV2() {
+  const teams = (TEAM_LIST || [])
+    .map(name => TEAMS[name])
+    .filter(Boolean);
+
+  if (!teams.length) {
+    RESUME_CONTEXT_STATS_V2 = null;
     return;
   }
 
-  const z_wp = zScore(team.wp, FIELD_STATS.wp.mean, FIELD_STATS.wp.sd || 0.00001);
-  const z_P  = zScore(team.P,  FIELD_STATS.P.mean,  FIELD_STATS.P.sd  || 0.00001);
+  // --------------------------------------------------------
+  // 1) field prior means for stabilized Q1 / Q2 conversion
+  // --------------------------------------------------------
+  let totalQ1W = 0, totalQ1G = 0;
+  let totalQ2W = 0, totalQ2G = 0;
 
-  const R = (z_wp + z_P) / 2;
+  for (const team of teams) {
+    const q1w = _safeNum(team.q1w, 0);
+    const q1l = _safeNum(team.q1l, 0);
+    const q2w = _safeNum(team.q2w, 0);
+    const q2l = _safeNum(team.q2l, 0);
 
-  let adj, tier;
+    totalQ1W += q1w;
+    totalQ1G += (q1w + q1l);
 
-  if (R >= 1.00) {
-    adj = 0.15; tier = 'Elite';
-  } else if (R >= 0.80) {
-    adj = 0.10; tier = 'Strong';
-  } else if (R >= 0.60) {
-    adj = 0.05; tier = 'Above Average';
-  } else if (R >= 0.00) {
-    adj = 0.00; tier = 'Average';
-  } else if (R > -0.80) {
-    adj = -0.15; tier = 'Weak';
-  } else { // R <= -0.80
-    adj = -0.25; tier = 'Fragile';
+    totalQ2W += q2w;
+    totalQ2G += (q2w + q2l);
   }
+
+  const q1PriorMean = _safeDiv(totalQ1W, totalQ1G, 0.5);
+  const q2PriorMean = _safeDiv(totalQ2W, totalQ2G, 0.5);
+  const priorWeight = 4;
+
+  // --------------------------------------------------------
+  // 2) build raw component values for every team
+  // --------------------------------------------------------
+  const qwcVals = [];
+  const qwvAdjVals = [];
+  const blrVals = [];
+  const oppShareVals = [];
+  const wpVals = [];
+  const sosVals = [];
+
+  for (const team of teams) {
+    const q1w = _safeNum(team.q1w, 0);
+    const q1l = _safeNum(team.q1l, 0);
+    const q2w = _safeNum(team.q2w, 0);
+    const q2l = _safeNum(team.q2l, 0);
+    const q3w = _safeNum(team.q3w, 0);
+    const q3l = _safeNum(team.q3l, 0);
+    const q4w = _safeNum(team.q4w, 0);
+    const q4l = _safeNum(team.q4l, 0);
+
+    const q1g = q1w + q1l;
+    const q2g = q2w + q2l;
+    const q3g = q3w + q3l;
+    const q4g = q4w + q4l;
+    const totalGames = Math.max(1, q1g + q2g + q3g + q4g);
+
+    const q1Stable = _stabilizedWinRate(q1w, q1l, q1PriorMean, priorWeight);
+    const q2Stable = _stabilizedWinRate(q2w, q2l, q2PriorMean, priorWeight);
+
+    const qwc = 0.65 * q1Stable + 0.35 * q2Stable;
+    const qwvRaw = (1.00 * q1w) + (0.60 * q2w);
+    const qwvAdj = Math.log1p(Math.max(0, qwvRaw));
+    const blr = -(0.45 * q3l + 1.00 * q4l);
+    const oppShare = ((1.00 * q1g) + (0.60 * q2g)) / totalGames;
+
+    team._resumeV2Parts = {
+      q1w, q1l, q2w, q2l, q3w, q3l, q4w, q4l,
+      q1g, q2g, q3g, q4g, totalGames,
+      q1Stable, q2Stable,
+      qwc,
+      qwvRaw,
+      qwvAdj,
+      blr,
+      oppShare,
+      wp: _safeNum(team.wp, 0),
+      sos: _safeNum(team.sos, 0),
+    };
+
+    qwcVals.push(qwc);
+    qwvAdjVals.push(qwvAdj);
+    blrVals.push(blr);
+    oppShareVals.push(oppShare);
+    wpVals.push(_safeNum(team.wp, 0));
+    sosVals.push(_safeNum(team.sos, 0));
+  }
+
+  const qwcStats = _makeStats(qwcVals);
+  const qwvAdjStats = _makeStats(qwvAdjVals);
+  const blrStats = _makeStats(blrVals);
+  const oppShareStats = _makeStats(oppShareVals);
+  const wpStats = _makeStats(wpVals);
+  const sosStats = _makeStats(sosVals);
+
+  // --------------------------------------------------------
+  // 3) build composite raw résumé score for every team
+  // --------------------------------------------------------
+  const rawVals = [];
+
+  for (const team of teams) {
+    const p = team._resumeV2Parts || {};
+
+    const zQwc      = _zFromStats(p.qwc, qwcStats);
+    const zQwvAdj   = _zFromStats(p.qwvAdj, qwvAdjStats);
+    const zBlr      = _zFromStats(p.blr, blrStats);
+    const zOppShare = _zFromStats(p.oppShare, oppShareStats);
+    const zWp       = _zFromStats(p.wp, wpStats);
+    const zSos      = _zFromStats(p.sos, sosStats);
+
+    const scheduleHardness = 0.65 * zSos + 0.35 * zOppShare;
+
+    const raw =
+      0.30 * zQwc +
+      0.20 * zQwvAdj +
+      0.25 * zBlr +
+      0.15 * scheduleHardness +
+      0.10 * zWp;
+
+    p.zQwc = zQwc;
+    p.zQwvAdj = zQwvAdj;
+    p.zBlr = zBlr;
+    p.zOppShare = zOppShare;
+    p.zWp = zWp;
+    p.zSos = zSos;
+    p.scheduleHardness = scheduleHardness;
+    p.raw = raw;
+
+    rawVals.push(raw);
+  }
+
+  const rawStats = _makeStats(rawVals);
+
+  RESUME_CONTEXT_STATS_V2 = {
+    priorWeight,
+    q1PriorMean,
+    q2PriorMean,
+    qwcStats,
+    qwvAdjStats,
+    blrStats,
+    oppShareStats,
+    wpStats,
+    sosStats,
+    rawStats,
+  };
+}
+
+// ---------- Résumé Context Score (R) V2 ----------
+
+function computeResumeContextForTeam(team, opts = MI_V2_DEFAULTS) {
+  const S = RESUME_CONTEXT_STATS_V2;
+
+  if (!team || !S || !team._resumeV2Parts) {
+    team.resumeIndex = 0;
+    team.resumeTier = 'Average';
+    team.resumeRTier = 'Average';
+
+    team.resumeBaseTrust = 1.00;
+    team.resumeIntTrust = 1.00;
+    team.resumeConfidenceTrust = 1.00;
+
+    team.resumeR = 0;
+
+    team.resumeIndex_v2 = 0;
+    team.resumeTier_v2 = 'Average';
+    team.resumeBaseTrust_v2 = 1.00;
+    team.resumeIntTrust_v2 = 1.00;
+    team.resumeConfidenceTrust_v2 = 1.00;
+
+    team.resumeBreakdown = null;
+    team.resumeBreakdown_v2 = null;
+    return;
+  }
+
+  const p = team._resumeV2Parts;
+  const R = _zFromStats(p.raw, S.rawStats);
+  const tier = getResumeTierFromIndexV2(R);
+
+  const baseTrust = opts.useResumeBaseTrust ? getResumeBaseTrustFactorV2(tier) : 1.00;
+  const intTrust  = opts.useResumeInteractionTrust ? getResumeInteractionFactorV2(tier) : 1.00;
+  const confTrust = opts.useResumeConfidenceTrust ? getResumeConfidenceFactorV2(tier) : 1.00;
 
   team.resumeIndex = R;
-  team.resumeR     = adj;
+  team.resumeTier = tier;
   team.resumeRTier = tier;
 
-  computeMIBase(team);
+  team.resumeBaseTrust = baseTrust;
+  team.resumeIntTrust = intTrust;
+  team.resumeConfidenceTrust = confTrust;
+
+  // keep this for backwards compatibility / UI debug
+  team.resumeR = R;
+
+  team.resumeIndex_v2 = R;
+  team.resumeTier_v2 = tier;
+  team.resumeBaseTrust_v2 = baseTrust;
+  team.resumeIntTrust_v2 = intTrust;
+  team.resumeConfidenceTrust_v2 = confTrust;
+
+  team.resumeBreakdown = {
+    q1Stable: p.q1Stable,
+    q2Stable: p.q2Stable,
+    qwc: p.qwc,
+    qwvRaw: p.qwvRaw,
+    qwvAdj: p.qwvAdj,
+    blr: p.blr,
+    oppShare: p.oppShare,
+    zQwc: p.zQwc,
+    zQwvAdj: p.zQwvAdj,
+    zBlr: p.zBlr,
+    zOppShare: p.zOppShare,
+    zWp: p.zWp,
+    zSos: p.zSos,
+    scheduleHardness: p.scheduleHardness,
+    raw: p.raw,
+    finalResumeIndex: R,
+  };
+
+  team.resumeBreakdown_v2 = { ...team.resumeBreakdown };
 }
 
-// ---------- Interaction Metrics (Directional, Tiered, Half-Mirrored) ----------
+// ---------- Interaction Metrics (Directional, Continuous, Gated) ----------
 
-function halfMirroredAdjust(gap) {
-  const mag = Math.abs(gap);
-  if (mag < 0.50) return 0;
-  if (mag < 1.00) return 0.25;
-  return 0.50;
+const INTERACTION_CHANNEL_META = {
+  turnover_pressure: {
+    tier: 'high',
+    weight: 1.00,
+    gain: 1.00,
+    penalty: 0.85
+  },
+
+  perimeter_variance_pressure: {
+    tier: 'high',
+    weight: 0.95,
+    gain: 1.00,
+    penalty: 0.80
+  },
+
+  rim_access_pressure: {
+    tier: 'medium',
+    weight: 0.75,
+    gain: 0.90,
+    penalty: 0.72
+  },
+
+  foul_pressure: {
+    tier: 'low',
+    weight: 0.50,
+    gain: 0.72,
+    penalty: 0.55
+  },
+
+  rebounding_pressure: {
+    tier: 'low',
+    weight: 0.50,
+    gain: 0.68,
+    penalty: 0.52
+  }
+};
+
+function softGapScore(edge, slope = 1.35, cap = 1.0) {
+  const x = Number(edge) || 0;
+  const y = (2 / (1 + Math.exp(-slope * x))) - 1; // [-1, 1]
+  return Math.max(-cap, Math.min(cap, y * cap));
 }
 
-// Shared interaction accumulator (reset in computeInteractions)
-let __INT = { a: 0, b: 0, breakdown: {} };
-
-// Small helpers to apply mirrored adjustments and record a breakdown entry
-function _applyToA(base, tag) {
-  if (!base) return;
-  __INT.a += base;
-  __INT.b -= base;
-  __INT.breakdown[tag] = (__INT.breakdown[tag] || 0) + base;
+function interactionGate(absBaselineDiff, mid = 1.75, slope = 1.40, floor = 0.20) {
+  const x = Number(absBaselineDiff) || 0;
+  const logistic = 1 / (1 + Math.exp(slope * (x - mid)));
+  return floor + (1 - floor) * logistic;
 }
 
-function _applyToB(base, tag) {
-  if (!base) return;
-  __INT.b += base;
-  __INT.a -= base;
-  __INT.breakdown[tag] = (__INT.breakdown[tag] || 0) - base;
+function interactionDisplayStrength(absVal) {
+  if (absVal >= 0.45) return 'high';
+  if (absVal >= 0.20) return 'medium';
+  if (absVal > 0.00) return 'low';
+  return 'none';
 }
 
-/* 1) 3PT Tension */
-function interaction3PT(a, b) {
-  const offA = (getZ(a, 'threepr') + getZ(a, 'threepp') + getZ(a, 'pct_pts_3')) / 3;
-  const offB = (getZ(b, 'threepr') + getZ(b, 'threepp') + getZ(b, 'pct_pts_3')) / 3;
+function resolveInteractionChannel({
+  key,
+  label,
+  a_on_b,
+  b_on_a,
+  importance,
+  gate
+}) {
+  const meta = INTERACTION_CHANNEL_META[key] || {
+    tier: 'medium',
+    weight: Number(importance) || 1.00,
+    gain: 1.00,
+    penalty: 1.00
+  };
 
-  // Defensive perimeter resistance (invert: lower opp values = stronger defense)
-  const defA = (getZ(a, 'opp_3pr', true) + getZ(a, 'opp_3pp', true)) / 2;
-  const defB = (getZ(b, 'opp_3pr', true) + getZ(b, 'opp_3pp', true)) / 2;
+  const raw_edge = a_on_b - b_on_a;
+  const soft_edge = softGapScore(raw_edge);
 
-  const gapA = offA - defB; // A offense vs B perimeter D
-  const gapB = offB - defA; // B offense vs A perimeter D
+  const weight = Number(meta.weight) || 1.00;
+  const gain = Number(meta.gain) || 1.00;
+  const penalty = Number(meta.penalty) || 1.00;
 
-  if (Math.abs(gapA) >= Math.abs(gapB)) {
-    const base = halfMirroredAdjust(gapA);
-    if (gapA > 0) _applyToA(base, '3pt'); else _applyToB(base, '3pt');
-  } else {
-    const base = halfMirroredAdjust(gapB);
-    if (gapB > 0) _applyToB(base, '3pt'); else _applyToA(base, '3pt');
-  }
+  const contribution = soft_edge * weight * gate;
+  const aAdj = contribution * gain;
+  const bAdj = -contribution * penalty;
+
+  return {
+    key,
+    label,
+    tier: meta.tier || 'medium',
+    a_on_b,
+    b_on_a,
+    raw_edge,
+    soft_edge,
+    importance: weight,
+    weight,
+    gain,
+    penalty,
+    gate,
+    contribution,
+    aAdj,
+    bAdj,
+    edge:
+      contribution > 0 ? 'FAVORS A' :
+      contribution < 0 ? 'FAVORS B' :
+      'EVEN',
+    winner:
+      contribution > 0 ? 'A' :
+      contribution < 0 ? 'B' :
+      null,
+    display_strength: interactionDisplayStrength(Math.max(Math.abs(aAdj), Math.abs(bAdj)))
+  };
 }
 
-/* 2) FT Pressure (FT% + FTR + %Pts from FT vs foul discipline) */
-function interactionFT(a, b) {
-  // Offensive FT score: blend FTR, FT%, and % of points from FT (all z-scored)
-  const offFTA =
-    (getZ(a, 'ftr') + getZ(a, 'ft_pct') + getZ(a, 'pct_pts_ft')) / 3;
-  const offFTB =
-    (getZ(b, 'ftr') + getZ(b, 'ft_pct') + getZ(b, 'pct_pts_ft')) / 3;
+function computeTurnoverPressure(a, b, gate) {
+  const forceA =
+    0.55 * getZ(a, 'opp_to') +
+    0.25 * getZ(a, 'spp') +
+    0.20 * getZ(a, 'opp_ast_poss', true);
 
-  // Defensive FT discipline: lower OppFTR = better, so invert
-  const defFTA = getZ(a, 'opp_ftr', true);
-  const defFTB = getZ(b, 'opp_ftr', true);
+  const vulnB =
+    0.75 * getZ(b, 'to') +
+    0.25 * getZ(b, 'opp_ast_poss');
 
-  // Tension gaps: offense vs the *other* team’s FT discipline
-  const gapA = offFTA - defFTB; // Team A offense vs Team B FT defense
-  const gapB = offFTB - defFTA; // Team B offense vs Team A FT defense
+  const forceB =
+    0.55 * getZ(b, 'opp_to') +
+    0.25 * getZ(b, 'spp') +
+    0.20 * getZ(b, 'opp_ast_poss', true);
 
-  // Choose the side with the stronger leverage signal
-  if (Math.abs(gapA) >= Math.abs(gapB)) {
-    const base = halfMirroredAdjust(gapA);
-    if (base) {
-      if (gapA > 0) _applyToA(base, 'ft');
-      else          _applyToB(base, 'ft');
-    }
-  } else {
-    const base = halfMirroredAdjust(gapB);
-    if (base) {
-      if (gapB > 0) _applyToB(base, 'ft');
-      else          _applyToA(base, 'ft');
-    }
-  }
+  const vulnA =
+    0.75 * getZ(a, 'to') +
+    0.25 * getZ(a, 'opp_ast_poss');
+
+  const a_on_b = 0.60 * forceA + 0.40 * vulnB;
+  const b_on_a = 0.60 * forceB + 0.40 * vulnA;
+
+  return resolveInteractionChannel({
+    key: 'turnover_pressure',
+    label: 'Turnover Pressure',
+    a_on_b,
+    b_on_a,
+    importance: INTERACTION_CHANNEL_META.turnover_pressure,
+    gate
+  });
 }
 
-/* 3) Paint Presence (2P profile vs rim protection) */
-function interactionPaint(a, b) {
-  const offA = (getZ(a, 'pct_pts_2') + getZ(a, 'nb2')) / 2;
-  const offB = (getZ(b, 'pct_pts_2') + getZ(b, 'nb2')) / 2;
+function computeReboundingPressure(a, b, gate) {
+  const a_on_b =
+    0.70 * getZ(a, 'orb') -
+    0.30 * getZ(b, 'drb');
 
-  // Rim protection: invert def_efg (lower = better), blk is normal
-  const rimDefA = (getZ(a, 'def_efg', true) + getZ(a, 'blk')) / 2;
-  const rimDefB = (getZ(b, 'def_efg', true) + getZ(b, 'blk')) / 2;
+  const b_on_a =
+    0.70 * getZ(b, 'orb') -
+    0.30 * getZ(a, 'drb');
 
-  const gapA = offA - rimDefB;
-  const gapB = offB - rimDefA;
-
-  if (Math.abs(gapA) >= Math.abs(gapB)) {
-    const base = halfMirroredAdjust(gapA);
-    if (gapA > 0) _applyToA(base, 'paint'); else _applyToB(base, 'paint');
-  } else {
-    const base = halfMirroredAdjust(gapB);
-    if (gapB > 0) _applyToB(base, 'paint'); else _applyToA(base, 'paint');
-  }
+  return resolveInteractionChannel({
+    key: 'rebounding_pressure',
+    label: 'Rebounding Pressure',
+    a_on_b,
+    b_on_a,
+    importance: INTERACTION_CHANNEL_META.rebounding_pressure,
+    gate
+  });
 }
 
-/* 4) Turnover Pressure (ball pressure + disruption vs ball security) */
-function interactionTO(a, b) {
-  // Defensive pressure: steals, forced TOs, and limiting assisted possessions
-  const pressA = (
-    getZ(a, 'spp') +                 // steals / possession
-    getZ(a, 'otpp') +                // opponent TO / possession
-    getZ(a, 'opp_ast_poss', true)    // invert: lower opp AST/poss = more disruption
-  ) / 3;
+function computeFoulPressure(a, b, gate) {
+  const drawA =
+    0.85 * getZ(a, 'ftr') +
+    0.15 * getZ(a, 'pct_pts_ft');
 
-  const pressB = (
-    getZ(b, 'spp') +
-    getZ(b, 'otpp') +
-    getZ(b, 'opp_ast_poss', true)
-  ) / 3;
+  const vulnB =
+    getZ(b, 'opp_ftr', true); // invert discipline -> vulnerability
 
-  // Offensive ball security (already inverted in Core): higher = safer
-  const secA = getZ(a, 'to', true);
-  const secB = getZ(b, 'to', true);
+  const drawB =
+    0.85 * getZ(b, 'ftr') +
+    0.15 * getZ(b, 'pct_pts_ft');
 
-  const gapA = pressA - secB; // A defense vs B offense
-  const gapB = pressB - secA; // B defense vs A offense
+  const vulnA =
+    getZ(a, 'opp_ftr', true);
 
-  if (Math.abs(gapA) >= Math.abs(gapB)) {
-    const base = halfMirroredAdjust(gapA);
-    if (base) {
-      if (gapA > 0) _applyToA(base, 'to');
-      else          _applyToB(base, 'to');
-    }
-  } else {
-    const base = halfMirroredAdjust(gapB);
-    if (base) {
-      if (gapB > 0) _applyToB(base, 'to');
-      else          _applyToA(base, 'to');
-    }
-  }
+  const a_on_b = 0.60 * drawA + 0.40 * vulnB;
+  const b_on_a = 0.60 * drawB + 0.40 * vulnA;
+
+  return resolveInteractionChannel({
+    key: 'foul_pressure',
+    label: 'Foul Pressure',
+    a_on_b,
+    b_on_a,
+    importance: INTERACTION_CHANNEL_META.foul_pressure,
+    gate
+  });
 }
 
-/* 5) Possession Manager (second chances vs denial) */
-function interactionGlass(a, b) {
-  // Use 'scpg' for extra scoring chances per game
-  const offGlassA = (getZ(a, 'orb') + getZ(a, 'scpg')) / 2;
-  const offGlassB = (getZ(b, 'orb') + getZ(b, 'scpg')) / 2;
-  const defGlassA = getZ(a, 'drb');
-  const defGlassB = getZ(b, 'drb');
+function computeRimAccessPressure(a, b, gate) {
+  const accessA =
+    0.65 * getZ(a, 'nb2') +
+    0.20 * getZ(a, 'pct_pts_2') +
+    0.15 * getZ(a, 'efg');
 
-  const gapA = offGlassA - defGlassB;
-  const gapB = offGlassB - defGlassA;
+  const rimDefB =
+    0.70 * getZ(b, 'blk') +
+    0.30 * getZ(b, 'def_efg', true);
 
-  if (Math.abs(gapA) >= Math.abs(gapB)) {
-    const base = halfMirroredAdjust(gapA);
-    if (gapA > 0) _applyToA(base, 'glass'); else _applyToB(base, 'glass');
-  } else {
-    const base = halfMirroredAdjust(gapB);
-    if (gapB > 0) _applyToB(base, 'glass'); else _applyToA(base, 'glass');
-  }
+  const accessB =
+    0.65 * getZ(b, 'nb2') +
+    0.20 * getZ(b, 'pct_pts_2') +
+    0.15 * getZ(b, 'efg');
+
+  const rimDefA =
+    0.70 * getZ(a, 'blk') +
+    0.30 * getZ(a, 'def_efg', true);
+
+  const a_on_b = accessA - rimDefB;
+  const b_on_a = accessB - rimDefA;
+
+  return resolveInteractionChannel({
+    key: 'rim_access_pressure',
+    label: 'Rim Access Pressure',
+    a_on_b,
+    b_on_a,
+    importance: INTERACTION_CHANNEL_META.rim_access_pressure,
+    gate
+  });
 }
 
-/* 6) Physicality / Contact Tolerance */
-function interactionPhysicality(a, b) {
-  // Offensive physicality: lives in contact and the paint
-  const physOffA = (
-    getZ(a, 'ftr') +          // draw fouls
-    getZ(a, 'pct_pts_2') +    // % of points from 2s
-    getZ(a, 'nb2')            // non-blocked 2s
-  ) / 3;
+function computePerimeterVariancePressure(a, b, gate) {
+  const varianceA =
+    0.60 * getZ(a, 'threepr') +
+    0.40 * getZ(a, 'pct_pts_3');
 
-  const physOffB = (
-    getZ(b, 'ftr') +
-    getZ(b, 'pct_pts_2') +
-    getZ(b, 'nb2')
-  ) / 3;
+  const resistB =
+    0.80 * getZ(b, 'opp_3pr', true) +
+    0.20 * getZ(b, 'opp_3pp', true);
 
-  // Defensive contact tolerance: rim resistance + foul discipline
-  const tolDefA = (
-    getZ(a, 'blk') +              // rim challenge
-    getZ(a, 'def_efg', true) +    // invert: lower Def eFG% = better
-    getZ(a, 'opp_ftr', true)      // invert: lower OppFTR = better discipline
-  ) / 3;
+  const varianceB =
+    0.60 * getZ(b, 'threepr') +
+    0.40 * getZ(b, 'pct_pts_3');
 
-  const tolDefB = (
-    getZ(b, 'blk') +
-    getZ(b, 'def_efg', true) +
-    getZ(b, 'opp_ftr', true)
-  ) / 3;
+  const resistA =
+    0.80 * getZ(a, 'opp_3pr', true) +
+    0.20 * getZ(a, 'opp_3pp', true);
 
-  const gapA = physOffA - tolDefB; // A's physical style vs B's tolerance
-  const gapB = physOffB - tolDefA; // B's physical style vs A's tolerance
+  const a_on_b = varianceA - resistB;
+  const b_on_a = varianceB - resistA;
 
-  // Choose the stronger directional signal, then half-mirror
-  if (Math.abs(gapA) >= Math.abs(gapB)) {
-    const base = halfMirroredAdjust(gapA);
-    if (!base) return;
-    if (gapA > 0) _applyToA(base, 'phys');  // A's physicality stresses B
-    else          _applyToB(base, 'phys');  // B's interior toughness wins
-  } else {
-    const base = halfMirroredAdjust(gapB);
-    if (!base) return;
-    if (gapB > 0) _applyToB(base, 'phys');
-    else          _applyToA(base, 'phys');
-  }
-}
-
-/* 7) Shot Quality / Shot Discipline */
-function interactionShotQuality(a, b) {
-  // Offensive shot quality: efficiency + geometry + clean interior looks
-  const sqA = (
-    getZ(a, 'efg') +          // overall shot efficiency
-    getZ(a, 'threepr') +      // 3P rate (spacing / geometry)
-    getZ(a, 'nb2')            // non-blocked 2s (clean paint looks)
-  ) / 3;
-
-  const sqB = (
-    getZ(b, 'efg') +
-    getZ(b, 'threepr') +
-    getZ(b, 'nb2')
-  ) / 3;
-
-  // Defensive shot discipline: suppress eFG and assisted, in-rhythm looks
-  const sdA = (
-    getZ(a, 'def_efg', true) +      // invert: lower Def eFG% = better
-    getZ(a, 'opp_ast_poss', true)   // invert: lower opp AST/poss = more disruption
-  ) / 2;
-
-  const sdB = (
-    getZ(b, 'def_efg', true) +
-    getZ(b, 'opp_ast_poss', true)
-  ) / 2;
-
-  const gapA = sqA - sdB; // A's shot diet vs B's ability to distort it
-  const gapB = sqB - sdA; // B's shot diet vs A's disruption
-
-  if (Math.abs(gapA) >= Math.abs(gapB)) {
-    const base = halfMirroredAdjust(gapA);
-    if (!base) return;
-    if (gapA > 0) _applyToA(base, 'shotq'); // A keeps its shot diet intact
-    else          _applyToB(base, 'shotq'); // B meaningfully distorts A
-  } else {
-    const base = halfMirroredAdjust(gapB);
-    if (!base) return;
-    if (gapB > 0) _applyToB(base, 'shotq');
-    else          _applyToA(base, 'shotq');
-  }
-}
-
-/* 8) Variance Sensitivity */
-function interactionVariance(a, b) {
-  // --- Helper: Turnover Fragility index (same logic as the mark, but numeric)
-  function getTurnoverFragility(team) {
-    // stability = good if -TO% high and EPR high
-    const stability = (-getZ(team, 'to') + getZ(team, 'epr')) / 2;
-    // fragility = inverse of stability
-    return -stability;
-  }
-
-  // --- Helper: small bonus for shot-volatility marks
-  function getVarianceMarkBonus(team) {
-    const marks = Array.isArray(team.profileMarks) ? team.profileMarks : [];
-    let bonus = 0;
-
-    if (marks.includes('Unstable Perimeter — Severe')) bonus += 0.10;
-    else if (marks.includes('Unstable Perimeter — Moderate')) bonus += 0.05;
-
-    if (marks.includes('Cold Arc Team — Severe')) bonus += 0.10;
-    else if (marks.includes('Cold Arc Team — Moderate')) bonus += 0.05;
-
-    return bonus;
-  }
-
-  // Variance Exposure Index (VEI): how volatile this team's style is
-  function getVEI(team) {
-    const threeVol   = getZ(team, 'threepr');        // high 3P rate → more variance
-    const lowFTR     = getZ(team, 'ftr', true);      // low FTR → fewer stabilizing FTs
-    const lowORB     = getZ(team, 'orb', true);      // low ORB → fewer extra chances
-    const toFrag     = getTurnoverFragility(team);   // bad TO/EPR mix → volatility
-    const markBonus  = getVarianceMarkBonus(team);   // add small boost for bad marks
-
-    return (
-      0.40 * threeVol +
-      0.20 * lowFTR +
-      0.20 * lowORB +
-      0.20 * toFrag +
-      markBonus
-    );
-  }
-
-  // Opponent Stabilization Index (OSI): how much this team suppresses volatility
-  function getOSI(team) {
-    const press     = getZ(team, 'otpp');          // forces TOs → punishes fragile styles
-    const dReb      = getZ(team, 'drb');           // strong DRB → removes 2nd-chance safety
-    const ftDisc    = getZ(team, 'opp_ftr', true); // invert: lower OppFTR = fewer free points
-    const perimDisc = getZ(team, 'opp_3pp', true); // invert: lower Opp3P% = stabilizes 3-happy foes
-
-    return (press + dReb + ftDisc + perimDisc) / 4;
-  }
-
-  const veiA = getVEI(a);
-  const veiB = getVEI(b);
-  const osiA = getOSI(a);
-  const osiB = getOSI(b);
-
-  // "Risk exposure" for each side: how much their volatility is *exposed* by this opponent
-  const riskA = veiA - osiB;
-  const riskB = veiB - osiA;
-
-  // We treat higher risk as a liability and award leverage to the more stable side
-  if (Math.abs(riskA) >= Math.abs(riskB)) {
-    const base = halfMirroredAdjust(riskA);
-    if (!base) return;
-
-    if (riskA > 0) {
-      // A's volatility is exposed by B → favors B
-      _applyToB(base, 'var');
-    } else if (riskA < 0) {
-      // B cannot meaningfully punish A's volatility → favors A (A effectively more stable here)
-      _applyToA(base, 'var');
-    }
-  } else {
-    const base = halfMirroredAdjust(riskB);
-    if (!base) return;
-
-    if (riskB > 0) {
-      // B's volatility is exposed by A → favors A
-      _applyToA(base, 'var');
-    } else if (riskB < 0) {
-      // A cannot meaningfully punish B's volatility → favors B
-      _applyToB(base, 'var');
-    }
-  }
+  return resolveInteractionChannel({
+    key: 'perimeter_variance_pressure',
+    label: 'Perimeter Variance Pressure',
+    a_on_b,
+    b_on_a,
+    importance: INTERACTION_CHANNEL_META.perimeter_variance_pressure,
+    gate
+  });
 }
 
 function computeInteractions(a, b) {
-  __INT = { a: 0, b: 0, breakdown: {} }; // reset
+  const baseA =
+    Number(a?.mi_base ?? a?.mibs ?? a?.miBase ?? a?.base ?? 0) || 0;
+  const baseB =
+    Number(b?.mi_base ?? b?.mibs ?? b?.miBase ?? b?.base ?? 0) || 0;
 
-  interaction3PT(a, b);
-  interactionFT(a, b);
-  interactionPaint(a, b);
-  interactionTO(a, b);
-  interactionGlass(a, b);
-  interactionPhysicality(a, b);
-  interactionShotQuality(a, b);
-  interactionVariance(a, b);
+  const absBaselineDiff = Math.abs(baseA - baseB);
+  const gate = interactionGate(absBaselineDiff);
 
-  return { a: __INT.a, b: __INT.b, breakdown: __INT.breakdown };
+  const channels = {
+    turnover_pressure: computeTurnoverPressure(a, b, gate),
+    rebounding_pressure: computeReboundingPressure(a, b, gate),
+    foul_pressure: computeFoulPressure(a, b, gate),
+    rim_access_pressure: computeRimAccessPressure(a, b, gate),
+    perimeter_variance_pressure: computePerimeterVariancePressure(a, b, gate)
+  };
+
+  const totalA = Object.values(channels).reduce((sum, ch) => sum + (ch.aAdj || 0), 0);
+  const totalB = Object.values(channels).reduce((sum, ch) => sum + (ch.bAdj || 0), 0);
+
+  const breakdown = {};
+  Object.values(channels).forEach(ch => {
+    breakdown[ch.key] = ch;
+  });
+
+  return {
+    a: totalA,
+    b: totalB,
+    gate,
+    absBaselineDiff,
+    channels,
+    breakdown
+  };
 }
 
 // ---------- Profile Marks (Diagnostic Only) ----------
@@ -2960,24 +3711,47 @@ function computeProfileMarks(team) {
   team.profileMarks = marks;
 }
 
-// ---------- Full Team Layer Computation ----------
+// ------------------------------------------------------------
+// Full team layer pass
+// Two-pass baseline orchestration
+// ------------------------------------------------------------
+function computeAllTeamLayers(opts = MI_V2_DEFAULTS) {
+  prepareResumeContextStatsV2();
 
-function computeAllTeamLayers() {
-  Object.values(TEAMS).forEach(team => {
-    computeCoreForTeam(team);
-    computeBreadthForTeam(team);
-    computeResumeContextForTeam(team);
-    computeProfileMarks(team);
+  const teams = Object.values(TEAMS || {});
+
+  // PASS 1: résumé trust + raw baseline pieces
+  teams.forEach(team => {
+    if (team.opp_ast_poss == null && team.oapp != null) {
+      team.opp_ast_poss = team.oapp;
+    }
+
+    computeResumeContextForTeam(team, opts);
+    computeCoreForTeam(team, opts);
+
+    team.raw_base = Number.isFinite(team.foundation) ? team.foundation : 0;
+    team.raw_base_v2 = team.raw_base;
+
+    if (typeof computeProfileMarks === 'function') {
+      computeProfileMarks(team);
+    }
+  });
+
+  // PASS 2: field mean + final baseline
+  const fieldMean = computeBaselineFieldMean(opts);
+
+  teams.forEach(team => {
+    computeMIBase(team, opts, fieldMean);
   });
 }
 
 // ---------- CIS / FAS Static Identity Profiles (v4.0) ----------
 
-// Small helper: count strong/weak cores from team.coreZ
+// Small helper: count strong/weak V2 core components from canonical domain rows
 function getCoreFractions(team) {
-  const z = team.coreZ || {};
-  const keys = Object.keys(z);
-  if (!keys.length) {
+  const rows = Array.isArray(team.coreDomainDetails) ? team.coreDomainDetails : [];
+
+  if (!rows.length) {
     return {
       fStrong: 0,
       fWeak: 0,
@@ -2987,19 +3761,31 @@ function getCoreFractions(team) {
   }
 
   let strongCount = 0;
-  let weakCount   = 0;
+  let weakCount = 0;
+  let total = 0;
 
-  keys.forEach(k => {
-    const val = z[k];
-    if (typeof val !== 'number') return;
+  rows.forEach(row => {
+    const val = row?.value;
+    if (typeof val !== 'number' || !Number.isFinite(val)) return;
+
+    total++;
+
     if (val >= 0.80) strongCount++;
     else if (val < 0.50) weakCount++;
   });
 
-  const total = keys.length;
+  if (!total) {
+    return {
+      fStrong: 0,
+      fWeak: 0,
+      strongCount: 0,
+      weakCount: 0
+    };
+  }
+
   return {
     fStrong: strongCount / total,
-    fWeak:   weakCount   / total,
+    fWeak: weakCount / total,
     strongCount,
     weakCount
   };
@@ -3011,41 +3797,48 @@ function computeStaticIdentities() {
   const n = teams.length;
   if (!n) return;
 
-  // 1) Make sure MI_base is populated and collect values
-  const miValues = [];
-  teams.forEach(t => {
-    if (typeof t.mi_base !== 'number') {
-      computeMIBase(t);
-    }
-    miValues.push(t.mi_base || 0);
-  });
-
-  // 2) Performance percentile P via rank-percentile of MI_base
-  const sorted = teams.slice().sort((a, b) => (a.mi_base || 0) - (b.mi_base || 0));
-  const perfMap = new Map();
-  sorted.forEach((t, idx) => {
-    // rank-percentile: lower MI_base = lower percentile
-    const P = (idx + 0.5) / n;
-    perfMap.set(t.name, P);
-  });
-
-  console.log("[IDENTITY DBG] perfMap size:", perfMap.size, "teams:", n);
-  console.log("[IDENTITY DBG] P samples:",
-    teams.slice(0, 5).map(t => ({
-      name: t.name,
-      seed: t.seed,
-      mi_base: t.mi_base,
-      P: perfMap.get(t.name)
-    }))
+  // 1) Make sure V2 baseline + résumé trust are populated
+  const needsResumeRefresh = teams.some(team =>
+    typeof team.resumeBaseTrust !== 'number' || !Number.isFinite(team.resumeBaseTrust)
   );
+
+  if (needsResumeRefresh) {
+    prepareResumeContextStatsV2();
+    teams.forEach(team => computeResumeContextForTeam(team));
+  }
+
+  teams.forEach(team => {
+    if (typeof team.mi_base !== 'number' || !Number.isFinite(team.mi_base)) {
+      computeMIBase(team);
+    }
+  });
+
+  // 2) Performance percentile via rank-percentile of MI_base
+  const sorted = teams
+    .slice()
+    .sort((a, b) => ((a.mi_base || 0) - (b.mi_base || 0)));
+
+  const perfMap = new Map();
+  sorted.forEach((team, idx) => {
+    const P = (idx + 0.5) / n;
+    perfMap.set(team.name, P);
+  });
 
   // 3) Compute raw CIS/FAS
   let cisRawMax = 0;
   let fasRawMax = 0;
 
   teams.forEach(team => {
-    const s = team.seed;
-    if (s == null) {
+    const s = Number(team.seed);
+
+    if (!Number.isFinite(s)) {
+      team.performancePercentile = 0.5;
+
+      team.coreStrongCount = 0;
+      team.coreWeakCount = 0;
+      team.coreStrongFrac = 0;
+      team.coreWeakFrac = 0;
+
       team.cis_raw = 0;
       team.fas_raw = 0;
       return;
@@ -3054,38 +3847,38 @@ function computeStaticIdentities() {
     const P = perfMap.get(team.name) ?? 0.5;
     team.performancePercentile = P;
 
-  // 1–99 Madness Index Rating (cosmetic, based on MI_base percentile)
-  let rating = Math.round(P * 100);
-  if (rating < 1) rating = 1;
-  if (rating > 99) rating = 99;
-  team.mi_rating = rating;    
-
-    const Sf = (17 - s) / 16; // favorite-side index
-    const Su = (s - 1) / 16;  // underdog-side index
+    const Sf = (17 - s) / 16;
+    const Su = (s - 1) / 16;
 
     const delta = P - Sf;
-    const deltaPlus = Math.max(0, delta); // for CIS
-    const APrime = 1 - Math.abs(delta);   // for FAS alignment
+    const deltaPlus = Math.max(0, delta);
+    const APrime = 1 - Math.abs(delta);
 
     const { fStrong, fWeak, strongCount, weakCount } = getCoreFractions(team);
     team.coreStrongCount = strongCount;
-    team.coreWeakCount   = weakCount;
-    team.coreStrongFrac  = fStrong;
-    team.coreWeakFrac    = fWeak;
+    team.coreWeakCount = weakCount;
+    team.coreStrongFrac = fStrong;
+    team.coreWeakFrac = fWeak;
 
     const bCoreCIS = Math.max(0, fStrong - 0.5 * fWeak);
     const bCoreFAS = fStrong * (1 - fWeak);
 
-    const R      = (typeof team.resumeR === 'number') ? team.resumeR : 0;
-    const Rplus  = 0.5 + R / 4;
+    const baseTrust = (
+      typeof team.resumeBaseTrust === 'number' &&
+      Number.isFinite(team.resumeBaseTrust)
+    ) ? team.resumeBaseTrust : 1.00;
 
-    const xCIS = 0.60 * deltaPlus +
-                 0.25 * bCoreCIS +
-                 0.15 * Rplus;
+    const Rplus = Math.max(0, Math.min(1, 0.5 + ((baseTrust - 1.00) / 0.4)));
 
-    const xFAS = 0.50 * APrime +
-                 0.30 * bCoreFAS +
-                 0.20 * Rplus;
+    const xCIS =
+      0.60 * deltaPlus +
+      0.25 * bCoreCIS +
+      0.15 * Rplus;
+
+    const xFAS =
+      0.50 * APrime +
+      0.30 * bCoreFAS +
+      0.20 * Rplus;
 
     const cisRaw = Su * xCIS;
     const fasRaw = Sf * xFAS;
@@ -3097,94 +3890,109 @@ function computeStaticIdentities() {
     if (fasRaw > fasRawMax) fasRawMax = fasRaw;
   });
 
-  // 4) Normalize to 0–100 static scores
   const EPS = 1e-6;
-  teams.forEach(team => {
-    const cisRaw = team.cis_raw || 0;
-    const fasRaw = team.fas_raw || 0;
 
-    const cis = (cisRawMax > EPS && cisRaw > 0) ? (cisRaw / cisRawMax) * 100 : 0;
-    const fas = (fasRawMax > EPS && fasRaw > 0) ? (fasRaw / fasRawMax) * 100 : 0;
+  teams.forEach(team => {
+    const cisRaw = Number.isFinite(team.cis_raw) ? team.cis_raw : 0;
+    const fasRaw = Number.isFinite(team.fas_raw) ? team.fas_raw : 0;
+
+    const cis = (cisRawMax > EPS && cisRaw > 0)
+      ? (cisRaw / cisRawMax) * 100
+      : 0;
+
+    const fas = (fasRawMax > EPS && fasRaw > 0)
+      ? (fasRaw / fasRawMax) * 100
+      : 0;
 
     team.cisStatic_raw = cis;
     team.fasStatic_raw = fas;
 
-    // v3.8: CIS/FAS become dampened baselines with headroom
     team.cisStatic = miDampenBaselineScore(cis, MI_IDENTITY_V38.capC, MI_IDENTITY_V38.gammaC);
     team.fasStatic = miDampenBaselineScore(fas, MI_IDENTITY_V38.capF, MI_IDENTITY_V38.gammaF);
   });
-
-  const sample = teams
-  .filter(t => t.seed != null)
-  .slice(0, 8)
-  .map(t => ({
-    name: t.name,
-    seed: t.seed,
-    cisStatic_raw: t.cisStatic_raw,
-    fasStatic_raw: t.fasStatic_raw,
-    cisStatic: t.cisStatic,
-    fasStatic: t.fasStatic
-  }));
-
-  console.table(sample);
 }
 
-// ---------- Baseline Madness Index (MI_base) ----------
-function computeMIBase(team) {
-  const mibs      = (typeof team.mibs === 'number') ? team.mibs : 0;
-  const breadth   = (typeof team.breadth === 'number') ? team.breadth : 0;
+// ------------------------------------------------------------
+// V4.2 MI_base
+// raw_base = foundation
+// mi_base = ResumeTrust * raw_base + (1 - ResumeTrust) * FieldMean
+// ------------------------------------------------------------
+function computeMIBase(team, opts = MI_V2_DEFAULTS, fieldMeanOverride = null) {
+  const foundation = Number.isFinite(team.foundation)
+    ? team.foundation
+    : computeCoreForTeam(team, opts);
 
-  const miBase = mibs + breadth;
+  const rawBase = Number.isFinite(foundation) ? foundation : 0;
 
-  team.mi_base = miBase;  // keep on the object for UI / downstream use
+  team.raw_base = rawBase;
+  team.raw_base_v2 = rawBase;
+
+  const baseTrust = opts.useResumeBaseTrust
+    ? (Number.isFinite(team.resumeBaseTrust) ? team.resumeBaseTrust : 1.00)
+    : 1.00;
+
+  const fieldMean = Number.isFinite(fieldMeanOverride)
+    ? fieldMeanOverride
+    : computeBaselineFieldMean(opts);
+
+  const miBase =
+    (baseTrust * rawBase) +
+    ((1 - baseTrust) * fieldMean);
+
+  team.baseTrustApplied = baseTrust;
+  team.baseTrustApplied_v2 = baseTrust;
+
+  team.field_mean_base = fieldMean;
+  team.field_mean_base_v2 = fieldMean;
+
+  // retired as canonical math, but kept as compatibility mirror
+  team.scaled_base = rawBase;
+  team.scaled_base_v2 = rawBase;
+
+  team.base = miBase;
+  team.mi_base = miBase;
+  team.mi_base_v2 = miBase;
+
   return miBase;
 }
 
-// Scale interaction leverage by résumé quality.
-// Stronger résumés "cash in" more of their matchup leverage.
+// ------------------------------------------------------------
+// Interaction trust helper (legacy function name preserved)
+// ------------------------------------------------------------
 function getResumeInteractionFactor(team) {
-  const tier = team.resumeRTier || 'Average';
-
-  switch (tier) {
-    case 'Elite':
-      return 1.00;
-    case 'Strong':
-      return 0.95;
-    case 'Above Average':
-      return 0.90;
-    case 'Average':
-      return 0.85;
-    case 'Weak':
-      return 0.70;
-    case 'Fragile':
-      return 0.50;
-    default:
-      return 0.85; // treat unknown as roughly Average
-  }
+  if (typeof team.resumeIntTrust === 'number') return team.resumeIntTrust;
+  const tier = team.resumeTier || team.resumeRTier || 'Average';
+  return getResumeInteractionFactorV2(tier);
 }
 
-// ---------- Matchup Madness Index (MI_matchup) ----------
-
-function computeFinalMI(team, interactionAdj) {
-  // Safeguard: ensure MI_base exists
+// ------------------------------------------------------------
+// V2 final MI
+// ------------------------------------------------------------
+function computeFinalMI(team, interactionAdj, opts = MI_V2_DEFAULTS) {
   const base = (typeof team.mi_base === 'number')
     ? team.mi_base
-    : computeMIBase(team);
+    : computeMIBase(team, opts);
 
-  // Raw interaction total from the interaction engine
   const intRaw = (typeof interactionAdj === 'number') ? interactionAdj : 0;
 
-  // Scale by résumé quality
-  const rFactor = getResumeInteractionFactor(team);
-  const intAdj  = intRaw * rFactor;
+  const rFactor = opts.useResumeInteractionTrust
+    ? (typeof team.resumeIntTrust === 'number' ? team.resumeIntTrust : getResumeInteractionFactor(team))
+    : 1.00;
 
+  const intAdj = intRaw * rFactor;
   const mi_matchup = base + intAdj;
 
-  // Optional: store for debugging / Explain Mode
-  team.mi_matchup   = mi_matchup;
-  team.mi_int_raw   = intRaw;   // pre-scaling leverage
-  team.mi_int       = intAdj;   // effective leverage after résumé scaling
-  team.mi_int_rFact = rFactor;  // which factor was applied
+  team.mi_matchup = mi_matchup;
+  team.mi_matchup_v2 = mi_matchup;
+
+  team.mi_int_raw = intRaw;
+  team.mi_int_raw_v2 = intRaw;
+
+  team.mi_int = intAdj;
+  team.mi_int_v2 = intAdj;
+
+  team.mi_int_rFact = rFactor;
+  team.mi_int_rFact_v2 = rFactor;
 
   return mi_matchup;
 }
@@ -3300,7 +4108,6 @@ function equalizeProfileMarksTiles() {
   tileB.style.setProperty('--marks-front-h', `${finalH}px`);
 }
 
-
 // Keep it stable on resize
 (function bindMarksEqualizer() {
   let t = null;
@@ -3312,7 +4119,576 @@ function equalizeProfileMarksTiles() {
   });
 })();
 
-function compareTeams(teamAName, teamBName, roleMode = 'auto') {
+// ------------------------------------------------------------
+// Volatility Meter Helpers
+// Matchup-level overlay (separate from interaction scoring)
+// ------------------------------------------------------------
+
+function miSigmoid(x, k = 1.0) {
+  const n = Number(x);
+  if (!Number.isFinite(n)) return 0.5;
+  return 1 / (1 + Math.exp(-k * n));
+}
+
+function miSafeZ(team, key, inverted = false) {
+  return getZ(team, key, inverted) || 0;
+}
+
+function miAvg(a, b) {
+  return (a + b) / 2;
+}
+
+function miAbsGap(a, b) {
+  return Math.abs(a - b);
+}
+
+// Small, conditional 3P% modifier:
+// 3P% only matters when the matchup is already above-average in 3P volume.
+function computeThreePointPercentageModifier(a, b) {
+  const avg_z_3pp = miAvg(
+    miSafeZ(a, 'threepp'),
+    miSafeZ(b, 'threepp')
+  );
+
+  const avg_z_3pr = miAvg(
+    miSafeZ(a, 'threepr'),
+    miSafeZ(b, 'threepr')
+  );
+
+  return avg_z_3pp * Math.max(0, avg_z_3pr);
+}
+
+function computeTempoVolRaw(a, b) {
+  const zTempoA = miSafeZ(a, 'tempo');
+  const zTempoB = miSafeZ(b, 'tempo');
+
+  const avg_z_tempo = miAvg(zTempoA, zTempoB);
+  const abs_z_tempo_gap = miAbsGap(zTempoA, zTempoB);
+
+  return 0.55 * avg_z_tempo + 0.45 * abs_z_tempo_gap;
+}
+
+function computeEPRVolRaw(a, b) {
+  const zEPRA = miSafeZ(a, 'epr');
+  const zEPRB = miSafeZ(b, 'epr');
+
+  const avg_z_epr = miAvg(zEPRA, zEPRB);
+  const inverse_avg_z_epr = -avg_z_epr;
+  const abs_z_epr_gap = miAbsGap(zEPRA, zEPRB);
+
+  return 0.60 * inverse_avg_z_epr + 0.40 * abs_z_epr_gap;
+}
+
+function computeSCPGVolRaw(a, b) {
+  const zSCPGA = miSafeZ(a, 'scpg');
+  const zSCPGB = miSafeZ(b, 'scpg');
+
+  const avg_z_scpg = miAvg(zSCPGA, zSCPGB);
+  const abs_z_scpg_gap = miAbsGap(zSCPGA, zSCPGB);
+
+  return 0.60 * avg_z_scpg + 0.40 * abs_z_scpg_gap;
+}
+
+function computeThreePointVolRaw(a, b) {
+  const z3PRA = miSafeZ(a, 'threepr');
+  const z3PRB = miSafeZ(b, 'threepr');
+
+  const zPct3A = miSafeZ(a, 'pct_pts_3');
+  const zPct3B = miSafeZ(b, 'pct_pts_3');
+
+  const avg_z_3pr = miAvg(z3PRA, z3PRB);
+  const avg_z_pct_pts_3 = miAvg(zPct3A, zPct3B);
+  const abs_z_3pr_gap = miAbsGap(z3PRA, z3PRB);
+
+  const three_point_percentage_modifier =
+    computeThreePointPercentageModifier(a, b);
+
+  return (
+    0.45 * avg_z_3pr +
+    0.35 * avg_z_pct_pts_3 +
+    0.15 * abs_z_3pr_gap +
+    0.05 * three_point_percentage_modifier
+  );
+}
+
+function getVolatilityTier(score100) {
+  const s = Number(score100) || 1;
+  if (s >= 85) return 'Extreme';
+  if (s >= 70) return 'High';
+  if (s >= 50) return 'Moderate';
+  if (s >= 30) return 'Low';
+  return 'Stable';
+}
+
+function miDriverSide(delta, threshold = 0.18) {
+  const d = Number(delta) || 0;
+  if (Math.abs(d) < threshold) return 'balanced';
+  return d > 0 ? 'A' : 'B';
+}
+
+function miDriverLabel(side, aName, bName) {
+  if (side === 'A') return `${aName} ▲`;
+  if (side === 'B') return `${bName} ▲`;
+  return 'Balanced';
+}
+
+function miShortDriverLabel(side) {
+  if (side === 'A') return '▲ A';
+  if (side === 'B') return '▲ B';
+  return '=';
+}
+
+function computeVolatilityOwnership(a, b) {
+  const zTempoA = miSafeZ(a, 'tempo');
+  const zTempoB = miSafeZ(b, 'tempo');
+
+  const z3PRA = miSafeZ(a, 'threepr');
+  const z3PRB = miSafeZ(b, 'threepr');
+  const zPct3A = miSafeZ(a, 'pct_pts_3');
+  const zPct3B = miSafeZ(b, 'pct_pts_3');
+
+  const zEPRA = miSafeZ(a, 'epr');
+  const zEPRB = miSafeZ(b, 'epr');
+
+  const zSCPGA = miSafeZ(a, 'scpg');
+  const zSCPGB = miSafeZ(b, 'scpg');
+
+  const tempoDelta = zTempoA - zTempoB;
+  const threeDelta = (0.60 * (z3PRA - z3PRB)) + (0.40 * (zPct3A - zPct3B));
+  const eprDelta = zEPRA - zEPRB;
+  const scpgDelta = zSCPGA - zSCPGB;
+
+  const tempoSide = miDriverSide(tempoDelta, 0.15);
+  const threeSide = miDriverSide(threeDelta, 0.15);
+  const eprSide = miDriverSide(eprDelta, 0.15);
+  const scpgSide = miDriverSide(scpgDelta, 0.15);
+
+  return {
+    tempo: {
+      delta: tempoDelta,
+      side: tempoSide,
+      short: miShortDriverLabel(tempoSide),
+      label: miDriverLabel(tempoSide, a.name, b.name)
+    },
+    threePoint: {
+      delta: threeDelta,
+      side: threeSide,
+      short: miShortDriverLabel(threeSide),
+      label: miDriverLabel(threeSide, a.name, b.name)
+    },
+    epr: {
+      delta: eprDelta,
+      side: eprSide,
+      short: miShortDriverLabel(eprSide),
+      label: miDriverLabel(eprSide, a.name, b.name)
+    },
+    scpg: {
+      delta: scpgDelta,
+      side: scpgSide,
+      short: miShortDriverLabel(scpgSide),
+      label: miDriverLabel(scpgSide, a.name, b.name)
+    }
+  };
+}
+
+function computeChaosProfile(a, b, ownership) {
+  let aChaosPoints = 0;
+  let bChaosPoints = 0;
+
+  if (ownership.tempo.side === 'A') aChaosPoints += 1.0;
+  if (ownership.tempo.side === 'B') bChaosPoints += 1.0;
+
+  if (ownership.threePoint.side === 'A') aChaosPoints += 1.2;
+  if (ownership.threePoint.side === 'B') bChaosPoints += 1.2;
+
+  if (ownership.epr.side === 'A') aChaosPoints += 0.8;
+  if (ownership.epr.side === 'B') bChaosPoints += 0.8;
+
+  if (ownership.scpg.side === 'A') aChaosPoints += 1.0;
+  if (ownership.scpg.side === 'B') bChaosPoints += 1.0;
+
+  const diff = aChaosPoints - bChaosPoints;
+
+  let beneficiary = 'balanced';
+  if (diff > 0.35) beneficiary = 'A';
+  else if (diff < -0.35) beneficiary = 'B';
+
+  const thresholdBase = 54;
+  const thresholdShift = Math.min(10, Math.abs(diff) * 4.5);
+  const threshold = beneficiary === 'balanced'
+    ? 50
+    : Math.round(thresholdBase - thresholdShift);
+
+  return {
+    beneficiary,
+    thresholdScore: miClamp(threshold, 18, 82),
+    aChaosPoints,
+    bChaosPoints,
+    liveSide:
+      beneficiary === 'A' ? (a.name || 'Team A')
+      : beneficiary === 'B' ? (b.name || 'Team B')
+      : 'Neither side'
+  };
+}
+
+function computeMatchupVolatility(a, b, opts = {}) {
+  const k = Number.isFinite(opts.k) ? opts.k : 1.0;
+
+  const tempoRaw = computeTempoVolRaw(a, b);
+  const eprRaw = computeEPRVolRaw(a, b);
+  const scpgRaw = computeSCPGVolRaw(a, b);
+  const threeRaw = computeThreePointVolRaw(a, b);
+
+  const tempoVol = miSigmoid(tempoRaw, k);
+  const eprVol = miSigmoid(eprRaw, k);
+  const scpgVol = miSigmoid(scpgRaw, k);
+  const threeVol = miSigmoid(threeRaw, k);
+
+  const volatility01 =
+    0.25 * tempoVol +
+    0.25 * threeVol +
+    0.25 * eprVol +
+    0.25 * scpgVol;
+
+  const volatility100 = Math.round(1 + 99 * volatility01);
+
+  const ownership = computeVolatilityOwnership(a, b);
+  const chaosProfile = computeChaosProfile(a, b, ownership);
+
+  return {
+    score01: volatility01,
+    score100: volatility100,
+    tier: getVolatilityTier(volatility100),
+
+    quarters: {
+      tempo: {
+        raw: tempoRaw,
+        norm: tempoVol,
+        ownership: ownership.tempo
+      },
+      threePoint: {
+        raw: threeRaw,
+        norm: threeVol,
+        modifier: computeThreePointPercentageModifier(a, b),
+        ownership: ownership.threePoint
+      },
+      epr: {
+        raw: eprRaw,
+        norm: eprVol,
+        ownership: ownership.epr
+      },
+      scpg: {
+        raw: scpgRaw,
+        norm: scpgVol,
+        ownership: ownership.scpg
+      }
+    },
+
+    chaos: chaosProfile,
+
+    drivers: {
+      avg_z_tempo: miAvg(miSafeZ(a, 'tempo'), miSafeZ(b, 'tempo')),
+      abs_z_tempo_gap: miAbsGap(miSafeZ(a, 'tempo'), miSafeZ(b, 'tempo')),
+
+      avg_z_3pr: miAvg(miSafeZ(a, 'threepr'), miSafeZ(b, 'threepr')),
+      avg_z_pct_pts_3: miAvg(miSafeZ(a, 'pct_pts_3'), miSafeZ(b, 'pct_pts_3')),
+      abs_z_3pr_gap: miAbsGap(miSafeZ(a, 'threepr'), miSafeZ(b, 'threepr')),
+
+      avg_z_epr: miAvg(miSafeZ(a, 'epr'), miSafeZ(b, 'epr')),
+      inverse_avg_z_epr: -miAvg(miSafeZ(a, 'epr'), miSafeZ(b, 'epr')),
+      abs_z_epr_gap: miAbsGap(miSafeZ(a, 'epr'), miSafeZ(b, 'epr')),
+
+      avg_z_scpg: miAvg(miSafeZ(a, 'scpg'), miSafeZ(b, 'scpg')),
+      abs_z_scpg_gap: miAbsGap(miSafeZ(a, 'scpg'), miSafeZ(b, 'scpg'))
+    }
+  };
+}
+
+function miClamp(n, min, max) {
+  const x = Number(n);
+  if (!Number.isFinite(x)) return min;
+  return Math.max(min, Math.min(max, x));
+}
+
+function getVolatilityTierClass(tier) {
+  switch (String(tier || '').toLowerCase()) {
+    case 'low': return 'is-low';
+    case 'moderate': return 'is-moderate';
+    case 'high': return 'is-high';
+    case 'extreme': return 'is-extreme';
+    default: return 'is-stable';
+  }
+}
+
+function getVolatilityTierKey(volatility) {
+  const tier = String(volatility?.tier || getVolatilityTier(volatility?.score100 || 1) || 'stable')
+    .trim()
+    .toLowerCase();
+
+  if (tier === 'stable') return 'stable';
+  if (tier === 'low') return 'low';
+  if (tier === 'moderate') return 'moderate';
+  if (tier === 'high') return 'high';
+  if (tier === 'extreme') return 'extreme';
+  return 'stable';
+}
+
+function buildVolatilitySummaryText(volatility) {
+  if (!volatility) {
+    return miGetCopy(
+      'volatility.copy.environment.empty',
+      'Run a matchup to populate the volatility environment.'
+    );
+  }
+
+  const tierKey = getVolatilityTierKey(volatility);
+
+  return miGetCopy(
+    `volatility.copy.environment.${tierKey}`,
+    miGetCopy(
+      'volatility.copy.environment.empty',
+      'Run a matchup to populate the volatility environment.'
+    )
+  );
+}
+
+function buildVolatilityChaosLineText(result) {
+  const volatility = result?.volatility || null;
+  const chaos = volatility?.chaos || null;
+
+  if (!volatility || !chaos) {
+    return miGetCopy(
+      'volatility.copy.chaos_line.empty',
+      'Run a matchup to reveal the chaos line.'
+    );
+  }
+
+  if (chaos.beneficiary === 'A') {
+    const tpl = miGetCopy(
+      'volatility.copy.chaos_line.favors_a',
+      'Chaos line: {{threshold}} • above this, {{team}} benefits more from volatility.'
+    );
+    return miFillTemplate(tpl, {
+      threshold: chaos.thresholdScore,
+      team: result?.a?.name || chaos.liveSide || 'Team A'
+    });
+  }
+
+  if (chaos.beneficiary === 'B') {
+    const tpl = miGetCopy(
+      'volatility.copy.chaos_line.favors_b',
+      'Chaos line: {{threshold}} • above this, {{team}} benefits more from volatility.'
+    );
+    return miFillTemplate(tpl, {
+      threshold: chaos.thresholdScore,
+      team: result?.b?.name || chaos.liveSide || 'Team B'
+    });
+  }
+
+  return miGetCopy(
+    'volatility.copy.chaos_line.balanced',
+    'Chaos line: balanced matchup • neither side shows a strong volatility ownership edge.'
+  );
+}
+
+function miVolGaugeClamp(v, min = 0, max = 100) {
+  const n = Number(v);
+  if (!Number.isFinite(n)) return min;
+  return Math.max(min, Math.min(max, n));
+}
+
+/*
+  Tick coordinates need true polar angles around the circle:
+    0   => 180deg (left)
+    50  => 270deg (top)
+    100 => 360deg (right)
+*/
+function miVolGaugePolarAngle(score100) {
+  return 180 + (miVolGaugeClamp(score100, 0, 100) * 1.8);
+}
+
+function initVolatilityGaugeTicks() {
+  const ticksRoot = document.getElementById("volatilityGaugeTicks");
+  if (!ticksRoot || ticksRoot.dataset.ready === "1") return;
+
+  const SVG_NS = "http://www.w3.org/2000/svg";
+  const cx = 170;
+  const cy = 170;
+  const rOuter = 136;
+
+  ticksRoot.innerHTML = "";
+
+  for (let value = 0; value <= 100; value += 5) {
+    const angleDeg = miVolGaugePolarAngle(value);
+    const angleRad = angleDeg * Math.PI / 180;
+    const isMajor = value % 10 === 0;
+
+    const rInner = isMajor ? 112 : 120;
+
+    const x1 = cx + Math.cos(angleRad) * rInner;
+    const y1 = cy + Math.sin(angleRad) * rInner;
+    const x2 = cx + Math.cos(angleRad) * rOuter;
+    const y2 = cy + Math.sin(angleRad) * rOuter;
+
+    const line = document.createElementNS(SVG_NS, "line");
+    line.setAttribute("x1", x1.toFixed(2));
+    line.setAttribute("y1", y1.toFixed(2));
+    line.setAttribute("x2", x2.toFixed(2));
+    line.setAttribute("y2", y2.toFixed(2));
+    line.setAttribute("class", isMajor ? "is-major" : "is-minor");
+
+    ticksRoot.appendChild(line);
+  }
+
+  ticksRoot.dataset.ready = "1";
+}
+
+function renderVolatilityGauge(score100 = 0, chaosThreshold = 50) {
+  initVolatilityGaugeTicks();
+
+  const score = miVolGaugeClamp(score100, 0, 100);
+
+  const fill = document.getElementById("volatilityGaugeFill");
+  const scoreText = document.getElementById("volatilityScoreValue");
+  const gaugeShell = document.getElementById("volatilityGauge");
+
+  if (fill) {
+    fill.setAttribute("stroke-dasharray", `${score} 100`);
+  }
+
+  if (scoreText) {
+    scoreText.textContent = Number.isFinite(score) ? String(Math.round(score)) : "—";
+  }
+
+  if (gaugeShell) {
+    gaugeShell.dataset.score = String(Math.round(score));
+    gaugeShell.dataset.threshold = String(Math.round(miVolGaugeClamp(chaosThreshold, 0, 100)));
+  }
+}
+
+function renderVolatilityMeter(result) {
+  const volatility = result?.volatility || null;
+
+  const gaugeEl = document.getElementById('volatilityGauge');
+  const scoreEl = document.getElementById('volatilityScoreValue');
+  const tierEl = document.getElementById('volatilityTierPill');
+  const summaryEl = document.getElementById('volatilitySummaryText');
+  const thresholdTextEl = document.getElementById('volatilityThresholdText');
+
+  const qTempo = document.getElementById('volQuarterTempo');
+  const qThree = document.getElementById('volQuarterThree');
+  const qEpr = document.getElementById('volQuarterEpr');
+  const qScpg = document.getElementById('volQuarterScpg');
+
+  const qTempoValue = document.getElementById('volQuarterTempoValue');
+  const qThreeValue = document.getElementById('volQuarterThreeValue');
+  const qEprValue = document.getElementById('volQuarterEprValue');
+  const qScpgValue = document.getElementById('volQuarterScpgValue');
+
+  const qTempoDriver = document.getElementById('volQuarterTempoDriver');
+  const qThreeDriver = document.getElementById('volQuarterThreeDriver');
+  const qEprDriver = document.getElementById('volQuarterEprDriver');
+  const qScpgDriver = document.getElementById('volQuarterScpgDriver');
+
+  const qTempoLean = document.getElementById('volQuarterTempoLean');
+  const qThreeLean = document.getElementById('volQuarterThreeLean');
+  const qEprLean = document.getElementById('volQuarterEprLean');
+  const qScpgLean = document.getElementById('volQuarterScpgLean');
+
+  if (!gaugeEl || !scoreEl || !tierEl || !summaryEl) return;
+
+  const setDriverState = (el, side, text) => {
+    if (!el) return;
+    el.textContent = text;
+    el.classList.remove('is-a', 'is-b', 'is-balanced');
+
+    if (side === 'A') el.classList.add('is-a');
+    else if (side === 'B') el.classList.add('is-b');
+    else el.classList.add('is-balanced');
+  };
+
+  const resetQuarter = (fillEl, valueEl, driverEl, leanEl) => {
+    if (fillEl) fillEl.style.width = '0%';
+    if (valueEl) valueEl.textContent = '—';
+    setDriverState(driverEl, 'balanced', 'Balanced');
+    if (leanEl) leanEl.textContent = '—';
+  };
+
+  if (!volatility) {
+    renderVolatilityGauge(0, 50);
+
+    scoreEl.textContent = '—';
+    tierEl.textContent = 'Stable';
+    tierEl.className = 'volatility-tier-pill is-stable';
+    summaryEl.textContent = buildVolatilitySummaryText(null);
+
+    if (thresholdTextEl) {
+      thresholdTextEl.textContent = buildVolatilityChaosLineText(null);
+    }
+
+    resetQuarter(qTempo, qTempoValue, qTempoDriver, qTempoLean);
+    resetQuarter(qThree, qThreeValue, qThreeDriver, qThreeLean);
+    resetQuarter(qEpr, qEprValue, qEprDriver, qEprLean);
+    resetQuarter(qScpg, qScpgValue, qScpgDriver, qScpgLean);
+
+    return;
+  }
+
+  const score100 = miClamp(volatility?.score100, 0, 100);
+  const tier = volatility?.tier || getVolatilityTier(score100);
+  const chaosThreshold = miClamp(volatility?.chaos?.thresholdScore ?? 50, 0, 100);
+
+  const tempoPct = Math.round(100 * miClamp(volatility?.quarters?.tempo?.norm ?? 0, 0, 1));
+  const threePct = Math.round(100 * miClamp(volatility?.quarters?.threePoint?.norm ?? 0, 0, 1));
+  const eprPct = Math.round(100 * miClamp(volatility?.quarters?.epr?.norm ?? 0, 0, 1));
+  const scpgPct = Math.round(100 * miClamp(volatility?.quarters?.scpg?.norm ?? 0, 0, 1));
+
+  renderVolatilityGauge(score100, chaosThreshold);
+
+  scoreEl.textContent = String(score100);
+  tierEl.textContent = tier;
+  tierEl.className = `volatility-tier-pill ${getVolatilityTierClass(tier)}`;
+  summaryEl.textContent = buildVolatilitySummaryText(volatility);
+
+  if (thresholdTextEl) {
+    thresholdTextEl.textContent = buildVolatilityChaosLineText(result);
+  }
+
+  if (qTempo) qTempo.style.width = `${tempoPct}%`;
+  if (qThree) qThree.style.width = `${threePct}%`;
+  if (qEpr) qEpr.style.width = `${eprPct}%`;
+  if (qScpg) qScpg.style.width = `${scpgPct}%`;
+
+  if (qTempoValue) qTempoValue.textContent = `${tempoPct}`;
+  if (qThreeValue) qThreeValue.textContent = `${threePct}`;
+  if (qEprValue) qEprValue.textContent = `${eprPct}`;
+  if (qScpgValue) qScpgValue.textContent = `${scpgPct}`;
+
+  const ownTempo = volatility?.quarters?.tempo?.ownership || {};
+  const ownThree = volatility?.quarters?.threePoint?.ownership || {};
+  const ownEpr = volatility?.quarters?.epr?.ownership || {};
+  const ownScpg = volatility?.quarters?.scpg?.ownership || {};
+
+  setDriverState(qTempoDriver, ownTempo.side, ownTempo.label || 'Balanced');
+  setDriverState(qThreeDriver, ownThree.side, ownThree.label || 'Balanced');
+  setDriverState(qEprDriver, ownEpr.side, ownEpr.label || 'Balanced');
+  setDriverState(qScpgDriver, ownScpg.side, ownScpg.label || 'Balanced');
+
+  if (qTempoLean) qTempoLean.textContent = ownTempo.short || '=';
+  if (qThreeLean) qThreeLean.textContent = ownThree.short || '=';
+  if (qEprLean) qEprLean.textContent = ownEpr.short || '=';
+  if (qScpgLean) qScpgLean.textContent = ownScpg.short || '=';
+}
+
+function resetVolatilityMeter() {
+  renderVolatilityMeter({ volatility: null });
+}
+
+// ------------------------------------------------------------
+// Matchup comparison - live engine entry point
+// Baseline now uses split breadth embedded into foundation
+// ------------------------------------------------------------
+function compareTeams(teamAName, teamBName, roleMode = 'auto', opts = MI_V2_DEFAULTS) {
   const a = getTeamByName(teamAName);
   const b = getTeamByName(teamBName);
 
@@ -3321,55 +4697,114 @@ function compareTeams(teamAName, teamBName, roleMode = 'auto') {
     return;
   }
 
+  if (a.opp_ast_poss == null && a.oapp != null) a.opp_ast_poss = a.oapp;
+  if (b.opp_ast_poss == null && b.oapp != null) b.opp_ast_poss = b.oapp;
+
+  // Ensure full-field résumé stats exist
+  prepareResumeContextStatsV2();
+
+  // Refresh selected teams
+  computeResumeContextForTeam(a, opts);
+  computeResumeContextForTeam(b, opts);
+
+  // Canonical core pass now includes split breadth inside foundation
+  computeCoreForTeam(a, opts);
+  computeCoreForTeam(b, opts);
+
+  // Field-wide baseline calibration
+  const fieldMean = computeBaselineFieldMean(opts);
+
+  const baseA = computeMIBase(a, opts, fieldMean);
+  const baseB = computeMIBase(b, opts, fieldMean);
+
   const interactions = computeInteractions(a, b);
+  const volatility = computeMatchupVolatility(a, b);  
 
-  const activeRound = CURRENT_ROUND;  // e.g. "R64", "S16", etc.
-  const seedMeta    = getSeedRoundMeta(a.seed, b.seed, activeRound);
+  const activeRound = CURRENT_ROUND;
+  const seedMeta = getSeedRoundMeta(a.seed, b.seed, activeRound);
 
-    // ===== Interaction gating (baseline-separation gate) =====
-  // Compute baselines (safeguard: ensure they exist)
-  const baseA = (typeof a.mi_base === 'number') ? a.mi_base : computeMIBase(a);
-  const baseB = (typeof b.mi_base === 'number') ? b.mi_base : computeMIBase(b);
+  const miA_raw = computeFinalMI(a, interactions.a, opts);
+  const miB_raw = computeFinalMI(b, interactions.b, opts);
 
-  // Compute "raw" matchup MI under the current engine (includes résumé-scaled interactions)
-  const miA_raw = computeFinalMI(a, interactions.a);
-  const miB_raw = computeFinalMI(b, interactions.b);
-
-  // Decompose into interaction contributions (post-résumé scaling)
   const intA = miA_raw - baseA;
   const intB = miB_raw - baseB;
 
   const base_diff = baseA - baseB;
   const int_diff  = intA - intB;
+  
+  const final_delta = miA_raw - miB_raw;
 
-  const dBase = Math.abs(base_diff);
-
-  // Gate weight w(|base_diff|)
-  const w =
-    (dBase < 0.25) ? 0.25 :
-    (dBase < 0.50) ? 0.50 :
-    (dBase < 0.75) ? 0.75 :
-                     1.00;
-
-  // Apply gating symmetrically to both teams' interaction contributions
-  const miA = baseA + w * intA;
-  const miB = baseB + w * intB;
-
-  const diff      = miA - miB;
-  const absDiff   = Math.abs(diff);
-  const predicted = diff > 0 ? a.name : (diff < 0 ? b.name : 'Push');
+  const activeRoleMode = roleMode || 'auto';
+  const roleAssignment = resolveIdentityContext(a, b, activeRound);
 
   const result = {
     a,
     b,
-    miA,
-    miB,
-    diff,
-    absDiff,
-    predicted,
+    baseA,
+    baseB,
     interactions,
-    round: activeRound,
+    volatility,
+    miA_raw,
+    miB_raw,
+    intA,
+    intB,
+    base_diff,
+    int_diff,
+    final_delta,
+    roleMode: activeRoleMode,
+    activeRound,
     seedMeta,
+    roles: roleAssignment,
+    v2: {
+      fieldMean,
+
+      // Final baseline values
+      baseA,
+      baseB,
+      rawBaseA: Number.isFinite(a.raw_base) ? a.raw_base : a.foundation,
+      rawBaseB: Number.isFinite(b.raw_base) ? b.raw_base : b.foundation,
+
+      // Canonical adjusted foundation
+      foundationA: a.foundation,
+      foundationB: b.foundation,
+
+      // Resume trust
+      resumeA: a.resumeBaseTrust,
+      resumeB: b.resumeBaseTrust,
+
+      // Base efficiency signals
+      miOffEffBaseA: a.mi_off_eff_base,
+      miOffEffBaseB: b.mi_off_eff_base,
+      miDefEffBaseA: a.mi_def_eff_base,
+      miDefEffBaseB: b.mi_def_eff_base,
+      miEffMarginBaseA: a.mi_eff_margin_base,
+      miEffMarginBaseB: b.mi_eff_margin_base,
+
+      // Split breadth adjustments
+      offBreadthA: a.offBreadth,
+      offBreadthB: b.offBreadth,
+      defBreadthA: a.defBreadth,
+      defBreadthB: b.defBreadth,
+
+      offBreadthSDA: a.offBreadthSD,
+      offBreadthSDB: b.offBreadthSD,
+      defBreadthSDA: a.defBreadthSD,
+      defBreadthSDB: b.defBreadthSD,
+
+      // Adjusted efficiency signals
+      miOffEffA: a.mi_off_eff,
+      miOffEffB: b.mi_off_eff,
+      miDefEffA: a.mi_def_eff,
+      miDefEffB: b.mi_def_eff,
+      miEffMarginA: a.mi_eff_margin,
+      miEffMarginB: b.mi_eff_margin,
+
+      // Compatibility-only aggregate breadth mirrors
+      breadthA: a.breadth,
+      breadthB: b.breadth,
+      breadthSDA: a.breadthSD,
+      breadthSDB: b.breadthSD
+    }
   };
 
   window.LAST_RESULT = result;
@@ -3379,6 +4814,7 @@ function compareTeams(teamAName, teamBName, roleMode = 'auto') {
   renderProfileMarks(a, "inlineMarksA");
   renderProfileMarks(b, "inlineMarksB");
   renderInteractionsTable(result);
+  renderVolatilityMeter(result);
   renderInteractionsConsole(result);
   renderSummary(result);
   updateMatchupBarFromDOM();
@@ -3389,7 +4825,6 @@ function compareTeams(teamAName, teamBName, roleMode = 'auto') {
   updateFormulaBacksForResult(result);
   updateIdentityBacksForResult(result);
 
-  // New: pull copy.json from the global and feed it into the MI back-of-card builder
   const copy = window.MI_COPY;
   if (copy) {
     updateMadnessBacksForResult(result, window.MI_COPY, roleMode);
@@ -3397,11 +4832,15 @@ function compareTeams(teamAName, teamBName, roleMode = 'auto') {
 
   miPushLogFromResult(result);
   miRenderShelf();
-
   syncCoreTraitsProfileSectionHeights();
 
-  console.log(result);
+  console.log('V2 RESULT', result);
   return result;
+}
+
+// Optional convenience alias if you still call compareTeamsV2 anywhere
+function compareTeamsV2(teamAName, teamBName, roleMode = 'auto', opts = MI_V2_DEFAULTS) {
+  return compareTeams(teamAName, teamBName, roleMode, opts);
 }
 
 // ---------- DOM Hooks ----------
@@ -3708,13 +5147,14 @@ function ensureSearchableTeamDropdown(selectEl, wrapEl, placeholderText, context
 
 function getRoundLabelFromCode(code) {
   switch (code) {
-    case "R64":   return "Round of 64";
-    case "R32":   return "Round of 32";
-    case "S16":   return "Sweet Sixteen";
-    case "E8":    return "Elite Eight";
-    case "F4":    return "Final Four";
-    case "Champ": return "Championship";
-    default:      return "Select Round";
+    case "R64":    return "Round of 64";
+    case "R32":    return "Round of 32";
+    case "S16":    return "Sweet Sixteen";
+    case "E8":     return "Elite Eight";
+    case "First4": return "First Four";
+    case "F4":     return "Final Four";
+    case "Champ":  return "Championship";
+    default:       return "Select Round";
   }
 }
 
@@ -3742,7 +5182,10 @@ function miSmoothstep01(t) {
 
 function miNormalizeRoundCode(roundCode) {
   const r = String(roundCode || CURRENT_ROUND || 'R64').trim();
+
   if (r === 'CH' || r === 'CHAMP' || r === 'CHAMPIONSHIP' || r === 'C') return 'Champ';
+  if (r === 'FIRST4' || r === 'FIRST FOUR' || r === 'FIRST_FOUR' || r === 'FF') return 'First4';
+
   return r;
 }
 
@@ -3750,13 +5193,14 @@ function miNormalizeRoundCode(roundCode) {
 function miWinsToDate(roundCode) {
   const r = miNormalizeRoundCode(roundCode);
   switch (r) {
-    case 'R64':   return 0;
-    case 'R32':   return 1;
-    case 'S16':   return 2;
-    case 'E8':    return 3;
-    case 'F4':    return 4;
-    case 'Champ': return 5;
-    default:      return 0;
+    case 'First4': return 0; // treat like pre-R64 for stage weighting
+    case 'R64':    return 0;
+    case 'R32':    return 1;
+    case 'S16':    return 2;
+    case 'E8':     return 3;
+    case 'F4':     return 4;
+    case 'Champ':  return 5;
+    default:       return 0;
   }
 }
 
@@ -3801,6 +5245,10 @@ function miGetCanonicalMode(roundCode, seedA, seedB) {
   const pair = `${lo}-${hi}`;
 
   const isDoubleDouble = (lo >= 11 && hi >= 11);
+
+  if (r === 'First4') {
+    return 'neutral_mirror';
+  }
 
   if (r === 'R64') {
     if (pair === '7-10' || pair === '8-9') return 'neutral_mirror';
@@ -3952,7 +5400,12 @@ function miUpdateMatchupLensHeaders(result) {
   const cardA = document.getElementById('roleTagA');
   const cardB = document.getElementById('roleTagB');
 
-  if (!elA && !elB && !cardA && !cardB) return;
+  // Outer shells that need to inherit the active lens
+  const analysisShell = document.getElementById('analysisShell');
+  const cindCard = document.getElementById('cindCard');
+  const favCard  = document.getElementById('favCard');
+
+  if (!elA && !elB && !cardA && !cardB && !analysisShell && !cindCard && !favCard) return;
 
   const roundCode = result.round || CURRENT_ROUND || 'R64';
   const ctx = (typeof resolveIdentityContext === 'function')
@@ -3972,6 +5425,33 @@ function miUpdateMatchupLensHeaders(result) {
     neutral: card.neutral_mirror_label || 'Neutral Mirror'
   };
 
+  const roleClassMap = {
+    favorite: 'mi-lens-favorite',
+    cinderella: 'mi-lens-cinderella',
+    chalk_mirror: 'mi-lens-chalk',
+    chaos_mirror: 'mi-lens-chaos',
+    neutral_mirror: 'mi-lens-neutral'
+  };
+
+  const clearLensClasses = (el) => {
+    if (!el) return;
+    el.classList.remove(
+      'mi-lens-favorite',
+      'mi-lens-cinderella',
+      'mi-lens-chalk',
+      'mi-lens-chaos',
+      'mi-lens-neutral'
+    );
+  };
+
+  const applyLensState = (el, lensKey) => {
+    if (!el) return;
+    clearLensClasses(el);
+    el.setAttribute('data-lens', lensKey);
+    const cls = roleClassMap[lensKey];
+    if (cls) el.classList.add(cls);
+  };
+
   // ===== Helpers =====
   const setLabel = (el, text, lensKey) => {
     if (!el) return;
@@ -3979,17 +5459,11 @@ function miUpdateMatchupLensHeaders(result) {
     el.setAttribute('data-lens', lensKey);
   };
 
-  // This is the key: ensure the header can "see" the role via :has(.X-tag)
   const applyRoleTagClass = (tagEl, lensKey) => {
     if (!tagEl) return;
 
-    // wipe prior role classes
     tagEl.classList.remove('fav-tag', 'cind-tag', 'chalk-tag', 'chaos-tag', 'neutral-tag');
 
-    // keep any base class the element might rely on
-    // (if your HTML already includes something like class="role-tag", this won't remove it)
-
-    // map lensKey -> class the CSS is looking for
     const map = {
       favorite: 'fav-tag',
       cinderella: 'cind-tag',
@@ -4001,7 +5475,6 @@ function miUpdateMatchupLensHeaders(result) {
     const cls = map[lensKey];
     if (cls) tagEl.classList.add(cls);
 
-    // also stamp lens for debugging / future CSS usage
     tagEl.setAttribute('data-lens', lensKey);
   };
 
@@ -4014,6 +5487,10 @@ function miUpdateMatchupLensHeaders(result) {
 
     applyRoleTagClass(cardA, 'chalk_mirror');
     applyRoleTagClass(cardB, 'chalk_mirror');
+
+    applyLensState(analysisShell, 'chalk_mirror');
+    applyLensState(cindCard, 'chalk_mirror');
+    applyLensState(favCard, 'chalk_mirror');
     return;
   }
 
@@ -4025,6 +5502,10 @@ function miUpdateMatchupLensHeaders(result) {
 
     applyRoleTagClass(cardA, 'chaos_mirror');
     applyRoleTagClass(cardB, 'chaos_mirror');
+
+    applyLensState(analysisShell, 'chaos_mirror');
+    applyLensState(cindCard, 'chaos_mirror');
+    applyLensState(favCard, 'chaos_mirror');
     return;
   }
 
@@ -4036,23 +5517,33 @@ function miUpdateMatchupLensHeaders(result) {
 
     applyRoleTagClass(cardA, 'neutral_mirror');
     applyRoleTagClass(cardB, 'neutral_mirror');
+
+    applyLensState(analysisShell, 'neutral_mirror');
+    applyLensState(cindCard, 'neutral_mirror');
+    applyLensState(favCard, 'neutral_mirror');
     return;
   }
 
   // ===== Standard =====
-  const roleA = (ctx.roleA || '').toLowerCase(); // "favorite" | "cinderella"
+  const roleA = (ctx.roleA || '').toLowerCase();
   const roleB = (ctx.roleB || '').toLowerCase();
 
   const textA = (roleA === 'favorite') ? LABEL.favorite : LABEL.cinderella;
   const textB = (roleB === 'favorite') ? LABEL.favorite : LABEL.cinderella;
 
-  setLabel(elA, textA, roleA || 'standard');
-  setLabel(elB, textB, roleB || 'standard');
-  setLabel(cardA, textA, roleA || 'standard');
-  setLabel(cardB, textB, roleB || 'standard');
+  setLabel(elA, textA, roleA);
+  setLabel(elB, textB, roleB);
+  setLabel(cardA, textA, roleA);
+  setLabel(cardB, textB, roleB);
 
   applyRoleTagClass(cardA, roleA);
   applyRoleTagClass(cardB, roleB);
+
+  // Keep the page-level lens tied to Team A role for existing token systems,
+  // but allow each outer card shell to carry its own resolved role.
+  applyLensState(analysisShell, roleA || 'cinderella');
+  applyLensState(cindCard, roleA || 'cinderella');
+  applyLensState(favCard, roleB || 'favorite');
 }
 
 // ---------- Lean band helper (for ΔMI) ----------
@@ -4081,13 +5572,14 @@ function getSummaryGapKey(diff) {
 }
 
 /* =========================================================
-   MATCHUP LOG (v3.7) — Option A Shelf
+   MATCHUP LOG (v4.2) — Option A Shelf
    - stores only 10 recent (localStorage)
-   - shelf hidden until 2+ runs
+   - shelf hidden until introduced
    - shows top 3 always; "More" reveals next 7
+   - aligned to new compareTeams() result shape
    ========================================================= */
 
-const MI_LOG_STORAGE_KEY = "mi.v3_7.matchupLog";
+const MI_LOG_STORAGE_KEY = "mi.v4_2.matchupLog";
 const MI_LOG_MAX_ENTRIES = 10;
 const MI_LOG_INTRO_KEY = "MI_LOG_INTRODUCED_V1";
 const MI_LOG_LASTNEW_KEY = "MI_LOG_LASTNEW_ID_V1";
@@ -4145,22 +5637,19 @@ function miLoadLog(){
 
     const parsed = JSON.parse(raw);
 
-    // ✅ Normal case: already an array
+    // Normal case: already an array
     if (Array.isArray(parsed)) return parsed;
 
-    // ✅ Migration: if a single entry object was stored
+    // Migration: if a single entry object was stored
     if (parsed && typeof parsed === "object") {
-      // Keyed object-log → convert to array of entries
       const vals = Object.values(parsed);
 
-      // If it looks like entries, use them
       if (vals.length && typeof vals[0] === "object") {
         return vals
           .filter(Boolean)
           .sort((a,b) => (b.ts || 0) - (a.ts || 0));
       }
 
-      // Otherwise treat as one entry-like object
       return [parsed];
     }
 
@@ -4178,8 +5667,8 @@ function miSaveLog(arr){
 }
 
 function miBuildLogId(result){
-  const mode = miSandboxOn() ? "SBX" : (result.round || "NOROUND");
-  // Unique per run, but still readable
+  const roundCode = result?.activeRound || result?.round || "NOROUND";
+  const mode = miSandboxOn() ? "SBX" : roundCode;
   return `${Date.now()}__${mode}__${result.a?.name || "A"}__${result.b?.name || "B"}`;
 }
 
@@ -4187,11 +5676,21 @@ function miPushLogFromResult(result){
   if (!result || !result.a || !result.b) return;
 
   const sandbox = miSandboxOn();
-  const round = sandbox ? null : (result.round || null);
+  const round = sandbox ? null : (result.activeRound || result.round || null);
 
-  const miA = result.miA;
-  const miB = result.miB;
-  const diff = (typeof result.diff === "number") ? result.diff : (miA - miB);
+  const miA = (typeof result.miA_raw === "number" && Number.isFinite(result.miA_raw))
+    ? result.miA_raw
+    : ((typeof result.miA === "number" && Number.isFinite(result.miA)) ? result.miA : null);
+
+  const miB = (typeof result.miB_raw === "number" && Number.isFinite(result.miB_raw))
+    ? result.miB_raw
+    : ((typeof result.miB === "number" && Number.isFinite(result.miB)) ? result.miB : null);
+
+  const diff = (typeof result.final_delta === "number" && Number.isFinite(result.final_delta))
+    ? result.final_delta
+    : ((typeof result.diff === "number" && Number.isFinite(result.diff))
+        ? result.diff
+        : ((Number.isFinite(miA) ? miA : 0) - (Number.isFinite(miB) ? miB : 0)));
 
   const entry = {
     id: miBuildLogId(result),
@@ -4205,6 +5704,7 @@ function miPushLogFromResult(result){
 
     miA,
     miB,
+    diff,
 
     leanSide: diff > 0 ? "a" : (diff < 0 ? "b" : "push"),
     leanTier: miLeanTierFromDiff(diff)
@@ -4267,7 +5767,7 @@ function miShelfPhaseOk(){
   // must not be on landing / pre-matchup
   if (shell.classList.contains("pre-matchup")) return false;
 
-  // must actually be in “has matchup” world (your app uses this class in DOM)
+  // must actually be in “has matchup” world
   if (!shell.classList.contains("has-matchup")) return false;
 
   return true;
@@ -4282,7 +5782,6 @@ function miRenderShelf(){
   const bar = document.getElementById("matchupBar");
   if (!plate || !top3 || !moreBtn || !morePanel || !moreList || !bar) return;
 
-  // Hard phase gate
   if (!miShelfPhaseOk()){
     plate.hidden = true;
     plate.classList.remove("is-open", "is-more-open", "is-intro");
@@ -4290,11 +5789,9 @@ function miRenderShelf(){
     moreBtn.hidden = true;
     moreBtn.setAttribute("aria-expanded", "false");
     if (bar.classList.contains("has-shelf")) bar.classList.remove("has-shelf");
-
     return;
   }
 
-  // Only set the class if it needs to change (prevents MutationObserver loop)
   if (!bar.classList.contains("has-shelf")) bar.classList.add("has-shelf");
 
   const entries = miLoadLog().slice(0, MI_LOG_MAX_ENTRIES);
@@ -4320,7 +5817,6 @@ function miRenderShelf(){
     return;
   }
 
-  // If we just crossed into editing for the first time, "introduce" the log
   if (!introduced && bar.classList.contains("is-editing")){
     miSetLogIntroduced();
     plate.classList.add("is-intro");
@@ -4328,30 +5824,27 @@ function miRenderShelf(){
     plate.classList.remove("is-intro");
   }
 
-  // Build top 3 + rest
-  const a = entries.slice(0, 3);
-  const aRender = a.slice().reverse();
-  const b = entries.slice(3);
+  const topEntries = entries.slice(0, 3);
+  const topRender = topEntries.slice().reverse();
+  const moreEntries = entries.slice(3);
 
   top3.innerHTML = "";
-  for (const e of aRender) top3.appendChild(miBuildRow(e));
+  for (const e of topRender) top3.appendChild(miBuildRow(e));
 
-  // Option A shift animation: newest row (bottom) animates
   const lastNewId = miGetLastNewId();
-  if (lastNewId && a.length && a[0].id === lastNewId){
-    const newestRow = top3.lastElementChild; // bottom-most after reverse render
+  if (lastNewId && topEntries.length && topEntries[0].id === lastNewId){
+    const newestRow = top3.lastElementChild;
     if (newestRow){
       newestRow.classList.add("is-new");
-      miSetLastNewId(""); // remove marker so it doesn't animate forever
+      miSetLastNewId("");
       setTimeout(() => newestRow.classList.remove("is-new"), 2000);
     }
   }
 
   moreList.innerHTML = "";
-  for (const e of b) moreList.appendChild(miBuildRow(e));
+  for (const e of moreEntries) moreList.appendChild(miBuildRow(e));
 
-  // More button visibility
-  if (b.length > 0){
+  if (moreEntries.length > 0){
     moreBtn.hidden = false;
   } else {
     moreBtn.hidden = true;
@@ -4359,7 +5852,6 @@ function miRenderShelf(){
     moreBtn.setAttribute("aria-expanded", "false");
   }
 
-  // Show plate
   plate.hidden = false;
   requestAnimationFrame(() => plate.classList.add("is-open"));
 }
@@ -4383,7 +5875,6 @@ function miInitShelf(){
   const moreBtn = document.getElementById("miLogMoreBtn");
   if (!plate || !moreBtn) return;
 
-  // Prevent double-binding
   if (plate.dataset.bound === "1"){
     miRenderShelf();
     return;
@@ -4396,7 +5887,6 @@ function miInitShelf(){
     miToggleMore();
   });
 
-  // click outside collapses More (but leaves plate visible)
   document.addEventListener("click", (e) => {
     const panel = document.getElementById("miLogMorePanel");
     const btn = document.getElementById("miLogMoreBtn");
@@ -4409,7 +5899,6 @@ function miInitShelf(){
     }
   });
 
-  // esc collapses More
   document.addEventListener("keydown", (e) => {
     if (e.key !== "Escape") return;
     const panel = document.getElementById("miLogMorePanel");
@@ -4603,11 +6092,6 @@ function enhanceVerdictPresentation() {
     why.appendChild(highlightTeamsFragment(subText, teamA, teamB));
     line.appendChild(why);
   }
-
-  console.log(
-    '[enhanceVerdictPresentation] structured:',
-    document.querySelectorAll('#miVerdictLine .mi-verdict-headline, #miVerdictLine .mi-verdict-why').length
-  );
 }
 
 function highlightTeamsFragment(text, teamA, teamB) {
@@ -4648,10 +6132,6 @@ function highlightTeamsFragment(text, teamA, teamB) {
   return frag;
 }
 
-function miFormatDelta(v){
-  return (Number.isFinite(v) ? v.toFixed(3) : "—");
-}
-
 function miGetPath(obj, path){
   if (!obj || !path) return undefined;
   const parts = String(path).split('.');
@@ -4663,8 +6143,8 @@ function miGetPath(obj, path){
   return cur;
 }
 
-function miRenderMadnessDelta(gapSep) {
-  const deltaTxt = miFormatDelta(gapSep);
+function miRenderMadnessDelta(gapSepMiSpace) {
+  const deltaTxt = miFormatUiAbsPointsFromMiSpace(gapSepMiSpace);
 
   // Score Synthesis
   document.querySelectorAll('[data-value="gap.sep"]').forEach(el => {
@@ -4678,17 +6158,331 @@ function miRenderMadnessDelta(gapSep) {
   }
 }
 
-function renderSummary({ a, b, miA, miB, diff, absDiff, predicted, interactions, round, seedMeta }) {
+function miBuildSecondaryDynamicVerdict({
+  interactions,
+  winName,
+  loseName,
+  baseDiff,
+  diff
+}) {
+  const metricsCopy = (window.MI_COPY && window.MI_COPY.verdict && window.MI_COPY.verdict.metrics)
+    ? window.MI_COPY.verdict.metrics
+    : null;
+
+  if (!metricsCopy || !metricsCopy.secondary_dynamic || !metricsCopy.secondary_driver_phrases) {
+    return '';
+  }
+
+  const dyn = metricsCopy.secondary_dynamic;
+  const phraseMap = metricsCopy.secondary_driver_phrases;
+
+  const breakdown = (interactions && interactions.breakdown && typeof interactions.breakdown === 'object')
+    ? interactions.breakdown
+    : null;
+
+  const ranked = breakdown
+    ? Object.entries(breakdown)
+        .map(([key, ch]) => ({
+          key,
+          value: Number(ch && ch.contribution) || 0,
+          abs: Math.abs(Number(ch && ch.contribution) || 0)
+        }))
+        .filter(d => d.abs > 0.0001)
+    : [];
+
+  const PRIORITY_ORDER = [
+    'rebounding_pressure',
+    'turnover_pressure',
+    'rim_access_pressure',
+    'foul_pressure',
+    'perimeter_variance_pressure'
+  ];
+
+  ranked.sort((a, b) => {
+    if (b.abs !== a.abs) return b.abs - a.abs;
+    return PRIORITY_ORDER.indexOf(a.key) - PRIORITY_ORDER.indexOf(b.key);
+  });
+
+  const nonZeroCount = ranked.length;
+  const ia = (interactions && typeof interactions.a === 'number') ? interactions.a : null;
+  const ib = (interactions && typeof interactions.b === 'number') ? interactions.b : null;
+
+  const netComparable = (typeof ia === 'number' && typeof ib === 'number');
+  const netDelta = netComparable ? (ia - ib) : 0;
+  const netBalanced = Math.abs(netDelta) <= 0.03;
+  const netNotEqual = Math.abs(netDelta) > 0.03;
+
+  function selectTopDrivers(items) {
+    const out = items.slice(0, 2).map(d => d.key);
+
+    if (items.length >= 3 && items[2] && items[2].abs >= 0.20) {
+      out.push(items[2].key);
+    }
+
+    return out;
+  }
+
+  let plan = {
+    caseId: 'case4',
+    drivers: ['mibs', 'breadth']
+  };
+
+  if (nonZeroCount >= 2 && netNotEqual) {
+    plan.caseId = 'case1';
+    plan.drivers = selectTopDrivers(ranked);
+  } else if (nonZeroCount >= 2 && netBalanced) {
+    plan.caseId = 'case2';
+    plan.drivers = selectTopDrivers(ranked);
+  } else if (nonZeroCount === 1) {
+    plan.caseId = 'case3';
+    plan.drivers = [ranked[0].key, 'mibs'];
+  }
+
+  const d1 = plan.drivers[0] ? (phraseMap[plan.drivers[0]] || '') : '';
+  const d2 = plan.drivers[1] ? (phraseMap[plan.drivers[1]] || '') : '';
+  const d3 = plan.drivers[2] ? (phraseMap[plan.drivers[2]] || '') : '';
+
+  const bank =
+    plan.caseId === 'case1'
+      ? ((d3 && Array.isArray(dyn.case1_major3) && dyn.case1_major3.length) ? dyn.case1_major3 : dyn.case1)
+      : plan.caseId === 'case2'
+        ? ((d3 && Array.isArray(dyn.case2_major3) && dyn.case2_major3.length) ? dyn.case2_major3 : dyn.case2)
+        : plan.caseId === 'case3'
+          ? dyn.case3
+          : dyn.case4;
+
+  const tpl = (Array.isArray(bank) && bank.length) ? bank[0] : '';
+  if (!tpl) return '';
+
+  return String(tpl)
+    .replace(/{{DRIVER_1}}/g, d1)
+    .replace(/{{DRIVER_2}}/g, d2)
+    .replace(/{{DRIVER_3}}/g, d3)
+    .replace(/{{WINNER}}/g, winName || '')
+    .replace(/{{LOSER}}/g, loseName || '')
+    .trim();
+}
+
+function renderSummary(result = {}) {
+  const {
+    a,
+    b,
+    interactions,
+    seedMeta,
+    v2
+  } = result || {};
+
+  if (!a || !b) return;
+
   const summarySection = document.getElementById('summarySection');
   const table = document.getElementById('summaryTable');
+  const tbody = table ? table.querySelector('tbody') : null;
 
-  // ===== Guard: local aliases for legacy variable names =====
-  // Prefer the "a/b" objects if they carry the computed fields,
-  // fall back to miA/miB if that's where they live in your build.
-  const aBase  = (a && typeof a.base === 'number')  ? a.base  : (miA && typeof miA.base === 'number')  ? miA.base  : 0;
-  const bBase  = (b && typeof b.base === 'number')  ? b.base  : (miB && typeof miB.base === 'number')  ? miB.base  : 0;
+  const getNum = (v, fallback = 0) =>
+    (typeof v === 'number' && Number.isFinite(v)) ? v : fallback;
 
-  // ===== Summary center: hue the Explain card like Verdict Shell =====
+  // =========================================================
+  // Canonical result compatibility layer
+  // =========================================================
+  const round = result.activeRound || result.round || CURRENT_ROUND;
+
+  const baseDiff = getNum(result.base_diff, 0);
+  const intDiff = getNum(result.int_diff, 0);
+
+  const diff = getNum(
+    result.final_delta,
+    getNum(result.diff, baseDiff + intDiff)
+  );
+
+  const absDiff = getNum(
+    result.absDiff,
+    Math.abs(diff)
+  );
+
+  const baseAFromResult = getNum(result.baseA, NaN);
+  const baseBFromResult = getNum(result.baseB, NaN);
+
+  const intAFromResult = getNum(result.intA, NaN);
+  const intBFromResult = getNum(result.intB, NaN);
+
+  const finalAFromResult = getNum(
+    result.miA,
+    getNum(result.miA_raw, NaN)
+  );
+
+  const finalBFromResult = getNum(
+    result.miB,
+    getNum(result.miB_raw, NaN)
+  );
+
+  const predicted =
+    (typeof result.predicted === 'string' && result.predicted.trim())
+      ? result.predicted
+      : (diff > 0)
+        ? a.name
+        : (diff < 0)
+          ? b.name
+          : 'Push';
+
+  // =========================================================
+  // Canonical V4.2 score state
+  // foundation already includes split breadth
+  // raw_base = foundation
+  // =========================================================
+  const foundationA = getNum(
+    a.foundation,
+    getNum(v2?.foundationA, getNum(a.mi_eff_margin, 0))
+  );
+
+  const foundationB = getNum(
+    b.foundation,
+    getNum(v2?.foundationB, getNum(b.mi_eff_margin, 0))
+  );
+
+  // Split breadth (canonical display fields)
+  const offBreadthA = getNum(
+    a.offBreadth,
+    getNum(v2?.offBreadthA, 0)
+  );
+
+  const offBreadthB = getNum(
+    b.offBreadth,
+    getNum(v2?.offBreadthB, 0)
+  );
+
+  const defBreadthA = getNum(
+    a.defBreadth,
+    getNum(v2?.defBreadthA, 0)
+  );
+
+  const defBreadthB = getNum(
+    b.defBreadth,
+    getNum(v2?.defBreadthB, 0)
+  );
+
+  // Compatibility aggregate breadth
+  const breadthA = getNum(
+    a.breadth,
+    getNum(v2?.breadthA, offBreadthA + defBreadthA)
+  );
+
+  const breadthB = getNum(
+    b.breadth,
+    getNum(v2?.breadthB, offBreadthB + defBreadthB)
+  );
+
+  // raw_base is now just foundation
+  const rawBaseA = getNum(
+    a.raw_base,
+    getNum(v2?.rawBaseA, foundationA)
+  );
+
+  const rawBaseB = getNum(
+    b.raw_base,
+    getNum(v2?.rawBaseB, foundationB)
+  );
+
+  const baseTrustA = getNum(
+    a.resumeBaseTrust,
+    getNum(v2?.resumeA, 1.00)
+  );
+
+  const baseTrustB = getNum(
+    b.resumeBaseTrust,
+    getNum(v2?.resumeB, 1.00)
+  );
+
+  const intTrustA = getNum(a.resumeIntTrust, 1.00);
+  const intTrustB = getNum(b.resumeIntTrust, 1.00);
+
+  const confTrustA = getNum(a.resumeConfidenceTrust, 1.00);
+  const confTrustB = getNum(b.resumeConfidenceTrust, 1.00);
+
+  const fieldMean = getNum(
+    v2?.fieldMean,
+    getNum(window.LAST_RESULT?.v2?.fieldMean, 0)
+  );
+
+  const fieldMeanA = getNum(a.field_mean_base, fieldMean);
+  const fieldMeanB = getNum(b.field_mean_base, fieldMean);
+
+  const baseA = Number.isFinite(baseAFromResult)
+    ? baseAFromResult
+    : getNum(
+        a.mi_base,
+        (baseTrustA * rawBaseA) + ((1 - baseTrustA) * fieldMeanA)
+      );
+
+  const baseB = Number.isFinite(baseBFromResult)
+    ? baseBFromResult
+    : getNum(
+        b.mi_base,
+        (baseTrustB * rawBaseB) + ((1 - baseTrustB) * fieldMeanB)
+      );
+
+  const intRawA = getNum(
+    a.mi_int_raw,
+    getNum(interactions?.a, getNum(interactions?.teamA, 0))
+  );
+
+  const intRawB = getNum(
+    b.mi_int_raw,
+    getNum(interactions?.b, getNum(interactions?.teamB, 0))
+  );
+
+  const intA = Number.isFinite(intAFromResult)
+    ? intAFromResult
+    : getNum(a.mi_int, intRawA * intTrustA);
+
+  const intB = Number.isFinite(intBFromResult)
+    ? intBFromResult
+    : getNum(b.mi_int, intRawB * intTrustB);
+
+  const finalA = Number.isFinite(finalAFromResult)
+    ? finalAFromResult
+    : getNum(a.mi_matchup, baseA + intA);
+
+  const finalB = Number.isFinite(finalBFromResult)
+    ? finalBFromResult
+    : getNum(b.mi_matchup, baseB + intB);
+
+  const totalAdjA = finalA - foundationA;
+  const totalAdjB = finalB - foundationB;
+
+  // Base efficiency signals
+  const miOffEffBaseA = getNum(a.mi_off_eff_base, getNum(v2?.miOffEffBaseA, 0));
+  const miOffEffBaseB = getNum(b.mi_off_eff_base, getNum(v2?.miOffEffBaseB, 0));
+
+  const miDefEffBaseA = getNum(a.mi_def_eff_base, getNum(v2?.miDefEffBaseA, 0));
+  const miDefEffBaseB = getNum(b.mi_def_eff_base, getNum(v2?.miDefEffBaseB, 0));
+
+  const miEffMarginBaseA = getNum(a.mi_eff_margin_base, getNum(v2?.miEffMarginBaseA, 0));
+  const miEffMarginBaseB = getNum(b.mi_eff_margin_base, getNum(v2?.miEffMarginBaseB, 0));
+
+  // Adjusted efficiency signals
+  const miOffEffA = getNum(a.mi_off_eff, getNum(v2?.miOffEffA, foundationA));
+  const miOffEffB = getNum(b.mi_off_eff, getNum(v2?.miOffEffB, foundationB));
+
+  const miDefEffA = getNum(a.mi_def_eff, getNum(v2?.miDefEffA, foundationA));
+  const miDefEffB = getNum(b.mi_def_eff, getNum(v2?.miDefEffB, foundationB));
+
+  const miEffMarginA = getNum(a.mi_eff_margin, getNum(v2?.miEffMarginA, foundationA));
+  const miEffMarginB = getNum(b.mi_eff_margin, getNum(v2?.miEffMarginB, foundationB));
+
+  // Split breadth SDs
+  const offBreadthSDA = getNum(a.offBreadthSD, getNum(v2?.offBreadthSDA, 0));
+  const offBreadthSDB = getNum(b.offBreadthSD, getNum(v2?.offBreadthSDB, 0));
+
+  const defBreadthSDA = getNum(a.defBreadthSD, getNum(v2?.defBreadthSDA, 0));
+  const defBreadthSDB = getNum(b.defBreadthSD, getNum(v2?.defBreadthSDB, 0));
+
+  // Compatibility aggregate SD
+  const breadthSDA = getNum(a.breadthSD, getNum(v2?.breadthSDA, offBreadthSDA + defBreadthSDA));
+  const breadthSDB = getNum(b.breadthSD, getNum(v2?.breadthSDB, offBreadthSDB + defBreadthSDB));
+
+  // =========================================================
+  // Summary center tint
+  // =========================================================
   const explainCard = summarySection
     ? summarySection.querySelector('.summary-mid-card--explain')
     : null;
@@ -4698,16 +6492,78 @@ function renderSummary({ a, b, miA, miB, diff, absDiff, predicted, interactions,
 
     const winnerRole = (diff === 0)
       ? 'neutral'
-      : (diff > 0 ? 'cinderella' : 'favorite'); // Team A = Cinderella, Team B = Favorite
+      : (diff > 0 ? 'cinderella' : 'favorite');
 
     explainCard.classList.add(`mi-winner-${winnerRole}`);
   }
 
-  // Do NOT return early just because summary layout changed.
-  // Verdict Shell and scorebug updates must still run.
-  const tbody = table ? table.querySelector('tbody') : null;
+  if (explainCard) {
+    explainCard.classList.remove('mi-winner-cinderella', 'mi-winner-favorite', 'mi-winner-neutral');
 
-  // ----- JSON wiring for labels + gap phrases -----
+    const winnerRole = (diff === 0)
+      ? 'neutral'
+      : (diff > 0 ? 'cinderella' : 'favorite');
+
+    explainCard.classList.add(`mi-winner-${winnerRole}`);
+  }
+
+  // =========================================================
+  // Score Synthesis lens / side token wiring
+  // Re-applies the canonical color-token system used by the
+  // bottom summary section:
+  // - standard        => cinderella / favorite split
+  // - chaos_mirror    => red / red
+  // - chalk_mirror    => blue / blue
+  // - neutral_mirror  => purple / purple
+  // =========================================================
+  const verdictShellEl = document.getElementById('verdictShell');
+  const analysisShellEl = document.getElementById('analysisShell');
+
+  if (summarySection && typeof resolveIdentityContext === 'function') {
+    const roundCode = round || CURRENT_ROUND || 'R64';
+    const ctx = resolveIdentityContext(a, b, roundCode);
+
+  let sideA = 'neutral_mirror';
+  let sideB = 'neutral_mirror';
+
+  const shellLensKey =
+    (ctx && (
+      ctx.mode === 'chalk_mirror' ||
+      ctx.mode === 'chaos_mirror' ||
+      ctx.mode === 'neutral_mirror'
+    ))
+      ? ctx.mode
+      : ((diff === 0)
+          ? 'neutral'
+          : (diff > 0 ? 'cinderella' : 'favorite'));
+
+  if (ctx && (
+    ctx.mode === 'chalk_mirror' ||
+    ctx.mode === 'chaos_mirror' ||
+    ctx.mode === 'neutral_mirror'
+  )) {
+    sideA = ctx.mode;
+    sideB = ctx.mode;
+  } else if (ctx && ctx.mode === 'standard') {
+    sideA = ctx.roleA || 'neutral_mirror';
+    sideB = ctx.roleB || 'neutral_mirror';
+  }
+
+  summarySection.setAttribute('data-lens', shellLensKey);
+  summarySection.setAttribute('data-side-a', sideA);
+  summarySection.setAttribute('data-side-b', sideB);
+
+  if (verdictShellEl) {
+    verdictShellEl.setAttribute('data-lens', shellLensKey);
+  }
+
+  if (analysisShellEl) {
+    analysisShellEl.setAttribute('data-lens', shellLensKey);
+  }
+  }
+  // =========================================================
+  // Copy wiring
+  // =========================================================
   const copy        = window.MI_COPY || {};
   const summaryCopy = copy.summary || {};
   const tableLabels = summaryCopy.table_labels || {};
@@ -4715,11 +6571,11 @@ function renderSummary({ a, b, miA, miB, diff, absDiff, predicted, interactions,
 
   const cTeamLabel = tableLabels.cinderella_label
     || (copy.card && copy.card.cinderella_label)
-    || 'Cinderella';
+    || 'Team A';
 
   const fTeamLabel = tableLabels.favorite_label
     || (copy.card && copy.card.favorite_label)
-    || 'Favorite';
+    || 'Team B';
 
   const baselineLabel    = tableLabels.baseline_label    || 'Baseline MI';
   const matchupLabel     = tableLabels.matchup_label     || 'Matchup MI';
@@ -4729,21 +6585,16 @@ function renderSummary({ a, b, miA, miB, diff, absDiff, predicted, interactions,
   const neutralText = summaryCopy.neutral_matchup || 'Neutral matchup';
   const towardWord  = summaryCopy.toward_phrase   || 'toward';
 
-  // ----- Baseline vs matchup values (define BEFORE any narration logic) -----
-  const baseA = typeof a.mi_base === 'number' ? a.mi_base : computeMIBase(a);
-  const baseB = typeof b.mi_base === 'number' ? b.mi_base : computeMIBase(b);
-  const intA  = interactions?.a || 0;
-  const intB  = interactions?.b || 0;
-
   const centerHeaderLabel = summaryCopy.matchup_header || 'Matchup Edge';
 
-  // ----- Gap band (JSON) -----
+  // =========================================================
+  // Gap band / lean text
+  // =========================================================
   const gapKey    = getSummaryGapKey(diff);
   const gapCfg    = phrases[gapKey] || {};
   const bandLabel = (gapCfg.label || '').trim();
   const bandDesc  = (gapCfg.description || '').trim();
 
-  // ----- Build lean text (also feeds the hero HUD / other UI) -----
   let leanText;
 
   if (diff === 0) {
@@ -4769,31 +6620,28 @@ function renderSummary({ a, b, miA, miB, diff, absDiff, predicted, interactions,
     }
   }
 
-  // ----- Verdict → Confidence → Why → Risk (JSON-driven; NO hardcoded phrases) -----
-  const verdictCopy = summaryCopy.verdict || {}; // namespace
+  // =========================================================
+  // Verdict copy helpers
+  // =========================================================
+  const verdictCopy = summaryCopy.verdict || {};
 
-  // Optional labels (can be blank until JSON is added)
   const confidenceLabelText = verdictCopy.confidence_label || tableLabels.confidence_label || '';
   const driverLabelText     = verdictCopy.driver_label     || tableLabels.driver_label     || '';
   const riskLabelText       = verdictCopy.risk_label       || tableLabels.risk_label       || '';
 
-  // Confidence band comes from summary_phrases band label (already JSON-driven)
   const confidenceBand = (bandLabel || getLeanBand(diff) || '').trim();
 
-  // Determine winner side
   const winnerIsA =
     (diff > 0) ? true :
     (diff < 0) ? false :
-    (predicted === a.name); // only if diff === 0
+    (predicted === a.name);
 
   const winName   = winnerIsA ? a.name : b.name;
   const loseName  = winnerIsA ? b.name : a.name;
 
-  // Interaction leverage (winner vs loser)
   const winInt  = winnerIsA ? intA : intB;
   const loseInt = winnerIsA ? intB : intA;
 
-  // Thresholds: keep numeric logic in JS; wording lives in JSON
   const INT_SOFT = typeof verdictCopy.int_soft_threshold === 'number'
     ? verdictCopy.int_soft_threshold
     : 0.20;
@@ -4802,7 +6650,6 @@ function renderSummary({ a, b, miA, miB, diff, absDiff, predicted, interactions,
   const intReinforces = (winInt >  INT_SOFT && loseInt < -INT_SOFT);
   const intResists    = (winInt < -INT_SOFT && loseInt >  INT_SOFT);
 
-  // Helper: tiny template renderer with {{TOKENS}}
   const renderTpl = (tpl, tokens) => {
     if (!tpl) return '';
     return String(tpl).replace(/\{\{(\w+)\}\}/g, (_, k) => {
@@ -4810,16 +6657,12 @@ function renderSummary({ a, b, miA, miB, diff, absDiff, predicted, interactions,
     });
   };
 
-  // Decide "edge tier" (keys only; wording comes from JSON)
-  // Canonical display separation (always positive)
-  // Prefer computed absDiff from compareTeams, fall back safely.
-  const gapSep = (typeof absDiff === 'number') ? absDiff : Math.abs(diff);
+  const gapSep = absDiff;
   const edgeTier = (gapSep >= 4) ? 'heavy'
                 : (gapSep >= 2) ? 'solid'
                 : (gapSep >  0) ? 'slight'
                 : 'coin';
 
-  // Decide driver case
   let driverCase = '';
   if (diff === 0) {
     driverCase = intBalanced ? 'neutral_balanced' : 'neutral_swingy';
@@ -4830,18 +6673,14 @@ function renderSummary({ a, b, miA, miB, diff, absDiff, predicted, interactions,
   } else if (intResists) {
     driverCase = 'resists_winner';
   } else {
-    // mixed
     driverCase = (Math.abs(winInt) >= Math.abs(loseInt)) ? 'mixed_still_winner' : 'mixed_live_loser';
   }
 
-  // Decide risk case (tier-aware + resistance-aware)
   const riskCase = `${edgeTier}_${intResists ? 'resists' : 'default'}`;
 
-  // Pull templates from JSON (blank-safe)
   const driverTpl = (verdictCopy.driver_templates && verdictCopy.driver_templates[driverCase]) || '';
   const riskTpl   = (verdictCopy.risk_templates   && verdictCopy.risk_templates[riskCase])   || '';
 
-  // We'll also compute sepText early for the new synthesis center & MI Δ
   const sep = Math.abs(diff);
   const sepText = (sep < 0.05) ? '~0.0' : `~${sep.toFixed(1)}`;
 
@@ -4859,569 +6698,119 @@ function renderSummary({ a, b, miA, miB, diff, absDiff, predicted, interactions,
   const driverText = renderTpl(driverTpl, tokens);
   const riskText   = renderTpl(riskTpl, tokens);
 
-  // ----- Verdict metrics flip-tile (BACK) text (JSON-driven; 3-sentence paragraph; gap-band-aware) -----
-  const metricsCfg   = (copy.verdict && copy.verdict.metrics) ? copy.verdict.metrics : {};
-  const backTextCfg  = (metricsCfg.back_text || {});
+    // =========================================================
+  // Verdict metrics flip tile (back)
+  // Supports both:
+  // 1) legacy 3-part copy: base + matchup + gap[gapKey]
+  // 2) newer single-pool copy: back_text[gapKey] / back_text.default
+  // =========================================================
+  const metricsCfg  = (copy.verdict && copy.verdict.metrics) ? copy.verdict.metrics : {};
+  const backTextCfg = (metricsCfg.back_text || {});
 
-  const pickOne = (arr) => (Array.isArray(arr) && arr.length ? arr[Math.floor(Math.random() * arr.length)] : "");
+  const pickOne = (arr) => (
+    Array.isArray(arr) && arr.length
+      ? arr[Math.floor(Math.random() * arr.length)]
+      : ''
+  );
 
-  const clean = (s) => String(s || "").replace(/\s+/g, " ").trim();
+  const clean = (s) => String(s || '').replace(/\s+/g, ' ').trim();
   const ensureEndPunct = (s) => {
     const t = clean(s);
-    if (!t) return "";
-    return /[.!?]$/.test(t) ? t : (t + ".");
+    if (!t) return '';
+    return /[.!?]$/.test(t) ? t : (t + '.');
   };
 
-  const baseTpl  = pickOne(backTextCfg.base);
+  const backTokens = {
+    ...tokens,
+
+    // lowercase / narrative-friendly tokens
+    winner: winName,
+    loser: loseName,
+    teamA: a.name,
+    teamB: b.name,
+    diff: fmt(diff, 3),
+    absDiff: fmt(Math.abs(diff), 3),
+    baseA: fmt(baseA, 3),
+    baseB: fmt(baseB, 3),
+    finalA: fmt(finalA, 3),
+    finalB: fmt(finalB, 3),
+    intA: fmt(intA, 3),
+    intB: fmt(intB, 3),
+    rawBaseA: fmt(rawBaseA, 3),
+    rawBaseB: fmt(rawBaseB, 3),
+
+    // helpful carry-through context
+    gapKey,
+    band: confidenceBand || (bandLabel || ''),
+    leanText: leanText || '',
+    bandDesc: bandDesc || ''
+  };
+
+  // --- Legacy 3-sentence mode ---
+  const baseTpl = Array.isArray(backTextCfg.base)
+    ? backTextCfg.base.map(s => ensureEndPunct(renderTpl(s, backTokens))).filter(Boolean).join(' ')
+    : ensureEndPunct(renderTpl(backTextCfg.base, backTokens));
+
   const matchTpl = pickOne(backTextCfg.matchup);
 
   const gapBucket = (backTextCfg.gap && backTextCfg.gap[gapKey] != null)
     ? backTextCfg.gap[gapKey]
     : (backTextCfg.gap ? backTextCfg.gap.default : null);
 
-  let gapTpl = "";
+  let gapTpl = '';
   if (Array.isArray(gapBucket)) gapTpl = pickOne(gapBucket);
-  else if (typeof gapBucket === "string") gapTpl = gapBucket;
+  else if (typeof gapBucket === 'string') gapTpl = gapBucket;
 
-  const s1 = ensureEndPunct(renderTpl(baseTpl, tokens));
-  const s2 = ensureEndPunct(renderTpl(matchTpl, tokens));
-  const s3 = ensureEndPunct(renderTpl(gapTpl,  tokens));
+  const s1 = baseTpl;
+  const s2 = ensureEndPunct(renderTpl(matchTpl, backTokens));
+  const s3 = ensureEndPunct(renderTpl(gapTpl, backTokens));
 
-  const metricsBackText = [s1, s2, s3].filter(Boolean).join(" ");
+  const legacyBackText = [s1, s2, s3].filter(Boolean).join(' ');
 
-  const metricsBackEl =
+  // --- New single-pool mode fallback ---
+  const modernTpl =
+    pickOne(backTextCfg[gapKey]) ||
+    pickOne(backTextCfg.default);
+
+  const modernBackText = ensureEndPunct(renderTpl(modernTpl, backTokens));
+
+  const metricsBackText = legacyBackText || modernBackText;
+
+  const verdictBackEl =
+    document.getElementById('backVerdictMetrics') ||
     document.querySelector('#verdictShell .mi-verdict-metrics-tile .tile-back .mi-metrics-back-text') ||
     document.querySelector('#verdictShell .mi-metrics-back-text[data-copy="verdict.metrics.back_text"]');
 
-  if (metricsBackEl && metricsBackText) {
-    metricsBackEl.textContent = metricsBackText;
+  if (verdictBackEl && metricsBackText) {
+    verdictBackEl.textContent = metricsBackText;
   }
 
-  // Support line remains the band description (already JSON-driven via summary_phrases)
-  let supportText = bandDesc || '';
-  if (supportText && leanText && leanText.includes(supportText)) {
-    supportText = '';
-  }
-
-  // ----- Summary table headers -----
-  const headA = document.getElementById('summaryTeamAHeader');
-  const headB = document.getElementById('summaryTeamBHeader');
-  if (headA) headA.textContent = a.name;
-  if (headB) headB.textContent = b.name;
-
-  // Helper: set text for a data-value field inside #summarySection
-  const setSummaryValue = (key, val) => {
-    const root = summarySection || document;
-    const els = root.querySelectorAll(`[data-value="${key}"]`);
-    if (!els || !els.length) return;
-    const out = (val == null ? '' : val);
-    els.forEach(el => { el.textContent = out; });
-  };
-
-  // Keep these legacy components (safe no-ops if DOM doesn't have them)
-  const aIntRaw  = (typeof a.mi_int_raw === 'number')   ? a.mi_int_raw   : (interactions?.a ?? 0);
-  const bIntRaw  = (typeof b.mi_int_raw === 'number')   ? b.mi_int_raw   : (interactions?.b ?? 0);
-
-  const aRFact   = (typeof a.mi_int_rFact === 'number') ? a.mi_int_rFact : null;
-  const bRFact   = (typeof b.mi_int_rFact === 'number') ? b.mi_int_rFact : null;
-
-  const aIntEff = (typeof a.mi_int === 'number') ? a.mi_int : 0;
-  const bIntEff = (typeof b.mi_int === 'number') ? b.mi_int : 0;
-
-  // Breadth bonus is stored on team objects as `breadth` in this codebase
-  const aBreadth = (typeof a.breadth === 'number') ? a.breadth
-                 : (typeof a.mi_breadth === 'number') ? a.mi_breadth
-                 : 0;
-
-  const bBreadth = (typeof b.breadth === 'number') ? b.breadth
-                 : (typeof b.mi_breadth === 'number') ? b.mi_breadth
-                 : 0;
-
-  const aMibsOnly = (typeof a.mibs === 'number') ? a.mibs : (aBase - aBreadth);
-  const bMibsOnly = (typeof b.mibs === 'number') ? b.mibs : (bBase - bBreadth);
-
-  const aFinal   = (typeof a.mi_matchup === 'number')   ? a.mi_matchup   : miA;
-  const bFinal   = (typeof b.mi_matchup === 'number')   ? b.mi_matchup   : miB;
-
-  // Therefore, the "Total Adj" component sum we want to show is: breadth + int_eff.
-  const aTotalAdj = aBreadth + aIntEff;
-  const bTotalAdj = bBreadth + bIntEff;
-
-  // Fill required synthesis slots
-  setSummaryValue('a.base', fmt(aMibsOnly, 3));
-  setSummaryValue('b.base', fmt(bMibsOnly, 3));
-
-  setSummaryValue('a.breadth',   fmt(aBreadth, 3));
-  setSummaryValue('b.breadth',   fmt(bBreadth, 3));
-
-  setSummaryValue('a.int_eff',   fmt(aIntEff, 3));
-  setSummaryValue('b.int_eff',   fmt(bIntEff, 3));
-
-  setSummaryValue('a.total_adj', fmt(aTotalAdj, 3));
-  setSummaryValue('b.total_adj', fmt(bTotalAdj, 3));
-
-  setSummaryValue('a.final',     fmt(aFinal, 3));
-  setSummaryValue('b.final',     fmt(bFinal, 3));
-
-  // Keep legacy keys populated if they still exist somewhere in DOM (harmless)
-  setSummaryValue('a.int_raw', fmt(aIntRaw, 3));
-  setSummaryValue('b.int_raw', fmt(bIntRaw, 3));
-  setSummaryValue('a.rFact',   (aRFact == null ? '—' : fmt(aRFact, 3)));
-  setSummaryValue('b.rFact',   (bRFact == null ? '—' : fmt(bRFact, 3)));
-
-  // MI Δ (bottom-center) — true delta, always 3 decimals
-  setSummaryValue('gap.sep', miFormatDelta(gapSep));
-
-  // ===== NEW CENTER NARRATIVE: #summarySynLean uses JSON template, with leanText fallback =====
-  const synLeanEl = document.getElementById('summarySynLean');
-  if (synLeanEl) {
-    const tpl =
-      (copy.summary && copy.summary.synthesis && copy.summary.synthesis.syn_lean)
-        ? copy.summary.synthesis.syn_lean
-        : '';
-
-    const rendered = clean(renderTpl(tpl, tokens));
-    // If template is blank or not yet written, fall back to the computed lean text.
-    synLeanEl.textContent = rendered || (leanText || '');
-  }
-
-  // ===== GAP ATTRIBUTION (numbers exist, but interpretation leads) =====
-  const baseGap = aBase - bBase;
-  const shift   = aIntEff - bIntEff;
-  const netGap  = diff;
-
-  setSummaryValue('gap.baseline', fmt(baseGap, 3));
-  setSummaryValue('gap.shift',    fmt(shift, 3));
-  setSummaryValue('gap.net',      fmt(netGap, 3));
-
-  // NEW CENTER STRUCTURE (legacy-safe if those nodes no longer exist)
-  const bandPillText =
-    (diff === 0)
-      ? 'NO CLEAR EDGE'
-      : `${winName} HOLDS THE EDGE`;
-
-  setSummaryValue('gap.band', bandPillText);
-
-  const separationNote =
-    bandDesc
-      ? bandDesc
-      : (diff === 0 ? 'Minimal separation — treat this as high-variance.' : `Model separation: ${sepText.replace('~','')} points.`);
-
-  setSummaryValue('gap.net_note', separationNote);
-
-  const micro =
-    (diff === 0)
-      ? ''
-      : `${(bandLabel ? bandLabel + ' — ' : '')}${winName} over ${loseName}`;
-
-  setSummaryValue('gap.micro', micro);
-
-  // Driver notes in plain English
-  const baselineNote =
-    (baseGap === 0)
-      ? 'Profiles start closely matched before opponent effects.'
-      : `${baseGap > 0 ? a.name : b.name} looks stronger on baseline profile strength.`;
-
-  const shiftNote =
-    (shift === 0)
-      ? 'Matchup interactions do not meaningfully change the baseline picture.'
-      : `Matchup interactions ${Math.sign(shift) === Math.sign(diff) ? 'reinforce' : 'push against'} the edge.`;
-
-  let resumeDriver = 'Résumé scaling informs how much trust to place in the matchup effects.';
-  if (aRFact != null && bRFact != null) {
-    if (Math.abs(aRFact - bRFact) < 0.02) {
-      resumeDriver = 'Résumé scaling is similar on both sides — reliability is comparable.';
-    } else {
-      resumeDriver = `${(aRFact > bRFact) ? a.name : b.name} carries the stronger résumé multiplier.`;
-    }
-  }
-
-  setSummaryValue('gap.baseline_note', baselineNote);
-  setSummaryValue('gap.shift_note', shiftNote);
-  setSummaryValue('gap.net_note2', resumeDriver);
-
-  // If any legacy keys still exist in DOM, blank them to prevent confusing leakage
-  setSummaryValue('gap.baseline_dir', '');
-  setSummaryValue('gap.shift_dir', '');
-  setSummaryValue('gap.net_dir', '');
-
-  // ===== Center: kicker text (optional — safe cosmetic) =====
-  const gapKickerEl = document.querySelector('#summaryGapAttribution .summary-mid-kicker');
-  if (gapKickerEl) {
-    gapKickerEl.textContent = (diff === 0) ? 'Why the model keeps this close' : 'Why the model leans this way';
-  }
-
-  // ===== Synthesis / Stitch Tag (deterministic) =====
-  const stitchCopy = (summaryCopy && summaryCopy.stitch) ? summaryCopy.stitch : {};
-
-  const EPS  = (typeof stitchCopy.eps === 'number')  ? stitchCopy.eps  : 0.001;
-  const SOFT = (typeof stitchCopy.soft === 'number') ? stitchCopy.soft : 0.20;
-
-  const sgn = (x) => (Math.abs(x) < EPS ? 0 : (x > 0 ? 1 : -1));
-
-  const sBase = sgn(baseGap);
-  const sNet  = sgn(netGap);
-  const sShft = sgn(shift);
-
-  let stitchKey = 'confirmed';
-
-  if (sNet === 0) {
-    stitchKey = 'deadlock';
-  } else if (sBase !== 0 && sBase !== sNet) {
-    stitchKey = 'redirected';
-  } else {
-    if (Math.abs(shift) < SOFT) {
-      stitchKey = 'confirmed';
-    } else if (sShft === sNet) {
-      stitchKey = 'reinforced';
-    } else if (sShft !== 0 && sShft !== sNet) {
-      stitchKey = 'resisted';
-    } else {
-      stitchKey = 'confirmed';
-    }
-  }
-
-  const stitchLabel =
-    stitchCopy[stitchKey] ||
-    (copy.summary && copy.summary.stitch && copy.summary.stitch[stitchKey]) ||
-    stitchKey;
-
-  // Do not show internal stitch labels in center UI
-  setSummaryValue('stitch.label', '');
-
-  const howToRead =
-    (diff === 0)
-      ? 'Minimal separation suggests a true toss-up — treat this as highly volatile.'
-      : 'A strong edge reflects clearer separation between profiles — not a guaranteed outcome.';
-
-  setSummaryValue('stitch.note', howToRead);
-
-  const stitchKickerEl = document.querySelector('#summaryStitchTag .summary-mid-kicker');
-  if (stitchKickerEl) stitchKickerEl.textContent = 'How to read this';
-
-  // ===== VERDICT SHELL (single-source; no duplicate blocks) =====
-  const verdictShellEl = document.getElementById('verdictShell');
-  const verdictInner   = document.querySelector('#verdictShell .mi-verdict-shell-inner');
-
-  if (verdictShellEl) {
-    const winnerRole = (diff === 0)
-      ? 'neutral'
-      : (diff > 0 ? 'cinderella' : 'favorite');
-
-    const tier = edgeTier;
-    const roundCode = round || CURRENT_ROUND || 'R64';
-
-    let lensKey = (winnerRole === 'neutral') ? 'neutral_mirror' : winnerRole;
-
-    if (typeof resolveIdentityContext === 'function') {
-      const ctx = resolveIdentityContext(a, b, roundCode);
-      if (ctx && (ctx.mode === 'chalk_mirror' || ctx.mode === 'chaos_mirror' || ctx.mode === 'neutral_mirror')) {
-        lensKey = ctx.mode;
-      }
-    }
-
-    verdictShellEl.setAttribute('data-lens', lensKey);
-    if (summarySection) summarySection.setAttribute('data-lens', lensKey);
-
-    // ===== SIDE ROLE ATTRS for Score Synthesis (A/B tint) =====
-    // Use canonical identity resolver — never derive side tint from diff.
-    if (summarySection && typeof resolveIdentityContext === 'function') {
-      const ctx2 = resolveIdentityContext(a, b, roundCode);
-
-      let sideA = 'neutral_mirror';
-      let sideB = 'neutral_mirror';
-
-      if (ctx2 && (ctx2.mode === 'chalk_mirror' || ctx2.mode === 'chaos_mirror' || ctx2.mode === 'neutral_mirror')) {
-        // Mirrors: both halves share the same environment token
-        sideA = ctx2.mode;
-        sideB = ctx2.mode;
-      } else if (ctx2 && ctx2.mode === 'standard') {
-        // Standard: use the actual identity roles (seed-based)
-        sideA = ctx2.roleA; // 'favorite' or 'cinderella'
-        sideB = ctx2.roleB; // 'cinderella' or 'favorite'
-      } else {
-        // Safety fallback (should be rare)
-        sideA = 'neutral_mirror';
-        sideB = 'neutral_mirror';
-      }
-
-      summarySection.setAttribute('data-side-a', sideA);
-      summarySection.setAttribute('data-side-b', sideB);
-    } else if (summarySection) {
-      // No resolver available: keep neutral so we don't lie with color
-      summarySection.setAttribute('data-side-a', 'neutral_mirror');
-      summarySection.setAttribute('data-side-b', 'neutral_mirror');
-    }
-
-    const analysisShellEl = document.getElementById('analysisShell');
-    if (analysisShellEl) analysisShellEl.setAttribute('data-lens', lensKey);
-
-    verdictShellEl.classList.remove(
-      'mi-winner-cinderella', 'mi-winner-favorite', 'mi-winner-neutral',
-      'mi-lean-coin', 'mi-lean-slight', 'mi-lean-solid', 'mi-lean-heavy',
-      'mi-verdict-hit'
-    );
-
-    verdictShellEl.classList.add(`mi-winner-${winnerRole}`);
-    verdictShellEl.classList.add(`mi-lean-${tier}`);
-
-    verdictShellEl.classList.remove('hidden');
-
-    verdictShellEl.classList.add('mi-verdict-hit');
-    window.setTimeout(() => verdictShellEl.classList.remove('mi-verdict-hit'), 1100);
-  }
-
-  // ===== Primary + Secondary verdict line (JSON-driven; gap-band-aware; STABLE RANDOM) =====
-  // Cache prevents re-renders from "shuffling" the sentence.
-  const __cache = (window.__MI_VERDICT_LINE_CACHE ||= new Map());
-
-  const _randInt = (n) => {
-    n = Math.floor(Number(n) || 0);
-    if (n <= 1) return 0;
-    if (window.crypto && crypto.getRandomValues) {
-      const buf = new Uint32Array(1);
-      crypto.getRandomValues(buf);
-      return buf[0] % n;
-    }
-    return Math.floor(Math.random() * n);
-  };
-
-  const _asPool = (bucket) => {
-    if (Array.isArray(bucket)) return bucket.filter(Boolean);
-    if (typeof bucket === "string" && bucket.trim()) return [bucket.trim()];
-    return [];
-  };
-
-  // Use round + teams + gapKey so it stays stable for this matchup state
-  const _matchKey = `${String(round || CURRENT_ROUND || "R64")}|${String(winName)}|${String(loseName)}|${String(gapKey || "default")}`;
-
-  const pickTplStable = (cfgObj, bandKey, channel) => {
-    if (!cfgObj || typeof cfgObj !== "object") return "";
-
-    const cacheKey = `${channel}::${_matchKey}`;
-    if (__cache.has(cacheKey)) return __cache.get(cacheKey) || "";
-
-    const bucket = (cfgObj[bandKey] != null) ? cfgObj[bandKey] : cfgObj.default;
-    const pool = _asPool(bucket);
-
-    const picked = pool.length ? pool[_randInt(pool.length)] : "";
-    __cache.set(cacheKey, picked || "");
-    return picked || "";
-  };
-
-  const primaryCfg = metricsCfg.primary_text;
-  const secondaryCfg = metricsCfg.secondary_text;
-
-  const primaryTpl = pickTplStable(primaryCfg, gapKey, "primary");
-  const primaryText = renderTpl(primaryTpl, tokens).trim();
-
-  // Sentence 2 (subheadline #1): secondary_text (stable-random, calibrated)
-  const secondaryTpl = pickTplStable(secondaryCfg, gapKey, "secondary");
-  const secondaryFlavorText = renderTpl(secondaryTpl, tokens).trim();
-
-  // ===== Deterministic interaction driver ranking (no output yet) =====
-  let __rankedDrivers = [];
-
-  if (interactions && interactions.breakdown && typeof interactions.breakdown === "object") {
-    const bd = interactions.breakdown;
-
-    // Collect non-zero interaction channels
-    const nonZero = Object.keys(bd)
-      .filter(k => typeof bd[k] === "number" && Math.abs(bd[k]) > 0)
-      .map(k => ({
-        key: k,
-        value: bd[k],
-        abs: Math.abs(bd[k])
-      }));
-
-    // Fixed deterministic tie-break order (ONLY using keys confirmed in your system)
-    const PRIORITY_ORDER = ['glass', 'to', 'paint', 'shotq', 'phys', '3pt', 'ft', 'var'];
-
-    nonZero.sort((a, b) => {
-      // 1) Higher absolute magnitude first
-      if (b.abs !== a.abs) return b.abs - a.abs;
-
-      // 2) Deterministic tie-break using fixed order
-      return PRIORITY_ORDER.indexOf(a.key) - PRIORITY_ORDER.indexOf(b.key);
-    });
-
-    __rankedDrivers = nonZero;
-  }
-  
-  // = Secondary driver state machine (selection only; no rendering yet)
-  let __secondaryPlan = {
-    caseId: "case4",
-    drivers: [],
-    hasBalanceClause: false
-  };
-
-  // Inputs we are allowed to use (already verified in your debug):
-  const __bd = (interactions && interactions.breakdown && typeof interactions.breakdown === "object")
-    ? interactions.breakdown
-    : null;
-
-  const __nonZeroCount = Array.isArray(__rankedDrivers) ? __rankedDrivers.length : 0;
-
-  const __ia = (interactions && typeof interactions.a === "number") ? interactions.a : null;
-  const __ib = (interactions && typeof interactions.b === "number") ? interactions.b : null;
-
-  // Net interaction equality/inequality only applies when both totals exist.
-  const __netComparable = (typeof __ia === "number" && typeof __ib === "number");
-  const __netEqual = (__netComparable && __ia === __ib);
-  const __netNotEqual = (__netComparable && __ia !== __ib);
-
-  // Helper: select top 2, and add 3rd only if it is a major (abs == 0.50)
-  function __selectTopDrivers(ranked) {
-    const keys = ranked.map(d => d.key);
-    const out = keys.slice(0, 2);
-
-    // Third driver rule (locked): include only if abs(value) == 0.50
-    if (ranked.length >= 3 && ranked[2] && ranked[2].abs === 0.5) {
-      out.push(ranked[2].key);
-    }
-    return out;
-  }
-
-  // CASE 1: >=2 non-zero AND net interaction != 0
-  if (__nonZeroCount >= 2 && __netNotEqual) {
-    __secondaryPlan.caseId = "case1";
-    __secondaryPlan.drivers = __selectTopDrivers(__rankedDrivers);
-    __secondaryPlan.hasBalanceClause = false;
-  }
-
-  // CASE 2: >=2 non-zero AND net interaction == 0
-  else if (__nonZeroCount >= 2 && __netEqual) {
-    __secondaryPlan.caseId = "case2";
-    __secondaryPlan.drivers = __selectTopDrivers(__rankedDrivers);
-    __secondaryPlan.hasBalanceClause = true; // balance clause ONLY in this case
-  }
-
-  // CASE 3: exactly 1 non-zero
-  else if (__nonZeroCount === 1) {
-    __secondaryPlan.caseId = "case3";
-    __secondaryPlan.drivers = [__rankedDrivers[0].key, "mibs"]; // structural reinforcement
-    __secondaryPlan.hasBalanceClause = false;
-  }
-
-  // CASE 4: 0 non-zero
-  else {
-    __secondaryPlan.caseId = "case4";
-    __secondaryPlan.drivers = ["mibs", "breadth"]; // purely structural framing
-    __secondaryPlan.hasBalanceClause = false;
-  }
-
-    // ===== Sentence 3 (subheadline #2): secondary_dynamic (deterministic driver sentence) =====
-  let secondaryDynamicText = "";
-
-  const metricsCopy = (window.MI_COPY && window.MI_COPY.verdict && window.MI_COPY.verdict.metrics)
-    ? window.MI_COPY.verdict.metrics
-    : null;
-
-  if (metricsCopy && metricsCopy.secondary_dynamic && metricsCopy.secondary_driver_phrases) {
-    const dyn = metricsCopy.secondary_dynamic;
-    const phraseMap = metricsCopy.secondary_driver_phrases;
-
-    const d1 = __secondaryPlan.drivers[0] ? phraseMap[__secondaryPlan.drivers[0]] : "";
-    const d2 = __secondaryPlan.drivers[1] ? phraseMap[__secondaryPlan.drivers[1]] : "";
-    const d3 = __secondaryPlan.drivers[2] ? phraseMap[__secondaryPlan.drivers[2]] : "";
-
-    function inject(template) {
-      return String(template || "")
-        .replace(/{{DRIVER_1}}/g, d1)
-        .replace(/{{DRIVER_2}}/g, d2)
-        .replace(/{{DRIVER_3}}/g, d3)
-        .replace(/{{WINNER}}/g, winName || "")
-        .replace(/{{LOSER}}/g, loseName || "");
-    }
-
-    let bank = null;
-
-    if (__secondaryPlan.caseId === "case1") {
-      bank = (d3 && Array.isArray(dyn.case1_major3) && dyn.case1_major3.length) ? dyn.case1_major3 : dyn.case1;
-    }
-    else if (__secondaryPlan.caseId === "case2") {
-      bank = (d3 && Array.isArray(dyn.case2_major3) && dyn.case2_major3.length) ? dyn.case2_major3 : dyn.case2;
-    }
-    else if (__secondaryPlan.caseId === "case3") {
-      bank = dyn.case3;
-    }
-    else {
-      bank = dyn.case4;
-    }
-
-    if (Array.isArray(bank) && bank.length > 0) {
-      const tpl = bank[0]; // deterministic: always first entry
-      secondaryDynamicText = inject(tpl).trim();
-    }
-  }
-
-  // Build verdict line in intended order:
-  // 1) primary_text (headline)
-  // 2) secondary_text (subheadline sentence #1)
-  // 3) secondary_dynamic (subheadline sentence #2)
-  const combinedVerdict = [primaryText, secondaryFlavorText, secondaryDynamicText]
-    .filter(Boolean)
-    .join(' ');
-
-  const lineEl = document.getElementById('miVerdictLine');
-  if (lineEl) {
-    lineEl.classList.remove('is-structured');
-    lineEl.textContent = combinedVerdict || (leanText || '');
-    enhanceVerdictPresentation();
-  }
-
-  // ===== Verdict calibration / disclaimer line (copy-driven; hide when missing) =====
-  const dEl = document.getElementById('miVerdictDisclaimer');
-  const fEl = dEl ? dEl.closest('.mi-verdict-footer') : null;
-
-  if (dEl && fEl) {
-    const disclaimer =
-      (copy.verdict && copy.verdict.metrics && copy.verdict.metrics.disclaimer_line)
-        ? String(copy.verdict.metrics.disclaimer_line)
-        : '';
-
-    const out = disclaimer.trim();
-    dEl.textContent = out;
-
-    // Only show the row if we actually have content (prevents the empty strip)
-    fEl.style.display = out ? 'flex' : 'none';
-  }
-
-  const whyEl = document.getElementById('miVerdictWhy');
-  if (whyEl) {
-    const parts = [];
-    if (confidenceLabelText && confidenceBand) parts.push(`${confidenceLabelText}: ${confidenceBand}`);
-    if (driverLabelText && driverText)        parts.push(`${driverLabelText}: ${driverText}`);
-    if (!parts.length && driverText)          parts.push(driverText);
-    whyEl.textContent = parts.join(' • ');
-  }
-
-  const watchEl = document.getElementById('miVerdictWatch');
-  if (watchEl) {
-    const parts = [];
-    if (riskLabelText && riskText) parts.push(`${riskLabelText}: ${riskText}`);
-    if (!parts.length) parts.push(riskText || supportText || '');
-    watchEl.textContent = parts.join(' • ');
-  }
-
-  const gapTop = document.getElementById('miVerdictGapTop');
-  if (gapTop) gapTop.textContent = miFormatDelta(gapSep);
-
-  // ===== Scorebug (rail): team names + base / matchup MI =====
-  const sbA = document.getElementById('miScorebugTeamA');
-  const sbB = document.getElementById('miScorebugTeamB');
-  if (sbA) sbA.textContent = a.name;
-  if (sbB) sbB.textContent = b.name;
-
-  const sbBaseA  = document.getElementById('miScorebugBaseA');
-  const sbBaseB  = document.getElementById('miScorebugBaseB');
-  const sbMatchA = document.getElementById('miScorebugMatchA');
-  const sbMatchB = document.getElementById('miScorebugMatchB');
-
-  if (sbBaseA)  sbBaseA.textContent  = fmt(baseA, 3);
-  if (sbBaseB)  sbBaseB.textContent  = fmt(baseB, 3);
-  if (sbMatchA) sbMatchA.textContent = fmt(miA, 3);
-  if (sbMatchB) sbMatchB.textContent = fmt(miB, 3);
+  // =========================================================
+  // Center explainer content
+  // =========================================================   
+  const summaryLeanEl = document.getElementById('summarySynLean');
+  const verdictLineEl = document.getElementById('miVerdictLine');
+  const confEl = document.getElementById('miSummaryConfidence');
+  const driverEl = document.getElementById('miSummaryDriver');
+  const riskEl = document.getElementById('miSummaryRisk');
+
+  if (summaryLeanEl) summaryLeanEl.textContent = leanText;
+
+  // =========================================================
+  // Verdict scorebug metrics
+  // Must happen before enhanceVerdictPresentation(), because
+  // the verdict headline enhancer pulls team names from the
+  // scorebug name slots for inline highlighting.
+  // =========================================================
+  miRenderScorebugMetrics({
+    aName: a.name || 'Team A',
+    bName: b.name || 'Team B',
+    baseA,
+    baseB,
+    finalA,
+    finalB,
+    gap: absDiff
+  });
 
   const scoreBox = document.querySelector('#verdictShell .mi-scorebug-score');
   if (scoreBox) {
@@ -5429,12 +6818,265 @@ function renderSummary({ a, b, miA, miB, diff, absDiff, predicted, interactions,
     window.setTimeout(() => scoreBox.classList.remove('mi-nums-pop'), 220);
   }
 
-  // Always enforce verdict-first post-matchup structure after each run
+  if (verdictLineEl) {
+    const verdictWinner = predicted === 'Push' ? a.name : winName;
+    const verdictLoser = predicted === 'Push' ? b.name : loseName;
+
+    miSetVerdictCopy({
+      winner: verdictWinner,
+      loser: verdictLoser,
+      gapKey
+    });
+
+    const dynamicWhy = miBuildSecondaryDynamicVerdict({
+      interactions,
+      winName: verdictWinner,
+      loseName: verdictLoser,
+      baseDiff,
+      diff
+    });
+
+    const whySpan = verdictLineEl.querySelector('.mi-verdict-why');
+    if (whySpan && dynamicWhy) {
+      const existingWhy = (whySpan.textContent || '').trim();
+      whySpan.textContent = [existingWhy, dynamicWhy].filter(Boolean).join(' ');
+      whySpan.classList.toggle('is-empty', !whySpan.textContent.trim());
+    }
+
+    enhanceVerdictPresentation();
+  }
+
+  if (confEl) {
+    confEl.textContent = confidenceLabelText
+      ? `${confidenceLabelText}: ${confidenceBand || bandLabel || '—'}`
+      : (confidenceBand || bandLabel || '—');
+  }
+
+  if (driverEl) {
+    driverEl.textContent = driverLabelText
+      ? `${driverLabelText}: ${driverText || 'Interactions were relatively balanced.'}`
+      : (driverText || 'Interactions were relatively balanced.');
+  }
+
+  if (riskEl) {
+    riskEl.textContent = riskLabelText
+      ? `${riskLabelText}: ${riskText || 'No major instability signal materially overrides the baseline.'}`
+      : (riskText || 'No major instability signal materially overrides the baseline.');
+  }
+  // =========================================================
+  // Canonical Score Synthesis binder
+  // =========================================================
+  const setSummaryValue = (key, val) => {
+    const root = summarySection || document;
+    const els = root.querySelectorAll(`[data-value="${key}"]`);
+    if (!els || !els.length) return;
+    const out = (val == null ? '—' : val);
+    els.forEach(el => { el.textContent = out; });
+  };
+
+  const setText = (id, value) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = value;
+  };
+
+  const resumeCalA = baseA - rawBaseA;
+  const resumeCalB = baseB - rawBaseB;
+
+  // team headers
+  setText('summaryTeamAHeader', a.name || cTeamLabel);
+  setText('summaryTeamBHeader', b.name || fTeamLabel);
+
+  // center lean
+  setText('summarySynLean', leanText || '');
+
+  // score synthesis values (canonical UI point scale: signed 1-decimal)
+  setSummaryValue('a.base', miFormatUiPointsFromMiSpace(baseA));
+  setSummaryValue('b.base', miFormatUiPointsFromMiSpace(baseB));
+
+  setSummaryValue('a.off_breadth', miFormatUiPointsFromMiSpace(offBreadthA));
+  setSummaryValue('b.off_breadth', miFormatUiPointsFromMiSpace(offBreadthB));
+
+  setSummaryValue('a.def_breadth', miFormatUiPointsFromMiSpace(defBreadthA));
+  setSummaryValue('b.def_breadth', miFormatUiPointsFromMiSpace(defBreadthB));
+
+  setSummaryValue('a.int_eff', miFormatUiPointsFromMiSpace(intA));
+  setSummaryValue('b.int_eff', miFormatUiPointsFromMiSpace(intB));
+
+  setSummaryValue('a.resume_cal', miFormatUiPointsFromMiSpace(resumeCalA));
+  setSummaryValue('b.resume_cal', miFormatUiPointsFromMiSpace(resumeCalB));
+
+  setSummaryValue('a.final', miFormatUiPointsFromMiSpace(finalA));
+  setSummaryValue('b.final', miFormatUiPointsFromMiSpace(finalB));
+
+  // value-state classes for new inline synthesis cells + finals
+  miSetDataValueState(summarySection, 'a.base', baseA);
+  miSetDataValueState(summarySection, 'b.base', baseB);
+
+  miSetDataValueState(summarySection, 'a.off_breadth', offBreadthA);
+  miSetDataValueState(summarySection, 'b.off_breadth', offBreadthB);
+
+  miSetDataValueState(summarySection, 'a.def_breadth', defBreadthA);
+  miSetDataValueState(summarySection, 'b.def_breadth', defBreadthB);
+
+  miSetDataValueState(summarySection, 'a.int_eff', intA);
+  miSetDataValueState(summarySection, 'b.int_eff', intB);
+
+  miSetDataValueState(summarySection, 'a.resume_cal', resumeCalA);
+  miSetDataValueState(summarySection, 'b.resume_cal', resumeCalB);
+
+  miSetDataValueState(summarySection, 'a.final', finalA);
+  miSetDataValueState(summarySection, 'b.final', finalB);
+
+  // inline synthesis bars
+  miSetSummaryInlineMetric('synBase', 'A', 'Baseline MI', baseA);
+  miSetSummaryInlineMetric('synBase', 'B', 'Baseline MI', baseB);
+
+  miSetSummaryInlineMetric('synOffBreadth', 'A', 'Offensive Breadth', offBreadthA);
+  miSetSummaryInlineMetric('synOffBreadth', 'B', 'Offensive Breadth', offBreadthB);
+
+  miSetSummaryInlineMetric('synDefBreadth', 'A', 'Defensive Breadth', defBreadthA);
+  miSetSummaryInlineMetric('synDefBreadth', 'B', 'Defensive Breadth', defBreadthB);
+
+  miSetSummaryInlineMetric('synIntEff', 'A', 'Effective Matchup Adjustment', intA);
+  miSetSummaryInlineMetric('synIntEff', 'B', 'Effective Matchup Adjustment', intB);
+
+  miSetSummaryInlineMetric('synResume', 'A', 'Résumé Calibration', resumeCalA);
+  miSetSummaryInlineMetric('synResume', 'B', 'Résumé Calibration', resumeCalB);
+
+  // delta
+  miRenderMadnessDelta(absDiff);
+
+  // =========================================================
+  // Score Synthesis micro-volatility strip
+  // =========================================================
+  const vol = result?.volatility || {};
+  const volScore = getNum(
+    vol.score100,
+    getNum(vol.score, 0)
+  );
+
+  const volFill = document.getElementById('summaryVolatilityFill');
+  const volScoreEl = document.getElementById('summaryVolatilityScore');
+  const volBeneficiaryEl = document.getElementById('summaryVolatilityBeneficiary');
+  const volMiniEl = document.getElementById('summaryVolatilityMini');
+
+  if (volScoreEl) {
+    volScoreEl.textContent = Number.isFinite(volScore) ? Math.round(volScore) : '—';
+  }
+
+  if (volFill) {
+    const pct = Math.max(0, Math.min(100, volScore));
+    volFill.style.width = `${pct}%`;
+  }
+
+  if (volMiniEl) {
+    volMiniEl.classList.remove(
+      'is-stable',
+      'is-low',
+      'is-moderate',
+      'is-high',
+      'is-extreme',
+      'is-a',
+      'is-b',
+      'is-balanced'
+    );
+
+    const tier = String(vol.tier || '').toLowerCase();
+    if (tier) volMiniEl.classList.add(`is-${tier}`);
+
+    const beneficiary =
+      (vol?.chaos?.beneficiary || vol?.beneficiary || '').toString().toUpperCase();
+
+    if (beneficiary === 'A') volMiniEl.classList.add('is-a');
+    else if (beneficiary === 'B') volMiniEl.classList.add('is-b');
+    else volMiniEl.classList.add('is-balanced');
+  }
+
+  if (volBeneficiaryEl) {
+    const beneficiary =
+      (vol?.chaos?.beneficiary || vol?.beneficiary || '').toString().toUpperCase();
+
+    let beneficiaryText = 'Balanced';
+
+    if (beneficiary === 'A') {
+      beneficiaryText = `${a.name} ▲`;
+    } else if (beneficiary === 'B') {
+      beneficiaryText = `${b.name} ▲`;
+    }
+
+    volBeneficiaryEl.textContent = beneficiaryText;
+  }
+
+  // =========================================================
+  // Optional legacy/debug targets kept harmlessly alive
+  // =========================================================
+  setText('summaryTeamAName', a.name || cTeamLabel);
+  setText('summaryTeamBName', b.name || fTeamLabel);
+
+  setText('sumFoundationA', fmt(foundationA, 3));
+  setText('sumFoundationB', fmt(foundationB, 3));
+
+  setText('sumOffBreadthA', fmt(offBreadthA, 3));
+  setText('sumOffBreadthB', fmt(offBreadthB, 3));
+  setText('sumDefBreadthA', fmt(defBreadthA, 3));
+  setText('sumDefBreadthB', fmt(defBreadthB, 3));
+
+  setText('sumBreadthA', fmt(breadthA, 3));
+  setText('sumBreadthB', fmt(breadthB, 3));
+
+  setText('sumRawBaseA', fmt(rawBaseA, 3));
+  setText('sumRawBaseB', fmt(rawBaseB, 3));
+
+  setText('sumResumeTrustA', fmt(baseTrustA, 3));
+  setText('sumResumeTrustB', fmt(baseTrustB, 3));
+
+  setText('sumFieldMeanA', fmt(fieldMeanA, 3));
+  setText('sumFieldMeanB', fmt(fieldMeanB, 3));
+
+  setText('sumIntRawA', fmt(intRawA, 3));
+  setText('sumIntRawB', fmt(intRawB, 3));
+
+  setText('sumIntTrustA', fmt(intTrustA, 3));
+  setText('sumIntTrustB', fmt(intTrustB, 3));
+
+  setText('sumIntA', fmt(intA, 3));
+  setText('sumIntB', fmt(intB, 3));
+
+  setText('sumAdjA', fmt(totalAdjA, 3));
+  setText('sumAdjB', fmt(totalAdjB, 3));
+
+  setText('sumOffEffBaseA', fmt(miOffEffBaseA, 3));
+  setText('sumOffEffBaseB', fmt(miOffEffBaseB, 3));
+  setText('sumDefEffBaseA', fmt(miDefEffBaseA, 3));
+  setText('sumDefEffBaseB', fmt(miDefEffBaseB, 3));
+  setText('sumEffMarginBaseA', fmt(miEffMarginBaseA, 3));
+  setText('sumEffMarginBaseB', fmt(miEffMarginBaseB, 3));
+
+  setText('sumOffEffA', fmt(miOffEffA, 3));
+  setText('sumOffEffB', fmt(miOffEffB, 3));
+  setText('sumDefEffA', fmt(miDefEffA, 3));
+  setText('sumDefEffB', fmt(miDefEffB, 3));
+  setText('sumEffMarginA', fmt(miEffMarginA, 3));
+  setText('sumEffMarginB', fmt(miEffMarginB, 3));
+
+  setText('sumOffBreadthSDA', fmt(offBreadthSDA, 3));
+  setText('sumOffBreadthSDB', fmt(offBreadthSDB, 3));
+  setText('sumDefBreadthSDA', fmt(defBreadthSDA, 3));
+  setText('sumDefBreadthSDB', fmt(defBreadthSDB, 3));
+  setText('sumBreadthSDA', fmt(breadthSDA, 3));
+  setText('sumBreadthSDB', fmt(breadthSDB, 3));
+
+  setText('sumConfTrustA', fmt(confTrustA, 3));
+  setText('sumConfTrustB', fmt(confTrustB, 3));
+  setText('sumFieldMean', fmt(fieldMean, 3));
+
   if (typeof resetPostMatchupDefaultView === 'function') {
     resetPostMatchupDefaultView();
   }
 
-  // ----- Round pill -----
+  // =========================================================
+  // Round pill
+  // =========================================================
   const roundSpan = document.getElementById('currentRoundLabel');
   if (roundSpan) {
     roundSpan.textContent = getRoundLabelFromCode(round || CURRENT_ROUND);
@@ -5442,146 +7084,274 @@ function renderSummary({ a, b, miA, miB, diff, absDiff, predicted, interactions,
 
   miUpdateMatchupRoundPill(round || CURRENT_ROUND);
 
-  // Legacy spans (safe no-ops if not present)
+  // =========================================================
+  // Legacy spans
+  // =========================================================
   const miASpan  = document.getElementById('miA');
   const miBSpan  = document.getElementById('miB');
   const predSpan = document.getElementById('predictedWinner');
 
-  if (miASpan)  miASpan.textContent  = miA.toFixed(3);
-  if (miBSpan)  miBSpan.textContent  = miB.toFixed(3);
-  if (predSpan) predSpan.textContent = predictedLabel ? `${predicted}` : `${predicted}`;
+  if (miASpan)  miASpan.textContent  = finalA.toFixed(3);
+  if (miBSpan)  miBSpan.textContent  = finalB.toFixed(3);
+  if (predSpan) predSpan.textContent = predicted;
 
   if (summarySection) {
     summarySection.classList.add('visible');
   }
 
-  // ----- Seed / bracket compatibility note -----
+  // =========================================================
+  // Seed / bracket compatibility note
+  // =========================================================
   const seedNoteEl = document.getElementById('summarySeedNote');
   if (seedNoteEl && seedMeta && typeof a.seed === 'number' && typeof b.seed === 'number') {
     const { seedA, seedB, possible, isAllowed, earliest } = seedMeta;
 
-    const friendlyRounds = possible.map(getRoundLabelFromCode);
+    const friendlyRounds = Array.isArray(possible)
+      ? possible.map(getRoundLabelFromCode)
+      : [];
+
     const currentLabel   = getRoundLabelFromCode(round || CURRENT_ROUND);
     const earliestLabel  = earliest ? getRoundLabelFromCode(earliest) : null;
 
-    if (!possible.length) {
+    if (!friendlyRounds.length) {
       seedNoteEl.textContent = '';
     } else if (isAllowed) {
       seedNoteEl.textContent =
-        `Bracket note: As seeds ${seedA} and ${seedB}, these teams ` +
-        `can meet in ${friendlyRounds.join(', ')}. ` +
-        `${currentLabel} is a valid meeting round.`;
+        `Bracket note: As seeds ${seedA} and ${seedB}, these teams can meet in ${friendlyRounds.join(', ')}. ${currentLabel} is a valid meeting round.`;
     } else {
       seedNoteEl.textContent =
-        `Bracket note: As seeds ${seedA} and ${seedB}, these teams ` +
-        `can meet in ${friendlyRounds.join(', ')}. ` +
-        `${currentLabel} is *not* a valid meeting round in a standard 64-team bracket.`;
+        `Bracket note: As seeds ${seedA} and ${seedB}, these teams can meet in ${friendlyRounds.join(', ')}. ${currentLabel} is not a valid meeting round in a standard 64-team bracket.`;
+    }
+
+    if (earliestLabel && !isAllowed) {
+      seedNoteEl.textContent += ` Earliest possible meeting: ${earliestLabel}.`;
     }
   }
 
-  miRenderMadnessDelta(window.LAST_RESULT?.absDiff ?? Math.abs(window.LAST_RESULT?.diff || 0));
+  miRenderMadnessDelta(absDiff);
+}
+
+const MI_INTERACTION_UI_ORDER = [
+  "turnover_pressure",
+  "perimeter_variance_pressure",
+  "rim_access_pressure",
+  "rebounding_pressure",
+  "foul_pressure"
+];
+
+const MI_INTERACTION_UI_LABELS = {
+  turnover_pressure: "Turnover Pressure",
+  perimeter_variance_pressure: "Perimeter Variance",
+  rim_access_pressure: "Rim Access",
+  rebounding_pressure: "Rebounding Pressure",
+  foul_pressure: "Foul Pressure"
+};
+
+function miNormalizeInteractionEntry(raw, aName = "Team A", bName = "Team B") {
+  let aAdj = 0;
+  let bAdj = 0;
+  let edgeText = "EVEN";
+  let winner = null;
+  let displayStrength = "none";
+
+  if (typeof raw === "number") {
+    aAdj = raw;
+    bAdj = -raw;
+    winner = raw > 0 ? "A" : raw < 0 ? "B" : null;
+    edgeText =
+      raw > 0 ? `FAVORS ${aName}` :
+      raw < 0 ? `FAVORS ${bName}` :
+      "EVEN";
+  } else if (raw && typeof raw === "object") {
+    aAdj = Number(raw.aAdj ?? 0);
+    bAdj = Number(raw.bAdj ?? 0);
+    winner = raw.winner ?? (aAdj > 0 ? "A" : aAdj < 0 ? "B" : null);
+    displayStrength = raw.display_strength || "none";
+
+    edgeText =
+      raw.edge ||
+      (winner === "A" ? `FAVORS ${aName}` :
+       winner === "B" ? `FAVORS ${bName}` :
+       "EVEN");
+  }
+
+  return {
+    aAdj,
+    bAdj,
+    edgeText,
+    winner,
+    displayStrength
+  };
+}
+
+function miInteractionCapValue() {
+  return 1.25;
+}
+
+function miInteractionIntensityMeta(raw, normalized) {
+  const strength = String(
+    raw?.display_strength ??
+    normalized?.displayStrength ??
+    ""
+  ).toLowerCase();
+
+  if (strength === "high") {
+    return { label: "High", pillClass: "is-high", rowClass: "tier-high" };
+  }
+  if (strength === "medium") {
+    return { label: "Medium", pillClass: "is-mid", rowClass: "tier-mid" };
+  }
+  if (strength === "low") {
+    return { label: "Low", pillClass: "is-low", rowClass: "tier-low" };
+  }
+
+  const x = Math.max(
+    Math.abs(Number(normalized?.aAdj ?? 0)),
+    Math.abs(Number(normalized?.bAdj ?? 0))
+  );
+
+  if (x >= 0.45) return { label: "High", pillClass: "is-high", rowClass: "tier-high" };
+  if (x >= 0.20) return { label: "Medium", pillClass: "is-mid", rowClass: "tier-mid" };
+  if (x > 0) return { label: "Low", pillClass: "is-low", rowClass: "tier-low" };
+
+  return { label: "None", pillClass: "is-low", rowClass: "tier-low" };
+}
+
+function miInteractionBarWidths(normalized) {
+  const cap = miInteractionCapValue();
+
+  const aAdj = Number(normalized?.aAdj ?? 0);
+  const bAdj = Number(normalized?.bAdj ?? 0);
+  const winner = normalized?.winner ?? null;
+
+  const edgeMag = Math.max(Math.abs(aAdj), Math.abs(bAdj));
+  const pct = Math.max(0, Math.min(100, (edgeMag / cap) * 100));
+
+  return {
+    aWidth: winner === "A" ? pct : 0,
+    bWidth: winner === "B" ? pct : 0
+  };
+}
+
+function miInteractionSubLabel(normalized, aName, bName) {
+  if (normalized?.winner === "A") return `Leans ${aName}`;
+  if (normalized?.winner === "B") return `Leans ${bName}`;
+  return "Balanced";
+}
+
+function miInteractionSrLabel(label, normalized, intensity, aName, bName) {
+  const aAdj = Number(normalized?.aAdj ?? 0);
+  const bAdj = Number(normalized?.bAdj ?? 0);
+
+  const aDisplay = miFormatDisplayTotal(miDisplayImpactRaw(aAdj));
+  const bDisplay = miFormatDisplayTotal(miDisplayImpactRaw(bAdj));
+
+  if (normalized?.winner === "A") {
+    return `${label}. Favors ${aName}. Intensity ${intensity}. Display impact ${aDisplay} to ${aName} and ${bDisplay} to ${bName}.`;
+  }
+  if (normalized?.winner === "B") {
+    return `${label}. Favors ${bName}. Intensity ${intensity}. Display impact ${aDisplay} to ${aName} and ${bDisplay} to ${bName}.`;
+  }
+  return `${label}. Balanced. Intensity ${intensity}.`;
 }
 
 function renderInteractionsTable(result) {
-  const table = document.getElementById('interactionsTable');
-  const totalsBar = document.getElementById('interactionTotalsBar');
+  const table = document.getElementById("interactionsTable");
+  const totalsBar = document.getElementById("interactionTotalsBar");
   if (!table) return;
 
-  // ==== Full canonical interaction list (ALWAYS displayed) ====
-  const ORDER = [
-    '3pt', 'ft', 'paint', 'to', 'glass', 'phys', 'shotq', 'var'
-  ];
-
-  const LABEL = {
-    '3pt':   'Perimeter Pressure',
-    'ft':    'Whistle Bias',
-    'paint': 'Rim Access',
-    'to':    'Possession Security',
-    'glass': 'Second-Chance Equity',
-    'phys':  'Contact Advantage',
-    'shotq': 'Shot Diet Control',
-    'var':   'Volatility Leverage',
-  };
-
-  const intensityLabel = (val) => {
-    const x = Math.abs(val);
-    if (x >= 0.50) return 'Major';
-    if (x >= 0.25) return 'Moderate';
-    return 'Minor';
-  };
-
-  // ===== Team names (robust fallback) =====
   const aName = result?.a?.name || result?.teamA?.name || result?.a?.team || "Team A";
   const bName = result?.b?.name || result?.teamB?.name || result?.b?.team || "Team B";
 
-  // ===== Update table headers =====
-  const adjAHeader = document.getElementById("adjAHeader");
-  const adjBHeader = document.getElementById("adjBHeader");
-  if (adjAHeader) adjAHeader.textContent = `Adj to ${aName}`;
-  if (adjBHeader) adjBHeader.textContent = `Adj to ${bName}`;
-
-  const breakdown = result.interactions?.breakdown || {};
+  const breakdown = result?.interactions?.breakdown || {};
   const tbody = table.querySelector("tbody");
+  const rowTpl = document.getElementById("miInteractionRowTemplate");
+  if (!tbody || !rowTpl) return;
+
   tbody.innerHTML = "";
 
-  // ===== Always render ALL interactions =====
-  ORDER.forEach((key, i) => {
-    const raw = breakdown[key];   // may be undefined, numeric, or object
-    let aAdj = 0, bAdj = 0, edgeText = 'EVEN';
+  MI_INTERACTION_UI_ORDER.forEach((key) => {
+    const raw = breakdown[key];
+    const normalized = miNormalizeInteractionEntry(raw, aName, bName);
+    const intensity = miInteractionIntensityMeta(raw, normalized);
+    const widths = miInteractionBarWidths(normalized);
 
-    if (typeof raw === 'number') {
-      aAdj = raw;
-      bAdj = -raw;
-      if (raw > 0) edgeText = `FAVORS ${aName}`;
-      else if (raw < 0) edgeText = `FAVORS ${bName}`;
+    const rowFrag = rowTpl.content.cloneNode(true);    
+    const tr = rowFrag.querySelector(".mi-int-row");
+    const labelMain = rowFrag.querySelector(".mi-int-label-main");
+    const labelSub = rowFrag.querySelector(".mi-int-label-sub");
+    const barCell = rowFrag.querySelector(".mi-int-bar-cell");
+    const barWrap = rowFrag.querySelector(".mi-int-bar-wrap");
+    const fillA = rowFrag.querySelector(".mi-int-bar-fill-a");
+    const fillB = rowFrag.querySelector(".mi-int-bar-fill-b");
+    const sr = rowFrag.querySelector(".mi-int-bar-sr");
+    const pill = rowFrag.querySelector(".mi-int-intensity-pill");
+    
+    if (tr) {
+      tr.setAttribute("data-int-key", key);
+      tr.classList.add(intensity.rowClass);
     }
-    else if (raw && typeof raw === 'object') {
-      aAdj = raw.aAdj ?? 0;
-      bAdj = raw.bAdj ?? 0;
-      edgeText = raw.edge || 'EVEN';
+
+    if (labelMain) {
+      labelMain.textContent = MI_INTERACTION_UI_LABELS[key] || key;
     }
 
-    const intensity = intensityLabel(aAdj);
+    if (labelSub) {
+      labelSub.textContent = miInteractionSubLabel(normalized, aName, bName);
 
-    let pillClass = 'int-edge-even';
-    if (aAdj > 0) pillClass = 'int-edge-A';
-    if (aAdj < 0) pillClass = 'int-edge-B';
+      /* move the sublabel under the leverage bar instead of under the left label */
+      if (barCell && barWrap) {
+        labelSub.classList.add("mi-int-bar-sub");
+        barCell.appendChild(labelSub);
+      }
+    }
 
-    const rowClass = i % 2 === 0 ? "int-row-even" : "int-row-odd";
+    if (fillA) {
+      fillA.style.width = `${widths.aWidth}%`;
+    }
 
-    tbody.innerHTML += `
-      <tr class="${rowClass}" data-int-key="${key}">
-        <td class="int-name">${LABEL[key]}</td>
-        <td class="int-edge"><span class="int-edge-pill ${pillClass}">${edgeText}</span></td>
-        <td class="col-intensity">${intensity}</td>
-        <td class="int-adj ${aAdj >= 0 ? 'pos' : 'neg'}">${fmt(aAdj, 3)}</td>
-        <td class="int-adj ${bAdj >= 0 ? 'pos' : 'neg'}">${fmt(bAdj, 3)}</td>
-      </tr>
-    `;
+    if (fillB) {
+      fillB.style.width = `${widths.bWidth}%`;
+    }
+
+    if (sr) {
+      sr.textContent = miInteractionSrLabel(
+        MI_INTERACTION_UI_LABELS[key] || key,
+        normalized,
+        intensity.label,
+        aName,
+        bName
+      );
+    }
+
+    if (pill) {
+      pill.textContent = intensity.label;
+      pill.classList.add(intensity.pillClass);
+    }
+
+    tbody.appendChild(rowFrag);
   });
 
-  // ===== Totals Bar =====
-  const totalA = result.interactions?.a || 0;
-  const totalB = result.interactions?.b || 0;
+  const totalA = Number(result?.interactions?.a ?? 0);
+  const totalB = Number(result?.interactions?.b ?? 0);
+
+  const totalADisplay = miDisplayImpactRaw(totalA);
+  const totalBDisplay = miDisplayImpactRaw(totalB);
 
   if (totalsBar) {
-    const favored =
-      totalA > totalB ? aName :
-      totalB > totalA ? bName :
-      'EVEN';
+    const totalAClass = totalADisplay >= 0 ? "pos" : "neg";
+    const totalBClass = totalBDisplay >= 0 ? "pos" : "neg";
 
     totalsBar.innerHTML = `
-      <div class="totals-left">
-        <div class="totals-title">Total Interaction Leverage</div>
-        <div class="totals-favored">FAVORS <span>${favored}</span></div>
-      </div>
-      <div class="totals-right">
-        <div class="totals-val ${totalA >= 0 ? 'pos' : 'neg'}">${fmt(totalA, 3)}</div>
-        <div class="totals-sep">/</div>
-        <div class="totals-val ${totalB >= 0 ? 'pos' : 'neg'}">${fmt(totalB, 3)}</div>
+      <div class="totals-inline">
+        <span class="totals-team">${aName}</span>
+        <span class="totals-val ${totalAClass}">${miFormatDisplayTotal(totalADisplay)}</span>
+        <span class="totals-sep">/</span>
+        <span class="totals-team">${bName}</span>
+        <span class="totals-val ${totalBClass}">${miFormatDisplayTotal(totalBDisplay)}</span>
       </div>
     `;
-  }
+   }
 }
 
 /* ==========================================================================
@@ -5593,14 +7363,11 @@ function renderInteractionsTable(result) {
    ========================================================================== */
 
 const INT_CONSOLE_KEYMAP = {
-  '3pt':   'three_pt_tension',
-  'ft':    'ft_pressure',
-  'paint': 'paint_tension',
-  'to':    'turnover_pressure',
-  'glass': 'glass_tension',
-  'phys':  'physicality_tolerance',
-  'shotq': 'shot_discipline',
-  'var':   'variance_sensitivity'
+  turnover_pressure: "turnover_pressure",
+  perimeter_variance_pressure: "three_pt_tension",
+  rim_access_pressure: "paint_tension",
+  rebounding_pressure: "glass_tension",
+  foul_pressure: "ft_pressure"
 };
 
 function miHash32(str) {
@@ -5657,7 +7424,7 @@ function miPairsToRender({ card, isTopDriver, defaults }) {
   const s = miStrength(Math.abs(card.adj));
 
   const meetsThreshold =
-    threshold === 'minor' ||
+    threshold === 'thin' ||
     (threshold === 'moderate' && (s === 'moderate' || s === 'major')) ||
     (threshold === 'major' && s === 'major');
 
@@ -5669,141 +7436,137 @@ function miPairsToRender({ card, isTopDriver, defaults }) {
   return Math.max(1, Math.min(2, pairs));
 }
 
-/**
- * Interaction Console (right tile)
- * Renders ALL 8 interaction channels in a fixed order.
- * - No "TOP" chips.
- * - Safe fallbacks if a channel is missing narrative text (prevents blank cards like PHYS).
- */
 function renderInteractionsConsole(result) {
-  const host = document.getElementById('interactionConsoleBody');
+  const host = document.getElementById("interactionsNarrativeHost");
   if (!host) return;
 
-  // Your interactions object is keyed directly (threept, ft, paint, tov, glass, resume, phys, shotq, var)
   const breakdown = result?.interactions?.breakdown || null;
 
-    // Pre-matchup / missing data
-    if (!breakdown) {
+  if (!breakdown) {
     host.innerHTML = `
       <div class="int-console-card is-placeholder">
-        <div class="int-console-label">Ready</div>
+        <div class="int-console-label">
+          <span class="int-console-title">READY</span>
+        </div>
         <div class="int-console-text">
-          Run a matchup to populate these interaction descriptions.
+          Run a matchup to populate the interaction channel narratives.
         </div>
       </div>
     `;
     return;
   }
 
-  // Map JS interaction keys -> MI_COPY interactions_console channel keys
-  const KEYMAP = {
-    threept: "three_pt_tension",
-    ft: "ft_pressure",
-    paint: "paint_tension",
-    tov: "turnover_pressure",
-    glass: "glass_tension",
-    phys: "physicality_tolerance",
-    shotq: "shot_discipline",
-    var: "variance_sensitivity",
-  };
-
-  // Console keys -> breakdown keys (must match interactions table)
-  const BREAKDOWN_KEY = {
-    threept: "3pt",
-    ft: "ft",
-    paint: "paint",
-    tov: "to",
-    glass: "glass",
-    phys: "phys",
-    shotq: "shotq",
-    var: "var",
-  };
-
-  const ORDER = [
-    { key: "threept", fallbackLabel: "3PT Tension" },
-    { key: "ft", fallbackLabel: "Whistle Bias" },
-    { key: "paint", fallbackLabel: "Rim Access" },
-    { key: "tov", fallbackLabel: "Possession Security" },
-    { key: "glass", fallbackLabel: "Second-Chance Equity" },
-    { key: "phys", fallbackLabel: "Contact Advantage" },
-    { key: "shotq", fallbackLabel: "Shot Diet Control" },
-    { key: "var", fallbackLabel: "Volatility Leverage" },
-  ];
-
-  const copyRoot = window.MI_COPY && window.MI_COPY.interactions_console ? window.MI_COPY.interactions_console : null;
-
-  // helper: random pick from array
-  const pick = (arr) => (Array.isArray(arr) && arr.length ? arr[Math.floor(Math.random() * arr.length)] : "");
+  const copyRoot = window.MI_COPY?.interactions_console || null;
+  const defaults = copyRoot?.meta?.defaults || {};
+  const aName = result?.a?.name || result?.teamA?.name || result?.a?.team || "Team A";
+  const bName = result?.b?.name || result?.teamB?.name || result?.b?.team || "Team B";
 
   host.innerHTML = "";
 
-  ORDER.forEach(({ key, fallbackLabel }) => {
-    // Always render the card, even if a channel is missing (prevents “only 5 show up” confusion)
-    const longKey = KEYMAP[key];
-    const copyCh = copyRoot && copyRoot.channels ? copyRoot.channels[longKey] : null;
+  const cardsMeta = MI_INTERACTION_UI_ORDER.map((key) => {
+    const raw = breakdown?.[key];
+    const normalized = miNormalizeInteractionEntry(raw, aName, bName);
+    const adj = Math.abs(Number(normalized.aAdj ?? 0));
 
-    // Title: prefer JSON label, else fallback
-    const title = (copyCh && copyCh.label) ? copyCh.label : fallbackLabel;
+    return {
+      key,
+      raw,
+      normalized,
+      adj
+    };
+  });
 
-    // Pull the interaction adjustment from the SAME source as the table
-    const bKey = BREAKDOWN_KEY[key];
-    const raw = breakdown?.[bKey];
+  const sortedByAdj = [...cardsMeta].sort((a, b) => b.adj - a.adj);
+  const topDriverKey = sortedByAdj[0]?.adj > 0 ? sortedByAdj[0]?.key : null;
 
-    // Determine case from adjustment (fallback to even)
-    let aAdj = 0;
-    if (typeof raw === "number") aAdj = raw;
-    else if (raw && typeof raw === "object") aAdj = Number(raw.aAdj ?? 0);
+  cardsMeta.forEach((meta, idx) => {
+    const { key, normalized, adj } = meta;
 
-    // Determine edge from the same sign logic the pill uses
-    const edge =
-      aAdj > 0 ? "A" :
-      aAdj < 0 ? "B" :
-      "EVEN";
+    const copyKey = INT_CONSOLE_KEYMAP[key] || key;
+    const copyCh = copyRoot?.channels?.[copyKey] || null;
 
-    // Console case must match the pill edge (prevents inverted miCaseFor behavior)
+    const title =
+      copyCh?.label ||
+      MI_INTERACTION_UI_LABELS[key] ||
+      key;
+
     const resolvedCaseKey =
-      edge === "A" ? "a_adv" :
-      edge === "B" ? "b_adv" :
+      normalized.winner === "A" ? "a_adv" :
+      normalized.winner === "B" ? "b_adv" :
       "even";
 
-    // Pull sentence pools from JSON (supports both schemas)
     const caseObj = copyCh?.cases?.[resolvedCaseKey] || null;
 
+    const seedBase = [
+      result?.a?.name || "A",
+      result?.b?.name || "B",
+      result?.activeRound || result?.round || "",
+      key,
+      resolvedCaseKey
+    ].join("::");
+
+    const hasAlt = !!(caseObj?.alt || caseObj?.sentence_sets?.alt);
+
+    const variant = miPickPool({
+      seedBase,
+      rerunIndex: 0,
+      hasAlt
+    });
+
     const pools =
-      caseObj?.sentence_sets?.primary ||
+      caseObj?.[variant] ||
       caseObj?.primary ||
+      caseObj?.sentence_sets?.[variant] ||
+      caseObj?.sentence_sets?.primary ||
       null;
 
-    const aName = result?.a?.name || result?.teamA?.name || result?.a?.team || "Team A";
-    const bName = result?.b?.name || result?.teamB?.name || result?.b?.team || "Team B";
+    const isTopDriver = key === topDriverKey;
+    const pairsToRender = miPairsToRender({
+      card: { adj, case: resolvedCaseKey },
+      isTopDriver,
+      defaults
+    });
 
-    const line1 = pools ? miFillTeamTokens(pick(pools.s1), aName, bName) : "";
-    const line2 = pools ? miFillTeamTokens(pick(pools.s2), aName, bName) : "";
+    const line1 = pools?.s1
+      ? miFillTeamTokens(
+          miPickLine(pools.s1, seedBase, 0, `${key}::${resolvedCaseKey}::s1`),
+          aName,
+          bName
+        )
+      : "";
 
-    // Always render as ONE paragraph per card
+    const line2 = (pairsToRender >= 2 && pools?.s2?.length)
+      ? miFillTeamTokens(
+          miPickLine(pools.s2, seedBase, 0, `${key}::${resolvedCaseKey}::s2`),
+          aName,
+          bName
+        )
+      : "";
+
     const text = [line1, line2].filter(Boolean).join(" ");
 
     const card = document.createElement("div");
     card.className = "int-console-card";
-    card.dataset.intKey = BREAKDOWN_KEY[key];
+    card.dataset.intKey = key;
+
     const labelEl = document.createElement("div");
     labelEl.className = "int-console-label";
 
-    /* Title */
     const titleSpan = document.createElement("span");
+    titleSpan.className = "int-console-title";
     titleSpan.textContent = title.toUpperCase();
 
     const pill = document.createElement("span");
     pill.classList.add("int-edge-pill");
 
-    if (edge === "A") {
+    if (normalized.winner === "A") {
       pill.classList.add("int-edge-A");
       pill.textContent = `FAVORS ${aName}`;
-    } else if (edge === "B") {
+    } else if (normalized.winner === "B") {
       pill.classList.add("int-edge-B");
       pill.textContent = `FAVORS ${bName}`;
     } else {
-      pill.classList.add("int-edge-even"); // if your CSS uses this
+      pill.classList.add("int-edge-even");
       pill.textContent = "EVEN";
     }
 
@@ -5820,26 +7583,26 @@ function renderInteractionsConsole(result) {
   });
 }
 
-/* --------------------------
-   Table ↔ Console spotlight sync
-   -------------------------- */
-
 function clearInteractionConsoleSpotlight() {
-  const body = document.getElementById('interactionConsoleBody');
+  const body = document.getElementById('interactionsNarrativeHost');
   if (!body) return;
 
-  body.querySelectorAll('.int-console-card.is-active').forEach(el => el.classList.remove('is-active'));
+  body.querySelectorAll('.int-console-card.is-active').forEach(el => {
+    el.classList.remove('is-active');
+  });
 
   const table = document.getElementById('interactionsTable');
   if (table) {
-    table.querySelectorAll('tbody tr.is-console-active').forEach(tr => tr.classList.remove('is-console-active'));
+    table.querySelectorAll('tbody tr.is-console-active').forEach(tr => {
+      tr.classList.remove('is-console-active');
+    });
   }
 }
 
 function spotlightInteractionConsole(key) {
   if (!key) return;
 
-  const body = document.getElementById('interactionConsoleBody');
+  const body = document.getElementById('interactionsNarrativeHost');
   if (!body) return;
 
   clearInteractionConsoleSpotlight();
@@ -5856,12 +7619,12 @@ function spotlightInteractionConsole(key) {
 
 function initInteractionConsoleSync() {
   const table = document.getElementById('interactionsTable');
-  if (!table) return;
+  if (!table || table.__miInteractionSyncBound) return;
+  table.__miInteractionSyncBound = true;
 
   const tbody = table.querySelector('tbody');
   if (!tbody) return;
 
-  // hover (desktop)
   tbody.addEventListener('mouseover', (e) => {
     const tr = e.target.closest('tr[data-int-key]');
     if (!tr) return;
@@ -5869,19 +7632,17 @@ function initInteractionConsoleSync() {
   });
 
   tbody.addEventListener('mouseout', (e) => {
-    // If leaving the tbody entirely, clear
     const related = e.relatedTarget;
     if (related && tbody.contains(related)) return;
     clearInteractionConsoleSpotlight();
   });
 
-  // tap/click (mobile-safe)
   tbody.addEventListener('click', (e) => {
     const tr = e.target.closest('tr[data-int-key]');
     if (!tr) return;
 
     const key = tr.dataset.intKey;
-    const body = document.getElementById('interactionConsoleBody');
+    const body = document.getElementById('interactionsNarrativeHost');
     const active = body?.querySelector(`.int-console-card.is-active[data-int-key="${key}"]`);
 
     if (active) {
@@ -5891,7 +7652,6 @@ function initInteractionConsoleSync() {
 
     spotlightInteractionConsole(key);
 
-    // auto-clear after a moment so it doesn’t “stick” forever on mobile
     window.clearTimeout(window.__MI_INT_CONSOLE_TAP_TIMER);
     window.__MI_INT_CONSOLE_TAP_TIMER = window.setTimeout(() => {
       clearInteractionConsoleSpotlight();
@@ -6389,7 +8149,7 @@ function enterMatchupQuickEdit() {
     const sandboxOn =
       !!(typeof window !== 'undefined' && window.SANDBOX_MODE) ||
       !!(typeof SANDBOX_MODE !== 'undefined' && SANDBOX_MODE);
-  
+
     const teamAName = aSelQ.value || '';
     const teamBName = bSelQ.value || '';
 
@@ -6400,43 +8160,85 @@ function enterMatchupQuickEdit() {
     const seedB = teamB && teamB.seed != null ? teamB.seed : null;
 
     const hasBothSeeds = seedA != null && seedB != null && seedA !== '' && seedB !== '';
+    const isFirst4Pair = hasBothSeeds && isFirstFourSeedPlayIn(seedA, seedB);
 
     let possibleRounds = null;
-    if (!sandboxOn && hasBothSeeds) {
+    if (hasBothSeeds) {
       possibleRounds = getPossibleRoundsForSeeds(seedA, seedB);
     }
 
     for (const opt of rSelQ.options) {
       if (opt.value === '') continue; // placeholder stays visible
 
-      if (sandboxOn || !hasBothSeeds || !possibleRounds) {
+      const val = opt.value;
+
+      // First4 is never a generic sandbox round; only expose it for actual play-in pairs
+      if (val === 'First4' && !isFirst4Pair) {
+        opt.hidden = true;
+        opt.disabled = true;
+        continue;
+      }
+
+      if (!hasBothSeeds || !possibleRounds) {
         opt.hidden = false;
         opt.disabled = false;
-      } else {
-        const ok = possibleRounds.includes(opt.value);
-        opt.hidden = !ok;      // ✅ match home behavior: only show possible rounds
-        opt.disabled = !ok;
+        continue;
       }
+
+      if (sandboxOn) {
+        // Sandbox shows all standard rounds, but still keeps First4 restricted
+        opt.hidden = false;
+        opt.disabled = false;
+        continue;
+      }
+
+      const ok = possibleRounds.includes(val);
+      opt.hidden = !ok;
+      opt.disabled = !ok;
     }
 
-    // Mirror the select's hidden/disabled state onto the custom dropdown items
+    // Mirror the select state onto the custom dropdown items
     const quickItems = slotR.querySelectorAll('#roundDropdownQuick .round-option[data-round]');
     quickItems.forEach(item => {
       const val = item.dataset.round;
       const opt = [...rSelQ.options].find(o => o.value === val);
       if (!opt) return;
-
-      // match home behavior: hide impossible rounds
       item.style.display = (opt.hidden || opt.disabled) ? 'none' : '';
     });
 
-    // If selected round became invalid/hidden, reset
+    const currentAllowed = hasBothSeeds && possibleRounds ? new Set(possibleRounds) : null;
+
+    // If selected round became invalid, clear it
     if (rSelQ.value) {
-      const sel = rSelQ.options[rSelQ.selectedIndex];
-        if (sel && (sel.disabled || sel.hidden)) rSelQ.value = '';
+      const selectedVal = rSelQ.value;
+      const stillValid =
+        hasBothSeeds
+          ? (
+              (selectedVal === 'First4' ? isFirst4Pair : true) &&
+              (
+                sandboxOn
+                  ? (selectedVal !== 'First4' || isFirst4Pair)
+                  : currentAllowed?.has(selectedVal)
+              )
+            )
+          : true;
+
+      if (!stillValid) {
+        rSelQ.value = '';
+      }
     }
 
-    if (!rSelQ.value) {
+    // Auto-default canonical play-ins to First4 if nothing valid is selected yet
+    if (!rSelQ.value && isFirst4Pair) {
+      rSelQ.value = 'First4';
+    }
+
+    if (rSelQ.value) {
+      const sel = [...rSelQ.options].find(o => o.value === rSelQ.value);
+      const label = sel ? sel.textContent : getRoundLabelFromCode(rSelQ.value);
+      rBtnQ.textContent = label;
+      rBtnQ.dataset.selected = rSelQ.value;
+    } else {
       rBtnQ.textContent = 'Select Round';
       delete rBtnQ.dataset.selected;
     }
@@ -6567,81 +8369,940 @@ function hideAnalysisShell() {
   }, 280);
 }
 
+function getCoreThresholdText(rowKey, row = null) {
+  const copy = window.MI_COPY || {};
+  const ui = copy.core_profile_ui || {};
+  const fallbackCfg = (copy.core_profile && copy.core_profile.breadth_row) || {};
+
+  const avgLabel = ui.avg_label || 'Avg';
+  const sdLabel = ui.sd_label || 'SD';
+
+  const mean =
+    Number.isFinite(Number(row?.mean)) ? Number(row.mean) :
+    Number.isFinite(Number(row?.fieldMean)) ? Number(row.fieldMean) :
+    Number.isFinite(Number(row?.field_mean)) ? Number(row.field_mean) :
+    null;
+
+  const sd =
+    Number.isFinite(Number(row?.sd)) ? Number(row.sd) :
+    Number.isFinite(Number(row?.fieldSd)) ? Number(row.fieldSd) :
+    Number.isFinite(Number(row?.field_sd)) ? Number(row.field_sd) :
+    null;
+
+  const avgText = mean == null
+    ? (fallbackCfg.threshold_text || '—')
+    : fmt(mean, 3);
+
+  const sdText = sd == null
+    ? (fallbackCfg.threshold_text || '—')
+    : fmt(sd, 3);
+
+  return `
+    <div class="threshold-stack">
+      <span class="threshold-chip">${avgLabel} ${avgText}</span>
+      <span class="threshold-chip">${sdLabel} ${sdText}</span>
+    </div>
+  `;
+}
+
+function getCoreFieldSpreadText(rowKey, row = null) {
+  const copy = window.MI_COPY || {};
+  const ui = copy.core_profile_ui || {};
+
+  const spreadLabel = ui.spread_short_label || 'σ';
+  const spreadTitle =
+    ui.spread_tooltip ||
+    'Standard deviation of this battlefield score across the tournament field. Larger spread means more separation between teams in this area.';
+
+  const keyMap = {
+    orb: 'orb',
+    efg: 'efg',
+    to_inv: 'to',
+    ftr: 'ftr',
+    def_efg: 'def_efg',
+    drb: 'drb',
+    opp_to: 'otpp',
+    opp_ftr: 'opp_ftr'
+  };
+
+  const fallbackFieldKey = keyMap[rowKey] || rowKey;
+
+  const sd =
+    Number.isFinite(Number(row?.sd)) ? Number(row.sd) :
+    Number.isFinite(Number(row?.fieldSd)) ? Number(row.fieldSd) :
+    Number.isFinite(Number(row?.field_sd)) ? Number(row.field_sd) :
+    Number.isFinite(Number(FIELD_STATS?.[fallbackFieldKey]?.sd)) ? Number(FIELD_STATS[fallbackFieldKey].sd) :
+    null;
+
+  return `
+    <div class="threshold-stack">
+      <span class="threshold-chip" title="${spreadTitle}">
+        ${spreadLabel} ${sd == null ? '—' : fmt(sd, 3)}
+      </span>
+    </div>
+  `;
+}
+
+function getCoreScoreColorClass(score) {
+  const v = Number(score);
+  if (!Number.isFinite(v)) return 'score-neutral';
+
+  if (v >= 1.00) return 'score-elite';
+  if (v >= 0.50) return 'score-strong';
+  if (v > -0.50) return 'score-neutral';
+  if (v > -1.00) return 'score-weak';
+  return 'score-fragile';
+}
+
+function formatSignedScore(value, digits = 2) {
+  const n = Number(value);
+  if (!Number.isFinite(n)) return '—';
+  return n > 0 ? `+${n.toFixed(digits)}` : n.toFixed(digits);
+}
+
+const MI_CORE_OFF_KEYS = new Set(['orb', 'efg', 'to_inv', 'ftr']);
+const MI_CORE_DEF_KEYS = new Set(['def_efg', 'drb', 'opp_to', 'opp_ftr']);
+
+function miDisplayImpactRaw(points) {
+  const n = Number(points);
+  return Number.isFinite(n) ? n * 100 : 0;
+}
+
+function miFormatImpactCell(points) {
+  const n = Math.round(miDisplayImpactRaw(points));
+  if (n > 0) return `+${n}`;
+  if (n < 0) return `${n}`;
+  return '0';
+}
+
+function miFormatDisplayTotal(pointsSum) {
+  const n = Number(pointsSum);
+  if (!Number.isFinite(n)) return '0.0';
+  return n > 0 ? `+${n.toFixed(1)}` : n.toFixed(1);
+}
+
+function miFormatUiPointsFromMiSpace(miValue) {
+  const n = Number(miValue);
+  if (!Number.isFinite(n)) return '—';
+
+  // canonical UI scale: MI-space -> points
+  const pts = n * 100;
+
+  // avoid "-0.0"
+  const clean = (Math.abs(pts) < 0.05) ? 0 : pts;
+
+  return miFormatDisplayTotal(clean);
+}
+
+function miFormatUiAbsPointsFromMiSpace(miValue) {
+  const n = Number(miValue);
+  if (!Number.isFinite(n)) return '—';
+
+  // MI-space -> points, absolute magnitude for separation-style displays (gap/delta)
+  const pts = Math.abs(n * 100);
+
+  // avoid "-0.0" and tiny noise
+  const clean = (pts < 0.05) ? 0 : pts;
+
+  return clean.toFixed(1);
+}
+
+function miValueStateClass(v) {
+  const n = Number(v);
+  if (!Number.isFinite(n)) return 'is-flat';
+  if (n > 0.0005) return 'is-pos';
+  if (n < -0.0005) return 'is-neg';
+  return 'is-flat';
+}
+
+function miApplyValueState(el, value) {
+  if (!el) return;
+  el.classList.remove('is-pos', 'is-neg', 'is-flat');
+  el.classList.add(miValueStateClass(value));
+}
+
+function miSynthCapValue() {
+  return 1.25;
+}
+
+function miSynthClamp(n, min, max) {
+  const x = Number(n);
+  if (!Number.isFinite(x)) return min;
+  return Math.max(min, Math.min(max, x));
+}
+
+function miSynthBarWidths(value) {
+  const n = Number(value);
+  if (!Number.isFinite(n)) {
+    return { posWidth: 0, negWidth: 0 };
+  }
+
+  const cap = miSynthCapValue();
+  const pctHalf = miSynthClamp((Math.abs(n) / cap) * 50, 0, 50);
+
+  return {
+    posWidth: n > 0 ? pctHalf : 0,
+    negWidth: n < 0 ? pctHalf : 0
+  };
+}
+
+function miSetDataValueState(root, key, value) {
+  const host = root || document;
+  const els = host.querySelectorAll(`[data-value="${key}"]`);
+  if (!els || !els.length) return;
+  els.forEach(el => miApplyValueState(el, value));
+}
+
+function miSetSummaryInlineMetric(stem, side, label, value) {
+  const posEl = document.getElementById(`${stem}Bar${side}pos`);
+  const negEl = document.getElementById(`${stem}Bar${side}neg`);
+
+  const widths = miSynthBarWidths(value);
+
+  if (posEl) posEl.style.width = `${widths.posWidth}%`;
+  if (negEl) negEl.style.width = `${widths.negWidth}%`;
+}
+
+function miSynthCapValue() {
+  return 1.25;
+}
+
+function miSynthClamp(n, min, max) {
+  const x = Number(n);
+  if (!Number.isFinite(x)) return min;
+  return Math.max(min, Math.min(max, x));
+}
+
+function miSynthValueClass(v) {
+  const n = Number(v);
+  if (!Number.isFinite(n)) return 'is-flat';
+  if (n > 0.0005) return 'is-pos';
+  if (n < -0.0005) return 'is-neg';
+  return 'is-flat';
+}
+
+function miSynthBarWidths(v) {
+  const n = Number(v);
+  if (!Number.isFinite(n)) {
+    return { posWidth: 0, negWidth: 0 };
+  }
+
+  const cap = miSynthCapValue();
+  const pctHalf = miSynthClamp((Math.abs(n) / cap) * 50, 0, 50);
+
+  return {
+    posWidth: n > 0 ? pctHalf : 0,
+    negWidth: n < 0 ? pctHalf : 0
+  };
+}
+
+function miSummaryValueKey(stem, side) {
+  const map = {
+    synBase: { A: 'a.base',        B: 'b.base' },
+    synOffBreadth: { A: 'a.off_breadth', B: 'b.off_breadth' },
+    synDefBreadth: { A: 'a.def_breadth', B: 'b.def_breadth' },
+    synIntEff: { A: 'a.int_eff',   B: 'b.int_eff' },
+    synResume: { A: 'a.resume_cal', B: 'b.resume_cal' }
+  };
+
+  return map?.[stem]?.[side] || null;
+}
+
+function miEnsureSummaryInlineMetricCell(stem, side) {
+  const key = miSummaryValueKey(stem, side);
+  if (!key) return {};
+
+  const cell = document.querySelector(`#summarySection [data-value="${key}"]`);
+  if (!cell) return {};
+
+  cell.classList.add('syn-contrib-cell');
+
+  let wrap = cell.querySelector('.mi-synth-inline-wrap');
+  let valueEl = cell.querySelector('.mi-synth-inline-value');
+  let posEl = cell.querySelector('.mi-synth-inline-fill-pos');
+  let negEl = cell.querySelector('.mi-synth-inline-fill-neg');
+  let srEl = cell.querySelector('.mi-synth-inline-sr');
+
+  if (!wrap) {
+    const currentText = String(cell.textContent || '—').trim() || '—';
+    cell.innerHTML = `
+      <div class="mi-synth-inline-wrap">
+        <div class="mi-synth-inline-bar" aria-hidden="true">
+          <span class="mi-synth-inline-center"></span>
+          <span id="${stem}Bar${side}neg" class="mi-synth-inline-fill mi-synth-inline-fill-neg"></span>
+          <span id="${stem}Bar${side}pos" class="mi-synth-inline-fill mi-synth-inline-fill-pos"></span>
+        </div>
+        <span class="mi-synth-inline-value">${currentText}</span>
+        <span class="mi-synth-inline-sr sr-only"></span>
+      </div>
+    `;
+
+    wrap = cell.querySelector('.mi-synth-inline-wrap');
+    valueEl = cell.querySelector('.mi-synth-inline-value');
+    posEl = cell.querySelector('.mi-synth-inline-fill-pos');
+    negEl = cell.querySelector('.mi-synth-inline-fill-neg');
+    srEl = cell.querySelector('.mi-synth-inline-sr');
+  }
+
+  return { cell, wrap, valueEl, posEl, negEl, srEl };
+}
+
+function miEnsureScorebugMetricRow(prefix, valueId) {
+  const valueEl = document.getElementById(valueId);
+  if (!valueEl) return {};
+
+  const line = valueEl.closest('.mi-scorebug-team-line');
+  if (!line) return {};
+
+  let wrap = line.querySelector('.mi-scorebug-inline-wrap');
+  let posEl = document.getElementById(`${prefix}pos`);
+  let negEl = document.getElementById(`${prefix}neg`);
+  let srEl  = document.getElementById(prefix.replace('Bar', 'Sr'));
+
+  if (!wrap || !posEl || !negEl) {
+    wrap = document.createElement('div');
+    wrap.className = 'mi-scorebug-inline-wrap';
+    wrap.innerHTML = `
+      <div class="mi-scorebug-inline-bar" aria-hidden="true">
+        <span class="mi-scorebug-inline-center"></span>
+        <span id="${prefix}neg" class="mi-scorebug-inline-fill mi-scorebug-inline-fill-neg"></span>
+        <span id="${prefix}pos" class="mi-scorebug-inline-fill mi-scorebug-inline-fill-pos"></span>
+      </div>
+      <span id="${prefix.replace('Bar', 'Sr')}" class="sr-only"></span>
+    `;
+
+    line.appendChild(wrap);
+    wrap.appendChild(valueEl);
+
+    posEl = document.getElementById(`${prefix}pos`);
+    negEl = document.getElementById(`${prefix}neg`);
+    srEl  = document.getElementById(prefix.replace('Bar', 'Sr'));
+  }
+
+  valueEl.classList.add('mi-scorebug-inline-value');
+  line.classList.add('is-enhanced');
+
+  return { line, wrap, valueEl, posEl, negEl, srEl };
+}
+
+function miSetSummaryInlineMetric(stem, side, label, value) {
+  const table = document.querySelector('#summarySection .summary-synthesis-table');
+  if (table) table.classList.add('mi-summary-synthesis-table');
+
+  let posEl = document.getElementById(`${stem}Bar${side}pos`);
+  let negEl = document.getElementById(`${stem}Bar${side}neg`);
+  let srEl  = document.getElementById(`${stem}Sr${side}`);
+  let valueEl = null;
+
+  if (!posEl || !negEl) {
+    const ensured = miEnsureSummaryInlineMetricCell(stem, side);
+    posEl = ensured.posEl || posEl;
+    negEl = ensured.negEl || negEl;
+    srEl = ensured.srEl || srEl;
+    valueEl = ensured.valueEl || null;
+  }
+
+  const widths = miSynthBarWidths(value);
+
+  if (posEl) posEl.style.width = `${widths.posWidth}%`;
+  if (negEl) negEl.style.width = `${widths.negWidth}%`;
+
+  if (valueEl) {
+    valueEl.textContent = fmt(value, 3);
+    valueEl.classList.remove('is-pos', 'is-neg', 'is-flat');
+    valueEl.classList.add(miSynthValueClass(value));
+  }
+
+  if (srEl) {
+    srEl.textContent = `${label}. Contribution ${miFormatUiPointsFromMiSpace(value)}.`;
+  }
+}
+
+function miSetTextClassById(id, value) {
+  const el = document.getElementById(id);
+  if (!el) return;
+
+  el.classList.remove('is-pos', 'is-neg', 'is-flat');
+  el.classList.add(miSynthValueClass(value));
+}
+
+function miRenderScorebugMetric(prefix, label, value) {
+  const posEl = document.getElementById(`${prefix}pos`);
+  const negEl = document.getElementById(`${prefix}neg`);
+  const srId = prefix
+    .replace('Bar', 'Sr')
+    .replace(/pos$|neg$/, '');
+  const srEl = document.getElementById(srId);
+
+  const widths = miSynthBarWidths(value);
+
+  if (posEl) posEl.style.width = `${widths.posWidth}%`;
+  if (negEl) negEl.style.width = `${widths.negWidth}%`;
+
+  if (srEl) {
+    srEl.textContent = `${label}. Contribution ${miFormatDisplayTotal(value)}.`;
+  }
+}
+
+function miRenderScorebugMetrics({
+  aName,
+  bName,
+  baseA,
+  baseB,
+  finalA,
+  finalB,
+  gap
+}) {
+  const setText = (id, value) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = value;
+  };
+
+  const gapAbs = Math.abs(Number(gap) || 0);
+
+  setText('miScorebugTeamA', aName || 'Team A');
+  setText('miScorebugTeamB', bName || 'Team B');
+
+  setText('miScorebugBaseA', miFormatUiPointsFromMiSpace(baseA));
+  setText('miScorebugBaseB', miFormatUiPointsFromMiSpace(baseB));
+  setText('miScorebugMatchA', miFormatUiPointsFromMiSpace(finalA));
+  setText('miScorebugMatchB', miFormatUiPointsFromMiSpace(finalB));
+  setText('miScorebugGapValue', miFormatUiAbsPointsFromMiSpace(gap));
+
+  miSetTextClassById('miScorebugBaseA', baseA);
+  miSetTextClassById('miScorebugBaseB', baseB);
+  miSetTextClassById('miScorebugMatchA', finalA);
+  miSetTextClassById('miScorebugMatchB', finalB);
+  miSetTextClassById('miScorebugGapValue', gapAbs);
+
+  miRenderScorebugMetric('miScorebugBaseBarA', 'Baseline MI', baseA);
+  miRenderScorebugMetric('miScorebugBaseBarB', 'Baseline MI', baseB);
+  miRenderScorebugMetric('miScorebugMatchBarA', 'Matchup MI', finalA);
+  miRenderScorebugMetric('miScorebugMatchBarB', 'Matchup MI', finalB);
+}
+
+function miCorePercentile(values, p) {
+  const arr = (Array.isArray(values) ? values : [])
+    .map(Number)
+    .filter(Number.isFinite)
+    .sort((a, b) => a - b);
+
+  if (!arr.length) return 0;
+  if (arr.length === 1) return arr[0];
+
+  const idx = (p / 100) * (arr.length - 1);
+  const lo = Math.floor(idx);
+  const hi = Math.ceil(idx);
+  const t = idx - lo;
+
+  if (lo === hi) return arr[lo];
+  return arr[lo] + (arr[hi] - arr[lo]) * t;
+}
+
+function miCoreClamp(n, min, max) {
+  const x = Number(n);
+  if (!Number.isFinite(x)) return min;
+  return Math.max(min, Math.min(max, x));
+}
+
+function miCoreGetRowRawValue(row) {
+  const v =
+    row?.value ??
+    row?.score ??
+    row?.z ??
+    row?.display ??
+    0;
+
+  return Number.isFinite(Number(v)) ? Number(v) : 0;
+}
+
+function miCoreGetFieldValuesForKey(metricKey) {
+  const values = [];
+  const teams = Object.values(TEAMS || {});
+
+  teams.forEach(team => {
+    if (!team) return;
+
+    // Breadth rows are not in coreDetails; they live directly on team
+    if (metricKey === 'off_breadth') {
+      const v = Number(team.offBreadth);
+      if (Number.isFinite(v)) values.push(v);
+      return;
+    }
+
+    if (metricKey === 'def_breadth') {
+      const v = Number(team.defBreadth);
+      if (Number.isFinite(v)) values.push(v);
+      return;
+    }
+
+    const rows = Array.isArray(team.coreDetails) ? team.coreDetails : [];
+    const match = rows.find(r => r && r.key === metricKey);
+    if (!match) return;
+
+    const v = miCoreGetRowRawValue(match);
+    if (Number.isFinite(v)) values.push(v);
+  });
+
+  return values;
+}
+
+function miCoreGetStandingStats(metricKey) {
+  const values = miCoreGetFieldValuesForKey(metricKey);
+
+  if (!values.length) {
+    return {
+      p05: 0,
+      p50: 0,
+      p95: 0
+    };
+  }
+
+  return {
+    p05: miCorePercentile(values, 5),
+    p50: miCorePercentile(values, 50),
+    p95: miCorePercentile(values, 95)
+  };
+}
+
+function miCoreGetStandingPositions(metricKey, rawValue) {
+  const stats = miCoreGetStandingStats(metricKey);
+
+  const p05 = Number(stats.p05);
+  const p50 = Number(stats.p50);
+  const p95 = Number(stats.p95);
+
+  const span = p95 - p05;
+
+  if (!Number.isFinite(span) || Math.abs(span) < 1e-9) {
+    return {
+      fillPct: 50,
+      medianPct: 50
+    };
+  }
+
+  const fill = miCoreClamp((Number(rawValue) - p05) / span, 0, 1);
+  const median = miCoreClamp((p50 - p05) / span, 0, 1);
+
+  return {
+    fillPct: +(fill * 100).toFixed(2),
+    medianPct: +(median * 100).toFixed(2)
+  };
+}
+
+function miCoreFormatImpact(points) {
+  const n = Math.round(Number(points || 0) * 100);
+  if (n > 0) return `+${n}`;
+  if (n < 0) return `${n}`;
+  return '0';
+}
+
+function miCoreImpactClass(points) {
+  const n = Math.round(Number(points || 0) * 100);
+  if (n > 0) return 'is-pos';
+  if (n < 0) return 'is-neg';
+  return 'is-flat';
+}
+
+function miCoreRenderStandingCell(rowKey, rawValue, ariaLabel) {
+  const pos = miCoreGetStandingPositions(rowKey, rawValue);
+
+  return `
+    <div class="mi-standing-wrap">
+      <div class="mi-standing-bar" aria-hidden="true">
+        <span class="mi-standing-fill" style="width:${pos.fillPct}%;"></span>
+        <span class="mi-standing-median" style="left:${pos.medianPct}%;"></span>
+      </div>
+      <span class="mi-standing-sr sr-only">${ariaLabel}</span>
+    </div>
+  `;
+}
+
 function renderCoreProfileTable(team, tableId) {
   const table = document.getElementById(tableId);
   if (!table) return;
 
-  const rows = team.coreDetails || [];
+  const copy = window.MI_COPY || {};
+  const ui = copy.core_profile_ui || {};
+
+  const rows = Array.isArray(team?.coreDetails) ? team.coreDetails : [];
+
+  const titleLabel  = ui.title_label  || 'Battlefield';
+  const spreadLabel = ui.spread_label || 'Spread';
+  const scoreLabel  = ui.score_label  || 'Team Score';
+  const tierLabel   = ui.tier_label   || 'Tier';
+  const pointsLabel = ui.points_label || 'Impact';
+
+  const noDataText = ui.no_data_text || 'No core trait data.';
+
+  const offensiveSectionLabel = ui.offensive_section_label || 'Offensive Profile';
+  const defensiveSectionLabel = ui.defensive_section_label || 'Defensive Profile';
+
+  const offensiveBreadthLabel = ui.off_breadth_label || 'Offensive Breadth';
+  const defensiveBreadthLabel = ui.def_breadth_label || 'Defensive Breadth';
+
+  const spreadTooltip =
+    ui.spread_tooltip ||
+    'Standard deviation of this battlefield across the tournament field. Larger spread means more separation between teams in this area.';
+
+  const scoreTooltip =
+    ui.score_tooltip ||
+    'Standardized team score in this battlefield. 0 = tournament average. Positive values are above average; negative values are below average.';
+
+  const pointsTooltip =
+    ui.points_tooltip ||
+    'Contribution of this battlefield to the profile scoring display.';
+
+  const defaultHeader = `
+    <thead>
+      <tr class="table-header">
+        <th>${titleLabel}</th>
+        <th title="${spreadTooltip}">${spreadLabel}</th>
+        <th title="${scoreTooltip}">${scoreLabel}</th>
+        <th>${tierLabel}</th>
+        <th title="${pointsTooltip}">${pointsLabel}</th>
+      </tr>
+    </thead>
+  `;
+
   if (!rows.length) {
     table.innerHTML = `
-      <thead>
-        <tr class="table-header">
-          <th>Category</th>
-          <th>Thresholds</th>
-          <th>Team Value</th>
-          <th>Tier</th>
-          <th>Points Given</th>
-        </tr>
-      </thead>
+      ${defaultHeader}
       <tbody>
         <tr>
-          <td colspan="5">No core trait data.</td>
+          <td colspan="5">${noDataText}</td>
         </tr>
       </tbody>
     `;
     return;
   }
 
-  const header = `
-    <thead>
-      <tr class="table-header">
-        <th>Category</th>
-        <th>Thresholds</th>
-        <th>Team Value</th>
-        <th>Tier</th>
-        <th>Points Given</th>
-      </tr>
-    </thead>
-  `;
+  const rowLabelMap = ui.row_labels || {};
+  const rowTooltipMap = ui.row_tooltips || {};
 
-  const bodyRows = rows.map(r => {
-    const tierClass = r.tier
-      ? `tier-${r.tier.replace(/[\s/]+/g, '')}`   // e.g. "Slightly Above / Average" -> "tier-SlightlyAboveAverage"
-      : '';
+  const renderMetricRow = (row) => {
+    const key = row?.key || '';
+    const label = rowLabelMap[key] || row?.label || key || '—';
+    const tooltip = rowTooltipMap[key] || '';
+
+    const score = Number(
+      row?.score ??
+      row?.value ??
+      row?.z ??
+      row?.display ??
+      0
+    );
+
+    const points = Number(
+      row?.points ??
+      row?.point ??
+      row?.contribution ??
+      0
+    );
+
+    const tierText = row?.tier || getTierLabelFromZ(score);
+    const spreadHtml = getCoreFieldSpreadText(key, row);
+
+    const scoreHtml = Number.isFinite(score)
+      ? `<span class="metric-score ${getCoreScoreColorClass(score)}" title="${scoreTooltip}">${formatSignedScore(score, 2)}</span>`
+      : '—';
+
+    const pointsHtml = `<span title="${pointsTooltip}">${miFormatImpactCell(points)}</span>`;
 
     return `
       <tr>
-        <td>${r.label}</td>
-        <td>Mean = ${fmt(r.mean, 3)}<br/>SD = ${fmt(r.sd, 3)}</td>
-        <td class="metric-block">${fmt(r.value, 3)}</td>
-        <td class="metric-block ${tierClass}">${r.tier}</td>
-        <td class="metric-block">${fmt(r.points, 3)}</td>
+        <td title="${tooltip}">${label}</td>
+        <td class="metric-block">${spreadHtml}</td>
+        <td class="metric-block">${scoreHtml}</td>
+        <td class="metric-block">${tierText}</td>
+        <td class="metric-block">${pointsHtml}</td>
       </tr>
     `;
-  }).join('');
+  };
 
-  const hits    = team.breadthHits != null ? team.breadthHits : 0;
-  const breadth = team.breadth     != null ? team.breadth     : 0;
-
-  const brConfig = window.MI_COPY?.core_profile?.breadth_row || {};
-  const thresholdText =
-    brConfig.threshold_text ||
-    "Bonus scales with total 'hits' across Efficiency, Shooting, Possession, Tempo";
-  const tierText =
-    brConfig.tier_text ||
-    "Tier placement skipped";
-
-  const breadthRow = `
-    <tr class="breadth-row">
-      <td>Breadth Bonus</td>
-      <td>${thresholdText}</td>
-      <td>${hits} hits</td>
-      <td>${tierText}</td>
-      <td>${fmt(breadth, 3)}</td>
+  const renderSectionRow = (label) => `
+    <tr class="core-section-row">
+      <td colspan="5"><span class="core-section-label">${label}</span></td>
     </tr>
   `;
 
-  table.innerHTML = header + `<tbody>` + bodyRows + breadthRow + `</tbody>`;
+  const renderBreadthRow = ({ label, breadth, breadthSD, rowClass }) => {
+    const spreadHtml = `
+      <div class="threshold-stack">
+        <span class="threshold-chip" title="${spreadTooltip}">
+          σ ${Number.isFinite(breadthSD) ? fmt(breadthSD, 3) : '—'}
+        </span>
+      </div>
+    `;
+
+    const scoreHtml = Number.isFinite(breadth)
+      ? `<span class="metric-score ${getCoreScoreColorClass(breadth)}" title="${scoreTooltip}">${formatSignedScore(breadth, 3)}</span>`
+      : '—';
+
+    const tierText = Number.isFinite(breadth)
+      ? getTierLabelFromZ(breadth)
+      : '—';
+
+    const pointsHtml = `<span title="${pointsTooltip}">${miFormatImpactCell(breadth)}</span>`;
+
+    return `
+      <tr class="${rowClass}">
+        <td>${label}</td>
+        <td class="metric-block">${spreadHtml}</td>
+        <td class="metric-block">${scoreHtml}</td>
+        <td class="metric-block">${tierText}</td>
+        <td class="metric-block">${pointsHtml}</td>
+      </tr>
+    `;
+  };
+
+  const offensiveRows = rows.filter(row => MI_CORE_OFF_KEYS.has(row?.key));
+  const defensiveRows = rows.filter(row => MI_CORE_DEF_KEYS.has(row?.key));
+
+  const offensiveHtml = offensiveRows.map(renderMetricRow).join('');
+  const defensiveHtml = defensiveRows.map(renderMetricRow).join('');
+
+  const offBreadth = Number(team?.offBreadth);
+  const offBreadthSD = Number(team?.offBreadthSD);
+
+  const defBreadth = Number(team?.defBreadth);
+  const defBreadthSD = Number(team?.defBreadthSD);
+
+  const offBreadthRow = renderBreadthRow({
+    label: offensiveBreadthLabel,
+    breadth: offBreadth,
+    breadthSD: offBreadthSD,
+    rowClass: 'breadth-row breadth-row--offense'
+  });
+
+  const defBreadthRow = renderBreadthRow({
+    label: defensiveBreadthLabel,
+    breadth: defBreadth,
+    breadthSD: defBreadthSD,
+    rowClass: 'breadth-row breadth-row--defense'
+  });
+
+  table.innerHTML = `
+    ${defaultHeader}
+    <tbody>
+      ${renderSectionRow(offensiveSectionLabel)}
+      ${offensiveHtml}
+      ${offBreadthRow}
+      ${renderSectionRow(defensiveSectionLabel)}
+      ${defensiveHtml}
+      ${defBreadthRow}
+    </tbody>
+  `;
+}
+
+function renderProfileSupportModules(side, team, result, resumeTrust) {
+  const isA = side === 'A';
+  const suffix = isA ? 'A' : 'B';
+
+  const rows = Array.isArray(team?.coreDetails) ? team.coreDetails : [];
+
+  const offBreadthRaw = miDisplayImpactRaw(team?.offBreadth ?? 0);
+  const defBreadthRaw = miDisplayImpactRaw(team?.defBreadth ?? 0);
+
+  const offSignalRaw = rows
+    .filter(row => MI_CORE_OFF_KEYS.has(row?.key))
+    .reduce((sum, row) => sum + miDisplayImpactRaw(row?.points), 0) + offBreadthRaw;
+
+  const defSignalRaw = rows
+    .filter(row => MI_CORE_DEF_KEYS.has(row?.key))
+    .reduce((sum, row) => sum + miDisplayImpactRaw(row?.points), 0) + defBreadthRaw;
+
+  const combinedSignalRaw = offSignalRaw + defSignalRaw;
+
+  const miEffOffEl = document.getElementById(`miEffOff${suffix}`);
+  const miEffDefEl = document.getElementById(`miEffDef${suffix}`);
+  const miEffMarginEl = document.getElementById(`miEffMargin${suffix}`);
+
+  if (miEffOffEl) {
+    miEffOffEl.textContent = miFormatDisplayTotal(offSignalRaw);
+    miApplyValueState(miEffOffEl, offSignalRaw);
+  }
+
+  if (miEffDefEl) {
+    miEffDefEl.textContent = miFormatDisplayTotal(defSignalRaw);
+    miApplyValueState(miEffDefEl, defSignalRaw);
+  }
+
+  if (miEffMarginEl) {
+    miEffMarginEl.textContent = miFormatDisplayTotal(combinedSignalRaw);
+    miApplyValueState(miEffMarginEl, combinedSignalRaw);
+  }
+
+  // =========================
+  // Embedded résumé tile
+  // =========================
+  const resume = Number(team?.resumeR ?? team?.resumeIndex ?? 0);
+  const resumeTile   = document.getElementById(`resumeTile${suffix}`);
+  const resumeAdjEl  = document.getElementById(`resumeAdj${suffix}`);
+  const resumeTierEl = document.getElementById(`resumeTier${suffix}`);
+  const backResumeEl = document.getElementById(`backResumeTile${suffix}`);
+
+  if (resumeTile && resumeAdjEl && resumeTierEl) {
+    let tier = team.resumeRTier || team.resumeTier || team.resumeTier_v2;
+
+    const tierRules = window.MI_COPY?.resume_tile_ui?.tier_rules || [];
+
+    if (!tier) {
+      if (Array.isArray(tierRules) && tierRules.length) {
+        const hit = tierRules.find(r => typeof r.min === 'number' && resume >= r.min);
+        tier = hit?.label || 'Average';
+      } else {
+        tier =
+          (resume >= 1.00 ? 'Elite' :
+           resume >= 0.80 ? 'Strong' :
+           resume >= 0.60 ? 'Above Average' :
+           resume > -0.80 ? 'Average' :
+           resume > -1.20 ? 'Weak' : 'Fragile');
+      }
+    }
+
+    const tierRule = Array.isArray(tierRules)
+      ? tierRules.find(r => r && r.label === tier)
+      : null;
+
+    const tierClass = tierRule?.class || (
+      tier === 'Elite' ? 'resume-tier-strong' :
+      tier === 'Strong' ? 'resume-tier-strong' :
+      tier === 'Above Average' ? 'resume-tier-above' :
+      tier === 'Average' ? 'resume-tier-average' :
+      tier === 'Weak' ? 'resume-tier-weak' :
+      tier === 'Fragile' ? 'resume-tier-fragile' :
+      'context-neutral'
+    );
+
+    resumeAdjEl.textContent = tier;
+    resumeTierEl.textContent = `Base Trust ×${Number(resumeTrust || 1).toFixed(2)}`;
+
+    resumeTile.classList.remove(
+      'resume-tier-strong',
+      'resume-tier-above',
+      'resume-tier-average',
+      'resume-tier-weak',
+      'resume-tier-fragile',
+      'context-neutral'
+    );
+
+    resumeTile.classList.add(tierClass);
+
+    if (backResumeEl) {
+      const tierTileCopy =
+        window.MI_COPY?.back?.resume?.tier_tile?.[tier];
+
+      const candidates = Array.isArray(tierTileCopy)
+        ? tierTileCopy
+        : (typeof tierTileCopy === 'string' ? [tierTileCopy] : []);
+
+      const fallbackPool =
+        window.MI_COPY?.back?.resume?.tier_tile?.fallback;
+
+      const fallbackCandidates = Array.isArray(fallbackPool)
+        ? fallbackPool
+        : (typeof fallbackPool === 'string' ? [fallbackPool] : []);
+
+      const genericFallback =
+        window.MI_COPY?.back?.resume?.tile || '';
+
+      const pool = candidates.length
+        ? candidates
+        : (fallbackCandidates.length ? fallbackCandidates : [genericFallback]);
+
+      const chosen = pool.filter(Boolean).length
+        ? pool.filter(Boolean)[Math.floor(Math.random() * pool.filter(Boolean).length)]
+        : '';
+
+      backResumeEl.textContent = chosen || '';
+    }
+  }
+
+  // =========================
+  // Identity inline module
+  // =========================
+  const identityInline = document.getElementById(`identityInline${suffix}`);
+  const identityScore  = document.getElementById(`identityScore${suffix}`);
+  const identityRole   = document.getElementById(`identityRole${suffix}`);
+  const identityDetail = document.getElementById(`identityDetail${suffix}`);
+  const identityMeter  = document.getElementById(`identityMeterFill${suffix}`);
+
+  if (identityInline && identityScore && identityRole && identityDetail && identityMeter) {
+    const roundCode =
+      result?.activeRound ||
+      result?.round ||
+      CURRENT_ROUND ||
+      'R64';
+
+    const opponent = isA ? result?.b : result?.a;
+
+    const ctx =
+      (result && result.roles) ||
+      (typeof resolveIdentityContext === 'function'
+        ? resolveIdentityContext(team, opponent, roundCode)
+        : null);
+
+    let role = 'Neutral';
+    let score = 0;
+    let detail = 'No active identity signal';
+
+    if (ctx) {
+      const mode = ctx.mode || '';
+
+      if (mode === 'chalk_mirror') {
+        role = 'Chalk Mirror';
+        score = Number(isA ? ctx.valueA : ctx.valueB) || 0;
+        detail = 'Mirror matchup using favorite identity pressure';
+      } else if (mode === 'chaos_mirror') {
+        role = 'Chaos Mirror';
+        score = Number(isA ? ctx.valueA : ctx.valueB) || 0;
+        detail = 'Mirror matchup using Cinderella identity pressure';
+      } else if (mode === 'neutral_mirror') {
+        role = 'Neutral Mirror';
+        score = Number(isA ? ctx.valueA : ctx.valueB) || 0;
+        detail = 'No clean favorite / Cinderella split in this matchup';
+      } else {
+        const rawRole = isA ? ctx.roleA : ctx.roleB;
+        const rawScore = Number(isA ? ctx.valueA : ctx.valueB) || 0;
+        const rawMetric = isA ? ctx.metricA : ctx.metricB;
+
+        role =
+          rawRole === 'favorite' ? 'Favorite' :
+          rawRole === 'cinderella' ? 'Cinderella' :
+          'Neutral';
+
+        score = rawScore;
+
+        detail =
+          rawMetric === 'LFI' ? 'Live favorite identity signal' :
+          rawMetric === 'LCI' ? 'Live Cinderella identity signal' :
+          rawMetric === 'FAS' ? 'Favorite identity baseline' :
+          rawMetric === 'CIS' ? 'Cinderella identity baseline' :
+          'No active identity signal';
+      }
+    }
+
+    identityInline.classList.remove(
+      'identity-inline-cinderella',
+      'identity-inline-favorite',
+      'identity-inline-neutral'
+    );
+
+    const toneClass =
+      role === 'Cinderella' ? 'identity-inline-cinderella' :
+      role === 'Favorite' ? 'identity-inline-favorite' :
+      'identity-inline-neutral';
+
+    identityInline.classList.add(toneClass);
+
+    identityScore.textContent = Number.isFinite(score) ? formatSignedScore(score, 2) : '—';
+    identityRole.textContent = role;
+    identityDetail.textContent = detail;
+
+    const pct = Math.max(0, Math.min(100, Math.abs(score)));
+    identityMeter.style.width = `${pct}%`;
+  }
 }
 
 function renderNeutralTable(team, mi, interactionsTotal, tableId, subtotalSpanId) {
@@ -6699,7 +9360,8 @@ function buildTeamSummary(team, opponent, result, side) {
   }
 
   const breadthHits = team.breadthHits ?? 0;
-  const breadthScore = team.breadth ?? 0;
+  const offBreadth = Number(team.offBreadth ?? 0);
+  const defBreadth = Number(team.defBreadth ?? 0);
   const resumeScore  = team.resumeR ?? 0;
   const resumeTier   = team.resumeRTier || 'Average';
 
@@ -6707,25 +9369,27 @@ function buildTeamSummary(team, opponent, result, side) {
   const severeCount   = marks.filter(m => m.includes('Severe')).length;
   const moderateCount = marks.filter(m => m.includes('Moderate')).length;
 
-  // If you have interactions labeled with swings, grab top 1–2
   const intSide = isA ? result.interactions.a : result.interactions.b;
   const topInts = (intSide?.details || [])
     .slice()
     .sort((x, y) => Math.abs(y.points) - Math.abs(x.points))
     .slice(0, 2);
 
-  // Opponent context (seed / MI gap etc if you want)
-  const oppSeed = opponent?.seed;
-  const mySeed  = team?.seed;
-
-  // Build short clauses
   const coreClause = (strongest && weakest)
     ? `${strongest.label} is the main edge, while ${weakest.label} is the soft spot.`
     : `Core Traits show this team’s main statistical shape.`;
 
-  const breadthClause = (breadthScore > 0)
-    ? `${breadthHits} Above-Average hits earn a Breadth Bonus of +${fmt(breadthScore,3)}.`
-    : `Breadth is neutral — strengths are concentrated rather than spread out.`;
+  const breadthParts = [];
+  if (Math.abs(offBreadth) > 0.0005) {
+    breadthParts.push(`offensive breadth ${offBreadth >= 0 ? 'adds' : 'subtracts'} ${fmt(offBreadth, 3)}`);
+  }
+  if (Math.abs(defBreadth) > 0.0005) {
+    breadthParts.push(`defensive breadth ${defBreadth >= 0 ? 'adds' : 'subtracts'} ${fmt(defBreadth, 3)}`);
+  }
+
+  const breadthClause = breadthParts.length
+    ? `${breadthHits} supportive drivers overall; ${breadthParts.join(' and ')}.`
+    : `Breadth adjustments are neutral on both sides of the ball.`;
 
   const resumeClause = (resumeScore > 0.0001)
     ? `${resumeTier} résumé adds +${fmt(resumeScore,3)}.`
@@ -6773,17 +9437,63 @@ function renderTeamSide(side, result) {
   const neutralTableId    = isA ? 'neutralTableA'     : 'neutralTableB';
   const neutralSubtotalId = isA ? 'neutralSubtotalA'  : 'neutralSubtotalB';
 
-  const core     = team.mibs    || 0;
-  const breadth  = team.breadth || 0;
-  const resume   = team.resumeR || 0;
+  const offBreadth = Number(team.offBreadth || 0);
+  const defBreadth = Number(team.defBreadth || 0);
+  const totalBreadth = offBreadth + defBreadth;
+  const resume   = Number(team.resumeR || 0);
   const opponent = isA ? result.b : result.a;
 
-  // Baseline profile subtotal and MI_base
-  const profileSubtotal = core + breadth;
-
-  const miBase = (typeof team.mi_base === 'number')
+  const miBase = (typeof team.mi_base === 'number' && Number.isFinite(team.mi_base))
     ? team.mi_base
     : computeMIBase(team);
+
+  // -------------------------------------------------
+  // V2 display bridge:
+  // raw profile (pre-trust) -> resume trust -> adjusted base
+  // -------------------------------------------------
+
+    const coreRows = Array.isArray(team.coreDetails) ? team.coreDetails : [];
+
+  // Visible table row sum (debug / optional future use only)
+  const visibleRowSum = coreRows.reduce((sum, row) => {
+    const pts =
+      Number(row?.points ?? row?.point ?? row?.score ?? row?.value ?? 0);
+    return sum + (Number.isFinite(pts) ? pts : 0);
+  }, 0) + totalBreadth;
+
+  // Canonical V2 résumé trust must come from the résumé context pipeline,
+  // not from reverse-engineering mi_base against the visible row sum.
+  let resumeTrust = Number(team.resumeBaseTrust);
+
+  if (!Number.isFinite(resumeTrust)) {
+    resumeTrust = 1.00;
+  }
+
+  // This is the actual pre-résumé baseline layer that feeds mi_base.
+  const rawProfile = Number.isFinite(team.raw_base) ? team.raw_base : 0;
+
+  // =========================================================
+  // Profile Subtotal (UI-facing scaled version)
+  // Uses the same scaled signal system shown in MI Efficiency Metrics:
+  // (offensive signal + defensive signal) * résumé trust
+  // =========================================================
+  const coreRowsForSubtotal = Array.isArray(team?.coreDetails) ? team.coreDetails : [];
+
+  const offBreadthDisplay = miDisplayImpactRaw(team?.offBreadth ?? 0);
+  const defBreadthDisplay = miDisplayImpactRaw(team?.defBreadth ?? 0);
+
+  const offSignalDisplay = coreRowsForSubtotal
+    .filter(row => MI_CORE_OFF_KEYS.has(row?.key))
+    .reduce((sum, row) => sum + miDisplayImpactRaw(row?.points), 0) + offBreadthDisplay;
+
+  const defSignalDisplay = coreRowsForSubtotal
+    .filter(row => MI_CORE_DEF_KEYS.has(row?.key))
+    .reduce((sum, row) => sum + miDisplayImpactRaw(row?.points), 0) + defBreadthDisplay;
+
+  const combinedSignalDisplay = offSignalDisplay + defSignalDisplay;
+
+  // UI subtotal = scaled combined margin × résumé trust
+  const profileSubtotal = combinedSignalDisplay * resumeTrust;
 
   // Build display name with seed prefix (e.g., "#1 Seed Florida")
   const baseName = team.name || (isA ? 'Team A' : 'Team B');
@@ -6799,7 +9509,8 @@ function renderTeamSide(side, result) {
   }
 
   if (profileSubtotalEl) {
-    profileSubtotalEl.textContent = fmt(profileSubtotal, 3);
+    profileSubtotalEl.textContent = miFormatDisplayTotal(profileSubtotal);
+    miApplyValueState(profileSubtotalEl, profileSubtotal);
   }
 
   if (teamTotalEl) {
@@ -6825,210 +9536,9 @@ function renderTeamSide(side, result) {
   }
 
   // =========================
-  // Résumé context mini-tile
+  // Core profile support modules
   // =========================
-  const resumeTile    = document.getElementById(isA ? 'resumeTileA' : 'resumeTileB');
-  const resumeAdjEl   = document.getElementById(isA ? 'resumeAdjA'  : 'resumeAdjB');
-  const resumeTierEl  = document.getElementById(isA ? 'resumeTierA' : 'resumeTierB');
-  const backResumeEl  = document.getElementById(isA ? 'backResumeTileA' : 'backResumeTileB');
-
-  if (resumeTile && resumeAdjEl && resumeTierEl) {
-    // Determine tier label (prefer precomputed on team if present)
-    let tier = team.resumeRTier;
-
-    if (!tier) {
-      const tierRules = miGetCopy('resume_tile_ui.tier_rules', null);
-
-      if (Array.isArray(tierRules) && tierRules.length) {
-        // IMPORTANT: assumes tier_rules sorted high->low by "min"
-        const hit = tierRules.find(r => typeof r.min === 'number' && resume >= r.min);
-        tier = hit?.label || 'Average';
-      } else {
-        // Fallback heuristics
-        tier =
-          (resume >= 0.10 ? 'Strong' :
-           resume >= 0.05 ? 'Above Average' :
-           resume <= -0.10 ? 'Fragile' :
-           resume <= -0.05 ? 'Weak' : 'Average');
-      }
-    }
-
-    // FRONT: show tier in the big score spot
-    resumeAdjEl.textContent = tier;
-
-    // Optional: keep numeric resume on hover for debugging
-    resumeAdjEl.setAttribute('title', `Résumé Context: ${fmt(resume, 3)}`);
-
-    // Hide/remove tier subrow text for now (since tier is displayed above)
-    resumeTierEl.textContent = '';
-
-    // BACK: tier-aware résumé explanation (JSON-driven)
-    if (backResumeEl) {
-      const tierMap = miGetCopy('back.resume.tier_tile', {}) || {};
-      const lines =
-        (tier && Array.isArray(tierMap[tier])) ? tierMap[tier]
-        : (Array.isArray(tierMap.fallback) ? tierMap.fallback : []);
-
-      const tierText = (lines && lines.length) ? lines.slice(0, 2).join(' ') : '';
-
-      // Combine generic + tier-specific
-      backResumeEl.textContent = [tierText].filter(Boolean).join(' ');
-    }
-
-    // Reset state + tier classes
-    resumeTile.classList.remove(
-      'context-positive',
-      'context-negative',
-      'context-neutral',
-      'resume-tier-strong',
-      'resume-tier-above',
-      'resume-tier-average',
-      'resume-tier-weak',
-      'resume-tier-fragile'
-    );
-
-    // Sign-based state (existing behavior)
-    let stateClass = 'context-neutral';
-    if (resume > 0.0001) stateClass = 'context-positive';
-    else if (resume < -0.0001) stateClass = 'context-negative';
-
-    // Tier-based color class (JSON-driven)
-    let tierClass = 'resume-tier-average';
-    const tierRules2 = miGetCopy('resume_tile_ui.tier_rules', []);
-    if (Array.isArray(tierRules2)) {
-      const rule = tierRules2.find(r => r.label === tier);
-      if (rule?.class) tierClass = rule.class;
-    }
-
-    resumeTile.classList.add(stateClass, tierClass);
-  }
-
-  // =========================
-  // Identity tile (CIS / FAS / LCI / LFI)
-  // =========================
-  const identityTile     = document.getElementById(isA ? 'identityTileA'   : 'identityTileB');
-  const identityScoreEl  = document.getElementById(isA ? 'identityScoreA'  : 'identityScoreB');
-  const identityRoleEl   = document.getElementById(isA ? 'identityRoleA'   : 'identityRoleB');
-  const identityDetailEl = document.getElementById(isA ? 'identityDetailA' : 'identityDetailB');
-  const backIdentityEl   = document.getElementById(isA ? 'backIdentityA'   : 'backIdentityB');
-
-  if (identityTile && identityScoreEl && identityRoleEl && identityDetailEl) {
-    const identityLabelEl = identityTile.querySelector('.context-label');
-    const roundCode = result.round || CURRENT_ROUND || "R64";
-
-    // v3.8 identity packet (single source of truth)
-    const ctx = resolveIdentityContext(result.a, result.b, roundCode);
-
-    const myRole   = isA ? ctx.roleA   : ctx.roleB;     // "favorite" | "cinderella" | "none"
-    const myMetric = isA ? ctx.metricA : ctx.metricB;   // "CIS" | "FAS" | "LCI" | "LFI"
-    const myValue  = isA ? ctx.valueA  : ctx.valueB;
-
-    // UI-only: map internal metric codes to user-facing names (do NOT rename any keys)
-    const IDENTITY_METRIC_DISPLAY = {
-      CIS: 'Cinderella Credibility',
-      FAS: 'Favorite Authenticity',
-      LCI: 'Live Cinderella Profile',
-      LFI: 'Live Favorite Profile'
-    };
-
-    const myMetricLabel = IDENTITY_METRIC_DISPLAY[myMetric] || myMetric;
-
-    let activeScore = null;
-    let label       = 'Mirror';
-    let desc        = '';
-    let tileClass   = 'identity-neutral';
-    let headerText  = 'Tournament Identity';
-
-    const roundLabel = (typeof getRoundLabelFromCode === 'function')
-      ? getRoundLabelFromCode(roundCode)
-      : roundCode;
- 
-    // Tokens for JSON header templates
-    const headerTokens = { ROUND: roundLabel };
-
-    if (ctx.mode === "standard") {
-      if (myRole === "favorite") {
-        activeScore = myValue;
-        label       = 'Favorite';
-        tileClass   = 'identity-favorite';
-        desc        = `${myMetricLabel}: ${Math.round(myValue)}`;
-      } else if (myRole === "cinderella") {
-        activeScore = myValue;
-        label       = 'Cinderella';
-        tileClass   = 'identity-cinderella';
-        desc        = `${myMetricLabel}: ${Math.round(myValue)}`;
-      } else {
-        activeScore = myValue;
-        label       = 'Mirror';
-        tileClass   = 'identity-neutral';
-        desc        = `${myMetricLabel}: ${Math.round(myValue)}`;
-      }
-
-  // Header (JSON-driven) — role-aware in standard mode (UI-only)
-  const headerKey =
-    (myRole === "favorite")   ? "identity_tile_ui.headers.favorite" :
-    (myRole === "cinderella") ? "identity_tile_ui.headers.cinderella" :
-                                "identity_tile_ui.headers.standard";
-
-  const tmpl = miGetCopy(headerKey, '');
-  headerText = tmpl
-    ? miTpl(tmpl, headerTokens)
-    : (myRole === "favorite")
-        ? "Favorite Authenticity Score"
-        : (myRole === "cinderella")
-            ? "Cinderella Credibility Score"
-            : `Tournament Identity — ${roundLabel}`;
-
-    } else {
-      activeScore = myValue;
-      label       = 'Mirror';
-      tileClass   = 'identity-neutral';
-
-      // UI-only: all mirror modes share one public-facing label
-      const subtype = "Tournament Identity Profile";
-
-      headerTokens.SUBTYPE = subtype;
-
-      // Header (JSON-driven) — try mode-specific, then mirror template
-      const modeKey = `identity_tile_ui.headers.${ctx.mode}`;
-      const tmpl =
-        miGetCopy(modeKey, '') ||
-        miGetCopy('identity_tile_ui.headers.mirror', '');
-
-      headerText = tmpl ? miTpl(tmpl, headerTokens) : `${subtype} — ${roundLabel}`;
-      desc = `${myMetricLabel}: ${Math.round(myValue)}`;
-    }
-
-    identityScoreEl.textContent  = (activeScore != null) ? fmt(activeScore, 1) : '—';
-    identityRoleEl.textContent   = label;
-    identityDetailEl.textContent = desc;
-
-    if (identityLabelEl) identityLabelEl.textContent = headerText;
-
-    identityTile.classList.remove('identity-favorite', 'identity-cinderella', 'identity-neutral');
-    identityTile.classList.add('identity-tile', tileClass);
-    identityTile.dataset.identityResolved = "true";
-
-    // Back-of-card identity explanation (uses the same metric actually displayed)
-    if (backIdentityEl && window.MI_COPY) {
-      const roleForCopy =
-        (label === "Favorite")   ? "Favorite" :
-        (label === "Cinderella") ? "Cinderella" :
-                                   "Neutral";
-
-      const identityTeam = {
-        name: team.name,
-        identity: {
-          CIS_static: (myMetric === "CIS" || myMetric === "LCI") ? myValue : 0,
-          FAS_static: (myMetric === "FAS" || myMetric === "LFI") ? myValue : 0
-        },
-        role: roleForCopy
-      };
-
-      const expl = buildIdentityBackTextForTeam(identityTeam, window.MI_COPY);
-      backIdentityEl.textContent = expl || '';
-    }
-  }
+  renderProfileSupportModules(side, team, result, resumeTrust);
 
   // Core Traits big table
   renderCoreProfileTable(team, coreTableId);
@@ -7273,31 +9783,25 @@ function updateRoundOptionsForCurrentSeeds() {
   const teamAName = selectA?.value || '';
   const teamBName = selectB?.value || '';
 
-  const showAllRounds = ({ resetRound = true } = {}) => {
+  const showBaseRoundsOnly = ({ resetRound = true } = {}) => {
     roundDropdown.querySelectorAll(".round-option").forEach(opt => {
-      opt.style.display = "";
+      const code = opt.getAttribute("data-round");
+      opt.style.display = (code === 'First4') ? "none" : "";
     });
 
-    // ✅ Only reset round selection when NOT in sandbox behavior
     if (resetRound) {
       CURRENT_ROUND = null;
       roundBtn.textContent = "Select Round";
+      delete roundBtn.dataset.selected;
     }
 
-    // ✅ Let the central gate decide (and it now respects SANDBOX_MODE)
     if (typeof refreshCompareButtonState === 'function') {
       refreshCompareButtonState();
     }
   };
 
-  // ✅ Sandbox = no restrictions + no forced round clearing + no forced disable
-  if (SANDBOX_MODE) {
-    showAllRounds({ resetRound: false });
-    return;
-  }
-
   if (!teamAName || !teamBName) {
-    showAllRounds();
+    showBaseRoundsOnly();
     return;
   }
 
@@ -7305,21 +9809,65 @@ function updateRoundOptionsForCurrentSeeds() {
   const teamB = getTeamByName(teamBName);
 
   if (!teamA || !teamB || teamA.seed == null || teamB.seed == null) {
-    showAllRounds();
+    showBaseRoundsOnly();
     return;
   }
 
+  const isFirst4Pair = isFirstFourSeedPlayIn(teamA.seed, teamB.seed);
   const allowedRounds = new Set(getPossibleRoundsForSeeds(teamA.seed, teamB.seed));
 
   roundDropdown.querySelectorAll(".round-option").forEach(opt => {
     const code = opt.getAttribute("data-round");
+
+    // First4 is only exposed for actual play-in matchups, even in sandbox
+    if (code === 'First4' && !isFirst4Pair) {
+      opt.style.display = "none";
+      return;
+    }
+
+    if (SANDBOX_MODE) {
+      opt.style.display = "";
+      return;
+    }
+
     opt.style.display = allowedRounds.has(code) ? "" : "none";
   });
 
-  // Force user to pick a compatible round (non-sandbox only)
-  CURRENT_ROUND = null;
-  roundBtn.textContent = "Select Round";
-  setCompareButtonEnabled(false);   // reset whenever allowed-round set changes
+  const currentStillValid =
+    !!CURRENT_ROUND &&
+    (
+      SANDBOX_MODE
+        ? (CURRENT_ROUND !== 'First4' || isFirst4Pair)
+        : allowedRounds.has(CURRENT_ROUND)
+    );
+
+  // Auto-default actual play-ins to First4 unless the user already has a legal round selected
+  if (!currentStillValid && isFirst4Pair) {
+    CURRENT_ROUND = 'First4';
+    roundBtn.textContent = getRoundLabelFromCode('First4');
+    roundBtn.dataset.selected = 'First4';
+    miUpdateMatchupRoundPill(CURRENT_ROUND);
+
+    if (typeof refreshCompareButtonState === 'function') {
+      refreshCompareButtonState();
+    }
+    if (typeof updatePreMatchupHubProgress === 'function') {
+      updatePreMatchupHubProgress();
+    }
+    return;
+  }
+
+  // For non-play-in pairs, or when current selection became illegal, reset
+  if (!currentStillValid) {
+    CURRENT_ROUND = null;
+    roundBtn.textContent = "Select Round";
+    delete roundBtn.dataset.selected;
+    setCompareButtonEnabled(false);
+  }
+
+  if (typeof refreshCompareButtonState === 'function') {
+    refreshCompareButtonState();
+  }
 }
 
 function syncNextHalo() {
@@ -7422,25 +9970,6 @@ async function downloadDatasetFromUrl(url, filename) {
   if (!res.ok) throw new Error(`Fetch failed (${res.status})`);
   const text = await res.text();
   triggerCsvDownload(text, filename);
-}
-
-function buildCsvTemplateText() {
-  // Headers chosen to align with your HEADER_MAP normalizer expectations.
-  // (Don’t add extra commas/spaces; keep these stable.)
-  const headers = [
-    'Team','Seed',
-    'Off Eff','Def Eff','Efficiency Margin','True Shooting %','eFG','Tempo','Effective Possession Ratio','TO%',
-    'Def. eFG%',
-    '% of points from 2','% of points from 3','% of points from FT',
-    '3P %','3P Rate','FTR',
-    'Extra Scoring Chances Game','Non Blocked 2pt %','ORB %','DRB %','Block %','Steals per possession',
-    'Opp Asst Poss','Opp TO Poss','Opp FTA FGA','Opp 3pt %','Opp 3P Rate',
-    'FT_PCT',
-    'Close game win pct','Wins','Losses','Strength of Schedule'
-  ];
-
-  // Header row only (clean template)
-  return headers.join(',') + '\n';
 }
 
 // ========== EVENT WIRING & DOM READY ==========
@@ -7580,7 +10109,6 @@ function setupEventListeners() {
     setCompareButtonEnabled(false);
     
     compareBtn.addEventListener('click', () => {
-      console.log('[MI] Compare button clicked');
 
       if (!RAW_ROWS || RAW_ROWS.length === 0) {
         alert('Please load tournament dataset first.');
@@ -7655,10 +10183,6 @@ function setupEventListeners() {
         favoriteName   = teamB.name;
       }
 
-      console.log(
-        `[MI] Running compareTeams (auto by seed) ` +
-        `Cinderella = ${cinderellaName} Favorite = ${favoriteName}`
-      );
       compareTeams(cinderellaName, favoriteName, roleMode);
 
       // reveal analysis mode UI - LEGACY
@@ -7786,8 +10310,6 @@ if (roundBtn && roundDropdown) {
 
       refreshCompareButtonState();
       updatePreMatchupHubProgress();
-
-      console.log("[MI] Round selected:", CURRENT_ROUND);
     });
   });
 
