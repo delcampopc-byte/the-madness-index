@@ -649,6 +649,10 @@
     display: none !important;
   }
 
+  #verdictShell .mi-verdict-why {
+    display: none !important;
+  }
+
   #verdictShell .mi-verdict-shell-inner::before {
     display: none;
   }
@@ -710,7 +714,7 @@
   #cindCard .explain-table td,
   #favCard .explain-table th,
   #favCard .explain-table td {
-    font-size: 11px !important;
+    font-size: 9px !important;
     padding: 8px 4px !important;
     line-height: 1.2 !important;
     vertical-align: middle !important;
@@ -730,28 +734,28 @@
   #cindCard .explain-table td:nth-child(1),
   #favCard .explain-table th:nth-child(1),
   #favCard .explain-table td:nth-child(1) {
-    width: 36% !important;
+    width: 32% !important;
   }
 
   #cindCard .explain-table th:nth-child(3),
   #cindCard .explain-table td:nth-child(3),
   #favCard .explain-table th:nth-child(3),
   #favCard .explain-table td:nth-child(3) {
-    width: 30% !important;
+    width: 20% !important;
   }
 
   #cindCard .explain-table th:nth-child(4),
   #cindCard .explain-table td:nth-child(4),
   #favCard .explain-table th:nth-child(4),
   #favCard .explain-table td:nth-child(4) {
-    width: 18% !important;
+    width: 30% !important;
   }
 
   #cindCard .explain-table th:nth-child(5),
   #cindCard .explain-table td:nth-child(5),
   #favCard .explain-table th:nth-child(5),
   #favCard .explain-table td:nth-child(5) {
-    width: 16% !important;
+    width: 20% !important;
   }
 
   /* Section header rows span all visible columns */
@@ -1804,5 +1808,15 @@
     inset: 0 0 48px 0 !important;   /* covers viewport; leaves handle row clear */
     background: rgba(0, 0, 0, 0.50) !important;
     z-index: -1 !important;
+  }
+
+  
+  /* Verdict scorebug team-name side accents */
+  #verdictShell #miVerdictMetricsTile .mi-scorebug-team--a .mi-scorebug-team-name {
+    color: var(--syn-role-a) !important;
+  }
+
+  #verdictShell #miVerdictMetricsTile .mi-scorebug-team--b .mi-scorebug-team-name {
+    color: var(--syn-role-b) !important;
   }
 }

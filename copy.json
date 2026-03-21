@@ -8,10 +8,9 @@
   },
   "core_profile_ui": {
     "title_label": "Battlefield",
-    "spread_label": "Field Spread",
+    "spread_label": "Spread",
     "spread_short_label": "σ",
-    "score_label": "Team Score",
-    "percentile_label": "Percentile",
+    "score_label": "Standing",
     "tier_label": "Tier",
     "points_label": "Points",
     "avg_label": "Avg",

@@ -6562,10 +6562,14 @@ function renderSummary(result = {}) {
  
   if (verdictShellEl) {
     verdictShellEl.setAttribute('data-lens', shellLensKey);
+    verdictShellEl.setAttribute('data-side-a', sideA);
+    verdictShellEl.setAttribute('data-side-b', sideB);
   }
 
   if (analysisShellEl) {
     analysisShellEl.setAttribute('data-lens', shellLensKey);
+    analysisShellEl.setAttribute('data-side-a', sideA);
+    analysisShellEl.setAttribute('data-side-b', sideB);
   }
   }
   // =========================================================
