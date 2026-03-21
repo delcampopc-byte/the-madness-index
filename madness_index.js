@@ -6553,6 +6553,13 @@ function renderSummary(result = {}) {
   summarySection.setAttribute('data-side-a', sideA);
   summarySection.setAttribute('data-side-b', sideB);
 
+  const summarySectionMobile = document.getElementById('summarySectionMobile');
+  if (summarySectionMobile) {
+    summarySectionMobile.setAttribute('data-lens', shellLensKey);
+    summarySectionMobile.setAttribute('data-side-a', sideA);
+    summarySectionMobile.setAttribute('data-side-b', sideB);
+  }
+ 
   if (verdictShellEl) {
     verdictShellEl.setAttribute('data-lens', shellLensKey);
   }
@@ -6795,6 +6802,9 @@ function renderSummary(result = {}) {
   const riskEl = document.getElementById('miSummaryRisk');
 
   if (summaryLeanEl) summaryLeanEl.textContent = leanText;
+  
+  const summaryLeanMobEl = document.getElementById('summarySynLeanMob');
+  if (summaryLeanMobEl) summaryLeanMobEl.textContent = leanText;
 
   // =========================================================
   // Verdict scorebug metrics
@@ -6867,7 +6877,7 @@ function renderSummary(result = {}) {
   // Canonical Score Synthesis binder
   // =========================================================
   const setSummaryValue = (key, val) => {
-    const root = summarySection || document;
+    const root = document;
     const els = root.querySelectorAll(`[data-value="${key}"]`);
     if (!els || !els.length) return;
     const out = (val == null ? '—' : val);
@@ -6885,6 +6895,9 @@ function renderSummary(result = {}) {
   // team headers
   setText('summaryTeamAHeader', a.name || cTeamLabel);
   setText('summaryTeamBHeader', b.name || fTeamLabel);
+
+  document.querySelectorAll('[data-sum-team="a"]').forEach(el => el.textContent = a.name || cTeamLabel);
+  document.querySelectorAll('[data-sum-team="b"]').forEach(el => el.textContent = b.name || fTeamLabel);
 
   // center lean
   setText('summarySynLean', leanText || '');
@@ -6963,6 +6976,9 @@ function renderSummary(result = {}) {
   if (volScoreEl) {
     volScoreEl.textContent = Number.isFinite(volScore) ? Math.round(volScore) : '—';
   }
+
+  const volScoreMobEl = document.getElementById('summaryVolatilityScoreMob');
+  if (volScoreMobEl) volScoreMobEl.textContent = Number.isFinite(volScore) ? Math.round(volScore) : '—';
 
   if (volFill) {
     const pct = Math.max(0, Math.min(100, volScore));
@@ -7097,6 +7113,11 @@ function renderSummary(result = {}) {
 
   if (summarySection) {
     summarySection.classList.add('visible');
+  }
+
+  const summarySectionMobile = document.getElementById('summarySectionMobile');
+    if (summarySectionMobile) {
+      summarySectionMobile.classList.add('visible');
   }
 
   // =========================================================

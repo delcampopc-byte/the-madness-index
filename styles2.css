@@ -1279,7 +1279,7 @@ body{
 /* CSV card header row */
 .controls-card.is-primary-entry .controls-card-head{
   width: 100%;
-  display: flex;
+  display: block;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
@@ -5142,10 +5142,10 @@ explain-table td:first-child{
 
 .app-shell.pre-matchup{
   /* global-ish density knobs for this state */
-  --pm-gap: 12px;
-  --pm-card-pad: 16px;
-  --pm-card-pad-lg: 18px;
-  --pm-hero-pad: 18px;
+  --pm-gap: 6px;
+  --pm-card-pad: 8px;
+  --pm-card-pad-lg: 9px;
+  --pm-hero-pad: 9px;
 }
 
 /* tighten the big vertical stack */
@@ -5367,6 +5367,9 @@ explain-table td:first-child{
 /* Keep title on one line now that the pill is gone */
 .controls-card.is-primary-entry .controls-card-head .card-title{
   white-space: nowrap;
+  text-align: center !important;
+  align-self: center;
+  justify-content: center;
 }
 
 /* Stack dropdown + upload button vertically (tighter + cleaner) */
@@ -8409,10 +8412,6 @@ button,
   align-items: center;
   gap: 10px;
   white-space: nowrap;
-}
-
-.mi-scorebug-gap-value {
-  /* no grid placement needed */
 }
 
 /* =========================================================
@@ -12360,7 +12359,6 @@ body::before{
 
   /* --- Spacing rhythm --- */
   section { margin-top: 0.75rem; }
-  .card { margin-bottom: 0.75rem; }
 
   /* --- Card + tile padding (v3.92 tokens) --- */
   .card, .tile, .panel, .mi-card, .mi-tile {
@@ -14213,6 +14211,7 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
 
 #interactionsSection .interactions-left-tile.flip-tile{
   display: block;
+  height: 100%;
   min-height: 100%;
   perspective: 1400px;
 }
@@ -17548,6 +17547,41 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
   box-shadow: none !important;
 }
 
+/* In styles2.css — paste after line 17540 */
+
+/* Make the outer tile a flex column so flip-tile-inner can grow via flex, 
+   bypassing the broken height:100% chain from the auto-height grid */
+#interactionsSection .interactions-left.interactions-left-tile.flip-tile {
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+#interactionsSection .interactions-left-tile.flip-tile .flip-tile-inner {
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  /* keep height:100% as fallback for other contexts */
+}
+
+/* =========================================================
+   INTERACTION METRICS FLIP — back face height fix
+   When flipped, let the back face drive the container height
+   (mirrors the .team-card.flipped pattern used elsewhere)
+   ========================================================= */
+
+#interactionsSection .interactions-left-tile.flip-tile.flipped
+  .tile-face.tile-front.interactions-front-face {
+  position: absolute !important;
+  inset: 0 !important;
+}
+
+#interactionsSection .interactions-left-tile.flip-tile.flipped
+  .tile-face.tile-back.interactions-back-face {
+  position: relative !important;
+  inset: auto !important;
+  height: auto !important;
+  min-height: 100% !important;
+}
+
 /* =========================
    TABLE REGION
    ========================= */
@@ -18666,4 +18700,24 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
   white-space: nowrap !important;
   text-align: center !important;
   color: rgba(241,245,249,0.98) !important;
+}
+
+/* =========================================================
+   SCORE SYNTHESIS: desktop/mobile split
+   Desktop = show #summarySection only
+   Mobile  = show #summarySectionMobile only
+   ========================================================= */
+
+#summarySectionMobile {
+  display: none !important;
+}
+
+@media (max-width: 720px) {
+  #summarySection {
+    display: none !important;
+  }
+
+  #summarySectionMobile {
+    display: block !important;
+  }
 }
