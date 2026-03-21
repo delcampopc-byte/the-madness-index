@@ -33,7 +33,9 @@ body{
 /* ========== DESIGN TOKENS (3.4) ========== */
 
 :root {
-   /* ====== BRAND BLUE SYSTEM (UI atmosphere + structure only) ====== */
+  --mi-delta-size: 45px;  
+ 
+  /* ====== BRAND BLUE SYSTEM (UI atmosphere + structure only) ====== */
   --mi-brand-blue-500: #175FC3; /* canonical brand blue from MIX logo */
 
   /* Shade ladder (all from your sampled logo blues) */
@@ -2882,7 +2884,8 @@ section#matchupBar.card.matchup-bar.visible:not(.is-editing){
 #cindCard .section-header .matchup-kicker,
 #favCard  .section-header .matchup-kicker,
 #matchupBar.is-editing .matchup-controls-label.matchup-kicker,
-#summarySection .matchup-kicker.syn-kicker{
+#summarySection .matchup-kicker.syn-kicker,
+#summarySectionMobile .mi-sum-mob-title-matchup-kicker {
   font-size: 14px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -8390,27 +8393,26 @@ button,
 }
 
 /* MI GAP row spans both columns */
+/* MI GAP row spans both columns */
 #miVerdictMetricsTile .mi-scorebug-gap{
   grid-column: 1 / -1;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+  display: flex;
+  flex-direction: row;
   align-items: center;
-  column-gap: 12px;
+  justify-content: center;
+  gap: 12px;
   align-self: stretch;
 }
 
 .mi-scorebug-gap-label {
-  grid-column: 1;
-  justify-self: end;
   display: inline-flex;
   align-items: center;
-  gap: 10px;         /* slightly more “broadcast” spacing */
+  gap: 10px;
   white-space: nowrap;
 }
 
 .mi-scorebug-gap-value {
-  grid-column: 2;
-  justify-self: start;
+  /* no grid placement needed */
 }
 
 /* =========================================================
@@ -9259,9 +9261,9 @@ button,
    Single mapping layer: data-lens => active accent tokens
    ========================================================= */
 
-/* Defaults (neutral) */
 #verdictShell,
-#summarySection{
+#summarySection,
+#summarySectionMobile{
   --mi-role-active:      var(--mi-role-neutral-mirror);
   --mi-role-active-soft: var(--mi-role-neutral-mirror-soft);
   --mi-role-active-rgb:  var(--mi-role-neutral-mirror-rgb);
@@ -9269,14 +9271,16 @@ button,
 
 /* Standard roles */
 #verdictShell[data-lens="favorite"],
-#summarySection[data-lens="favorite"]{
+#summarySection[data-lens="favorite"],
+#summarySectionMobile[data-lens="favorite"]{
   --mi-role-active:      var(--mi-role-favorite);
   --mi-role-active-soft: var(--mi-role-favorite-soft);
   --mi-role-active-rgb:  var(--mi-role-favorite-rgb);
 }
 
 #verdictShell[data-lens="cinderella"],
-#summarySection[data-lens="cinderella"]{
+#summarySection[data-lens="cinderella"],
+#summarySectionMobile[data-lens="cinderella"]{
   --mi-role-active:      var(--mi-role-cinderella);
   --mi-role-active-soft: var(--mi-role-cinderella-soft);
   --mi-role-active-rgb:  var(--mi-role-cinderella-rgb);
@@ -9284,21 +9288,24 @@ button,
 
 /* Mirror roles */
 #verdictShell[data-lens="chalk_mirror"],
-#summarySection[data-lens="chalk_mirror"]{
+#summarySection[data-lens="chalk_mirror"],
+#summarySectionMobile[data-lens="chalk_mirror"]{
   --mi-role-active:      var(--mi-role-chalk-mirror);
   --mi-role-active-soft: var(--mi-role-chalk-mirror-soft);
   --mi-role-active-rgb:  var(--mi-role-chalk-mirror-rgb);
 }
 
 #verdictShell[data-lens="chaos_mirror"],
-#summarySection[data-lens="chaos_mirror"]{
+#summarySection[data-lens="chaos_mirror"],
+#summarySectionMobile[data-lens="chaos_mirror"]{
   --mi-role-active:      var(--mi-role-chaos-mirror);
   --mi-role-active-soft: var(--mi-role-chaos-mirror-soft);
   --mi-role-active-rgb:  var(--mi-role-chaos-mirror-rgb);
 }
 
 #verdictShell[data-lens="neutral_mirror"],
-#summarySection[data-lens="neutral_mirror"]{
+#summarySection[data-lens="neutral_mirror"],
+#summarySectionMobile[data-lens="neutral_mirror"]{
   --mi-role-active:      var(--mi-role-neutral-mirror);
   --mi-role-active-soft: var(--mi-role-neutral-mirror-soft);
   --mi-role-active-rgb:  var(--mi-role-neutral-mirror-rgb);
@@ -9312,7 +9319,9 @@ button,
    ========================================================= */
 
 /* --- Side role defaults (safe neutral) --- */
-#summarySection{
+#summarySection,
+#summarySectionMobile,
+#verdictShell{
   --syn-role-a:      var(--mi-role-neutral-mirror);
   --syn-role-a-soft: var(--mi-role-neutral-mirror-soft);
   --syn-role-a-rgb:  var(--mi-role-neutral-mirror-rgb);
@@ -9323,54 +9332,82 @@ button,
 }
 
 /* --- Side A mapping --- */
-#summarySection[data-side-a="favorite"]{
+#summarySection[data-side-a="favorite"],
+#summarySectionMobile[data-side-a="favorite"],
+#verdictShell[data-side-a="favorite"]{
   --syn-role-a:      var(--mi-role-favorite);
   --syn-role-a-soft: var(--mi-role-favorite-soft);
   --syn-role-a-rgb:  var(--mi-role-favorite-rgb);
 }
-#summarySection[data-side-a="cinderella"]{
+
+#summarySection[data-side-a="cinderella"],
+#summarySectionMobile[data-side-a="cinderella"],
+#verdictShell[data-side-a="cinderella"]{
   --syn-role-a:      var(--mi-role-cinderella);
   --syn-role-a-soft: var(--mi-role-cinderella-soft);
   --syn-role-a-rgb:  var(--mi-role-cinderella-rgb);
 }
-#summarySection[data-side-a="chalk_mirror"]{
+
+#summarySection[data-side-a="chalk_mirror"],
+#summarySectionMobile[data-side-a="chalk_mirror"],
+#verdictShell[data-side-a="chalk_mirror"]{
   --syn-role-a:      var(--mi-role-chalk-mirror);
   --syn-role-a-soft: var(--mi-role-chalk-mirror-soft);
   --syn-role-a-rgb:  var(--mi-role-chalk-mirror-rgb);
 }
-#summarySection[data-side-a="chaos_mirror"]{
+
+#summarySection[data-side-a="chaos_mirror"],
+#summarySectionMobile[data-side-a="chaos_mirror"],
+#verdictShell[data-side-a="chaos_mirror"]{
   --syn-role-a:      var(--mi-role-chaos-mirror);
   --syn-role-a-soft: var(--mi-role-chaos-mirror-soft);
   --syn-role-a-rgb:  var(--mi-role-chaos-mirror-rgb);
 }
-#summarySection[data-side-a="neutral_mirror"]{
+
+#summarySection[data-side-a="neutral_mirror"],
+#summarySectionMobile[data-side-a="neutral_mirror"],
+#verdictShell[data-side-a="neutral_mirror"]{
   --syn-role-a:      var(--mi-role-neutral-mirror);
   --syn-role-a-soft: var(--mi-role-neutral-mirror-soft);
   --syn-role-a-rgb:  var(--mi-role-neutral-mirror-rgb);
 }
 
 /* --- Side B mapping --- */
-#summarySection[data-side-b="favorite"]{
+#summarySection[data-side-b="favorite"],
+#summarySectionMobile[data-side-b="favorite"],
+#verdictShell[data-side-b="favorite"]{
   --syn-role-b:      var(--mi-role-favorite);
   --syn-role-b-soft: var(--mi-role-favorite-soft);
   --syn-role-b-rgb:  var(--mi-role-favorite-rgb);
 }
-#summarySection[data-side-b="cinderella"]{
+
+#summarySection[data-side-b="cinderella"],
+#summarySectionMobile[data-side-b="cinderella"],
+#verdictShell[data-side-b="cinderella"]{
   --syn-role-b:      var(--mi-role-cinderella);
   --syn-role-b-soft: var(--mi-role-cinderella-soft);
   --syn-role-b-rgb:  var(--mi-role-cinderella-rgb);
 }
-#summarySection[data-side-b="chalk_mirror"]{
+
+#summarySection[data-side-b="chalk_mirror"],
+#summarySectionMobile[data-side-b="chalk_mirror"],
+#verdictShell[data-side-b="chalk_mirror"]{
   --syn-role-b:      var(--mi-role-chalk-mirror);
   --syn-role-b-soft: var(--mi-role-chalk-mirror-soft);
   --syn-role-b-rgb:  var(--mi-role-chalk-mirror-rgb);
 }
-#summarySection[data-side-b="chaos_mirror"]{
+
+#summarySection[data-side-b="chaos_mirror"],
+#summarySectionMobile[data-side-b="chaos_mirror"],
+#verdictShell[data-side-b="chaos_mirror"]{
   --syn-role-b:      var(--mi-role-chaos-mirror);
   --syn-role-b-soft: var(--mi-role-chaos-mirror-soft);
   --syn-role-b-rgb:  var(--mi-role-chaos-mirror-rgb);
 }
-#summarySection[data-side-b="neutral_mirror"]{
+
+#summarySection[data-side-b="neutral_mirror"],
+#summarySectionMobile[data-side-b="neutral_mirror"],
+#verdictShell[data-side-b="neutral_mirror"]{
   --syn-role-b:      var(--mi-role-neutral-mirror);
   --syn-role-b-soft: var(--mi-role-neutral-mirror-soft);
   --syn-role-b-rgb:  var(--mi-role-neutral-mirror-rgb);
@@ -10816,7 +10853,8 @@ button,
 .mi-delta-mark{
   display:inline-block;
   max-width: none;
-  width: auto;
+  width: var(--mi-delta-size);
+  height: var(--mi-delta-size);
   height: 1.05em;
   vertical-align: -0.08em;
   flex: 0 0 auto;
@@ -10939,12 +10977,6 @@ button,
   opacity:.96;
   white-space:nowrap;
   font-variant-numeric:tabular-nums;
-}
-
-/* Context-specific icon tuning */
-#miVerdictMetricsTile .mi-scorebug-gap-label .mi-delta-mark{
-  height: 1.12em;    /* slightly larger in scorebug */
-  vertical-align: 0; /* flex handles alignment */
 }
 
 .syn-delta-label .mi-delta-mark{
@@ -16049,9 +16081,9 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
   gap: 8px;
 }
 
-.mi-verdict-metrics-tile .mi-scorebug-team-name{
+#miScorebugTeamA .mi-verdict-metrics-tile .mi-scorebug-team-name{
   color: rgba(241,245,249,0.96);
-  font-size: 13px;
+  font-size: 43px;
   font-weight: 800;
   line-height: 1.05;
   letter-spacing: 0.01em;
@@ -17026,13 +17058,6 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
   gap: 10px !important;
 }
 
-.mi-verdict-metrics-tile .mi-scorebug-team-name{
-  font-size: 14px !important;
-  font-weight: 850 !important;
-  letter-spacing: 0.005em !important;
-  padding-bottom: 4px !important;
-}
-
 .mi-verdict-metrics-tile .mi-scorebug-team-lines{
   gap: 10px !important;
 }
@@ -17930,13 +17955,13 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
     0 6px 16px rgba(0,0,0,0.20) !important;
 }
 
-#miVerdictMetricsTile .mi-scorebug-team-name{
+#miVerdictMetricsTile #miScorebugTeamA .mi-scorebug-team-name{
   text-align: center !important;
   font-size: 13px !important;
   font-weight: 850 !important;
   line-height: 1.05 !important;
   letter-spacing: 0.01em !important;
-  color: rgba(241,245,249,0.96) !important;
+  color: var(--syn-role-a) !important;
   padding-bottom: 4px !important;
 }
 
@@ -18446,7 +18471,7 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
   justify-content: center !important;
   gap: 8px !important;
 
-  width: 100% !important;
+  width: 50% !important;
   min-width: 0 !important;
   min-height: 46px !important;
 
@@ -18491,12 +18516,12 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
   flex: 0 0 auto !important;
 
   justify-self: auto !important;
-  align-self: left !important;
+  align-self: center !important;
 
   margin: 0 !important;
   padding: 0 !important;
 
-  text-align: left !important;
+  text-align: center !important;
   white-space: nowrap !important;
   min-width: 0 !important;
 
@@ -18508,8 +18533,8 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
 }
 
 #miVerdictMetricsTile .mi-scorebug-gap-label .mi-delta-mark{
-  width: auto !important;
-  height: 1.02em !important;
+  width: var(--mi-delta-size) !important;
+  height: var(--mi-delta-size) !important;
   flex: 0 0 auto !important;
   margin: 0 !important;
   vertical-align: middle !important;
@@ -18520,23 +18545,27 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
    ========================================= */
 
 #miVerdictMetricsTile .mi-scorebug-gap {
-  display: block !important;
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 12px !important;
+  width: 100% !important;
   text-align: center !important;
-  flex-wrap:nowrap;
 }
 
-/* Create a fake inline container */
 #miVerdictMetricsTile .mi-scorebug-gap-label,
 #miVerdictMetricsTile .mi-scorebug-gap-value {
-  display: inline-block !important;
-  vertical-align: middle !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  width: auto !important;
+  vertical-align: unset !important;
 }
 
-/* Kill ALL positioning forces */
 #miVerdictMetricsTile .mi-scorebug-gap-value {
   justify-self: unset !important;
   align-self: unset !important;
-  margin-left: 8px !important;
+  margin-left: 0 !important;
 }
 
 /* Keep icon aligned nicely */
