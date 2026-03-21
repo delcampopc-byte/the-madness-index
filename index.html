@@ -12,6 +12,7 @@
 
   <!-- Core styles -->
   <link rel="stylesheet" href="styles2.css?v=21" />
+  <link rel="stylesheet" href="mobile.css" />
   <link rel="icon" type="image/png" href="assets/img/logos/madness-index-app-logo.PNG" />
 </head>
 <body>
@@ -455,15 +456,11 @@
                  title="Madness Delta">
               <use href="#mi-delta-symbol" x="0" y="0" width="100%" height="100%"></use>
             </svg>
-            Madness Delta
-          </span>
+           </span>
 
           <span id="miScorebugGapValue" class="mi-scorebug-gap-value">—</span>
         </div>
-
-        <div class="mi-scorebug-footer">
           <div class="mi-metrics-hint mi-flip-hint">Flip for context</div>
-        </div>
       </div>
     </div>
 
@@ -1419,6 +1416,65 @@
     </table>
   </div>
 </section>
+
+<!-- ================ SCORE SYNTHESIS (MOBILE ONLY) ================ -->
+<section id="summarySectionMobile" class="card summary-card mi-sum-mob-wrap" aria-label="Score Synthesis">
+  <div class="mi-sum-mob-title matchup-kicker">Score Synthesis</div>
+  <div class="mi-sum-mob-header-row">
+    <div class="mi-sum-mob-team-name mi-sum-mob-team-name-a" data-sum-team="a">Team A</div>
+    <div class="mi-sum-mob-col-spacer"></div>
+    <div class="mi-sum-mob-team-name mi-sum-mob-team-name-b" data-sum-team="b">Team B</div>
+  </div>
+  <div class="mi-sum-mob-rows">
+    <div class="mi-sum-mob-row">
+      <span class="mi-sum-mob-val mi-sum-mob-val-a" data-value="a.base">—</span>
+      <span class="mi-sum-mob-label">Baseline MI</span>
+      <span class="mi-sum-mob-val mi-sum-mob-val-b" data-value="b.base">—</span>
+    </div>
+    <div class="mi-sum-mob-row">
+      <span class="mi-sum-mob-val mi-sum-mob-val-a" data-value="a.off_breadth">—</span>
+      <span class="mi-sum-mob-label">Off. Breadth</span>
+      <span class="mi-sum-mob-val mi-sum-mob-val-b" data-value="b.off_breadth">—</span>
+    </div>
+    <div class="mi-sum-mob-row">
+      <span class="mi-sum-mob-val mi-sum-mob-val-a" data-value="a.def_breadth">—</span>
+      <span class="mi-sum-mob-label">Def. Breadth</span>
+      <span class="mi-sum-mob-val mi-sum-mob-val-b" data-value="b.def_breadth">—</span>
+    </div>
+    <div class="mi-sum-mob-row">
+      <span class="mi-sum-mob-val mi-sum-mob-val-a" data-value="a.int_eff">—</span>
+      <span class="mi-sum-mob-label">Matchup Adj.</span>
+      <span class="mi-sum-mob-val mi-sum-mob-val-b" data-value="b.int_eff">—</span>
+    </div>
+    <div class="mi-sum-mob-row">
+      <span class="mi-sum-mob-val mi-sum-mob-val-a" data-value="a.resume_cal">—</span>
+      <span class="mi-sum-mob-label">Résumé Cal.</span>
+      <span class="mi-sum-mob-val mi-sum-mob-val-b" data-value="b.resume_cal">—</span>
+    </div>
+  </div>
+  <div class="mi-sum-mob-finals">
+    <div class="mi-sum-mob-final mi-sum-mob-final-a">
+      <div class="mi-sum-mob-final-label">Final MI</div>
+      <div class="mi-sum-mob-final-val" data-value="a.final">—</div>
+    </div>
+    <div class="mi-sum-mob-delta-col">
+      <svg class="mi-delta-mark"
+           viewBox="0 0 10.754103 9.3092775"
+           preserveAspectRatio="xMidYMid meet"
+           focusable="false"
+           aria-hidden="true">
+        <use href="#mi-delta-symbol" x="0" y="0" width="100%" height="100%"></use>
+      </svg>
+      <span class="syn-delta-value" data-value="gap.sep">—</span>
+    </div>
+    <div class="mi-sum-mob-final mi-sum-mob-final-b">
+      <div class="mi-sum-mob-final-label">Final MI</div>
+      <div class="mi-sum-mob-final-val" data-value="b.final">—</div>
+    </div>
+  </div>
+</section>
+<!-- ================================================================ -->
+
 </div><!-- end #analysisShell -->
 
     <!-- ================ DEBUG PANEL ================ -->
