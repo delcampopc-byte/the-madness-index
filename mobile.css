@@ -669,8 +669,9 @@
     height: 51px !important;
     background: url("assets/img/logos/madness-index-home-logo.png") center / contain no-repeat !important;
   }
+}
 
-  @media (max-width: 600px) {
+@media (max-width: 600px) {
 
   #verdictShell .mi-scorebug-line,
   #verdictShell .mi-scorebug-line.is-structured .mi-verdict-headline,
@@ -1818,5 +1819,89 @@
 
   #verdictShell #miVerdictMetricsTile .mi-scorebug-team--b .mi-scorebug-team-name {
     color: var(--syn-role-b) !important;
+  }
+}
+
+/* =========================================================
+   TEAM LOGOS — mobile overrides
+   ========================================================= */
+
+@media (max-width: 720px) {
+
+  /* SCOREBUG */
+
+  #verdictShell .mi-scorebug-team-head{
+    grid-template-columns: 24px minmax(0, 1fr) !important;
+    column-gap: 8px !important;
+    margin-bottom: 6px !important;
+  }
+
+  #verdictShell .mi-scorebug-team-logo{
+    width: 20px !important;
+    height: 20px !important;
+  }
+
+  #verdictShell .mi-scorebug-team-name{
+    font-size: 12px !important;
+    line-height: 1.05 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    max-width: 100% !important;
+  }
+
+  /* TEAM CARDS */
+
+  .team-card-header-main{
+    grid-template-columns: 38px minmax(0, 1fr) !important;
+    column-gap: 10px !important;
+    width: 100% !important;
+  }
+
+  .team-card-logo{
+    width: 30px !important;
+    height: 30px !important;
+  }
+
+  .team-card-header .team-label-wrap{
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  .team-card-header h2#teamATitle,
+  .team-card-header h2#teamBTitle{
+    font-size: calc(22px * var(--mi-scale-scorecard)) !important;
+    line-height: 1.04 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    max-width: 100% !important;
+  }
+}
+
+@media (max-width: 600px) {
+
+  #verdictShell .mi-scorebug-team-head{
+    grid-template-columns: 22px minmax(0, 1fr) !important;
+    column-gap: 6px !important;
+  }
+
+  #verdictShell .mi-scorebug-team-logo{
+    width: 18px !important;
+    height: 18px !important;
+  }
+
+  #verdictShell .mi-scorebug-team-name{
+    font-size: 11px !important;
+  }
+
+  .team-card-header-main{
+    grid-template-columns: 34px minmax(0, 1fr) !important;
+    column-gap: 8px !important;
+  }
+
+  .team-card-logo{
+    width: 26px !important;
+    height: 26px !important;
   }
 }

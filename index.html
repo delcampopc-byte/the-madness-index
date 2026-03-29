@@ -11,9 +11,12 @@
   <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
 
   <!-- Core styles -->
-  <link rel="stylesheet" href="styles2.css?v=21" />
-  <link rel="stylesheet" href="mobile.css" />
+  <link rel="stylesheet" href="styles2.css?v=23" />
+  <link rel="stylesheet" href="mobile.css?v=23" />
   <link rel="icon" type="image/png" href="assets/img/logos/madness-index-app-logo.PNG" />
+
+  <!-- PWA manifest -->
+  <link rel="manifest" href="manifest.json?v=23" />
 </head>
 <body>
 
@@ -35,7 +38,25 @@
 <div id="mi-entry-screen" aria-hidden="true">
   <div class="mi-entry-inner">
     <img src="assets/img/logos/madness-index-home-logo.png" alt="The Madness Index" class="mi-entry-logo"/>
-      <button class="mi-entry-button">CLICK TO ENTER</button>
+
+    <button class="mi-entry-button">CLICK TO ENTER</button>
+
+    <button
+      id="miInstallBtn"
+      class="mi-entry-install-button"
+      type="button"
+      hidden
+      onclick="console.log('[MI] inline install click fired')"
+    >
+      INSTALL APP
+    </button>
+
+    <div
+      id="miInstallHelp"
+      class="mi-entry-install-help"
+      hidden
+      aria-live="polite"
+    ></div>
   </div>
 </div>
 <!-- =============================================================== -->
@@ -383,68 +404,78 @@
       <div class="mi-scorebug-grid">
 
         <div class="mi-scorebug-team mi-scorebug-team--a">
-          <div id="miScorebugTeamA" class="mi-scorebug-team-name">Team A</div>
+  <div class="mi-scorebug-team-head">
+  <div id="miScorebugBrandA" class="mi-team-brand mi-team-brand--scorebug">
+    <img id="miScorebugLogoA" class="mi-team-brand-logo" alt="" hidden>
+    <span id="miScorebugTeamA" class="mi-team-brand-name">Team A</span>
+  </div>
+</div>
 
-          <div class="mi-scorebug-team-lines">
-            <div class="mi-scorebug-team-line mi-scorebug-team-line--metric">
-              <div class="mi-scorebug-mini-label">Baseline MI</div>
-              <div class="mi-scorebug-mini-metric">
-                <div class="mi-scorebug-mini-bar" aria-hidden="true">
-                  <span class="mi-scorebug-mini-center"></span>
-                  <span id="miScorebugBaseBarAneg" class="mi-scorebug-mini-fill mi-scorebug-mini-fill-neg"></span>
-                  <span id="miScorebugBaseBarApos" class="mi-scorebug-mini-fill mi-scorebug-mini-fill-pos"></span>
-                </div>
-                <span id="miScorebugBaseA" class="mi-scorebug-mini-value">—</span>
-              </div>
-              <span id="miScorebugBaseSrA" class="sr-only"></span>
-            </div>
-
-            <div class="mi-scorebug-team-line mi-scorebug-team-line--metric">
-              <div class="mi-scorebug-mini-label">Matchup MI</div>
-              <div class="mi-scorebug-mini-metric">
-                <div class="mi-scorebug-mini-bar" aria-hidden="true">
-                  <span class="mi-scorebug-mini-center"></span>
-                  <span id="miScorebugMatchBarAneg" class="mi-scorebug-mini-fill mi-scorebug-mini-fill-neg"></span>
-                  <span id="miScorebugMatchBarApos" class="mi-scorebug-mini-fill mi-scorebug-mini-fill-pos"></span>
-                </div>
-                <span id="miScorebugMatchA" class="mi-scorebug-mini-value">—</span>
-              </div>
-              <span id="miScorebugMatchSrA" class="sr-only"></span>
-            </div>
-          </div>
+  <div class="mi-scorebug-team-lines">
+    <div class="mi-scorebug-team-line mi-scorebug-team-line--metric">
+      <div class="mi-scorebug-mini-label">Baseline MI</div>
+      <div class="mi-scorebug-mini-metric">
+        <div class="mi-scorebug-mini-bar" aria-hidden="true">
+          <span class="mi-scorebug-mini-center"></span>
+          <span id="miScorebugBaseBarAneg" class="mi-scorebug-mini-fill mi-scorebug-mini-fill-neg"></span>
+          <span id="miScorebugBaseBarApos" class="mi-scorebug-mini-fill mi-scorebug-mini-fill-pos"></span>
         </div>
+        <span id="miScorebugBaseA" class="mi-scorebug-mini-value">—</span>
+      </div>
+      <span id="miScorebugBaseSrA" class="sr-only"></span>
+    </div>
 
-        <div class="mi-scorebug-team mi-scorebug-team--b">
-          <div id="miScorebugTeamB" class="mi-scorebug-team-name">Team B</div>
-
-          <div class="mi-scorebug-team-lines">
-            <div class="mi-scorebug-team-line mi-scorebug-team-line--metric">
-              <div class="mi-scorebug-mini-label">Baseline MI</div>
-              <div class="mi-scorebug-mini-metric">
-                <div class="mi-scorebug-mini-bar" aria-hidden="true">
-                  <span class="mi-scorebug-mini-center"></span>
-                  <span id="miScorebugBaseBarBneg" class="mi-scorebug-mini-fill mi-scorebug-mini-fill-neg"></span>
-                  <span id="miScorebugBaseBarBpos" class="mi-scorebug-mini-fill mi-scorebug-mini-fill-pos"></span>
-                </div>
-                <span id="miScorebugBaseB" class="mi-scorebug-mini-value">—</span>
-              </div>
-              <span id="miScorebugBaseSrB" class="sr-only"></span>
-            </div>
-
-            <div class="mi-scorebug-team-line mi-scorebug-team-line--metric">
-              <div class="mi-scorebug-mini-label">Matchup MI</div>
-              <div class="mi-scorebug-mini-metric">
-                <div class="mi-scorebug-mini-bar" aria-hidden="true">
-                  <span class="mi-scorebug-mini-center"></span>
-                  <span id="miScorebugMatchBarBneg" class="mi-scorebug-mini-fill mi-scorebug-mini-fill-neg"></span>
-                  <span id="miScorebugMatchBarBpos" class="mi-scorebug-mini-fill mi-scorebug-mini-fill-pos"></span>
-                </div>
-                <span id="miScorebugMatchB" class="mi-scorebug-mini-value">—</span>
-              </div>
-              <span id="miScorebugMatchSrB" class="sr-only"></span>
-            </div>
-          </div>
+    <div class="mi-scorebug-team-line mi-scorebug-team-line--metric">
+      <div class="mi-scorebug-mini-label">Matchup MI</div>
+      <div class="mi-scorebug-mini-metric">
+        <div class="mi-scorebug-mini-bar" aria-hidden="true">
+          <span class="mi-scorebug-mini-center"></span>
+          <span id="miScorebugMatchBarAneg" class="mi-scorebug-mini-fill mi-scorebug-mini-fill-neg"></span>
+          <span id="miScorebugMatchBarApos" class="mi-scorebug-mini-fill mi-scorebug-mini-fill-pos"></span>
         </div>
+        <span id="miScorebugMatchA" class="mi-scorebug-mini-value">—</span>
+      </div>
+      <span id="miScorebugMatchSrA" class="sr-only"></span>
+    </div>
+  </div>
+</div>
+
+<div class="mi-scorebug-team mi-scorebug-team--b">
+<div class="mi-scorebug-team-head">
+  <div id="miScorebugBrandB" class="mi-team-brand mi-team-brand--scorebug">
+    <img id="miScorebugLogoB" class="mi-team-brand-logo" alt="" hidden>
+    <span id="miScorebugTeamB" class="mi-team-brand-name">Team B</span>
+  </div>
+</div>
+
+  <div class="mi-scorebug-team-lines">
+    <div class="mi-scorebug-team-line mi-scorebug-team-line--metric">
+      <div class="mi-scorebug-mini-label">Baseline MI</div>
+      <div class="mi-scorebug-mini-metric">
+        <div class="mi-scorebug-mini-bar" aria-hidden="true">
+          <span class="mi-scorebug-mini-center"></span>
+          <span id="miScorebugBaseBarBneg" class="mi-scorebug-mini-fill mi-scorebug-mini-fill-neg"></span>
+          <span id="miScorebugBaseBarBpos" class="mi-scorebug-mini-fill mi-scorebug-mini-fill-pos"></span>
+        </div>
+        <span id="miScorebugBaseB" class="mi-scorebug-mini-value">—</span>
+      </div>
+      <span id="miScorebugBaseSrB" class="sr-only"></span>
+    </div>
+
+    <div class="mi-scorebug-team-line mi-scorebug-team-line--metric">
+      <div class="mi-scorebug-mini-label">Matchup MI</div>
+      <div class="mi-scorebug-mini-metric">
+        <div class="mi-scorebug-mini-bar" aria-hidden="true">
+          <span class="mi-scorebug-mini-center"></span>
+          <span id="miScorebugMatchBarBneg" class="mi-scorebug-mini-fill mi-scorebug-mini-fill-neg"></span>
+          <span id="miScorebugMatchBarBpos" class="mi-scorebug-mini-fill mi-scorebug-mini-fill-pos"></span>
+        </div>
+        <span id="miScorebugMatchB" class="mi-scorebug-mini-value">—</span>
+      </div>
+      <span id="miScorebugMatchSrB" class="sr-only"></span>
+    </div>
+  </div>
+</div>
 
         <div class="mi-scorebug-gap">
           <span class="mi-scorebug-gap-label">
@@ -505,14 +536,20 @@
       <div class="card-face card-front">
 
         <!-- Header -->
-        <header class="team-card-header">
-          <div class="team-label-wrap">
-            <span id="roleTagA" class="role-tag cind-tag">Cinderella</span>
-            <h2 id="teamATitle">Team A</h2>
-          </div>
-          <div class="seed-label"><span id="teamASeed"></span></div>
-        </header>
+<header class="team-card-header">
+  <div class="team-card-header-main">
+    <div id="teamABrand" class="mi-team-brand mi-team-brand--card">
+      <img id="teamALogo" class="mi-team-brand-logo" alt="" hidden>
 
+      <div class="team-label-wrap">
+        <span id="roleTagA" class="role-tag cind-tag">Cinderella</span>
+        <h2 id="teamATitle" class="mi-team-brand-name">Team A</h2>
+      </div>
+    </div>
+  </div>
+
+  <div class="seed-label"><span id="teamASeed"></span></div>
+</header>
         <!-- Core Traits Mini Flip Tile -->
   <section class="profile-section flip-tile">
   <div class="flip-tile-inner">
@@ -729,15 +766,22 @@
       <div class="card-face card-front">
 
         <!-- Header -->
-        <header class="team-card-header">
-          <div class="team-label-wrap">
-            <span id="roleTagB" class="role-tag fav-tag">Favorite</span>
-            <h2 id="teamBTitle">Team B</h2>
-          </div>
-          <div class="seed-label"><span id="teamBSeed"></span></div>
-        </header>
+<header class="team-card-header">
+  <div class="team-card-header-main">
+    <div id="teamBBrand" class="mi-team-brand mi-team-brand--card">
+      <img id="teamBLogo" class="mi-team-brand-logo" alt="" hidden>
 
-        <!-- Favorite Profile (Core Traits + Breadth) — MINI FLIP TILE -->
+      <div class="team-label-wrap">
+        <span id="roleTagB" class="role-tag fav-tag">Favorite</span>
+        <h2 id="teamBTitle" class="mi-team-brand-name">Team B</h2>
+      </div>
+    </div>
+  </div>
+
+  <div class="seed-label"><span id="teamBSeed"></span></div>
+</header>        
+
+<!-- Favorite Profile (Core Traits + Breadth) — MINI FLIP TILE -->
         <section class="profile-section flip-tile">
   <div class="flip-tile-inner">
 
@@ -1160,7 +1204,12 @@
         <!-- ROW 2: Team Names + merged center -->
         <tr>
           <th class="syn-team syn-team-a" colspan="3">
-            <span id="summaryTeamAHeader"></span>
+            <div class="mi-summary-team-head">
+              <div id="summaryBrandA" class="mi-team-brand mi-team-brand--summary">
+                <img id="summaryLogoA" class="mi-team-brand-logo" alt="" hidden>
+                <span id="summaryTeamA" class="mi-team-brand-name">Team A</span>
+              </div>
+            </div>
           </th>
 
           <td class="syn-center" rowspan="6">
@@ -1198,8 +1247,13 @@
           </td>
 
           <th class="syn-team syn-team-b" colspan="3">
-            <span id="summaryTeamBHeader"></span>
-          </th>
+            <div class="mi-summary-team-head">
+              <div id="summaryBrandB" class="mi-team-brand mi-team-brand--summary">
+                <img id="summaryLogoB" class="mi-team-brand-logo" alt="" hidden>
+                <span id="summaryTeamB" class="mi-team-brand-name">Team B</span>
+              </div>
+            </div>
+           </th>        
         </tr>
 
         <!-- Baseline MI -->
@@ -1552,7 +1606,7 @@
 })();
 </script>
 
-  <script src="madness_index.js?v=21"></script>
+  <script src="madness_index.js?v=23"></script>
 
 <!-- =========================================================
      GLOSSARY DRAWER (matchup-only; overlay; left-anchored)

@@ -20,6 +20,356 @@ let SANDBOX_MODE = false;
 let MI_ROUND_NUDGE_SHOWN = false;
 let MI_ROUND_TOUCHED = false;
 
+let MI_TEAM_BRANDING = {};
+
+async function loadTeamBranding() {
+  try {
+    const res = await fetch('data/branding/team_branding.json');
+
+    if (!res.ok) {
+      throw new Error(`Branding load failed: ${res.status}`);
+    }
+
+    MI_TEAM_BRANDING = await res.json();
+
+    console.log(
+      'Team branding loaded:',
+      Object.keys(MI_TEAM_BRANDING).length,
+      'teams'
+    );
+  } catch (err) {
+    console.error('Failed to load team branding JSON:', err);
+    MI_TEAM_BRANDING = {};
+  }
+}
+
+function normalizeTeamKey(name = '') {
+  return String(name)
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/&/g, 'and')
+    .replace(/['’.]/g, '')
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim()
+    .replace(/\s+/g, '-');
+}
+
+function getTeamBranding(teamName) {
+  if (!teamName || !MI_TEAM_BRANDING) {
+    return defaultBranding(teamName);
+  }
+
+  const slug = normalizeTeamKey(teamName);
+
+  // 1 — direct slug match
+  if (MI_TEAM_BRANDING[slug]) {
+    return MI_TEAM_BRANDING[slug];
+  }
+
+  // 2 — alias match
+  for (const key in MI_TEAM_BRANDING) {
+    const branding = MI_TEAM_BRANDING[key];
+
+    if (
+      branding.aliases &&
+      branding.aliases.some(
+        alias => normalizeTeamKey(alias) === slug
+      )
+    ) {
+      return branding;
+    }
+  }
+
+  return defaultBranding(teamName);
+}
+
+function defaultBranding(teamName) {
+  return {
+    team: teamName || "Unknown Team",
+    shortName: teamName || "Unknown Team",
+    primary: "#6b7280",
+    secondary: "#ffffff",
+    logo: ""
+  };
+}
+
+function miApplyTeamLogo(imgEl, branding, fallbackName = 'Team') {
+  if (!imgEl) return;
+
+  if (branding && branding.logo) {
+    imgEl.src = branding.logo;
+    imgEl.alt = `${branding.shortName || fallbackName} logo`;
+    imgEl.hidden = false;
+    return;
+  }
+
+  imgEl.removeAttribute('src');
+  imgEl.alt = '';
+  imgEl.hidden = true;
+}
+
+function miIsValidHexColor(value) {
+  return typeof value === 'string' && /^#([0-9a-fA-F]{6})$/.test(value.trim());
+}
+
+function miHexToRgbString(hex, fallback = '107 114 128') {
+  if (!miIsValidHexColor(hex)) return fallback;
+
+  const clean = hex.trim().slice(1);
+  const r = parseInt(clean.slice(0, 2), 16);
+  const g = parseInt(clean.slice(2, 4), 16);
+  const b = parseInt(clean.slice(4, 6), 16);
+
+  return `${r} ${g} ${b}`;
+}
+
+function miClamp(value, min, max) {
+  return Math.min(max, Math.max(min, value));
+}
+
+function miRgbStringToChannels(rgbString, fallback = [107, 114, 128]) {
+  if (typeof rgbString !== 'string') return fallback;
+
+  const parts = rgbString
+    .trim()
+    .split(/\s+/)
+    .map(Number)
+    .filter(n => Number.isFinite(n));
+
+  if (parts.length !== 3) return fallback;
+  return parts.map(n => miClamp(Math.round(n), 0, 255));
+}
+
+function miMixRgbStrings(rgbA, rgbB, weightA = 0.5) {
+  const a = miRgbStringToChannels(rgbA);
+  const b = miRgbStringToChannels(rgbB);
+  const wa = miClamp(Number(weightA), 0, 1);
+  const wb = 1 - wa;
+
+  const mixed = [
+    Math.round((a[0] * wa) + (b[0] * wb)),
+    Math.round((a[1] * wa) + (b[1] * wb)),
+    Math.round((a[2] * wa) + (b[2] * wb))
+  ];
+
+  return `${mixed[0]} ${mixed[1]} ${mixed[2]}`;
+}
+
+function miRelativeLuminanceFromRgbString(rgbString) {
+  const [r, g, b] = miRgbStringToChannels(rgbString).map(v => {
+    const channel = v / 255;
+    return channel <= 0.03928
+      ? channel / 12.92
+      : Math.pow((channel + 0.055) / 1.055, 2.4);
+  });
+
+  return (0.2126 * r) + (0.7152 * g) + (0.0722 * b);
+}
+
+function miNormalizeTeamBranding(teamName) {
+  const raw = getTeamBranding(teamName);
+
+  const safePrimary = miIsValidHexColor(raw?.primary) ? raw.primary.trim() : '#6b7280';
+  const rawSecondary = miIsValidHexColor(raw?.secondary) ? raw.secondary.trim() : '';
+
+  const primaryRgb = miHexToRgbString(safePrimary, '107 114 128');
+
+  let safeSecondary = rawSecondary;
+  if (!safeSecondary) {
+    safeSecondary = safePrimary;
+  }
+
+  const secondaryRgb = miHexToRgbString(safeSecondary, primaryRgb);
+
+  const secondaryLum = miRelativeLuminanceFromRgbString(secondaryRgb);
+
+  // If secondary is essentially white/very bright, keep it as a highlight color,
+  // but derive a more useful ambient blend color so the glow still has depth.
+  const ambientSecondaryRgb =
+    secondaryLum > 0.88
+      ? miMixRgbStrings(primaryRgb, '255 255 255', 0.72)
+      : secondaryRgb;
+
+  const glowMidRgb = miMixRgbStrings(primaryRgb, ambientSecondaryRgb, 0.58);
+  const glowEdgeRgb = miMixRgbStrings(primaryRgb, ambientSecondaryRgb, 0.32);
+
+  return {
+    ...raw,
+    team: raw?.team || teamName || 'Unknown Team',
+    shortName: raw?.shortName || raw?.team || teamName || 'Unknown Team',
+    primary: safePrimary,
+    secondary: safeSecondary,
+    primaryRgb,
+    secondaryRgb,
+    ambientSecondaryRgb,
+    glowMidRgb,
+    glowEdgeRgb
+  };
+}
+
+function miApplyBrandVariables(el, branding, side = '') {
+  if (!el || !branding) return;
+
+  el.style.setProperty('--team-primary', branding.primary);
+  el.style.setProperty('--team-secondary', branding.secondary);
+
+  el.style.setProperty('--team-primary-rgb', branding.primaryRgb);
+  el.style.setProperty('--team-secondary-rgb', branding.secondaryRgb);
+  el.style.setProperty('--team-secondary-ambient-rgb', branding.ambientSecondaryRgb);
+  el.style.setProperty('--team-glow-mid-rgb', branding.glowMidRgb);
+  el.style.setProperty('--team-glow-edge-rgb', branding.glowEdgeRgb);
+
+  if (side === 'a' || side === 'b') {
+    el.style.setProperty(`--team-${side}-primary`, branding.primary);
+    el.style.setProperty(`--team-${side}-secondary`, branding.secondary);
+    el.style.setProperty(`--team-${side}-primary-rgb`, branding.primaryRgb);
+    el.style.setProperty(`--team-${side}-secondary-rgb`, branding.secondaryRgb);
+    el.style.setProperty(`--team-${side}-glow-mid-rgb`, branding.glowMidRgb);
+    el.style.setProperty(`--team-${side}-glow-edge-rgb`, branding.glowEdgeRgb);
+  }
+}
+
+function miApplyScorebugAmbientBranding(teamAName, teamBName) {
+  const brandA = miNormalizeTeamBranding(teamAName);
+  const brandB = miNormalizeTeamBranding(teamBName);
+
+  const scorebugNameA = document.getElementById('miScorebugTeamA');
+  const scorebugNameB = document.getElementById('miScorebugTeamB');
+
+  const scorebugCardA = scorebugNameA?.closest('.mi-team-brand--scorebug');
+  const scorebugCardB = scorebugNameB?.closest('.mi-team-brand--scorebug');
+
+  const verdictShell = document.getElementById('verdictShell');
+  const metricsTile = document.getElementById('miVerdictMetricsTile');
+
+  miApplyBrandVariables(scorebugCardA, brandA, 'a');
+  miApplyBrandVariables(scorebugCardB, brandB, 'b');
+
+  // Optional broader scope so the tile/shell can consume A/B ambient variables too.
+  miApplyBrandVariables(metricsTile, brandA, 'a');
+  miApplyBrandVariables(metricsTile, brandB, 'b');
+  miApplyBrandVariables(verdictShell, brandA, 'a');
+  miApplyBrandVariables(verdictShell, brandB, 'b');
+
+  const logoA = scorebugCardA?.querySelector('.mi-team-brand-logo');
+  const logoB = scorebugCardB?.querySelector('.mi-team-brand-logo');
+
+  miApplyTeamLogo(logoA, brandA, teamAName || 'Team A');
+  miApplyTeamLogo(logoB, brandB, teamBName || 'Team B');
+}
+
+function miApplyCanonicalTeamHeaderBranding(aName, bName) {
+  const brandA = miNormalizeTeamBranding(aName);
+  const brandB = miNormalizeTeamBranding(bName);
+
+  const applyCluster = ({ wrapId, logoId, nameId, teamName, branding, side }) => {
+    const wrap = document.getElementById(wrapId);
+    const logo = document.getElementById(logoId);
+    const name = document.getElementById(nameId);
+
+    if (wrap) {
+      miApplyBrandVariables(wrap, branding, side);
+    }
+
+    miApplyTeamLogo(logo, branding, teamName || `Team ${side.toUpperCase()}`);
+
+    if (name) {
+      name.textContent = branding.shortName || teamName || `Team ${side.toUpperCase()}`;
+    }
+
+    return wrap;
+  };
+
+  // Card headers (already present in canonical HTML)
+  const teamABrandWrap = applyCluster({
+    wrapId: 'teamABrand',
+    logoId: 'teamALogo',
+    nameId: 'teamATitle',
+    teamName: aName,
+    branding: brandA,
+    side: 'a'
+  });
+
+  const teamBBrandWrap = applyCluster({
+    wrapId: 'teamBBrand',
+    logoId: 'teamBLogo',
+    nameId: 'teamBTitle',
+    teamName: bName,
+    branding: brandB,
+    side: 'b'
+  });
+
+  // Score synthesis desktop headers (new brand clusters)
+  const summaryABrandWrap = applyCluster({
+    wrapId: 'summaryBrandA',
+    logoId: 'summaryLogoA',
+    nameId: 'summaryTeamA',
+    teamName: aName,
+    branding: brandA,
+    side: 'a'
+  });
+
+  const summaryBBrandWrap = applyCluster({
+    wrapId: 'summaryBrandB',
+    logoId: 'summaryLogoB',
+    nameId: 'summaryTeamB',
+    teamName: bName,
+    branding: brandB,
+    side: 'b'
+  });
+
+  // Whole card shells inherit team vars for border + header glow
+  const cindCard = document.getElementById('cindCard');
+  const favCard = document.getElementById('favCard');
+
+  if (cindCard) {
+    miApplyBrandVariables(cindCard, brandA, 'a');
+  }
+
+  if (favCard) {
+    miApplyBrandVariables(favCard, brandB, 'b');
+  }
+
+  // Let the summary section inherit A/B team vars too
+  const summarySection = document.getElementById('summarySection');
+  if (summarySection) {
+    summarySection.style.setProperty('--mi-brand-a', brandA.primary);
+    summarySection.style.setProperty('--mi-brand-b', brandB.primary);
+    summarySection.style.setProperty('--mi-brand-a-secondary', brandA.secondary);
+    summarySection.style.setProperty('--mi-brand-b-secondary', brandB.secondary);
+    summarySection.style.setProperty('--mi-brand-a-rgb', brandA.primaryRgb);
+    summarySection.style.setProperty('--mi-brand-b-rgb', brandB.primaryRgb);
+    summarySection.style.setProperty('--mi-brand-a-secondary-ambient-rgb', brandA.ambientSecondaryRgb);
+    summarySection.style.setProperty('--mi-brand-b-secondary-ambient-rgb', brandB.ambientSecondaryRgb);
+  }
+
+  // Also apply inherited vars to the actual header cells
+  const synTeamA = summaryABrandWrap?.closest('.syn-team-a');
+  const synTeamB = summaryBBrandWrap?.closest('.syn-team-b');
+
+  if (synTeamA) {
+    miApplyBrandVariables(synTeamA, brandA, 'a');
+  }
+
+  if (synTeamB) {
+    miApplyBrandVariables(synTeamB, brandB, 'b');
+  }
+
+  // Preserve existing mobile summary names if present
+  document.querySelectorAll('.mi-sum-mob-team-name-a').forEach(el => {
+    el.textContent = brandA.shortName || aName || 'Team A';
+    el.style.setProperty('--team-primary', brandA.primary);
+    el.style.setProperty('--team-secondary', brandA.secondary);
+  });
+
+  document.querySelectorAll('.mi-sum-mob-team-name-b').forEach(el => {
+    el.textContent = brandB.shortName || bName || 'Team B';
+    el.style.setProperty('--team-primary', brandB.primary);
+    el.style.setProperty('--team-secondary', brandB.secondary);
+  });
+}
+
 // Default Profile Mark descriptions (fallback if JSON not present)
 const DEFAULT_MARK_DESCRIPTIONS = {
   "Offensive Rigidity":         "Predictable, inflexible offense.",
@@ -391,12 +741,14 @@ function miRenderPatchNotesFromCopy(copyObj) {
     return;
   }
 
-  // Optional: drive the badge line from copy.json
-  let currentBadge = '';
+  // Drive the badge line from copy.json when available,
+  // otherwise fall back to the live technical build.
+  let currentBadge = `Version 2.0 (Build ${MI_BUILD})`;
   if (typeof pn.badge === 'string' && pn.badge.trim()) {
     currentBadge = pn.badge.trim();
-    if (badgeText) badgeText.textContent = currentBadge;
   }
+
+  if (badgeText) badgeText.textContent = currentBadge;
 
   miSyncPatchNotesNewState(currentBadge);
 
@@ -436,7 +788,7 @@ function miEscapeHtml(s) {
 function loadCopyJSON() {
   console.log("[MI] loadCopyJSON fired");
 
-  fetch('copy.json')
+  fetch(`copy.json?v=${MI_BUILD}`, { cache: 'no-store' })
     .then(res => {
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       return res.json();
@@ -454,12 +806,12 @@ function loadCopyJSON() {
       buildGlossaryFromCopy(data);
       populateBackExplanations(data);
 
-      // 🔁 Glossary arrives empty on first init — refresh once copy exists
+      // Glossary arrives empty on first init — refresh once copy exists
       if (typeof window.miRefreshGlossary === 'function') {
         window.miRefreshGlossary();
       }
 
-      // 🔐 Re-sync availability now that copy + matchup state are both known
+      // Re-sync availability now that copy + matchup state are both known
       if (typeof window.miSyncGlossaryToMatchupState === 'function') {
         window.miSyncGlossaryToMatchupState();
       }
@@ -6278,6 +6630,14 @@ function renderSummary(result = {}) {
   const table = document.getElementById('summaryTable');
   const tbody = table ? table.querySelector('tbody') : null;
 
+  const brandA = getTeamBranding(a.name);
+  const brandB = getTeamBranding(b.name);
+
+  if (summarySection) {
+    summarySection.style.setProperty('--mi-brand-a', brandA.primary || '#6b7280');
+    summarySection.style.setProperty('--mi-brand-b', brandB.primary || '#6b7280');
+  }
+
   const getNum = (v, fallback = 0) =>
     (typeof v === 'number' && Number.isFinite(v)) ? v : fallback;
 
@@ -8785,8 +9145,30 @@ function miRenderScorebugMetrics({
 
   const gapAbs = Math.abs(Number(gap) || 0);
 
-  setText('miScorebugTeamA', aName || 'Team A');
-  setText('miScorebugTeamB', bName || 'Team B');
+  const brandA = getTeamBranding(aName);
+  const brandB = getTeamBranding(bName);
+
+  miApplyTeamLogo(document.getElementById('miScorebugLogoA'), brandA, aName || 'Team A');
+  miApplyTeamLogo(document.getElementById('miScorebugLogoB'), brandB, bName || 'Team B');
+
+  const metricsTile = document.getElementById('miVerdictMetricsTile');
+
+  if (metricsTile) {
+    metricsTile.style.setProperty('--mi-brand-a', brandA.primary || '#6b7280');
+    metricsTile.style.setProperty('--mi-brand-b', brandB.primary || '#6b7280');
+  }
+
+  setText('miScorebugTeamA', brandA.shortName || aName || 'Team A');
+  setText('miScorebugTeamB', brandB.shortName || bName || 'Team B');
+
+  const sbA = document.getElementById('miScorebugTeamA');
+  const sbB = document.getElementById('miScorebugTeamB');
+
+  if (sbA) sbA.textContent = aName;
+  if (sbB) sbB.textContent = bName;
+
+  miApplyScorebugAmbientBranding(aName, bName);
+  miApplyCanonicalTeamHeaderBranding(aName, bName);
 
   setText('miScorebugBaseA', miFormatUiPointsFromMiSpace(baseA));
   setText('miScorebugBaseB', miFormatUiPointsFromMiSpace(baseB));
@@ -9453,6 +9835,13 @@ function renderTeamSide(side, result) {
   const intTot = isA ? result.interactions.a : result.interactions.b;
 
   if (!team) return;
+
+  const brand = getTeamBranding(team.name);
+  miApplyTeamLogo(
+    document.getElementById(isA ? 'teamALogo' : 'teamBLogo'),
+    brand,
+    team.name || 'Team'
+  );
 
   const titleEl           = document.getElementById(isA ? 'teamATitle'    : 'teamBTitle');
   const seedEl            = document.getElementById(isA ? 'teamASeed'     : 'teamBSeed');
@@ -10850,11 +11239,102 @@ if (roundBtn && roundDropdown) {
 
 })();
 
+let miDeferredInstallPrompt = null;
+let miInstallPromptSupported = false;
+
+function miIsIosLike() {
+  const ua = window.navigator.userAgent || '';
+  const platform = window.navigator.platform || '';
+  return /iPhone|iPad|iPod/i.test(ua) ||
+    (platform === 'MacIntel' && typeof navigator.maxTouchPoints === 'number' && navigator.maxTouchPoints > 1);
+}
+
+function miIsStandaloneMode() {
+  return window.matchMedia('(display-mode: standalone)').matches ||
+    window.navigator.standalone === true;
+}
+
+function miUpdateInstallUI() {
+  const installBtn = document.getElementById('miInstallBtn');
+  const helpEl = document.getElementById('miInstallHelp');
+
+  if (!installBtn || !helpEl) return;
+
+  installBtn.hidden = true;
+  helpEl.hidden = true;
+  helpEl.textContent = '';
+
+  if (miIsStandaloneMode()) {
+    return;
+  }
+
+  if (miInstallPromptSupported && miDeferredInstallPrompt) {
+    installBtn.hidden = false;
+    return;
+  }
+
+  if (miIsIosLike()) {
+    helpEl.textContent = 'On iPhone or iPad, use Share → Add to Home Screen.';
+    helpEl.hidden = false;
+  }
+}
+
+function miInitInstallPromptUI() {
+  const installBtn = document.getElementById('miInstallBtn');
+  if (!installBtn) return;
+
+  installBtn.addEventListener('click', async () => {
+    console.log('[MI] Install button clicked', {
+      hasPrompt: !!miDeferredInstallPrompt,
+      promptSupported: miInstallPromptSupported,
+      standalone: miIsStandaloneMode()
+    });
+
+    if (!miDeferredInstallPrompt) {
+      miUpdateInstallUI();
+      return;
+    }
+
+    try {
+      miDeferredInstallPrompt.prompt();
+      await miDeferredInstallPrompt.userChoice;
+    } catch (err) {
+      console.warn('[MI] Install prompt failed:', err);
+    } finally {
+      miDeferredInstallPrompt = null;
+      miInstallPromptSupported = false;
+      miUpdateInstallUI();
+    }
+  });
+
+  window.addEventListener('beforeinstallprompt', (event) => {
+    console.log('[MI] beforeinstallprompt captured');
+    event.preventDefault();
+    miDeferredInstallPrompt = event;
+    miInstallPromptSupported = true;
+    miUpdateInstallUI();
+  });
+
+  window.addEventListener('appinstalled', () => {
+    miDeferredInstallPrompt = null;
+    miInstallPromptSupported = false;
+    miUpdateInstallUI();
+  });
+
+  miUpdateInstallUI();
+}
+
+// =========================================================
+// Build Version — must match service-worker.js and index.html
+// =========================================================
+
+const MI_BUILD = '23';
+
 function bootMadnessIndex() {
   console.log("[MI] bootMadnessIndex fired");
 
   let tries = 0;
-  const tick = () => {
+  const tick = async () => {
     tries += 1;
 
     const hub = document.getElementById('preMatchupHub');
@@ -10863,6 +11343,9 @@ function bootMadnessIndex() {
       return;
     }
 
+    await loadTeamBranding();
+
+    miInitInstallPromptUI();
     setupEventListeners();
     loadCopyJSON();
 
@@ -10876,6 +11359,18 @@ function bootMadnessIndex() {
   };
 
   tick();
+}
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./service-worker.js')
+      .then((registration) => {
+        console.log('[MI] Service worker registered:', registration.scope);
+      })
+      .catch((error) => {
+        console.error('[MI] Service worker registration failed:', error);
+      });
+  });
 }
 
 if (document.readyState === 'loading') {

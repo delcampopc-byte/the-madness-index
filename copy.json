@@ -39,16 +39,14 @@
   "patch_notes": {
     "title": "Patch Notes",
     "hint": "Click for Patch Notes",
-    "badge": "Version 2.0 (Build 5.0)",
+    "badge": "Version 2.0 (Build 23)",
     "max_items": 10,
     "items": [
       {
-        "build": "Build 5.0",
-        "date": "2026-03-17",
+        "build": "Build 23",
+        "date": "2026-03-24",
         "bullets": [
-          "The 2026 dataset is now live! First Four teams included. List will be updated once those games have been settled.",
-          "Brand new scoring engine (MI 2.0) designed to refine scoring and predictive logic.",
-          "Previous years' tournaments are currently unavailable while I rework their datasets to incorporate changes to MI 2.0."
+          "Test."
         ]
       }
     ]
