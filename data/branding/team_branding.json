@@ -407,7 +407,7 @@
   "missouri": {
     "team": "Missouri",
     "aliases": ["Missouri Tigers", "Missouri"],
-    "shortName": "Mizz",
+    "shortName": "Missouri",
     "primary": "#F1B82D",
     "secondary": "#000000",
     "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/142.png"
@@ -1045,7 +1045,7 @@
   "alabama-state": {
     "team": "Alabama State",
     "aliases": ["Alabama State", "Alabama State Hornets"],
-    "shortName": "Alabama State",
+    "shortName": "Alabama St.",
     "primary": "#C99700",
     "secondary": "#000000",
     "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2011.png"
