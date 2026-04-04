@@ -299,7 +299,7 @@
   "northern-kentucky": {
     "team": "Northern Kentucky",
     "aliases": ["Northern Kentucky", "Northern Kentucky Norse"],
-    "shortName": "N Kentucky",
+    "shortName": "N. Kentucky",
     "primary": "#FFC72C",
     "secondary": "#FFFFFF",
     "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/94.png"
@@ -727,8 +727,8 @@
     "team": "Texas A&M",
     "aliases": ["Texas A&M", "Texas A&M Aggies"],
     "shortName": "Texas A&M",
-    "primary": "#500000",
-    "secondary": "#FFFFFF",
+    "primary": "#FFFFFF",
+    "secondary": "#500000",
     "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/245.png"
   },
 
@@ -776,7 +776,7 @@
   "james-madison": {
     "team": "James Madison",
     "aliases": ["James Madison", "JMU", "James Madison Dukes", "JMU Dukes"],
-    "shortName": "James Madison",
+    "shortName": "JMU",
     "primary": "#450084",
     "secondary": "#CBB677",
     "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/256.png"
@@ -957,8 +957,8 @@
     "team": "Utah State",
     "aliases": ["Utah State", "Utah State Aggies"],
     "shortName": "Utah State",
-    "primary": "#00263A",
-    "secondary": "#8A8D8F",
+    "primary": "#8A8D8F",
+    "secondary": "#00263A",
     "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/328.png"
   },
 
@@ -1048,7 +1048,7 @@
     "shortName": "Alabama State",
     "primary": "#C99700",
     "secondary": "#000000",
-    "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2008.png"
+    "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2011.png"
   },
 
   "alcorn-state": {
@@ -1298,8 +1298,8 @@
     "team": "Duquesne",
     "aliases": ["Duquesne", "Duquesne Dukes"],
     "shortName": "Duquesne",
-    "primary": "#041E42",
-    "secondary": "#BA0C2F",
+    "primary": "#BA0C2F",
+    "secondary": "#041E42",
     "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2184.png"
   },
 
@@ -1406,8 +1406,8 @@
     "team": "High Point",
     "aliases": ["High Point", "High Point Panthers"],
     "shortName": "High Point",
-    "primary": "#330072",
-    "secondary": "#FFFFFF",
+    "primary": "#FFFFFF",
+    "secondary": "#330072",
     "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2272.png"
   },
 
@@ -1426,7 +1426,7 @@
     "shortName": "Howard",
     "primary": "#003A63",
     "secondary": "#E51937",
-    "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2277.png"
+    "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/47.png"
   },
 
   "kansas": {
@@ -1525,7 +1525,7 @@
     "shortName": "Marist",
     "primary": "#C8102E",
     "secondary": "#B2B2B2",
-    "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2375.png"
+    "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2368.png"
   },
 
   "lehigh": {
@@ -1601,12 +1601,12 @@
   },
 
   "loyola-chicago": {
-    "team": "",
-    "aliases": ["", ""],
-    "shortName": "",
-    "primary": "#",
-    "secondary": "#",
-    "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2368.png"
+    "team": "Loyola-Chicago",
+    "aliases": ["Loyola-Chicago", "Loyola University", "Loyola-Chicago Ramblers", "Loyola University Ramblers", "Loyola Chicago", "Loyola Chicago Ramblers"],
+    "shortName": "Loyola-Chicago",
+    "primary": "#EAAA00",
+    "secondary": "#5A0722",
+    "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2350.png"
   },
 
   "mercer": {
@@ -1651,7 +1651,7 @@
     "shortName": "Montana State",
     "primary": "#00205B",
     "secondary": "#B9975B",
-    "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2417.png"
+    "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/147.png"
   },
 
   "norfolk-state": {
@@ -1678,7 +1678,7 @@
     "shortName": "Oakland",
     "primary": "#B59A57",
     "secondary": "#000000",
-    "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/132.png"
+    "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2473.png"
   },
 
   "old-dominion": {
@@ -1775,9 +1775,9 @@
     "team": "Prairie View A&M",
     "aliases": ["Prairie View A&M", "Prairie View A&M Panthers", "PVAM", "PVAM Panthers"],
     "shortName": "PVAM",
-    "primary": "#330066",
-    "secondary": "#FFCC33",
-    "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2509.png"
+    "primary": "#FFCC33",
+    "secondary": "#330066",
+    "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2504.png"
   },
 
   "providence": {
@@ -1802,9 +1802,9 @@
     "team": "Queens",
     "aliases": ["Queens"],
     "shortName": "Queens",
-    "primary": "#",
-    "secondary": "#",
-    "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2517.png"
+    "primary": "#857040",
+    "secondary": "#192C66",
+    "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2511.png"
   },
 
   "robert-morris": {
@@ -1818,7 +1818,7 @@
 
   "siu-edwardsville": {
     "team": "SIU-Edwardsville",
-    "aliases": ["SIU-Edwardsville", "SIU-Edwardsville Cougars", "SIUE", "SIUE Cougars"],
+    "aliases": ["SIU-Edwardsville", "SIU-Edwardsville Cougars", "SIUE", "SIUE Cougars", "SIU Edwardsville", "SIU Edwardsville Cougars"],
     "shortName": "SIUE",
     "primary": "#EF3829",
     "secondary": "#FFFFFF",
@@ -1858,7 +1858,7 @@
     "shortName": "Stetson",
     "primary": "#00523E",
     "secondary": "#3B8729",
-    "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2619.png"
+    "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/56.png"
   },
 
   "stony-brook": {
@@ -1867,7 +1867,7 @@
     "shortName": "Stony Brook",
     "primary": "#990000",
     "secondary": "#16243E",
-    "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2614.png"
+    "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2619.png"
   },
 
   "tcu": {
@@ -1876,7 +1876,7 @@
     "shortName": "TCU",
     "primary": "#4D1979",
     "secondary": "#A3A9AC",
-    "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2623.png"
+    "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2628.png"
   },
 
   "temple": {
@@ -1901,8 +1901,8 @@
     "team": "Tennessee State",
     "aliases": ["Tennessee State", "Tennessee State Tigers"],
     "shortName": "Tennessee State",
-    "primary": "#00539F",
-    "secondary": "#FFFFFF",
+    "primary": "#FFFFFF",
+    "secondary": "#00539F",
     "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2634.png"
   },
 
@@ -1916,20 +1916,20 @@
   },
 
   "texas-am-cc": {
-    "team": "",
-    "aliases": ["", ""],
-    "shortName": "TAM-CC",
-    "primary": "#",
-    "secondary": "#",
-    "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2570.png"
-  },
-
-  "texas-tech": {
     "team": "Texas A&M-CC",
     "aliases": ["Texas A&M-CC", "Texas A&M-CC Islanders"],
     "shortName": "TAMU-CC",
     "primary": "#0067C5",
     "secondary": "#007F3E",
+    "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/357.png"
+  },
+
+  "texas-tech": {
+    "team": "Texas Tech",
+    "aliases": ["Texas Tech", "Texas Tech Red Raiders"],
+    "shortName": "Texas Tech",
+    "primary": "#CC0000",
+    "secondary": "#000000",
     "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2641.png"
   },
 
@@ -2000,18 +2000,18 @@
     "team": "UC San Diego",
     "aliases": ["UC San Diego", "UCSD"],
     "shortName": "UCSD",
-    "primary": "#",
-    "secondary": "#",
+    "primary": "#FFCD00",
+    "secondary": "#00629B",
     "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/28.png"
   },
 
   "uc-santa-barbara": {
     "team": "UC Santa Barbara",
-    "aliases": ["UC Santa Barbara", "UC Santa Barbara Gauchos"],
-    "shortName": "UC Santa Barbara",
+    "aliases": ["UC Santa Barbara", "UC Santa Barbara Gauchos", "UCSB", "UCSB Gauchos"],
+    "shortName": "UCSB",
     "primary": "#FEBC11",
     "secondary": "#003660",
-    "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2650.png"
+    "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2540.png"
   },
 
   "unc-asheville": {
@@ -2038,7 +2038,7 @@
     "shortName": "UNC-W",
     "primary": "#003366",
     "secondary": "#006666",
-    "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2424.png"
+    "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/350.png"
   },
 
   "unlv": {
@@ -2177,8 +2177,8 @@
   },
 
   "mount-saint-marys": {
-    "team": "Mt. St. Mary's",
-    "aliases": ["Mt. St. Mary's", "Mt. St. Mary's Mountaineers", "Mount St. Mary's", "Mount Saint Mary's", "Mount St. Mary's Mountaineers"],
+    "team": "Mount Saint Mary's",
+    "aliases": ["Mount Saint Mary's", "Mt. St. Mary's Mountaineers", "Mount St. Mary's", "Mount Saint Mary's Mountaineers", "Mount St. Mary's Mountaineers"],
     "shortName": "Mt. St. Mary's",
     "primary": "#002855",
     "secondary": "#84754E",
@@ -2263,7 +2263,7 @@
     "shortName": "St. Peter's",
     "primary": "#0072CE",
     "secondary": "#003C71",
-    "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2619.png"
+    "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2612.png"
   },
 
   "sam-houston": {
@@ -2326,7 +2326,7 @@
     "shortName": "Siena",
     "primary": "#FFC72C",
     "secondary": "#006747",
-    "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2554.png"
+    "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2561.png"
   },
 
   "smu": {
@@ -2351,8 +2351,8 @@
     "team": "Vanderbilt",
     "aliases": ["Vanderbilt", "Vanderbilt Commodores"],
     "shortName": "Vanderbilt",
-    "primary": "#000000",
-    "secondary": "#866D4B",
+    "primary": "#866D4B",
+    "secondary": "#000000",
     "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/238.png"
   },
 
@@ -2365,112 +2365,112 @@
     "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2670.png"
   },
 
-  "": {
-    "team": "",
-    "aliases": ["", ""],
-    "shortName": "",
-    "primary": "#",
-    "secondary": "#",
-    "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/.png"
+  "iowa": {
+    "team": "Iowa",
+    "aliases": ["Iowa", "Iowa Hawkeyes"],
+    "shortName": "Iowa",
+    "primary": "#FFCD00",
+    "secondary": "#000000",
+    "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2294.png"
   },
 
-  "": {
-    "team": "",
-    "aliases": ["", ""],
-    "shortName": "",
-    "primary": "#",
-    "secondary": "#",
-    "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/.png"
+  "st-johns": {
+    "team": "St. John's",
+    "aliases": ["St. John's", "St. John's Red Storm"],
+    "shortName": "St. John's",
+    "primary": "#BA0C2F",
+    "secondary": "#041C2C",
+    "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2599.png"
   },
 
-  "": {
-    "team": "",
-    "aliases": ["", ""],
-    "shortName": "",
-    "primary": "#",
-    "secondary": "#",
-    "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/.png"
+  "cal-state-fullerton": {
+    "team": "CS Fullerton",
+    "aliases": ["CS Fullerton", "CS Fullerton Titans"],
+    "shortName": "CS Fullerton",
+    "primary": "#00274C",
+    "secondary": "#DC8218",
+    "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2239.png"
   },
 
-  "": {
-    "team": "",
-    "aliases": ["", ""],
-    "shortName": "",
-    "primary": "#",
-    "secondary": "#",
-    "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/.png"
+  "jacksonville-state": {
+    "team": "Jax State",
+    "aliases": ["Jax State", "Jax State Gamecocks"],
+    "shortName": "Jax State",
+    "primary": "#CC0000",
+    "secondary": "#FFFFFF",
+    "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/55.png"
   },
 
-  "": {
-    "team": "",
-    "aliases": ["", ""],
-    "shortName": "",
-    "primary": "#",
-    "secondary": "#",
-    "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/.png"
+  "texas-southern": {
+    "team": "Texas Southern",
+    "aliases": ["Texas Southern", "Texas Southern Tigers"],
+    "shortName": "Texas Southern",
+    "primary": "#7C183E",
+    "secondary": "#9DA6AB",
+    "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2640.png"
   },
 
-  "": {
-    "team": "",
-    "aliases": ["", ""],
-    "shortName": "",
-    "primary": "#",
-    "secondary": "#",
-    "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/.png"
+  "dayton": {
+    "team": "Dayton",
+    "aliases": ["Dayton", "Dayton Flyers"],
+    "shortName": "Dayton",
+    "primary": "#CE1141",
+    "secondary": "#004B8D",
+    "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2168.png"
   },
 
-  "": {
-    "team": "",
-    "aliases": ["", ""],
-    "shortName": "",
-    "primary": "#",
-    "secondary": "#",
-    "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/.png"
+  "morehead-state": {
+    "team": "Morehead State",
+    "aliases": ["Morehead State", "Morehead State Eagles"],
+    "shortName": "Morehead St.",
+    "primary": "#FFCF00",
+    "secondary": "#005EB8",
+    "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2413.png"
   },
 
-  "": {
-    "team": "",
-    "aliases": ["", ""],
-    "shortName": "",
-    "primary": "#",
-    "secondary": "#",
-    "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/.png"
+  "samford": {
+    "team": "Samford",
+    "aliases": ["Samford", "Samford Bulldogs"],
+    "shortName": "Samford",
+    "primary": "#002649",
+    "secondary": "#C4161D",
+    "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2535.png"
   },
 
-  "": {
-    "team": "",
-    "aliases": ["", ""],
-    "shortName": "",
-    "primary": "#",
-    "secondary": "#",
-    "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/.png"
+  "omaha": {
+    "team": "Omaha",
+    "aliases": ["Omaha Mavericks", "Omaha"],
+    "shortName": "Omaha",
+    "primary": "#D71920",
+    "secondary": "#636568",
+    "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2437.png"
   },
 
-  "": {
-    "team": "",
-    "aliases": ["", ""],
-    "shortName": "",
-    "primary": "#",
-    "secondary": "#",
-    "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/.png"
+  "central-florida": {
+    "team": "UCF",
+    "aliases": ["UCF", "UCF Knights", "Central Florida", "Central Florida Knights"],
+    "shortName": "UCF",
+    "primary": "#FFC904",
+    "secondary": "#000000",
+    "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2116.png"
   },
 
-  "": {
-    "team": "",
-    "aliases": ["", ""],
-    "shortName": "",
-    "primary": "#",
-    "secondary": "#",
-    "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/.png"
+  "south-dakota-state": {
+    "team": "South Dakota State",
+    "aliases": ["South Dakota State", "South Dakota State Jackrabbits"],
+    "shortName": "South Dakota St.",
+    "primary": "#FFD100",
+    "secondary": "#0033A0",
+    "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2571.png"
   },
 
-  "": {
-    "team": "",
-    "aliases": ["", ""],
-    "shortName": "",
-    "primary": "#",
-    "secondary": "#",
-    "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/.png"
+  "cal-baptist": {
+    "team": "Cal Baptist",
+    "aliases": ["Cal Baptist", "Cal Baptist Lancers", "California Baptist", "California Baptist Lancers"],
+    "shortName": "Cal Baptist",
+    "primary": "#A37400",
+    "secondary": "#002554",
+    "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2856.png"
   },
 
   "": {
