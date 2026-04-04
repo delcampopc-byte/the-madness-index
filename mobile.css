@@ -3926,3 +3926,40 @@
     touch-action: pan-x !important;
   }
 }
+
+@media (max-width: 720px) {
+  /* Never hard-lock page scrolling on mobile */
+  html.mi-verdict-scroll-lock,
+  body.mi-verdict-scroll-lock {
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    min-height: auto !important;
+    touch-action: auto !important;
+    overscroll-behavior-y: auto !important;
+  }
+
+  /* Make sure the collapsed edit handle is actually tappable */
+  #matchupBar,
+  #matchupBar .mi-matchup-dock,
+  #matchupBar .matchup-bar-main {
+    overflow: visible !important;
+  }
+
+  #matchupBar:not(.is-editing) #editMatchupBtn {
+    position: relative !important;
+    z-index: 50 !important;
+    pointer-events: auto !important;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation !important;
+  }
+
+  /* Decorative layers should never steal taps */
+  #matchupBar::before,
+  #matchupBar::after,
+  #matchupBar .mi-matchup-dock::before,
+  #matchupBar .mi-matchup-dock::after,
+  #matchupBar .matchup-bar-main::before,
+  #matchupBar .matchup-bar-main::after {
+    pointer-events: none !important;
+  }
+}

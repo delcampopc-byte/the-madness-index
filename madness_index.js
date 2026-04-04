@@ -796,13 +796,20 @@ function normalizePreMatchupCopy(data) {
 }
 
 function miSetVerdictScrollLock(locked) {
-  const isMobile = window.matchMedia && window.matchMedia('(max-width: 720px)').matches;
   const body = document.body;
   const html = document.documentElement;
 
   if (!body || !html) return;
 
-  const shouldLock = !!locked && isMobile;
+  // Mobile should never hard-lock page scroll.
+  const isMobile = window.matchMedia && window.matchMedia('(max-width: 720px)').matches;
+  if (isMobile) {
+    body.classList.remove('mi-verdict-scroll-lock');
+    html.classList.remove('mi-verdict-scroll-lock');
+    return;
+  }
+
+  const shouldLock = !!locked;
 
   body.classList.toggle('mi-verdict-scroll-lock', shouldLock);
   html.classList.toggle('mi-verdict-scroll-lock', shouldLock);
