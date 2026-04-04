@@ -39,14 +39,15 @@
   "patch_notes": {
     "title": "Patch Notes",
     "hint": "Click for Patch Notes",
-    "badge": "Version 2.0 (Build 23)",
+    "badge": "Version 2.0 (Build 24)",
     "max_items": 10,
     "items": [
       {
         "build": "Build 23",
         "date": "2026-03-24",
         "bullets": [
-          "Test."
+          "The Madness Index should now be fully compatible on all mobile devices.",
+          "Team branding has been fully incorporated throughout the app."
         ]
       }
     ]
@@ -298,22 +299,22 @@
     "status_pending": "Pending",
     "status_in_progress": "In progress",
     "status_ready": "Ready. Press Compare to generate results.",
-    "step1_pending": "Tournament field not loaded.",
-    "step1_ready": "Field loaded and teams unlocked.",
-    "step2_pending": "Select two teams to compare.",
-    "step2_ready": "Teams selected. Matchup is queued.",
-    "step3_pending": "Choose a round or choose Sandbox Mode to ignore round constraints.",
-    "step3_ready": "Matchup queued. Click Compare when ready.",
-    "title": "Start a matchup",
+    "step1_pending": "Not loaded",
+    "step1_ready": "Field loaded",
+    "step2_pending": "Select two teams to compare",
+    "step2_ready": "Teams selected",
+    "step3_pending": "Round not selected",
+    "step3_ready": "Ready to compare",
+    "title": "Matchup Status",
     "subtitle": "",
     "briefing_kicker": "Analyst Briefing",
     "briefing_title": "Locked intelligence — pending inputs.",
     "briefing_p1": "",
     "briefing_p2": "",
     "briefing_p3": "",
-    "step1": "Load tournament data to unlock team selection.",
-    "step2": "Choose one team for each side.",
-    "step3": "Run the comparison to begin analysis.",
+    "step1": "Dataset",
+    "step2": "Teams",
+    "step3": "Round + Run",
     "note": "Once a matchup is active, this briefing clears and the app shifts into analysis mode.",
     "preview_caption": "After compare is run, the app will generate full scorecards, interaction leverage, and an explained lean in one direction or the other.",
     "preview_title": "First time here?",
@@ -505,7 +506,7 @@
     }
   },
   "controls": {
-    "data_title": "Load Tournament Data",
+    "data_title": "STEP 1: Load Tournament Data",
     "dataset_label": "Dataset",
     "dataset_placeholder": "Select a dataset...",
     "csv_label_manual": "Upload CSV manually",
@@ -516,9 +517,11 @@
     "matchup_title": "Select Matchup",
     "teamA_label": "Team A",
     "teamB_label": "Team B",
-    "step1_label": "STEP 1: Select Teams",
-    "step2_label": "STEP 2: Select Round",
-    "step3_label": "STEP 3: Run the Matchup",
+    "step0_label": "Matchup Status",
+    "step1_label": "STEP 1: Load Tournament Data",
+    "step2_label": "STEP 2: Select Teams",
+    "step3_label": "STEP 3: Select Round",
+    "step4_label": "STEP 4: Run the Matchup",
     "role_mode_label": "Role Mode",
     "role_mode_hint": "The app automatically assigns roles by seed specific to the matchup chosen.",
     "role_auto": "Auto (by seed)",

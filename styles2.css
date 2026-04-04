@@ -3152,8 +3152,6 @@ section#matchupBar.card.matchup-bar.visible:not(.is-editing){
   border-color: var(--mi-brand-blue-a12, 0.6);
 }
 
-
-
 /* ==========================================================================
    Summary — Center Verdict Card (Madness Index)
    Winner role drives hue (Cinderella/Favorite). Lean tier drives intensity.
@@ -3228,27 +3226,6 @@ section#matchupBar.card.matchup-bar.visible:not(.is-editing){
   letter-spacing: 0.02em;
   color: rgba(148, 163, 184, 0.78);
   text-align: right;
-}
-
-/* Role hue (winner) */
-#miVerdictCard.mi-winner-cinderella { --mi-verdict-rgb: var(--mi-role-cinderella-rgb); }
-#miVerdictCard.mi-winner-favorite   { --mi-verdict-rgb: var(--mi-role-favorite-rgb); }
-#miVerdictCard.mi-winner-neutral    { --mi-verdict-rgb: 148, 163, 184; }
-
-/* Tier intensity */
-#miVerdictCard.mi-lean-coin   { --mi-v-alpha: 0.10; --mi-v-border: 0.30; --mi-v-blur: 10px; --mi-v-spread: 0px; }
-#miVerdictCard.mi-lean-slight { --mi-v-alpha: 0.18; --mi-v-border: 0.46; --mi-v-blur: 14px; --mi-v-spread: 1px; }
-#miVerdictCard.mi-lean-solid  { --mi-v-alpha: 0.26; --mi-v-border: 0.62; --mi-v-blur: 18px; --mi-v-spread: 2px; }
-#miVerdictCard.mi-lean-heavy  { --mi-v-alpha: 0.34; --mi-v-border: 0.74; --mi-v-blur: 22px; --mi-v-spread: 3px; }
-
-/* Apply hue + intensity */
-#miVerdictCard.mi-winner-cinderella,
-#miVerdictCard.mi-winner-favorite,
-#miVerdictCard.mi-winner-neutral {
-  border-color: rgba(var(--mi-verdict-rgb), var(--mi-v-border, 0.38));
-  box-shadow:
-    0 0 calc(var(--mi-v-blur, 12px) * 1) rgba(var(--mi-verdict-rgb), var(--mi-v-alpha, 0.18)),
-    0 0 calc(var(--mi-v-blur, 12px) * 0.55) rgba(var(--mi-verdict-rgb), calc(var(--mi-v-alpha, 0.18) * 0.65));
 }
 
 .summary-team-label {
@@ -7267,7 +7244,6 @@ button,
 
 #verdictShell{
   /* Local shell lighting — governed by brand blue (NOT role colors) */
-  --mi-verdict-rgb: 23, 95, 195; /* matches --mi-brand-blue-500 */
   --mi-v-alpha: 0.16;
   --mi-v-border: 0.26;
   --mi-v-blur: 18px;
@@ -7275,46 +7251,8 @@ button,
   position: relative;
   border-radius: 18px;
 
-  border: 1px solid rgba(var(--mi-verdict-rgb), var(--mi-v-border));
-
-  /* Deep panel that still reads as studio-black */
-  background:
-    radial-gradient(900px 420px at 50% -10%, rgba(var(--mi-verdict-rgb), 0.10), transparent 60%),
-    rgba(7, 10, 18, 0.92);
-
-  box-shadow:
-    0 20px 44px rgba(0,0,0,0.55),
-    0 0 var(--mi-v-blur) rgba(var(--mi-verdict-rgb), var(--mi-v-alpha));
-
-  transition: box-shadow 0.3s ease;
   z-index: 10;
   padding-top: 18px;
-}
-
-/* “Hit” sheen (JS toggles .mi-verdict-hit) */
-#verdictShell .mi-verdict-shell-inner::after{
-  content:"";
-  position:absolute;
-  inset:0;
-  background: linear-gradient(
-    110deg,
-    transparent 0%,
-    rgba(255,255,255,0.07) 35%,
-    transparent 70%
-  );
-  transform: translateX(-60%);
-  opacity: 0;
-  pointer-events:none;
-}
-#verdictShell.mi-verdict-hit .mi-verdict-shell-inner::after{
-  opacity: 1;
-  animation: miVerdictSheen 900ms ease-out 1;
-}
-
-@keyframes miVerdictSheen{
-  0%   { transform: translateX(-60%); opacity: 0; }
-  20%  { opacity: 0.95; }
-  100% { transform: translateX(60%); opacity: 0; }
 }
 
 /* LEFT: Verdict copy block */
@@ -7384,9 +7322,7 @@ button,
   line-height: 18px;
   text-align:center;
   border-radius: 999px;
-  border: 1px solid rgba(var(--mi-verdict-rgb), 0.45);
   background: rgba(9,9,15,0.55);
-  box-shadow: 0 0 12px rgba(var(--mi-verdict-rgb), 0.12);
   transform: translateY(-0.5px);
 }
 
@@ -7394,14 +7330,6 @@ button,
 #verdictShell:not(.scorecard-open) .mi-verdict-metrics-tile{
   cursor: pointer;
   will-change: transform, box-shadow, border-color;
-}
-
-#verdictShell:not(.scorecard-open) .mi-verdict-metrics-tile:hover{
-  border-color: rgba(var(--mi-verdict-rgb), 0.74);
-  box-shadow:
-    0 28px 62px rgba(0,0,0,0.62),
-    0 0 28px rgba(var(--mi-verdict-rgb), 0.18);
-  transform: translateY(-2px) rotateX(2deg) rotateY(-2deg);
 }
 
 #verdictShell:not(.scorecard-open) .mi-verdict-metrics-tile::after{
@@ -7477,26 +7405,7 @@ button,
   padding: 12px 16px;
   border-radius: 999px;
 
-  border: 1px solid rgba(var(--mi-verdict-rgb), 0.60);
-  background:
-    radial-gradient(240px 140px at 50% 0%,
-      rgba(var(--mi-verdict-rgb), 0.22),
-      rgba(9,9,15,0.72) 70%);
   color: rgba(226,232,240,0.92);
-
-  box-shadow:
-    0 18px 40px rgba(0,0,0,0.48),
-    0 0 18px rgba(var(--mi-verdict-rgb), 0.16);
-
-  transition: transform 140ms ease, border-color 140ms ease, box-shadow 160ms ease, background 140ms ease;
-}
-
-#verdictShell .mi-evidence-toggle:hover{
-  transform: translateY(-1px);
-  border-color: rgba(var(--mi-verdict-rgb), 0.78);
-  box-shadow:
-    0 22px 46px rgba(0,0,0,0.54),
-    0 0 22px rgba(var(--mi-verdict-rgb), 0.22);
 }
 
 #verdictShell .mi-evidence-toggle .mi-chev{
@@ -7539,25 +7448,6 @@ button,
   --mi-v-alpha: 0.32;
   --mi-v-border: 0.76;
   --mi-v-blur: 26px;
-  box-shadow:
-    0 0 0 2px rgba(var(--mi-verdict-rgb), 0.25),
-    0 0 12px 2px rgba(var(--mi-verdict-rgb), 0.40),
-    0 0 28px 4px rgba(var(--mi-verdict-rgb), 0.18),
-    0 20px 44px rgba(0,0,0,0.55);
-}
-
-/* stronger lean = a touch more rail pulse */
-#verdictShell.mi-lean-solid .mi-verdict-shell-inner::before{ animation: miRailPulse 3.0s ease-in-out infinite; }
-#verdictShell.mi-lean-heavy .mi-verdict-shell-inner::before{ animation: miRailPulse 2.2s ease-in-out infinite; }
-
-@keyframes miRailPulse{
-  0%,100% { opacity: 0.45; }
-  50%     { opacity: 0.78; }
-}
-
-/* Mirror/role lens override: if data-lens is present, use resolved accent tokens */
-#verdictShell[data-lens]{
-  --mi-verdict-rgb: var(--mi-role-active-rgb);
 }
 
 /* Mirror lens: force both cards to use the mirror accent (ignore cind/fav tag colors) */
@@ -7572,51 +7462,6 @@ button,
 #analysisShell[data-lens="chaos_mirror"] .team-card-header .team-role-pill,
 #analysisShell[data-lens="neutral_mirror"] .team-card-header .team-role-pill{
   text-shadow: 0 0 6px rgba(var(--mi-role-active-rgb), 0.65), 0 0 12px rgba(var(--mi-role-active-rgb), 0.45);
-}
-
-/* =========================================================
-   MIRROR LENS — force BOTH team headers to use resolved accent
-   Overrides legacy .cind-tag/.fav-tag + :has() header glows
-   ========================================================= */
-
-#analysisShell[data-lens="chalk_mirror"] .team-card-header::before,
-#analysisShell[data-lens="chaos_mirror"] .team-card-header::before,
-#analysisShell[data-lens="neutral_mirror"] .team-card-header::before{
-  background: radial-gradient(
-    circle at center,
-    rgba(var(--mi-role-active-rgb), 0.28),
-    rgba(15, 23, 42, 0.98) 70%
-  );
-}
-
-/* Role label text (the "CHALK MIRROR" / etc.) */
-#analysisShell[data-lens="chalk_mirror"] .team-card-header .team-role-pill,
-#analysisShell[data-lens="chaos_mirror"] .team-card-header .team-role-pill,
-#analysisShell[data-lens="neutral_mirror"] .team-card-header .team-role-pill,
-#analysisShell[data-lens="chalk_mirror"] .team-card-header .cind-tag,
-#analysisShell[data-lens="chaos_mirror"] .team-card-header .cind-tag,
-#analysisShell[data-lens="neutral_mirror"] .team-card-header .cind-tag,
-#analysisShell[data-lens="chalk_mirror"] .team-card-header .fav-tag,
-#analysisShell[data-lens="chaos_mirror"] .team-card-header .fav-tag,
-#analysisShell[data-lens="neutral_mirror"] .team-card-header .fav-tag{
-  color: var(--mi-role-active);
-  text-shadow:
-    0 0 6px rgba(var(--mi-role-active-rgb), 0.65),
-    0 0 12px rgba(var(--mi-role-active-rgb), 0.45);
-}
-
-/* ================================
-   Motion control
-   ================================ */
-
-@keyframes miVerdictDrift{
-  0%   { background-position: 48% 0%, 0% 0%; }
-  100% { background-position: 52% 0%, 0% 0%; }
-}
-
-@keyframes miScanBreath{
-  0%,100% { opacity: 0.18; }
-  50%     { opacity: 0.24; }
 }
 
 /* =========================================================
@@ -7656,38 +7501,12 @@ button,
 #verdictShell .mi-verdict-metrics-tile{
   min-height: 280px; /* keeps presence even if the left side is short */
   border-radius: 18px;
-  border: 1px solid rgba(var(--mi-verdict-rgb), 0.50);
   background: rgba(9,9,15,0.52);
   box-shadow:
     0 22px 54px rgba(0,0,0,0.55),
     0 0 0 1px rgba(255,255,255,0.03) inset;
   overflow: hidden;
   transform: translateZ(0);
-}
-
-/* ================================
-   Verdict Scorebug (Broadcast Mode) — POLISH PASS
-   Targets existing keys only:
-   #verdictShell .mi-scorebug-* .mi-verdict-* #miEvidenceToggle
-   ================================ */
-
-#verdictShell{
-  /* role/tier vars (already driven by JS classes) */
-  --mi-verdict-rgb: 148, 163, 184;
-  --mi-v-alpha: 0.18;
-  --mi-v-border: 0.50;
-  --mi-v-blur: 18px;
-
-  position: relative;
-  overflow: hidden;
-  border-radius: 18px;
-  border: 1px solid rgba(var(--mi-verdict-rgb), var(--mi-v-border));
-  background: rgba(7, 10, 18, 0.92);
-
-  /* a little more “finished” depth */
-  box-shadow:
-    0 22px 52px rgba(0,0,0,0.58),
-    0 0 var(--mi-v-blur) rgba(var(--mi-verdict-rgb), var(--mi-v-alpha));
 }
 
 /* glass + sheen + scanline */
@@ -7812,11 +7631,6 @@ button,
   gap: 6px;
   padding: 10px 12px;
   border-radius: 14px;
-  border: 1px solid rgba(var(--mi-verdict-rgb), 0.36);
-  background:
-    radial-gradient(240px 140px at 30% 0%,
-      rgba(var(--mi-verdict-rgb), 0.16),
-      rgba(9,9,15,0.76) 62%);
   box-shadow: 0 16px 34px rgba(0,0,0,0.44);
   transition: transform 160ms ease, box-shadow 220ms ease, border-color 180ms ease;
 }
@@ -7888,7 +7702,6 @@ button,
   gap: 10px;
   padding: 10px 14px;
   border-radius: 999px;
-  border: 1px solid rgba(var(--mi-verdict-rgb), 0.38);
   background: rgba(9,9,15,0.58);
   color: rgba(226,232,240,0.92);
   transition: transform 140ms ease, border-color 140ms ease, background 140ms ease, box-shadow 160ms ease;
@@ -7896,7 +7709,6 @@ button,
 
 #verdictShell .mi-evidence-toggle:hover{
   transform: translateY(-1px);
-  border-color: rgba(var(--mi-verdict-rgb), 0.62);
   background: rgba(9,9,15,0.74);
   box-shadow: 0 16px 30px rgba(0,0,0,0.35);
 }
@@ -7916,31 +7728,6 @@ button,
 @keyframes miRailPulse{
   0%,100% { opacity: 0.72; }
   50%     { opacity: 0.98; }
-}
-
-/* Sheen “hit” per run (your JS already toggles mi-verdict-hit) */
-#verdictShell .mi-verdict-shell-inner::after{
-  content:"";
-  position:absolute;
-  inset: 0;
-  background: linear-gradient(
-    110deg,
-    transparent 0%,
-    rgba(255,255,255,0.07) 35%,
-    transparent 70%
-  );
-  transform: translateX(-60%);
-  opacity: 0;
-  pointer-events: none;
-}
-#verdictShell.mi-verdict-hit .mi-verdict-shell-inner::after{
-  opacity: 1;
-  animation: miVerdictSheen 900ms ease-out 1;
-}
-@keyframes miVerdictSheen{
-  0%   { transform: translateX(-60%); opacity: 0; }
-  20%  { opacity: 0.95; }
-  100% { transform: translateX(60%); opacity: 0; }
 }
 
 /* =========================================================
@@ -7975,12 +7762,6 @@ button,
   opacity: 0.85;
 }
 
-/* Add a subtle vertical divider to make the two sections feel distinct */
-#verdictShell .mi-verdict-rail{
-  position: relative;
-  padding-left: 18px; /* breathes away from divider */
-}
-
 #verdictShell .mi-verdict-rail::before{
   content:"";
   position:absolute;
@@ -7988,54 +7769,8 @@ button,
   top: 6px;
   bottom: 6px;
   width: 1px;
-  background: linear-gradient(
-    180deg,
-    rgba(var(--mi-verdict-rgb), 0.10),
-    rgba(var(--mi-verdict-rgb), 0.28),
-    rgba(var(--mi-verdict-rgb), 0.10)
-  );
   opacity: 0.85;
   pointer-events: none;
-}
-
-/* CTA becomes a distinct band under the tile */
-#verdictShell .mi-verdict-actions.mi-verdict-actions-rail{
-  margin-top: 14px;
-  padding-top: 14px;
-  border-top: 1px solid rgba(var(--mi-verdict-rgb), 0.16);
-
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-/* Button is centered and intentionally not full-width */
-#miEvidenceToggle.mi-evidence-toggle{
-  width: auto;
-  max-width: 250px;
-  justify-content: center;
-}
-
-/* =========================================================
-   VERDICT BOX — SECTION SEPARATION (final polish)
-   Clearer borders/gridlines between:
-   - Left narrative column
-   - Right metrics rail
-   - CTA band row
-   ========================================================= */
-
-#verdictShell{
-  /* slightly clearer outer definition without changing the look */
-  border-color: rgba(var(--mi-verdict-rgb), 0.62);
-  box-shadow:
-    0 22px 52px rgba(0,0,0,0.58),
-    0 0 var(--mi-v-blur) rgba(var(--mi-verdict-rgb), calc(var(--mi-v-alpha) + 0.06));
-}
-
-/* Vertical divider between columns (gridline, not a big bar) */
-#verdictShell .mi-verdict-rail{
-  position: relative;
-  padding-left: 8px; /* space from divider */
 }
 
 #verdictShell .mi-verdict-rail::before{
@@ -8045,12 +7780,7 @@ button,
   top: 6px;
   bottom: 6px;
   width: 1px;
-  background: linear-gradient(
-    to bottom,
-    rgba(var(--mi-verdict-rgb), 0.00),
-    rgba(var(--mi-verdict-rgb), 0.42),
-    rgba(var(--mi-verdict-rgb), 0.00)
-  );
+
   box-shadow: 0 0 0 1px rgba(0,0,0,0.15);
 }
 
@@ -8060,22 +7790,6 @@ button,
   padding-right: 18px; /* balances rail padding */
 }
 
-#verdictShell .mi-verdict-main::after{
-  content: "";
-  position: absolute;
-  right: -14px;         /* same zone as the divider */
-  top: 6px;
-  bottom: 6px;
-  width: 1px;
-  background: linear-gradient(
-    to bottom,
-    rgba(var(--mi-verdict-rgb), 0.00),
-    rgba(var(--mi-verdict-rgb), 0.22),
-    rgba(var(--mi-verdict-rgb), 0.00)
-  );
-  opacity: 0.55;
-}
-
 /* Row 2 CTA band: hard separation line + its own “band” feel */
 #verdictShell .mi-verdict-shell-inner > .mi-verdict-actions.mi-verdict-actions-rail{
   position: relative;
@@ -8083,96 +7797,11 @@ button,
   margin-top: 2px;
 }
 
-#verdictShell .mi-verdict-shell-inner > .mi-verdict-actions.mi-verdict-actions-rail::before{
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 0;
-  height: 1px;
-  background: linear-gradient(
-    to right,
-    rgba(var(--mi-verdict-rgb), 0.00),
-    rgba(var(--mi-verdict-rgb), 0.40),
-    rgba(var(--mi-verdict-rgb), 0.00)
-  );
-}
-
 /* Metrics tile: slightly clearer frame so it reads as its own module */
 #verdictShell #miVerdictMetricsTile{
-  border-color: rgba(var(--mi-verdict-rgb), 0.50);
   box-shadow:
     0 14px 30px rgba(0,0,0,0.44),
     0 0 0 1px rgba(0,0,0,0.20) inset;
-}
-
-/* CTA button: keep it “control-like” (not another content panel) */
-#verdictShell #miEvidenceToggle.mi-evidence-toggle{
-  border-color: rgba(var(--mi-verdict-rgb), 0.46);
-  box-shadow:
-    0 10px 24px rgba(0,0,0,0.42),
-    0 0 0 1px rgba(0,0,0,0.20) inset;
-}
-
-/* =========================================================
-   VERDICT — DENSITY + CLEAR SECTION EDGES (final polish)
-   Goal: reduce dead space + make internal sections obvious
-   ========================================================= */
-
-#verdictShell .mi-verdict-grid{
-  display: grid;
-  grid-template-columns: minmax(0, 3fr) minmax(320px, 2fr); /* 60/40 */
-  gap: 22px;
-  align-items: stretch;
-  padding-bottom: 6px; /* less dead air above CTA divider */
-  position: relative;
-  min-height: 0;
-}
-
-/* 2) Stronger, clearer internal dividers (they were too subtle) */
-#verdictShell .mi-verdict-rail::before{
-  background: linear-gradient(
-    to bottom,
-    rgba(var(--mi-verdict-rgb), 0.00),
-    rgba(var(--mi-verdict-rgb), 0.62),
-    rgba(var(--mi-verdict-rgb), 0.00)
-  );
-  box-shadow:
-    0 0 0 1px rgba(0,0,0,0.18),
-    0 0 18px rgba(var(--mi-verdict-rgb), 0.08);
-}
-
-#verdictShell .mi-verdict-shell-inner > .mi-verdict-actions.mi-verdict-actions-rail::before{
-  background: linear-gradient(
-    to right,
-    rgba(var(--mi-verdict-rgb), 0.00),
-    rgba(var(--mi-verdict-rgb), 0.58),
-    rgba(var(--mi-verdict-rgb), 0.00)
-  );
-}
-
-/* 3) Make the left side feel “filled” even when copy is short:
-      add a faint glass plate behind the narrative column */
-#verdictShell .mi-verdict-main{
-  border-radius: 16px;
-  padding: 10px 12px;
-  background: linear-gradient(
-    180deg,
-    rgba(255,255,255,0.04),
-    rgba(255,255,255,0.015) 48%,
-    rgba(0,0,0,0.00)
-  );
-  box-shadow: 0 0 0 1px rgba(255,255,255,0.04) inset;
-}
-
-/* 4) CTA band: reduce its “giant empty row” feel */
-#verdictShell .mi-verdict-shell-inner > .mi-verdict-actions.mi-verdict-actions-rail{
-  padding-top: 12px; /* was larger, made the bottom feel too tall */
-}
-
-/* 5) Metrics tile: slightly stronger frame so it reads as its own module */
-#verdictShell #miVerdictMetricsTile{
-  border-color: rgba(var(--mi-verdict-rgb), 0.58);
 }
 
 /* =========================================================
@@ -8199,14 +7828,17 @@ button,
 
 /* Slightly different sheen per side (subtle but clarifies split) */
 #miVerdictMetricsTile .mi-scorebug-team--a{
-  background: linear-gradient(180deg,
-    rgba(34,211,238,0.06),
+  background: linear-gradient(
+    180deg,
+    rgba(var(--team-a-primary-rgb, 148 163 184), 0.08),
     rgba(255,255,255,0.01)
   );
 }
+
 #miVerdictMetricsTile .mi-scorebug-team--b{
-  background: linear-gradient(180deg,
-    rgba(249,115,22,0.06),
+  background: linear-gradient(
+    180deg,
+    rgba(var(--team-b-primary-rgb, 148 163 184), 0.08),
     rgba(255,255,255,0.01)
   );
 }
@@ -8268,12 +7900,19 @@ button,
    Winner Emphasis (Subtle, Broadcast-Style)
    ========================================================= */
 
-#verdictShell.mi-winner-cinderella .mi-scorebug-team--a,
-#verdictShell.mi-winner-favorite   .mi-scorebug-team--b{
-  border-color: rgba(255,255,255,0.85);
+#verdictShell.mi-winner-a .mi-scorebug-team--a,
+#verdictShell.mi-winner-b .mi-scorebug-team--b{
+  border-color: rgba(255,255,255,0.90);
   box-shadow:
     inset 0 0 0 1px rgba(0,0,0,0.65),
-    0 0 0 2px rgba(255,255,255,0.08);
+    0 0 0 2px rgba(var(--mi-winner-primary-rgb, 148 163 184), 0.22),
+    0 0 22px rgba(var(--mi-winner-primary-rgb, 148 163 184), 0.16);
+}
+
+#verdictShell[data-color-proximity="close"].mi-winner-a .mi-scorebug-team--b,
+#verdictShell[data-color-proximity="close"].mi-winner-b .mi-scorebug-team--a{
+  opacity: 0.82;
+  filter: saturate(0.78) brightness(0.92);
 }
 
 /* =========================================================
@@ -8449,50 +8088,6 @@ button,
   padding: 0 !important;
 }
 
-/* =========================================================
-   VERDICT SHELL — De-seam / De-line pass (clean borders + space)
-   Paste at END of styles2.css
-   ========================================================= */
-
-/* 2) Normalize the verdict shell to ONE neutral border + ONE shadow system */
-#verdictShell{
-  border-radius: 18px;
-  border: 1px solid rgba(148,163,184,0.26) !important;   /* neutral slate */
-  background: rgba(7,10,18,0.92) !important;
-
-  /* remove colored glows that read as orange seams */
-  box-shadow:
-    0 18px 44px rgba(0,0,0,0.55),
-    inset 0 1px 0 rgba(255,255,255,0.05) !important;
-
-  /* separation should come from spacing, not dividers */
-  padding-top: 0 !important;
-}
-
-/* 3) Remove “section divider lines” inside the verdict shell that often come from borders */
-#verdictShell hr,
-#verdictShell .divider,
-#verdictShell .mi-divider,
-#verdictShell .rule,
-#verdictShell .mi-rule{
-  display: none !important;
-  border: 0 !important;
-  height: 0 !important;
-}
-
-/* 4) If there’s a vertical seam between left/right columns, kill it */
-#verdictShell .mi-verdict-grid,
-#verdictShell .verdict-grid{
-  background-image: none !important;
-}
-
-#verdictShell .mi-verdict-left,
-#verdictShell .mi-verdict-right,
-#verdictShell .verdict-left,
-#verdictShell .verdict-right{
-  border-left: none !important;
-  border-right: none !important;
-}
 
 /* =========================================================
    VERDICT SHELL — INNER CONTENT WRAPPER (single source of truth)
@@ -8520,12 +8115,6 @@ button,
   width: 3px;
 
   border-radius: 999px;
-  background: linear-gradient(
-    180deg,
-    rgba(var(--mi-verdict-rgb), 0.70),
-    rgba(var(--mi-verdict-rgb), 0.10)
-  );
-
   opacity: 0.55;
   pointer-events: none;
 }
@@ -8680,6 +8269,7 @@ button,
 #verdictShell .mi-scorebug-line.is-structured .mi-verdict-why{
   font-size: 16px;
   line-height: 1.34;
+  margin-top: 16px;
   font-weight: 560;
   letter-spacing: -0.005em;
   color: rgba(249,246,238,0.9);
@@ -8691,12 +8281,6 @@ button,
   display: block;
   height: 1px;
   width: 100%;
-  background: linear-gradient(
-    90deg,
-    rgba(var(--mi-verdict-rgb), 0.00),
-    rgba(var(--mi-verdict-rgb), 0.28),
-    rgba(var(--mi-verdict-rgb), 0.00)
-  );
   opacity: 0.85;
 }
 
@@ -8718,12 +8302,7 @@ button,
   bottom: 0.06em;
   height: 2px;
   border-radius: 999px;
-  background: linear-gradient(
-    90deg,
-    rgba(var(--mi-verdict-rgb), 0.00),
-    rgba(var(--mi-verdict-rgb), 0.70),
-    rgba(var(--mi-verdict-rgb), 0.00)
-  );
+
   opacity: 0.55;
   transform: translateY(0);
 }
@@ -8735,31 +8314,6 @@ button,
 }
 #verdictShell .mi-team.mi-team--b::after{
   opacity: 0.40;
-}
-
-/* Lean intensity (Concept 6) — typographic confidence without numbers */
-#verdictShell.mi-lean-coin   .mi-verdict-headline{ opacity: 0.92; text-shadow: none; }
-#verdictShell.mi-lean-slight .mi-verdict-headline{ opacity: 0.96; text-shadow: 0 0 16px rgba(var(--mi-verdict-rgb), 0.10); }
-#verdictShell.mi-lean-solid  .mi-verdict-headline{ opacity: 0.99; text-shadow: 0 0 20px rgba(var(--mi-verdict-rgb), 0.18); }
-#verdictShell.mi-lean-heavy  .mi-verdict-headline{ opacity: 1.00; text-shadow: 0 0 26px rgba(var(--mi-verdict-rgb), 0.24); }
-
-#verdictShell.mi-lean-coin   .mi-verdict-subdeck{ color: rgba(226,232,240,0.82); }
-#verdictShell.mi-lean-slight .mi-verdict-subdeck{ color: rgba(226,232,240,0.85); }
-#verdictShell.mi-lean-solid  .mi-verdict-subdeck{ color: rgba(226,232,240,0.88); }
-#verdictShell.mi-lean-heavy  .mi-verdict-subdeck{ color: rgba(226,232,240,0.90); }
-
-/* Micro-reveal (confident but restrained) */
-#verdictShell .mi-scorebug-line.is-structured .mi-verdict-headline,
-#verdictShell .mi-scorebug-line.is-structured .mi-verdict-break,
-#verdictShell .mi-scorebug-line.is-structured .mi-verdict-subdeck{
-  animation: miVerdictTextIn 320ms ease-out both;
-}
-#verdictShell .mi-scorebug-line.is-structured .mi-verdict-break{ animation-delay: 70ms; }
-#verdictShell .mi-scorebug-line.is-structured .mi-verdict-subdeck{ animation-delay: 110ms; }
-
-@keyframes miVerdictTextIn{
-  from{ opacity: 0; transform: translateY(4px); filter: blur(1px); }
-  to  { opacity: 1; transform: translateY(0); filter: blur(0); }
 }
 
 /* =========================================================
@@ -9084,9 +8638,9 @@ button,
 
 #summarySection #summarySynLean.syn-lean-line{
   text-align: center;           /* intentional: paragraph reads naturally */
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 600;
-  line-height: 1.35;
+  line-height: 1.2;
   color: rgba(226, 232, 240, 0.92);
 }
 
@@ -9250,340 +8804,6 @@ button,
   margin: 0;
   width: 100%;
   max-width: 100%;
-}
-
-/* =========================================================
-   LENS → RESOLVED ROLE ACCENT (Option B)
-   Single mapping layer: data-lens => active accent tokens
-   ========================================================= */
-
-#verdictShell,
-#summarySection,
-#summarySectionMobile{
-  --mi-role-active:      var(--mi-role-neutral-mirror);
-  --mi-role-active-soft: var(--mi-role-neutral-mirror-soft);
-  --mi-role-active-rgb:  var(--mi-role-neutral-mirror-rgb);
-}
-
-/* Standard roles */
-#verdictShell[data-lens="favorite"],
-#summarySection[data-lens="favorite"],
-#summarySectionMobile[data-lens="favorite"]{
-  --mi-role-active:      var(--mi-role-favorite);
-  --mi-role-active-soft: var(--mi-role-favorite-soft);
-  --mi-role-active-rgb:  var(--mi-role-favorite-rgb);
-}
-
-#verdictShell[data-lens="cinderella"],
-#summarySection[data-lens="cinderella"],
-#summarySectionMobile[data-lens="cinderella"]{
-  --mi-role-active:      var(--mi-role-cinderella);
-  --mi-role-active-soft: var(--mi-role-cinderella-soft);
-  --mi-role-active-rgb:  var(--mi-role-cinderella-rgb);
-}
-
-/* Mirror roles */
-#verdictShell[data-lens="chalk_mirror"],
-#summarySection[data-lens="chalk_mirror"],
-#summarySectionMobile[data-lens="chalk_mirror"]{
-  --mi-role-active:      var(--mi-role-chalk-mirror);
-  --mi-role-active-soft: var(--mi-role-chalk-mirror-soft);
-  --mi-role-active-rgb:  var(--mi-role-chalk-mirror-rgb);
-}
-
-#verdictShell[data-lens="chaos_mirror"],
-#summarySection[data-lens="chaos_mirror"],
-#summarySectionMobile[data-lens="chaos_mirror"]{
-  --mi-role-active:      var(--mi-role-chaos-mirror);
-  --mi-role-active-soft: var(--mi-role-chaos-mirror-soft);
-  --mi-role-active-rgb:  var(--mi-role-chaos-mirror-rgb);
-}
-
-#verdictShell[data-lens="neutral_mirror"],
-#summarySection[data-lens="neutral_mirror"],
-#summarySectionMobile[data-lens="neutral_mirror"]{
-  --mi-role-active:      var(--mi-role-neutral-mirror);
-  --mi-role-active-soft: var(--mi-role-neutral-mirror-soft);
-  --mi-role-active-rgb:  var(--mi-role-neutral-mirror-rgb);
-}
-
-/* =========================================================
-   SCORE SYNTHESIS — SIDE ACCENTS (A/B)
-   Strong tint: headers + Final MI
-   Soft tint: inner ledger rows
-   No HTML changes required
-   ========================================================= */
-
-/* --- Side role defaults (safe neutral) --- */
-#summarySection,
-#summarySectionMobile,
-#miScorebugTeamA,
-#miScorebugTeamB,
-#verdictShell{
-  --syn-role-a:      var(--mi-role-neutral-mirror);
-  --syn-role-a-soft: var(--mi-role-neutral-mirror-soft);
-  --syn-role-a-rgb:  var(--mi-role-neutral-mirror-rgb);
-
-  --syn-role-b:      var(--mi-role-neutral-mirror);
-  --syn-role-b-soft: var(--mi-role-neutral-mirror-soft);
-  --syn-role-b-rgb:  var(--mi-role-neutral-mirror-rgb);
-}
-
-/* --- Side A mapping --- */
-#summarySection[data-side-a="favorite"],
-#summarySectionMobile[data-side-a="favorite"],
-#miScorebugTeamA[data-side-a="favorite"],
-#verdictShell[data-side-a="favorite"]{
-  --syn-role-a:      var(--mi-role-favorite);
-  --syn-role-a-soft: var(--mi-role-favorite-soft);
-  --syn-role-a-rgb:  var(--mi-role-favorite-rgb);
-}
-
-#summarySection[data-side-a="cinderella"],
-#summarySectionMobile[data-side-a="cinderella"],
-#miScorebugTeamA[data-side-a="cinderella"],
-#verdictShell[data-side-a="cinderella"]{
-  --syn-role-a:      var(--mi-role-cinderella);
-  --syn-role-a-soft: var(--mi-role-cinderella-soft);
-  --syn-role-a-rgb:  var(--mi-role-cinderella-rgb);
-}
-
-#summarySection[data-side-a="chalk_mirror"],
-#summarySectionMobile[data-side-a="chalk_mirror"],
-#miScorebugTeamA[data-side-a="chalk_mirror"],
-#verdictShell[data-side-a="chalk_mirror"]{
-  --syn-role-a:      var(--mi-role-chalk-mirror);
-  --syn-role-a-soft: var(--mi-role-chalk-mirror-soft);
-  --syn-role-a-rgb:  var(--mi-role-chalk-mirror-rgb);
-}
-
-#summarySection[data-side-a="chaos_mirror"],
-#summarySectionMobile[data-side-a="chaos_mirror"],
-#miScorebugTeamA[data-side-a="chaos_mirror"],
-#verdictShell[data-side-a="chaos_mirror"]{
-  --syn-role-a:      var(--mi-role-chaos-mirror);
-  --syn-role-a-soft: var(--mi-role-chaos-mirror-soft);
-  --syn-role-a-rgb:  var(--mi-role-chaos-mirror-rgb);
-}
-
-#summarySection[data-side-a="neutral_mirror"],
-#summarySectionMobile[data-side-a="neutral_mirror"],
-#miScorebugTeamA[data-side-a="neutral_mirror"],
-#verdictShell[data-side-a="neutral_mirror"]{
-  --syn-role-a:      var(--mi-role-neutral-mirror);
-  --syn-role-a-soft: var(--mi-role-neutral-mirror-soft);
-  --syn-role-a-rgb:  var(--mi-role-neutral-mirror-rgb);
-}
-
-/* --- Side B mapping --- */
-#summarySection[data-side-b="favorite"],
-#summarySectionMobile[data-side-b="favorite"],
-#miScorebugTeamB[data-side-b="favorite"],
-#verdictShell[data-side-b="favorite"]{
-  --syn-role-b:      var(--mi-role-favorite);
-  --syn-role-b-soft: var(--mi-role-favorite-soft);
-  --syn-role-b-rgb:  var(--mi-role-favorite-rgb);
-}
-
-#summarySection[data-side-b="cinderella"],
-#summarySectionMobile[data-side-b="cinderella"],
-#miScorebugTeamB[data-side-b="cinderella"],
-#verdictShell[data-side-b="cinderella"]{
-  --syn-role-b:      var(--mi-role-cinderella);
-  --syn-role-b-soft: var(--mi-role-cinderella-soft);
-  --syn-role-b-rgb:  var(--mi-role-cinderella-rgb);
-}
-
-#summarySection[data-side-b="chalk_mirror"],
-#summarySectionMobile[data-side-b="chalk_mirror"],
-#miScorebugTeamB[data-side-b="chalk_mirror"],
-#verdictShell[data-side-b="chalk_mirror"]{
-  --syn-role-b:      var(--mi-role-chalk-mirror);
-  --syn-role-b-soft: var(--mi-role-chalk-mirror-soft);
-  --syn-role-b-rgb:  var(--mi-role-chalk-mirror-rgb);
-}
-
-#summarySection[data-side-b="chaos_mirror"],
-#summarySectionMobile[data-side-b="chaos_mirror"],
-#miScorebugTeamB[data-side-b="chaos_mirror"],
-#verdictShell[data-side-b="chaos_mirror"]{
-  --syn-role-b:      var(--mi-role-chaos-mirror);
-  --syn-role-b-soft: var(--mi-role-chaos-mirror-soft);
-  --syn-role-b-rgb:  var(--mi-role-chaos-mirror-rgb);
-}
-
-#summarySection[data-side-b="neutral_mirror"],
-#summarySectionMobile[data-side-b="neutral_mirror"],
-#miScorebugTeamB[data-side-b="neutral_mirror"],
-#verdictShell[data-side-b="neutral_mirror"]{
-  --syn-role-b:      var(--mi-role-neutral-mirror);
-  --syn-role-b-soft: var(--mi-role-neutral-mirror-soft);
-  --syn-role-b-rgb:  var(--mi-role-neutral-mirror-rgb);
-}
-
-/* =========================
-   STRONG TINT: TEAM HEADERS
-   ========================= */
-#summarySection .summary-synthesis-table .syn-team-a{
-  background:
-    linear-gradient(
-      180deg,
-      rgba(var(--syn-role-a-rgb), 0.26),
-      rgba(15, 23, 42, 0.55)
-    );
-  border-color: rgba(var(--syn-role-a-rgb), 0.32);
-}
-#summarySection .summary-synthesis-table .syn-team-b{
-  background:
-    linear-gradient(
-      180deg,
-      rgba(var(--syn-role-b-rgb), 0.26),
-      rgba(15, 23, 42, 0.55)
-    );
-  border-color: rgba(var(--syn-role-b-rgb), 0.32);
-}
-
-/* =========================
-   STRONG TINT: FINAL MI CELLS
-   ========================= */
-#summarySection .summary-synthesis-table .syn-final-a{
-  background:
-    linear-gradient(
-      180deg,
-      rgba(var(--syn-role-a-rgb), 0.18),
-      rgba(3, 7, 18, 0.62)
-    );
-  border-color: rgba(var(--syn-role-a-rgb), 0.34);
-  box-shadow: inset 0 0 0 1px rgba(var(--syn-role-a-rgb), 0.12);
-}
-#summarySection .summary-synthesis-table .syn-final-b{
-  background:
-    linear-gradient(
-      180deg,
-      rgba(var(--syn-role-b-rgb), 0.18),
-      rgba(3, 7, 18, 0.62)
-    );
-  border-color: rgba(var(--syn-role-b-rgb), 0.34);
-  box-shadow: inset 0 0 0 1px rgba(var(--syn-role-b-rgb), 0.12);
-}
-
-/* Make the big number carry the accent slightly (premium, not loud) */
-#summarySection .summary-synthesis-table .syn-final-a .syn-final-value{
-  color: rgba(var(--syn-role-a-rgb), 0.95);
-  text-shadow: 0 0 10px rgba(var(--syn-role-a-rgb), 0.10);
-}
-#summarySection .summary-synthesis-table .syn-final-b .syn-final-value{
-  color: rgba(var(--syn-role-b-rgb), 0.95);
-  text-shadow: 0 0 10px rgba(var(--syn-role-b-rgb), 0.10);
-}
-
-/* =========================
-   SOFT TINT: INNER LEDGER ROWS
-   (labels + values only)
-   ========================= */
-#summarySection .summary-synthesis-table .syn-label-a,
-#summarySection .summary-synthesis-table .syn-val-a{
-  background:
-    linear-gradient(
-      180deg,
-      rgba(var(--syn-role-a-rgb), 0.07),
-      rgba(2, 6, 23, 0.35)
-    );
-}
-#summarySection .summary-synthesis-table .syn-label-b,
-#summarySection .summary-synthesis-table .syn-val-b{
-  background:
-    linear-gradient(
-      180deg,
-      rgba(var(--syn-role-b-rgb), 0.07),
-      rgba(2, 6, 23, 0.35)
-    );
-}
-
-/* Optional: subtle side rails so the table reads “two halves” */
-#summarySection .summary-synthesis-table .syn-label-a,
-#summarySection .summary-synthesis-table .syn-val-a{
-  border-left-color: rgba(var(--syn-role-a-rgb), 0.18);
-}
-#summarySection .summary-synthesis-table .syn-label-b,
-#summarySection .summary-synthesis-table .syn-val-b{
-  border-right-color: rgba(var(--syn-role-b-rgb), 0.18);
-}
-
-/* ==========================================
-   LENS OVERRIDES — Mirror header hues (token-driven)
-   Applies to BOTH team headers via #analysisShell[data-lens="..."]
-   ========================================== */
-
-/* ---------- CHAOS MIRROR (red) ---------- */
-#analysisShell[data-lens="chaos_mirror"] .team-card-header::before{
-  background: radial-gradient(circle at center,
-    var(--mi-role-chaos-mirror-soft),
-    rgba(15, 23, 42, 0.98) 70%
-  );
-}
-
-#analysisShell[data-lens="chaos_mirror"] .team-card-header h2{
-  text-shadow:
-    0 0 8px  rgba(var(--mi-role-chaos-mirror-rgb), 0.40),
-    0 0 14px rgba(var(--mi-role-chaos-mirror-rgb), 0.30);
-}
-
-#analysisShell[data-lens="chaos_mirror"] .team-card-header .team-role-pill,
-#analysisShell[data-lens="chaos_mirror"] .team-card-header .cind-tag,
-#analysisShell[data-lens="chaos_mirror"] .team-card-header .fav-tag{
-  color: var(--mi-role-chaos-mirror);
-  text-shadow:
-    0 0 6px  rgba(var(--mi-role-chaos-mirror-rgb), 0.55),
-    0 0 12px rgba(var(--mi-role-chaos-mirror-rgb), 0.35);
-}
-
-
-/* ---------- CHALK MIRROR (cyan) ---------- */
-#analysisShell[data-lens="chalk_mirror"] .team-card-header::before{
-  background: radial-gradient(circle at center,
-    var(--mi-role-chalk-mirror-soft),
-    rgba(15, 23, 42, 0.98) 70%
-  );
-}
-
-#analysisShell[data-lens="chalk_mirror"] .team-card-header h2{
-  text-shadow:
-    0 0 8px  rgba(var(--mi-role-chalk-mirror-rgb), 0.40),
-    0 0 14px rgba(var(--mi-role-chalk-mirror-rgb), 0.30);
-}
-
-#analysisShell[data-lens="chalk_mirror"] .team-card-header .team-role-pill,
-#analysisShell[data-lens="chalk_mirror"] .team-card-header .cind-tag,
-#analysisShell[data-lens="chalk_mirror"] .team-card-header .fav-tag{
-  color: var(--mi-role-chalk-mirror);
-  text-shadow:
-    0 0 6px  rgba(var(--mi-role-chalk-mirror-rgb), 0.55),
-    0 0 12px rgba(var(--mi-role-chalk-mirror-rgb), 0.35);
-}
-
-
-/* ---------- NEUTRAL MIRROR (slate) ---------- */
-#analysisShell[data-lens="neutral_mirror"] .team-card-header::before{
-  background: radial-gradient(circle at center,
-    var(--mi-role-neutral-mirror-soft),
-    rgba(15, 23, 42, 0.98) 70%
-  );
-}
-
-#analysisShell[data-lens="neutral_mirror"] .team-card-header h2{
-  text-shadow:
-    0 0 8px  rgba(var(--mi-role-neutral-mirror-rgb), 0.36),
-    0 0 14px rgba(var(--mi-role-neutral-mirror-rgb), 0.26);
-}
-
-#analysisShell[data-lens="neutral_mirror"] .team-card-header .team-role-pill,
-#analysisShell[data-lens="neutral_mirror"] .team-card-header .cind-tag,
-#analysisShell[data-lens="neutral_mirror"] .team-card-header .fav-tag{
-  color: var(--mi-role-neutral-mirror);
-  text-shadow:
-    0 0 6px  rgba(var(--mi-role-neutral-mirror-rgb), 0.50),
-    0 0 12px rgba(var(--mi-role-neutral-mirror-rgb), 0.32);
 }
 
 /* =========================================================
@@ -11928,6 +11148,7 @@ body::before{
   cursor: pointer;
   user-select: none;
   text-align: left;
+  pointer-events: auto;
 }
 
 .version-badge-btn .vb-line1{
@@ -12088,9 +11309,7 @@ body::before{
   line-height: 18px;
   text-align: center;
   border-radius: 999px;
-  border: 1px solid rgba(var(--mi-verdict-rgb), 0.45);
   background: rgba(9,9,15,0.55);
-  box-shadow: 0 0 12px rgba(var(--mi-verdict-rgb), 0.12);
   transform: translateY(-0.5px);
 }
 
@@ -12104,596 +11323,9 @@ body::before{
 
 /* Ensure it never overlaps content */
 .flip-tile .tile-face.tile-front{
-  padding-bottom: 34px;
+  padding-bottom: 8px;
 }
 
-/* ==========================================================================
-   MADNESS INDEX — ALL MEDIA QUERIES (CONSOLIDATED)
-   Ordered: largest → smallest breakpoint.
-   prefers-reduced-motion first, then width breakpoints descending.
-   Within each block, later declarations in the original cascade win
-   and are the only ones kept here.
-   ========================================================================== */
-
-
-/* =========================================================
-   PREFERS-REDUCED-MOTION (merged from 4 separate blocks)
-   ========================================================= */
-@media (prefers-reduced-motion: reduce) {
-  .enhanced-header { transition: none !important; }
-  .hero-tagline { transform: none; }
-
-  .pre-hub-status.is-100 .pre-status-fill,
-  .pre-hub-status.is-100 .pre-status-fill::after { animation: none !important; }
-
-  #verdictShell::before,
-  #verdictShell::after,
-  #verdictShell .mi-verdict-shell-inner::before,
-  #verdictShell .mi-verdict-shell-inner::after {
-    animation: none !important;
-    transition: none !important;
-  }
-  #verdictShell.mi-lean-solid .mi-verdict-shell-inner::before,
-  #verdictShell.mi-lean-heavy .mi-verdict-shell-inner::before { animation: none !important; }
-  #verdictShell.mi-verdict-hit .mi-verdict-shell-inner::after { animation: none !important; opacity: 0.35; }
-
-  #verdictShell .mi-scorebug-line.is-structured .mi-verdict-headline,
-  #verdictShell .mi-scorebug-line.is-structured .mi-verdict-break,
-  #verdictShell .mi-scorebug-line.is-structured .mi-verdict-subdeck { animation: none !important; }
-}
-
-
-/* =========================================================
-   980px — Pre-hub steps + interactions stack
-   ========================================================= */
-@media (max-width: 980px) {
-  .pre-hub-steps { grid-template-columns: 1fr; }
-  .interactions-grid { grid-template-columns: 1fr; }
-  .interactions-console-tile { min-height: unset; }
-  .int-console-body { max-height: 360px; }
-}
-
-
-/* =========================================================
-   960px — General layout collapse
-   ========================================================= */
-@media (max-width: 960px) {
-  .app-shell { padding: 16px 10px 24px; }
-  .pre-setup-row { grid-template-columns: 1fr; }
-  .top-bar { grid-template-columns: 1fr; }
-  .result-layout { grid-template-columns: 1fr; }
-  .summary-grid { grid-template-columns: 1fr; }
-  .interactions-grid { grid-template-columns: 1fr; }
-}
-
-
-/* =========================================================
-   900px — Cards, matchup bar, interaction tables
-   ========================================================= */
-@media (max-width: 900px) {
-  .card { padding: 12px 12px 10px; }
-
-  .mark-chip {
-    width: 150px;
-    min-width: 150px;
-    max-width: 150px;
-    min-height: 165px;
-    max-height: 165px;
-  }
-
-  /* Matchup bar: 3-col → single-column, centered */
-  .matchup-bar-main {
-    grid-template-columns: 1fr !important;
-    row-gap: 10px;
-    column-gap: 0;
-    text-align: center;
-  }
-  .matchup-bar-left,
-  .matchup-bar-right {
-    align-items: center !important;
-    text-align: center !important;
-  }
-  .matchup-bar-center { gap: 6px; }
-  .matchup-quick-slot { max-width: 100% !important; }
-
-  /* Interactions: 2-col → 1-col */
-  .interactions-grid {
-    grid-template-columns: 1fr !important;
-    gap: 12px;
-  }
-  .legend-header--interactions {
-    display: grid !important;
-    grid-template-columns: 1fr !important;
-    gap: 8px;
-  }
-  .interactions-head--left,
-  .interactions-head--right { justify-content: center; }
-
-  /* Tables: horizontal scroll instead of crushing columns */
-  .interaction-table-wrap {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-  .interaction-table { min-width: 640px; }
-  #summaryTable {
-    display: block;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-  #summaryTable.summary-table { min-width: 680px; }
-}
-
-
-/* =========================================================
-   860px — Verdict shell layout collapse
-   (merged 3 blocks; second .mi-scorebug-top block wins)
-   ========================================================= */
-@media (max-width: 860px) {
-  #verdictShell .mi-verdict-grid {
-    grid-template-columns: 1fr;
-    gap: 16px;
-    align-items: stretch;
-  }
-  #verdictShell .mi-scorebug-top {
-    max-width: 100%;
-    align-items: center;
-    text-align: center;
-    padding-left: 0;
-  }
-  #verdictShell .mi-scorebug-line {
-    font-size: 26px;
-    line-height: 1.10;
-  }
-  #verdictShell .mi-verdict-support {
-    text-align: center;
-    justify-items: center;
-  }
-  #verdictShell .mi-verdict-rail {
-    max-width: 520px;
-    margin: 0 auto;
-    padding-left: 0;
-  }
-  #verdictShell .mi-verdict-rail::before { display: none; }
-  #verdictShell .mi-verdict-actions.mi-verdict-actions-rail { justify-content: center; }
-  #verdictShell .mi-evidence-toggle { width: 100%; }
-  #miEvidenceToggle.mi-evidence-toggle { width: min(520px, calc(100% - 28px)); }
-}
-
-
-/* =========================================================
-   768px — Team cards, marks, hero type
-   ========================================================= */
-@media (max-width: 768px) {
-  .hero-title { letter-spacing: 0.14em; }
-  .hero-logo { max-height: 90px; }
-  .version-badge { font-size: 10px; }
-  .card { padding: 10px 9px 8px; }
-
-  /* Identity + Resume tiles: stack vertically */
-  .team-card-bottom {
-    grid-template-columns: 1fr !important;
-    gap: 10px;
-  }
-  .team-card-bottom .context-tile.flip-tile,
-  .team-card-bottom .context-tile.flip-tile .flip-tile-inner { min-height: 128px; }
-
-  /* Profile marks: 2-up grid */
-  .inline-marks-strip {
-    justify-content: center;
-    gap: 10px;
-  }
-  .mark-chip {
-    width: calc(50% - 6px);
-    min-width: 0;
-    max-width: none;
-    min-height: 150px;
-    max-height: 150px;
-  }
-}
-
-
-/* =========================================================
-   760px — Matchup log: allow tab wrapping on narrow screens
-   ========================================================= */
-@media (max-width: 760px) {
-  #matchupBar .mi-log-top3 { flex-wrap: wrap; }
-  #matchupBar .mi-log-top3 .mi-log-row {
-    max-width: none;
-    flex: 1 1 calc(50% - 10px);
-  }
-}
-
-
-/* =========================================================
-   720px — Full mobile pass
-   (merged 8 blocks; v3.92 values are authoritative where they
-   conflict with earlier declarations in the same block)
-   ========================================================= */
-@media (max-width: 720px) {
-
-  /* --- Overflow safety --- */
-  html, body { overflow-x: hidden; }
-  html {
-    --mi-scale-global: 0.86;
-    font-size: calc(16px * var(--mi-scale-global));
-    line-height: 1.25;
-  }
-  body {
-    padding-left:  max(14px, var(--mi-safe-left));
-    padding-right: max(14px, var(--mi-safe-right));
-    padding-bottom: max(12px, var(--mi-safe-bottom));
-  }
-
-  /* --- Density tokens --- */
-  :root {
-    --mi-scale-scorecard: 0.88;
-    --mi-type:    0.875rem;
-    --mi-type-sm: 0.75rem;
-    --mi-kicker:  0.65625rem;
-    --mi-pad:     0.75rem;
-    --mi-gap:     0.625rem;
-    --mi-radius:  1.125rem;
-  }
-
-  /* Section variables */
-  #verdictShell        { --mi-scale-section: 1; }
-  .mi-matchup-dock     { --mi-scale-section: 1; }
-  #summarySection      { --mi-scale-section: 1; }
-  #interactionsSection { --mi-scale-section: 1; }
-  #verdictShell,
-  .mi-matchup-dock,
-  #summarySection,
-  #interactionsSection { font-size: calc(1rem * var(--mi-scale-section)); }
-
-  /* --- Min-width guards (prevent blowout) --- */
-  .app-shell, .card, section, main, aside, header, footer,
-  .tile-face, .flip-tile, .mi-verdict-shell-inner, .mi-verdict-grid,
-  .summary-grid, .result-layout, .matchup-bar-main,
-  #matchupBar, #verdictShell, #summarySection, #interactionsSection,
-  .mi-matchup-dock { min-width: 0; }
-
-  /* --- Media + text wrap guards --- */
-  img, canvas, video { max-width: 100%; height: auto; }
-  pre, code { white-space: pre-wrap; overflow-wrap: anywhere; }
-  h1, h2, h3, h4, p, span, label, button, a {
-    overflow-wrap: anywhere;
-    word-break: break-word;
-  }
-
-  /* --- Spacing rhythm --- */
-  section { margin-top: 0.75rem; }
-
-  /* --- Card + tile padding (v3.92 tokens) --- */
-  .card, .tile, .panel, .mi-card, .mi-tile {
-    padding: var(--mi-pad);
-    border-radius: var(--mi-radius);
-  }
-  .tile-face { padding: 12px !important; }
-
-  /* --- Typography --- */
-  h1, h2, .hero-title {
-    font-size: clamp(1.05rem, 5.1vw, 1.5rem);
-    line-height: 1.1;
-  }
-  .hero-subtitle { font-size: clamp(12px, 3.6vw, 15px); }
-  .mi-metrics-back-text {
-    font-size: clamp(12px, 3.6vw, 14px);
-    line-height: 1.25;
-  }
-
-  /* --- Pill / kicker components --- */
-  .matchup-kicker, .pill, .chip, .toggle {
-    font-size: var(--mi-kicker);
-    padding: 0.375rem 0.625rem;
-    border-radius: 999px;
-    letter-spacing: 0.06em;
-    white-space: nowrap;
-  }
-
-  /* --- Form controls: tap-friendly sizing --- */
-  select, input { min-height: 44px; }
-  select,
-  input[type="text"],
-  input[type="file"],
-  button, .btn { width: 100%; max-width: 100%; }
-  button, .btn, .mi-evidence-toggle {
-    min-height: 42px;
-    font-size: 0.9375rem;
-    padding: 0.5625rem 0.75rem;
-  }
-
-  .control-row,
-  .round-control-row,
-  .matchup-actions-row { gap: 10px; }
-
-  /* --- Pre-setup cockpit --- */
-  .pre-setup-row { gap: 10px !important; }
-  .pre-matchup-hub,
-  .controls-card,
-  #matchupSetupCard { padding: 14px !important; }
-
-  .controls-card.is-primary-entry .dataset-row { grid-template-columns: 1fr; }
-  .controls-card.is-primary-entry .controls-grid { grid-template-columns: 1fr; }
-  .controls-card.is-primary-entry .field-label { text-align: left; }
-
-  /* --- Matchup bar: re-stack + left-align at mobile --- */
-  .matchup-bar-main {
-    grid-template-columns: 1fr !important;
-    row-gap: 10px;
-    column-gap: 0;
-    padding: 10px;
-  }
-  .matchup-bar-left,
-  .matchup-bar-right {
-    align-items: flex-start !important;
-    text-align: left !important;
-  }
-  .matchup-bar-team { max-width: 100%; white-space: normal !important; }
-  .matchup-bar-team span { display: block; line-height: 1.05; }
-  .matchup-bar-center { justify-items: start; text-align: left; }
-  .matchup-bar-vs { display: none; }
-  .matchup-quick-slot { max-width: 100% !important; }
-  .matchup-quick-actions { width: 100%; gap: 10px; }
-
-  /* --- Verdict shell --- */
-  #verdictShell { box-shadow: 0 16px 34px rgba(0,0,0,0.5); }
-  #verdictShell .mi-verdict-grid {
-    display: flex !important;
-    flex-direction: column;
-    gap: 12px;
-  }
-  #verdictShell .mi-verdict-main,
-  #verdictShell .mi-verdict-rail { width: 100%; max-width: 100%; }
-  #verdictShell .mi-verdict-metrics-tile { min-height: 210px !important; }
-  #verdictShell .mi-scorebug-top {
-    grid-template-columns: 1fr;
-    justify-items: start;
-  }
-  #verdictShell .mi-scorebug-score { width: 100%; justify-items: center; }
-  #verdictShell .mi-scorebug-kicker { font-size: 11px; letter-spacing: 0.14em; }
-  #verdictShell .mi-scorebug-line {
-    font-size: clamp(14px, 4.2vw, 18px);
-    line-height: 1.12;
-  }
-  #verdictShell .mi-verdict-actions {
-    flex-direction: column;
-    align-items: stretch;
-  }
-  #verdictShell .mi-evidence-preview { text-align: center; max-width: 100%; }
-  #miEvidenceToggle.mi-evidence-toggle {
-    width: 100% !important;
-    min-height: 44px;
-    justify-content: center;
-  }
-
-  /* --- Analysis / scorecards --- */
-  .result-layout { grid-template-columns: 1fr !important; gap: 12px; }
-  .team-card-header h2 {
-    font-size: calc(24px * var(--mi-scale-scorecard));
-    line-height: 1.05;
-  }
-  .profile-section,
-  .neutral-section,
-  .marks-section,
-  .identity-section { margin: 4px 0 0; padding: 10px 10px 9px; }
-
-  /* --- Explain tables --- */
-  .explain-table { table-layout: fixed; }
-  .explain-table th,
-  .explain-table td { white-space: normal; overflow-wrap: anywhere; }
-  .explain-table thead th { padding-top: 6px; padding-bottom: 6px; }
-
-  /* --- Summary section --- */
-  #summarySection .summary-col-mid .summary-gap-line { grid-template-columns: 1fr auto; }
-  #summarySection .summary-col-mid .summary-gap-line .summary-note { grid-column: 1 / -1; }
-
-  /* --- Footer --- */
-  #appFooter .footer-contact { flex-direction: column; align-items: flex-start; }
-
-  /* --- Debug panel --- */
-  .debug-content { white-space: pre-wrap; overflow-x: hidden; }
-
-  /* ===== MATCHUP LOG (v3.92) ===== */
-  #matchupBar .mi-log-lean,
-  #matchupBar .mi-log-spacer { display: none !important; }
-
-  #matchupBar { --mi-log-scale: 0.82; }
-
-  #matchupBar .mi-log-top3 .mi-log-row,
-  #matchupBar .mi-log-more-list .mi-log-row {
-    display: grid;
-    align-items: center;
-    column-gap: calc(0.5rem * var(--mi-log-scale));
-    height:     calc(2.05rem * var(--mi-log-scale));
-    padding:    calc(0.35rem * var(--mi-log-scale)) calc(0.65rem * var(--mi-log-scale));
-    border-radius: calc(0.85rem * var(--mi-log-scale));
-    grid-template-columns:
-      2.1rem            /* tag   */
-      minmax(0, 1fr)    /* name A */
-      3.25rem           /* MI A  */
-      1.25rem           /* arrow */
-      3.25rem           /* MI B  */
-      minmax(0, 1fr);   /* name B */
-    font-size: calc(1rem * var(--mi-log-scale));
-    line-height: 1.05;
-  }
-  /* Kill legacy explicit placements */
-  #matchupBar .mi-log-top3 .mi-log-row > *,
-  #matchupBar .mi-log-more-list .mi-log-row > * {
-    grid-column: auto !important;
-    min-width: 0;
-  }
-
-  #matchupBar .mi-log-name.a,
-  #matchupBar .mi-log-name.b { font-size: 0.95em; letter-spacing: 0.01em; }
-  #matchupBar .mi-log-mi.a,
-  #matchupBar .mi-log-mi.b   { font-size: 0.96em; font-weight: 850; }
-  #matchupBar .mi-log-tag    { font-size: 0.82em; letter-spacing: 0.10em; }
-
-  /* Arrow lane */
-  #matchupBar .mi-log-arrows {
-    grid-column: 4 !important;
-    width: 22px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 0;
-  }
-  #matchupBar .mi-log-arrows .mi-log-arrow               { display: none !important; }
-  #matchupBar .mi-log-arrows .mi-log-arrow:first-child    { display: inline-block !important; }
-  #matchupBar .mi-log-arrows .mi-log-arrow:nth-child(2)   { display: inline-block !important; }
-  /* Suppress first child when second exists */
-  #matchupBar .mi-log-arrows .mi-log-arrow:nth-child(2) ~ .mi-log-arrow { display: none !important; }
-  #matchupBar .mi-log-arrows.left,
-  #matchupBar .mi-log-arrows.right { display: inline-flex !important; }
-}
-
-
-/* =========================================================
-   600px — Header, hero, and verdict density
-   (merged 3 verdict blocks; winning values kept)
-   ========================================================= */
-@media (max-width: 600px) {
-  /* Header */
-  .enhanced-header { padding: 20px 14px 18px; border-radius: 18px; }
-  .hero-title { font-size: 24px; }
-
-  /* Post-matchup hero collapse */
-  .app-shell.has-matchup .enhanced-header {
-    grid-template-columns: 1fr !important;
-    row-gap: 10px;
-    text-align: center;
-  }
-  .app-shell.has-matchup .hero-logo-wrap { justify-self: center !important; }
-  .app-shell.has-matchup .hero-text-wrap { grid-column: auto !important; }
-  .hero-matchup-hud { gap: 12px; }
-
-  /* ===== Verdict Shell density ===== */
-  #verdictShell { padding-top: 6px !important; border-radius: 16px; }
-  #verdictShell .mi-verdict-main  { padding: 6px; }
-  #verdictShell .mi-verdict-shell-inner { padding: 6px !important; }
-
-  /* Scorebug top: full-width centering lane */
-  #verdictShell .mi-scorebug-top {
-    padding-left: 0 !important;
-    gap: 8px !important;
-    align-items: center !important;
-    text-align: center !important;
-    max-width: 100% !important;
-  }
-
-  /* Kicker: suppress text, show logo banner via ::after
-     (font-size:0 from hero-logo block wins over density's 10px) */
-  #verdictShell .mi-scorebug-kicker {
-    font-size: 0 !important;
-    line-height: 0 !important;
-    letter-spacing: 0.22em !important;
-    gap: 8px !important;
-    padding-bottom: 0 !important;
-    background-size: 44px 1px !important;
-    align-items: center;
-    text-align: center;
-  }
-  /* More specific: kicker inside scorebug-top */
-  #verdictShell .mi-scorebug-top .mi-scorebug-kicker {
-    width: 100% !important;
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
-    justify-content: flex-start !important;
-    text-align: center !important;
-  }
-
-  /* Logo banner pseudo-element */
-  #verdictShell .mi-scorebug-kicker::after {
-    display: block !important;
-    margin: 0 auto !important;
-    width: clamp(180px, 62vw, 280px) !important;
-    aspect-ratio: 1035 / 189 !important;
-    height: auto !important;
-    background-image: url("assets/img/logos/madness-index-mobile-logo.PNG") !important;
-    background-repeat: no-repeat !important;
-    background-position: center !important;
-    background-size: contain !important;
-    border-radius: 12px !important;
-  }
-  /* Centering override (more specific selector) */
-  #verdictShell .mi-scorebug-top .mi-scorebug-kicker::after {
-    display: block !important;
-    margin-left: auto !important;
-    margin-right: auto !important;
-  }
-
-  /* Verdict line */
-  #verdictShell .mi-scorebug-line.is-structured { gap: 8px !important; }
-  #verdictShell .mi-scorebug-line.is-structured .mi-verdict-headline {
-    font-size: clamp(18px, 5.4vw, 22px) !important;
-    line-height: 1.10 !important;
-    letter-spacing: -0.01em !important;
-    max-width: 22ch;
-    margin: 0 auto;
-  }
-  #verdictShell .mi-scorebug-line.is-structured .mi-verdict-why {
-    font-size: clamp(13px, 3.9vw, 15px) !important;
-    line-height: 1.32 !important;
-    max-width: 40ch !important;
-    margin: 0 auto;
-  }
-  #verdictShell .mi-scorebug-line:not(.is-structured) {
-    font-size: clamp(18px, 5.4vw, 22px) !important;
-    line-height: 1.10 !important;
-    max-width: 22ch;
-    margin: 0 auto;
-  }
-
-  /* Rail */
-  #verdictShell .mi-verdict-rail {
-    gap: 12px !important;
-    padding-left: 0 !important;
-    max-width: 520px;
-    margin: 0 auto;
-  }
-  #verdictShell .mi-verdict-rail::before { display: none !important; }
-
-  /* Evidence CTA */
-  #verdictShell #miEvidenceToggle.mi-evidence-toggle {
-    padding: 11px 14px !important;
-    font-size: 14px !important;
-    width: min(520px, calc(100% - 18px)) !important;
-  }
-
-  /* Disclaimer */
-  #verdictShell .mi-verdict-footer { padding: 4px 0 0 !important; }
-  #verdictShell .mi-verdict-disclaimer {
-    font-size: 10.5px !important;
-    line-height: 1.32 !important;
-    max-width: 46ch !important;
-  }
-}
-
-
-/* =========================================================
-   420px — Extra-small phones
-   ========================================================= */
-@media (max-width: 420px) {
-  html { font-size: calc(16px * 0.83); }
-  :where(.app-shell, body) { --mi-scale-global: 0.85; }
-  .mi-matchup-dock { --mi-dock-scale: 0.86; }
-  :root { --mi-scale-scorecard: 0.84; }
-
-  .card { padding-left: 12px; padding-right: 12px; }
-  .mark-chip { width: 100%; }
-  #verdictShell .mi-verdict-metrics-tile { min-height: 190px !important; }
-  .explain-table th,
-  .explain-table td { padding: 6px 7px; }
-
-  /* Matchup log: tighter scale + narrower numeric lanes */
-  #matchupBar { --mi-log-scale: 0.76; }
-  #matchupBar .mi-log-top3 .mi-log-row,
-  #matchupBar .mi-log-more-list .mi-log-row {
-    grid-template-columns: 2.0rem minmax(0,1fr) 3.05rem 1.15rem 3.05rem minmax(0,1fr);
-  }
-}
 /* =========================================================
    GLOBAL SCROLLBAR SYSTEM
    (matches Interaction Console aesthetic)
@@ -16965,18 +15597,6 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
   text-align: center;
 }
 
-/* =========================================================
-   VERDICT SCOREBUG — final width + de-noise + bar emphasis
-   Paste at VERY BOTTOM of styles2.css
-   ========================================================= */
-
-/* 1) Rebalance the verdict shell so the scorebug gets more real estate */
-#verdictShell .mi-verdict-grid{
-  display: grid !important;
-  grid-template-columns: minmax(0, 1.18fr) minmax(420px, 0.92fr) !important;
-  gap: 22px !important;
-  align-items: stretch !important;
-}
 
 /* Let the left proclamation breathe, but not dominate */
 #verdictShell .mi-verdict-main{
@@ -16992,14 +15612,6 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
 #verdictShell .mi-scorebug-line{
   max-width: 34ch !important;
   min-height: 0 !important;
-}
-
-/* 2) Give the right rail full width and stop it from collapsing inward */
-#verdictShell .mi-verdict-rail{
-  min-width: 0;
-  width: 100%;
-  display: flex;
-  align-items: stretch;
 }
 
 #miVerdictMetricsTile{
@@ -19178,7 +17790,6 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
   color: var(--mi-brand-b, var(--syn-role-b)) !important;
 }
 
-
 /* =========================================================
    TEAM BRAND CLUSTERS
    Matches new canonical HTML structure:
@@ -19376,13 +17987,13 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
   content: "";
   position: absolute;
   inset: 0 auto 0 0;
-  width: 4px;
+  width: 6px;
   background: linear-gradient(
     to bottom,
     var(--team-primary),
-    color-mix(in srgb, var(--team-secondary) 60%, var(--team-primary) 40%)
+    color-mix(in srgb, var(--team-secondary) 99%, var(--team-primary) 1%)
   );
-  box-shadow: 0 0 14px color-mix(in srgb, var(--team-primary) 38%, transparent);
+  box-shadow: 0 0 28px color-mix(in srgb, var(--team-primary) 42%, transparent);
 }
 
 .mi-team-brand--scorebug::after {
@@ -19505,7 +18116,7 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
   column-gap: 12px;
   align-items: center;
 
-  padding: 12px 14px;
+  padding: 1px;
   border-radius: 16px;
   overflow: hidden;
   isolation: isolate;
@@ -19531,8 +18142,7 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
     0 0 28px rgb(var(--team-secondary-ambient-rgb) / 0.08);
 }
 
-.mi-team-brand--card::before,
-.mi-team-brand--summary::before {
+.mi-team-brand--card::before {
   content: "";
   position: absolute;
   inset: 0 auto 0 0;
@@ -19597,9 +18207,7 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
   content: "";
   position: absolute;
   left: 0;
-  bottom: -1px;
   width: min(46%, 170px);
-  height: 1px;
   border-radius: 999px;
   background: linear-gradient(
     90deg,
@@ -19717,10 +18325,6 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
   border-radius: 0;
 }
 
-.mi-team-brand--summary::before {
-  width: 3px;
-}
-
 .mi-team-brand--summary .mi-team-brand-logo {
   width: 34px;
   height: 34px;
@@ -19822,4 +18426,3109 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+/* =========================================================
+   TEAM BRAND CLUSTERS
+   Matches canonical HTML structure:
+   - .mi-team-brand
+   - .mi-team-brand--scorebug
+   - .mi-team-brand--card
+   - .mi-team-brand-logo
+   - .mi-team-brand-name
+   ========================================================= */
+
+/* Base brand wrapper */
+.mi-team-brand{
+  display: grid;
+  align-items: center;
+  min-width: 0;
+}
+
+/* Shared logo rules */
+.mi-team-brand-logo{
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  flex: 0 0 auto;
+}
+
+/* Hide empty logos cleanly */
+.mi-team-brand-logo[hidden]{
+  display: none !important;
+}
+
+/* Shared name rules */
+.mi-team-brand-name{
+  min-width: 0;
+}
+
+/* =========================================================
+   SCOREBUG BRAND CLUSTER
+   ========================================================= */
+
+.mi-scorebug-team-head{
+  width: 100%;
+  min-width: 0;
+  display: block;
+  padding-left: 0;
+  margin-bottom: 3px;
+}
+
+.mi-team-brand--scorebug{
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr);
+  column-gap: 8px;
+  align-items: center;
+}
+
+.mi-team-brand--scorebug:has(.mi-team-brand-logo[hidden]){
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.mi-team-brand--scorebug .mi-team-brand-logo{
+  width: 42px;
+  height: 42px;
+  margin-right: 0;
+  justify-self: start;
+  align-self: center;
+  filter: drop-shadow(0 2px 8px rgba(0,0,0,0.35));
+}
+
+.mi-team-brand--scorebug .mi-team-brand-name{
+  display: block;
+  min-width: 0;
+  width: 100%;
+  padding-bottom: 8px;
+  line-height: 1.1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.32);
+}
+
+/* Preserve old scorebug text feel on new structure */
+#miScorebugTeamA,
+#miScorebugTeamB{
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  text-align: left;
+}
+
+/* =========================================================
+   TEAM CARD HEADER BRAND CLUSTER
+   ========================================================= */
+
+.team-card-header-main{
+  width: 100%;
+  min-width: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.mi-team-brand--card{
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr);
+  column-gap: 10px;
+  align-items: center;
+}
+
+.mi-team-brand--card:has(.mi-team-brand-logo[hidden]){
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.mi-team-brand--card .mi-team-brand-logo{
+  width: 40px;
+  height: 40px;
+  justify-self: start;
+  align-self: center;
+  filter: drop-shadow(0 4px 10px rgba(0,0,0,0.30));
+}
+
+.mi-team-brand--card .team-label-wrap{
+  min-width: 0;
+  width: 100%;
+}
+
+.mi-team-brand--card .mi-team-brand-name{
+  display: block;
+  min-width: 0;
+  width: 100%;
+}
+
+.team-card-header h2#teamATitle,
+.team-card-header h2#teamBTitle{
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ==========================================================================
+   § TEAM HEADER — Branding Ownership Override
+   PURPOSE:
+   Preserve role/lens semantics and label colors,
+   but transfer ALL header glow and plate visuals to team branding.
+
+   SAFE TO DROP AT VERY BOTTOM OF styles2.css
+   ========================================================================== */
+
+
+/* ─────────────────────────────────────────────
+   1) TEAM NAME GLOW — Always use team branding
+   (replaces role/lens-driven glow)
+   ───────────────────────────────────────────── */
+
+.team-card-header h2 {
+  color: var(--team-primary) !important;
+
+  text-shadow:
+    0 0 6px rgba(var(--team-primary-rgb) / 0.55),
+    0 0 12px rgba(var(--team-primary-rgb) / 0.35),
+    0 0 18px rgba(var(--team-primary-rgb) / 0.18) !important;
+
+  transition:
+    color 180ms ease,
+    text-shadow 220ms ease;
+}
+
+
+/* Remove any mirror / role overrides that previously controlled title glow */
+
+#analysisShell[data-lens] .team-card-header h2 {
+  color: var(--team-primary) !important;
+
+  text-shadow:
+    0 0 6px rgba(var(--team-primary-rgb) / 0.55),
+    0 0 12px rgba(var(--team-primary-rgb) / 0.35),
+    0 0 18px rgba(var(--team-primary-rgb) / 0.18) !important;
+}
+
+
+
+/* ─────────────────────────────────────────────
+   2) HEADER BACKPLATE GLOW — Brand-owned
+   (replaces role-based :has(.fav-tag) etc.)
+   ───────────────────────────────────────────── */
+
+.team-card-header::before {
+  background:
+    linear-gradient(
+      135deg,
+      rgba(var(--team-primary-rgb) / 0.22),
+      rgba(var(--team-primary-rgb) / 0.06)
+    ) !important;
+
+  box-shadow:
+    0 0 18px rgba(var(--team-primary-rgb) / 0.35),
+    inset 0 0 10px rgba(var(--team-primary-rgb) / 0.18) !important;
+
+  border-color:
+    rgba(var(--team-primary-rgb) / 0.38) !important;
+
+  transition:
+    background 220ms ease,
+    box-shadow 220ms ease,
+    border-color 220ms ease;
+}
+
+
+/* Neutralize mirror/lens-specific header overrides */
+
+#analysisShell[data-lens] .team-card-header::before {
+  background:
+    linear-gradient(
+      135deg,
+      rgba(var(--team-primary-rgb) / 0.22),
+      rgba(var(--team-primary-rgb) / 0.06)
+    ) !important;
+
+  box-shadow:
+    0 0 18px rgba(var(--team-primary-rgb) / 0.35),
+    inset 0 0 10px rgba(var(--team-primary-rgb) / 0.18) !important;
+
+  border-color:
+    rgba(var(--team-primary-rgb) / 0.38) !important;
+}
+
+
+
+/* ─────────────────────────────────────────────
+   3) ROLE LABELS — Keep color, reduce dominance
+   (semantics preserved, visual hierarchy lowered)
+   ───────────────────────────────────────────── */
+
+.fav-tag,
+.cind-tag,
+.chalk-tag,
+.chaos-tag,
+.neutral-tag {
+
+  opacity: 0.82;
+
+  text-shadow:
+    0 0 4px currentColor,
+    0 0 8px currentColor;
+
+  filter: saturate(0.92);
+
+  transition:
+    opacity 160ms ease,
+    filter 160ms ease;
+}
+
+/* Slightly dim role label glow inside analysis shell */
+
+#analysisShell .fav-tag,
+#analysisShell .cind-tag,
+#analysisShell .chalk-tag,
+#analysisShell .chaos-tag,
+#analysisShell .neutral-tag {
+
+  opacity: 0.78;
+
+  text-shadow:
+    0 0 3px currentColor,
+    0 0 6px currentColor;
+}
+
+/* ─────────────────────────────────────────────
+   4) SAFETY — Disable legacy role plate ownership
+   (does NOT remove classes — only visual control)
+   ───────────────────────────────────────────── */
+
+.team-card-header:has(.fav-tag)::before,
+.team-card-header:has(.cind-tag)::before,
+.team-card-header:has(.chalk-tag)::before,
+.team-card-header:has(.chaos-tag)::before,
+.team-card-header:has(.neutral-tag)::before {
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(var(--team-primary-rgb) / 0.22),
+      rgba(var(--team-primary-rgb) / 0.06)
+    ) !important;
+
+  box-shadow:
+    0 0 18px rgba(var(--team-primary-rgb) / 0.35),
+    inset 0 0 10px rgba(var(--team-primary-rgb) / 0.18) !important;
+
+  border-color:
+    rgba(var(--team-primary-rgb) / 0.38) !important;
+}
+
+/* ==========================================================================
+   § TEAM HEADER — Role Tag Separation / Hierarchy Override
+   PURPOSE:
+   Keep role tags visible, but clearly separated from the team name.
+   Pure CSS only. Safe to paste at bottom of styles2.css.
+   ========================================================================== */
+
+/* 1) Make the whole header breathe a bit more vertically */
+.team-card-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px !important;
+  position: relative;
+}
+
+/* 2) Role tags become quiet overlines instead of pseudo-headlines */
+.fav-tag,
+.cind-tag,
+.chalk-tag,
+.chaos-tag,
+.neutral-tag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  position: relative;
+  z-index: 2;
+
+  padding: 8px 10px;
+  border-radius: 999px;
+
+  font-size: 11px !important;
+  line-height: 1;
+  font-weight: 800 !important;
+  letter-spacing: 0.24em !important;
+  text-transform: uppercase;
+
+  opacity: 0.72 !important;
+  filter: saturate(0.85);
+
+  text-shadow:
+    0 0 2px currentColor,
+    0 0 5px currentColor !important;
+
+  background: rgba(2, 6, 23, 0.28);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+/* 3) Add a subtle divider line under the role tag */
+.fav-tag::after,
+.cind-tag::after,
+.chalk-tag::after,
+.chaos-tag::after,
+.neutral-tag::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  top: calc(100% + 8px);
+
+  width: 56px;
+  height: 1px;
+  border-radius: 999px;
+
+  background: linear-gradient(
+    90deg,
+    rgba(255,255,255,0),
+    rgba(255,255,255,0.30),
+    rgba(255,255,255,0)
+  );
+
+  box-shadow: 0 0 8px rgba(255,255,255,0.08);
+  pointer-events: none;
+}
+
+/* 4) Push the team name farther away so it reads as the primary object */
+.team-card-header h2 {
+  position: relative;
+  z-index: 2;
+  margin-top: 8px !important;
+
+  font-size: clamp(1.75rem, 2.6vw, 2.2rem) !important;
+  line-height: 1.02;
+}
+
+/* 5) Optional: tighten the role tag even more inside analysis shells */
+#analysisShell .fav-tag,
+#analysisShell .cind-tag,
+#analysisShell .chalk-tag,
+#analysisShell .chaos-tag,
+#analysisShell .neutral-tag {
+  opacity: 0.66 !important;
+  transform: translateY(-1px);
+}
+
+/* 6) Optional: if you want the team name to feel even more dominant */
+#analysisShell .team-card-header h2,
+.team-card-header h2 {
+  letter-spacing: -0.01em;
+}
+
+/* ==========================================================================
+   § TEAM CARD HEADER — Tight Logo/Name Cluster Override
+   PURPOSE:
+   Keep the card header centered, but stop the logo from living at the far-left
+   edge of a full-width brand wrapper. Makes the logo feel attached to the team
+   name block.
+   Safe to paste at the very bottom of styles2.css.
+   ========================================================================== */
+
+/* 1) Center the whole header as a content cluster, not a stretched row */
+.team-card-header-main{
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  width: 100% !important;
+  min-width: 0 !important;
+}
+
+/* 2) Shrink-wrap the brand cluster instead of letting it span full width */
+.team-card-header .mi-team-brand--card{
+  display: inline-grid !important;
+  grid-template-columns: auto minmax(0, auto) !important;
+  column-gap: 12px !important;
+  align-items: center !important;
+
+  width: auto !important;
+  max-width: min(100%, 520px) !important;
+  min-width: 0 !important;
+
+  justify-content: center !important;
+}
+
+/* 3) If no logo exists, collapse to just the text stack cleanly */
+.team-card-header .mi-team-brand--card:has(.mi-team-brand-logo[hidden]){
+  grid-template-columns: minmax(0, auto) !important;
+}
+
+/* 4) Keep the logo visually attached to the text block */
+.team-card-header .mi-team-brand--card .mi-team-brand-logo{
+  width: 70px !important;
+  height: 70px !important;
+  justify-self: end !important;
+  align-self: center !important;
+}
+
+/* 5) Stop the text lane from stretching across the header */
+.team-card-header .mi-team-brand--card .team-label-wrap{
+  width: auto !important;
+  min-width: 0 !important;
+
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* 6) Make the team name size to its content instead of a fake full-width lane */
+.team-card-header .mi-team-brand--card .mi-team-brand-name,
+.team-card-header h2#teamATitle,
+.team-card-header h2#teamBTitle{
+  display: block !important;
+  width: auto !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+
+  text-align: center !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+/* 7) Keep the role tag centered directly above the team name */
+.team-card-header .role-tag,
+.team-card-header .cind-tag,
+.team-card-header .fav-tag,
+.team-card-header .chalk-tag,
+.team-card-header .chaos-tag,
+.team-card-header .neutral-tag{
+  align-self: center !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+/* ==========================================================================
+   § TEAM CARD HEADER — Logo Proximity Only
+   PURPOSE:
+   Keep the existing full-width header container/plate,
+   but move the logo closer to the team name text.
+   ========================================================================== */
+
+/* 1) Preserve the existing full-width card header brand wrapper */
+.team-card-header .mi-team-brand--card{
+  width: 100% !important;
+  max-width: none !important;
+  min-width: 0 !important;
+
+  /* keep your existing layout, just tighten the logo/text spacing */
+  column-gap: 8px !important;
+}
+
+/* 2) Pull the logo slightly inward toward the text */
+.team-card-header .mi-team-brand--card .mi-team-brand-logo{
+  justify-self: end !important;
+  align-self: center !important;
+}
+
+/* 3) Prevent the text column from visually drifting away */
+.team-card-header .mi-team-brand--card .team-label-wrap{
+  justify-self: start !important;
+  min-width: 0 !important;
+}
+
+/* 4) Keep the team title centered within its own text stack */
+.team-card-header .mi-team-brand--card .mi-team-brand-name,
+.team-card-header h2#teamATitle,
+.team-card-header h2#teamBTitle{
+  margin: 0 !important;
+  text-align: center !important;
+}
+
+/* ========================================================
+   TEAM SHELL COLOR OVERRIDE ONLY
+   REPLACEMENT MODULE — corrected RGB syntax
+   ========================================================= */
+
+#cindCard,
+#favCard{
+  position: relative !important;
+  overflow: hidden !important;
+  isolation: isolate !important;
+  border-radius: 18px !important;
+  background: transparent !important;
+
+  box-shadow:
+    0 0 0 1px rgb(var(--team-primary-rgb, 148 163 184) / 0.12) inset,
+    0 12px 34px rgb(0 0 0 / 0.34),
+    0 0 22px rgb(var(--team-primary-rgb, 148 163 184) / 0.10) !important;
+}
+
+#cindCard::before,
+#favCard::before{
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      140% 90% at 50% -10%,
+      rgb(var(--team-primary-rgb, 148 163 184) / 0.16) 0%,
+      rgb(var(--team-secondary-rgb, 255 255 255) / 0.06) 24%,
+      transparent 58%
+    ),
+    radial-gradient(
+      110% 80% at 50% 100%,
+      rgb(var(--team-primary-rgb, 148 163 184) / 0.08) 0%,
+      transparent 55%
+    ) !important;
+  opacity: 1 !important;
+}
+
+#cindCard > *,
+#favCard > *{
+  position: relative !important;
+  z-index: 1 !important;
+}
+
+#cindCard > .flip-inner > .card-face,
+#favCard > .flip-inner > .card-face{
+  position: relative !important;
+  overflow: hidden !important;
+  isolation: isolate !important;
+
+  background:
+    radial-gradient(
+      130% 78% at 50% 0%,
+      rgb(var(--team-primary-rgb, 148 163 184) / 0.16) 0%,
+      rgb(var(--team-secondary-rgb, 255 255 255) / 0.05) 18%,
+      transparent 48%
+    ),
+    linear-gradient(
+      180deg,
+      rgb(12 17 30 / 0.975) 0%,
+      rgb(8 11 20 / 0.985) 100%
+    ) !important;
+
+  border: 1px solid rgb(var(--team-primary-rgb, 148 163 184) / 0.24) !important;
+
+  box-shadow:
+    0 0 0 1px rgb(var(--team-primary-rgb, 148 163 184) / 0.08) inset,
+    0 14px 36px rgb(0 0 0 / 0.40),
+    0 0 20px rgb(var(--team-primary-rgb, 148 163 184) / 0.08) !important;
+}
+
+#cindCard > .flip-inner > .card-face::before,
+#favCard > .flip-inner > .card-face::before{
+  content: "";
+  position: absolute;
+  inset: -12%;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.26;
+  mix-blend-mode: screen;
+  background:
+    linear-gradient(
+      118deg,
+      transparent 0%,
+      rgb(255 255 255 / 0.00) 16%,
+      rgb(255 255 255 / 0.06) 22%,
+      rgb(170 220 255 / 0.09) 27%,
+      rgb(255 170 210 / 0.07) 33%,
+      rgb(160 255 220 / 0.07) 39%,
+      rgb(255 255 255 / 0.03) 45%,
+      transparent 54%
+    ) !important;
+  transform: rotate(-8deg) translateX(-2%);
+}
+
+#cindCard > .flip-inner > .card-face::after,
+#favCard > .flip-inner > .card-face::after{
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(
+      180deg,
+      rgb(255 255 255 / 0.08) 0%,
+      rgb(255 255 255 / 0.03) 10%,
+      rgb(255 255 255 / 0.00) 32%
+    ),
+    radial-gradient(
+      120% 65% at 50% -8%,
+      rgb(var(--team-primary-rgb, 148 163 184) / 0.10) 0%,
+      transparent 52%
+    ) !important;
+  opacity: 0.95;
+}
+
+#cindCard > .flip-inner > .card-face > *,
+#favCard > .flip-inner > .card-face > *{
+  position: relative !important;
+  z-index: 1 !important;
+}
+
+#cindCard .team-card-header,
+#favCard .team-card-header{
+  position: relative !important;
+  overflow: hidden !important;
+  background:
+    linear-gradient(
+      180deg,
+      rgb(var(--team-primary-rgb, 148 163 184) / 0.10) 0%,
+      rgb(var(--team-primary-rgb, 148 163 184) / 0.04) 30%,
+      rgb(15 23 42 / 0.10) 100%
+    ) !important;
+  border-color: rgb(var(--team-primary-rgb, 148 163 184) / 0.24) !important;
+  box-shadow:
+    0 0 0 1px rgb(var(--team-primary-rgb, 148 163 184) / 0.06) inset,
+    0 8px 18px rgb(0 0 0 / 0.18) !important;
+}
+
+#cindCard .team-card-header::after,
+#favCard .team-card-header::after{
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      90% 100% at 50% 0%,
+      rgb(var(--team-primary-rgb, 148 163 184) / 0.12) 0%,
+      transparent 60%
+    ) !important;
+  opacity: 0.8;
+}
+
+#cindCard .mi-profile-card,
+#cindCard .team-mark-panel,
+#cindCard .mini-tile,
+#favCard .mi-profile-card,
+#favCard .team-mark-panel,
+#favCard .mini-tile{
+  border-color: rgb(var(--team-primary-rgb, 148 163 184) / 0.14) !important;
+  box-shadow:
+    0 0 0 1px rgb(var(--team-primary-rgb, 148 163 184) / 0.04) inset !important;
+}
+
+#cindCard .explain-table th,
+#cindCard .explain-table td,
+#favCard .explain-table th,
+#favCard .explain-table td{
+  background: rgb(2 6 23 / 0.18) !important;
+}
+
+/* =========================================================
+   TEAM CARD HOLOGRAPHIC / BASEBALL-CARD ENHANCEMENT
+   Scoped ONLY to #cindCard and #favCard
+   ========================================================= */
+
+#cindCard,
+#favCard{
+  position: relative;
+  overflow: hidden;
+
+  background:
+    linear-gradient(
+      180deg,
+      rgb(var(--team-primary-rgb, 148 163 184) / 0.10) 0%,
+      rgba(2, 6, 23, 0.94) 18%,
+      rgba(2, 6, 23, 0.98) 100%
+    ) !important;
+
+  border: 1px solid rgb(var(--team-primary-rgb, 148 163 184) / 0.34) !important;
+
+  box-shadow:
+    0 0 0 1px rgb(var(--team-primary-rgb, 148 163 184) / 0.18) inset,
+    0 0 0 2px rgb(var(--team-secondary-rgb, 255 255 255) / 0.06) inset,
+    0 18px 38px rgba(0, 0, 0, 0.50),
+    0 0 22px rgb(var(--team-primary-rgb, 148 163 184) / 0.18),
+    0 0 44px rgb(var(--team-primary-rgb, 148 163 184) / 0.10) !important;
+}
+
+#cindCard::before,
+#favCard::before{
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  border-radius: inherit;
+
+  background:
+    linear-gradient(
+      135deg,
+      rgb(var(--team-secondary-rgb, 255 255 255) / 0.10) 0%,
+      transparent 18%,
+      transparent 82%,
+      rgb(var(--team-primary-rgb, 148 163 184) / 0.10) 100%
+    );
+
+  mix-blend-mode: screen;
+  opacity: 0.65;
+}
+
+#cindCard::after,
+#favCard::after{
+  content: "";
+  position: absolute;
+  inset: 8px;
+  pointer-events: none;
+  z-index: 0;
+  border-radius: 14px;
+
+  background:
+    linear-gradient(
+      115deg,
+      transparent 0%,
+      rgb(255 255 255 / 0.035) 18%,
+      transparent 32%,
+      rgb(var(--team-secondary-rgb, 255 255 255) / 0.05) 48%,
+      transparent 62%,
+      rgb(var(--team-primary-rgb, 148 163 184) / 0.045) 78%,
+      transparent 100%
+    );
+
+  opacity: 0.80;
+}
+
+/* keep all real content above shell overlays */
+#cindCard > *,
+#favCard > *{
+  position: relative;
+  z-index: 1;
+}
+
+/* printed card face */
+#cindCard > .flip-inner > .card-face,
+#favCard > .flip-inner > .card-face{
+  position: relative;
+  overflow: hidden;
+
+  background:
+    radial-gradient(
+      120% 95% at 12% 0%,
+      rgb(var(--team-secondary-rgb, 255 255 255) / 0.14) 0%,
+      rgb(var(--team-secondary-rgb, 255 255 255) / 0.05) 12%,
+      transparent 34%
+    ),
+    radial-gradient(
+      95% 75% at 100% 100%,
+      rgb(var(--team-primary-rgb, 148 163 184) / 0.12) 0%,
+      transparent 52%
+    ),
+    linear-gradient(
+      180deg,
+      rgb(var(--team-primary-rgb, 148 163 184) / 0.15) 0%,
+      rgba(9, 15, 31, 0.97) 16%,
+      rgba(4, 8, 20, 0.985) 58%,
+      rgba(1, 4, 13, 0.995) 100%
+    ) !important;
+
+  border: 1px solid rgb(var(--team-primary-rgb, 148 163 184) / 0.22) !important;
+
+  box-shadow:
+    0 0 0 1px rgb(255 255 255 / 0.03) inset,
+    0 0 0 2px rgb(var(--team-primary-rgb, 148 163 184) / 0.06) inset,
+    0 12px 30px rgba(0, 0, 0, 0.34),
+    0 0 16px rgb(var(--team-primary-rgb, 148 163 184) / 0.08) !important;
+}
+
+/* top gloss */
+#cindCard > .flip-inner > .card-face::before,
+#favCard > .flip-inner > .card-face::before{
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  border-radius: inherit;
+
+  background:
+    linear-gradient(
+      180deg,
+      rgb(255 255 255 / 0.12) 0%,
+      rgb(255 255 255 / 0.05) 10%,
+      transparent 24%
+    ),
+    linear-gradient(
+      105deg,
+      transparent 0%,
+      rgb(255 255 255 / 0.055) 16%,
+      transparent 30%,
+      transparent 100%
+    );
+
+  opacity: 0.85;
+}
+
+/* holographic foil wash */
+#cindCard > .flip-inner > .card-face::after,
+#favCard > .flip-inner > .card-face::after{
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  border-radius: inherit;
+
+  background:
+    repeating-linear-gradient(
+      115deg,
+      rgb(255 255 255 / 0.00) 0px,
+      rgb(255 255 255 / 0.00) 10px,
+      rgb(255 255 255 / 0.018) 11px,
+      rgb(255 255 255 / 0.00) 18px
+    ),
+    linear-gradient(
+      120deg,
+      transparent 0%,
+      rgb(120 220 255 / 0.05) 18%,
+      transparent 30%,
+      rgb(255 140 220 / 0.045) 48%,
+      transparent 62%,
+      rgb(140 255 210 / 0.04) 78%,
+      transparent 100%
+    ),
+    radial-gradient(
+      75% 55% at 18% 12%,
+      rgb(var(--team-secondary-rgb, 255 255 255) / 0.08) 0%,
+      transparent 55%
+    );
+
+  mix-blend-mode: screen;
+  opacity: 0.55;
+}
+
+/* keep face content above holographic layers */
+#cindCard > .flip-inner > .card-face > *,
+#favCard > .flip-inner > .card-face > *{
+  position: relative;
+  z-index: 1;
+}
+
+/* header gets a more premium slab/foil cap */
+#cindCard .team-card-header,
+#favCard .team-card-header{
+  position: relative;
+  overflow: hidden;
+
+  background:
+    linear-gradient(
+      180deg,
+      rgb(var(--team-primary-rgb, 148 163 184) / 0.20) 0%,
+      rgb(var(--team-primary-rgb, 148 163 184) / 0.08) 18%,
+      rgba(7, 12, 26, 0.92) 100%
+    ) !important;
+
+  border: 1px solid rgb(var(--team-primary-rgb, 148 163 184) / 0.28) !important;
+
+  box-shadow:
+    0 0 0 1px rgb(255 255 255 / 0.04) inset,
+    0 0 0 2px rgb(var(--team-primary-rgb, 148 163 184) / 0.07) inset,
+    0 8px 20px rgba(0, 0, 0, 0.22),
+    0 0 14px rgb(var(--team-primary-rgb, 148 163 184) / 0.12) !important;
+}
+
+#cindCard .team-card-header::before,
+#favCard .team-card-header::before{
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+
+  background:
+    linear-gradient(
+      105deg,
+      transparent 0%,
+      rgb(255 255 255 / 0.10) 16%,
+      transparent 28%,
+      transparent 100%
+    );
+  opacity: 0.85;
+}
+
+/* inner panels feel more embedded in the trading-card face */
+#cindCard .profile-section.flip-tile,
+#cindCard .subtotal-main,
+#cindCard .identity-main,
+#favCard .profile-section.flip-tile,
+#favCard .subtotal-main,
+#favCard .identity-main{
+  background:
+    linear-gradient(
+      180deg,
+      rgb(var(--team-primary-rgb, 148 163 184) / 0.08) 0%,
+      rgba(5, 10, 22, 0.90) 100%
+    ) !important;
+
+  border: 1px solid rgb(var(--team-primary-rgb, 148 163 184) / 0.18) !important;
+
+  box-shadow:
+    0 0 0 1px rgb(255 255 255 / 0.025) inset,
+    0 10px 18px rgba(0, 0, 0, 0.20) !important;
+}
+
+/* slightly stronger team-name presentation */
+#cindCard .mi-team-brand-name,
+#cindCard .team-card-header h2,
+#favCard .mi-team-brand-name,
+#favCard .team-card-header h2{
+  text-shadow:
+    0 0 10px rgb(var(--team-primary-rgb, 148 163 184) / 0.26),
+    0 1px 0 rgb(255 255 255 / 0.05);
+}
+
+/* =========================================================
+   WINNER EMPHASIS — VERDICT SHELL + SUMMARY CENTER
+   Canonical owners:
+   - #verdictShell
+   - #summarySection .syn-center
+
+   Goal:
+   - stronger, more obvious winner cue
+   - not color-only
+   - preserve scorebug internals
+   ========================================================= */
+
+/* =========================
+   BASE OWNER SURFACES
+   ========================= */
+
+#verdictShell,
+#summarySection .syn-center{
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+
+  transition:
+    border-color 220ms ease,
+    box-shadow 240ms ease,
+    background 240ms ease,
+    transform 220ms ease;
+}
+
+/* Keep actual content above all winner FX */
+#verdictShell > *,
+#summarySection .syn-center > *{
+  position: relative;
+  z-index: 2;
+}
+
+/* Winner badge */
+#verdictShell::before,
+#summarySection .syn-center::before{
+  position: absolute;
+  top: 10px;
+  z-index: 3;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  height: 24px;
+  padding: 0 10px;
+  border-radius: 999px;
+
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  white-space: nowrap;
+
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity 220ms ease,
+    transform 220ms ease,
+    border-color 220ms ease,
+    background 220ms ease,
+    box-shadow 220ms ease,
+    color 220ms ease;
+}
+
+/* Vertical beacon / side ownership line */
+#verdictShell::after,
+#summarySection .syn-center::after{
+  content: "";
+  position: absolute;
+  top: 14px;
+  bottom: 14px;
+  width: 7px;
+  border-radius: 999px;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 1;
+
+  transition:
+    opacity 240ms ease,
+    left 220ms ease,
+    right 220ms ease,
+    box-shadow 240ms ease,
+    background 240ms ease;
+}
+
+/* =========================================================
+   VERDICT SHELL — TEAM A
+   ========================================================= */
+
+#verdictShell.mi-winner-a{
+  border-color: rgb(var(--team-a-primary-rgb, 148 163 184) / 0.84);
+
+  background:
+    radial-gradient(
+      120% 140% at 8% 0%,
+      rgb(var(--team-a-primary-rgb, 148 163 184) / 0.24),
+      transparent 52%
+    ),
+    linear-gradient(
+      90deg,
+      rgb(var(--team-a-primary-rgb, 148 163 184) / 0.16) 0%,
+      rgb(var(--team-a-primary-rgb, 148 163 184) / 0.06) 18%,
+      rgba(7, 10, 18, 0.00) 36%
+    ),
+    rgba(7, 10, 18, 0.92);
+
+  box-shadow:
+    0 0 0 1px rgb(var(--team-a-primary-rgb, 148 163 184) / 0.34),
+    0 0 0 3px rgb(var(--team-a-primary-rgb, 148 163 184) / 0.08),
+    -28px 0 48px rgb(var(--team-a-primary-rgb, 148 163 184) / 0.26),
+    0 24px 52px rgba(0,0,0,0.58);
+}
+
+#verdictShell.mi-winner-a::after{
+  left: 12px;
+  opacity: 1;
+
+  background:
+    linear-gradient(
+      180deg,
+      rgb(var(--team-a-secondary-rgb, 148 163 184) / 0.95),
+      rgb(var(--team-a-primary-rgb, 148 163 184) / 0.92)
+    );
+
+  box-shadow:
+    0 0 0 1px rgb(255 255 255 / 0.05),
+    0 0 16px rgb(var(--team-a-primary-rgb, 148 163 184) / 0.34),
+    0 0 32px rgb(var(--team-a-primary-rgb, 148 163 184) / 0.20);
+}
+
+/* =========================================================
+   VERDICT SHELL — TEAM B
+   ========================================================= */
+
+#verdictShell.mi-winner-b{
+  border-color: rgb(var(--team-b-primary-rgb, 148 163 184) / 0.84);
+
+  background:
+    radial-gradient(
+      120% 140% at 92% 0%,
+      rgb(var(--team-b-primary-rgb, 148 163 184) / 0.24),
+      transparent 52%
+    ),
+    linear-gradient(
+      270deg,
+      rgb(var(--team-b-primary-rgb, 148 163 184) / 0.16) 0%,
+      rgb(var(--team-b-primary-rgb, 148 163 184) / 0.06) 18%,
+      rgba(7, 10, 18, 0.00) 36%
+    ),
+    rgba(7, 10, 18, 0.92);
+
+  box-shadow:
+    0 0 0 1px rgb(var(--team-b-primary-rgb, 148 163 184) / 0.34),
+    0 0 0 3px rgb(var(--team-b-primary-rgb, 148 163 184) / 0.08),
+    28px 0 48px rgb(var(--team-b-primary-rgb, 148 163 184) / 0.26),
+    0 24px 52px rgba(0,0,0,0.58);
+}
+
+#verdictShell.mi-winner-b::after{
+  right: 12px;
+  opacity: 1;
+
+  background:
+    linear-gradient(
+      180deg,
+      rgb(var(--team-b-secondary-rgb, 148 163 184) / 0.95),
+      rgb(var(--team-b-primary-rgb, 148 163 184) / 0.92)
+    );
+
+  box-shadow:
+    0 0 0 1px rgb(255 255 255 / 0.05),
+    0 0 16px rgb(var(--team-b-primary-rgb, 148 163 184) / 0.34),
+    0 0 32px rgb(var(--team-b-primary-rgb, 148 163 184) / 0.20);
+}
+
+/* =========================================================
+   VERDICT SHELL — NEUTRAL
+   ========================================================= */
+
+#verdictShell.mi-winner-neutral{
+  border-color: rgba(148, 163, 184, 0.48);
+  box-shadow:
+    0 0 0 1px rgba(148, 163, 184, 0.16),
+    0 20px 44px rgba(0,0,0,0.52);
+}
+
+#verdictShell.mi-winner-neutral::after{
+  left: 50%;
+  transform: translateX(-50%);
+  opacity: 0.72;
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(148,163,184,0.75),
+      rgba(148,163,184,0.50)
+    );
+
+  box-shadow:
+    0 0 14px rgba(148,163,184,0.22);
+}
+
+/* =========================================================
+   SUMMARY CENTER — TEAM A
+   ========================================================= */
+
+#summarySection .syn-center.mi-winner-a{
+  border-color: rgb(var(--mi-brand-a-rgb) / 0.78);
+  box-shadow:
+    inset 0 0 0 1px rgb(var(--mi-brand-a-rgb) / 0.26),
+    inset 0 0 0 3px rgb(var(--mi-brand-a-rgb) / 0.06),
+    -18px 0 34px rgb(var(--mi-brand-a-rgb) / 0.18);
+}
+
+#summarySection .syn-center.mi-winner-a::after{
+  left: 6px;
+  opacity: 1;
+
+  background:
+    linear-gradient(
+      180deg,
+      rgb(var(--mi-brand-a-secondary-ambient-rgb) / 0.95),
+      rgb(var(--mi-brand-a-rgb) / 0.92)
+    );
+
+  box-shadow:
+    0 0 14px rgb(var(--mi-brand-a-rgb) / 0.24),
+    0 0 24px rgb(var(--mi-brand-a-rgb) / 0.14);
+}
+
+/* =========================================================
+   SUMMARY CENTER — TEAM B
+   ========================================================= */
+
+#summarySection .syn-center.mi-winner-b{
+  border-color: rgb(var(--mi-brand-b-rgb) / 0.78);
+  box-shadow:
+    inset 0 0 0 1px rgb(var(--mi-brand-b-rgb) / 0.26),
+    inset 0 0 0 3px rgb(var(--mi-brand-b-rgb) / 0.06),
+    18px 0 34px rgb(var(--mi-brand-b-rgb) / 0.18);
+}
+
+#summarySection .syn-center.mi-winner-b::after{
+  right: 6px;
+  opacity: 1;
+
+  background:
+    linear-gradient(
+      180deg,
+      rgb(var(--mi-brand-b-secondary-ambient-rgb) / 0.95),
+      rgb(var(--mi-brand-b-rgb) / 0.92)
+    );
+
+  box-shadow:
+    0 0 14px rgb(var(--mi-brand-b-rgb) / 0.24),
+    0 0 24px rgb(var(--mi-brand-b-rgb) / 0.14);
+}
+
+/* =========================================================
+   SUMMARY CENTER — NEUTRAL
+   ========================================================= */
+
+#summarySection .syn-center.mi-winner-neutral{
+  border-color: rgba(148,163,184,0.42);
+  box-shadow:
+    inset 0 0 0 1px rgba(148,163,184,0.12);
+}
+
+#summarySection .syn-center.mi-winner-neutral::before{
+  content: "even";
+  left: 50%;
+  transform: translateX(-50%);
+  opacity: 1;
+
+  color: rgba(248,250,252,0.94);
+  border: 1px solid rgba(148,163,184,0.38);
+  background:
+    linear-gradient(
+      180deg,
+      rgba(148,163,184,0.18),
+      rgba(2,6,23,0.92)
+    );
+}
+
+#summarySection .syn-center.mi-winner-neutral::after{
+  left: 50%;
+  transform: translateX(-50%);
+  opacity: 0.68;
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(148,163,184,0.72),
+      rgba(148,163,184,0.44)
+    );
+
+  box-shadow:
+    0 0 12px rgba(148,163,184,0.18);
+}
+
+/* =========================================================
+   PRE-MATCHUP HUB — convert left card into live status panel
+   ========================================================= */
+
+#preMatchupHub .pre-hub-title {
+  display: block !important;
+  text-align: center !important;
+  font-size: 15px !important;
+  letter-spacing: 0.10em !important;
+  margin-bottom: 6px !important;
+}
+
+#preMatchupHub .pre-hub-steps{
+  grid-template-columns: 1fr !important;
+  gap: 10px !important;
+}
+
+#preMatchupHub .pre-step{
+  display: grid !important;
+  grid-template-columns: 28px minmax(0, 1fr) auto !important;
+  grid-template-areas: "num copy status" !important;
+  align-items: center !important;
+  gap: 12px !important;
+  padding: 14px 14px !important;
+  min-height: 74px;
+}
+
+#preMatchupHub .pre-step-num{
+  grid-area: num;
+}
+
+#preMatchupHub .pre-step-copy{
+  grid-area: copy;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+#preMatchupHub .pre-step-label{
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(203, 213, 225, 0.92);
+  line-height: 1.1;
+}
+
+#preMatchupHub .pre-step-text{
+  grid-area: unset !important;
+  margin-top: 0 !important;
+  max-width: none !important;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.25;
+  color: rgba(226, 232, 240, 0.94);
+}
+
+#preMatchupHub .pre-step-status{
+  display: inline-flex !important;
+  grid-area: status;
+  justify-self: end;
+  align-self: center;
+  white-space: nowrap;
+  text-align: center;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  background: rgba(2, 6, 23, 0.35);
+  color: rgba(226, 232, 240, 0.82);
+}
+
+#preMatchupHub .pre-step.is-done .pre-step-status{
+  color: #86efac;
+  border-color: rgba(22, 163, 74, 0.60);
+  background: rgba(22, 163, 74, 0.12);
+}
+
+#preMatchupHub .pre-step.is-next .pre-step-status{
+  color: rgba(125, 211, 252, 0.96);
+  border-color: rgba(56, 189, 248, 0.52);
+  background: rgba(56, 189, 248, 0.12);
+}
+
+#preMatchupHub .pre-step.is-locked .pre-step-status{
+  color: rgba(148, 163, 184, 0.82);
+  border-color: rgba(148, 163, 184, 0.22);
+  background: rgba(15, 23, 42, 0.30);
+}
+
+#preMatchupHub .pre-step.is-hidden{
+  display: grid !important;
+}
+
+#preMatchupHub .pre-hub-steps.is-single{
+  grid-template-columns: 1fr !important;
+}
+
+.pre-step.is-locked {
+  opacity: 0.55;
+  filter: grayscale(0.45);
+}
+
+.pre-step-status[data-required],
+.pre-step-status:contains("REQUIRED") {
+  border-color: rgba(59, 130, 246, 0.55);
+  background: rgba(59, 130, 246, 0.14);
+  color: rgba(147, 197, 253, 0.95);
+}
+
+/* =========================================================
+   STEP STATE TRANSITIONS — smooth visual feedback
+   ========================================================= */
+
+.pre-step {
+  transition:
+    opacity 180ms ease,
+    filter 180ms ease,
+    transform 180ms ease,
+    background-color 180ms ease,
+    border-color 180ms ease;
+}
+
+.pre-step.is-done {
+  transform: translateY(-1px);
+}
+
+.pre-step.is-next {
+  transform: translateY(0);
+}
+
+.pre-step.is-locked {
+  transform: translateY(0);
+}
+
+/* =========================================================
+   LOCKED CONTROL GUARDRAILS
+   ========================================================= */
+
+.workflow-step-card.is-locked {
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+.workflow-step-card.is-active-step {
+  pointer-events: auto;
+}
+
+/* =========================================================
+   COMPARE BUTTON — READY STATE
+   ========================================================= */
+
+#compareMatchupBtn.is-ready {
+  opacity: 1;
+  filter: none;
+
+  box-shadow:
+    0 0 18px rgba(16, 185, 129, 0.45),
+    0 0 36px rgba(16, 185, 129, 0.25);
+}
+
+#compareMatchupBtn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* =========================================
+   CLEAR WORKFLOW STATE BUTTON
+   ========================================= */
+
+.clear-workflow-btn {
+  margin-left: 12px;
+
+  opacity: 0.85;
+
+  font-size: 0.85rem;
+
+  border-color: rgba(255, 255, 255, 0.25);
+
+  transition:
+    opacity 0.2s ease,
+    transform 0.15s ease,
+    border-color 0.2s ease;
+}
+
+.clear-workflow-btn:hover {
+  opacity: 1;
+
+  border-color: rgba(255, 255, 255, 0.45);
+
+  transform: translateY(-1px);
+}
+
+.clear-workflow-btn:active {
+  transform: translateY(0);
+}
+
+/* =========================================================
+   VERDICT SHELL — INNER WRAPPER (structural only)
+   ========================================================= */
+
+#verdictShell .mi-verdict-shell-inner{
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: 12px 16px;
+  gap: 12px;
+  border-radius: 14px;
+
+  /* structural only */
+  background: transparent;
+  box-shadow: none;
+}
+
+/* Kill the old left accent rail */
+#verdictShell .mi-verdict-shell-inner::before{
+  content: none !important;
+}
+
+#verdictShell .mi-verdict-shell-inner > .mi-verdict-actions.mi-verdict-actions-rail{
+  padding-top: 4px;
+}
+
+/* =========================================================
+   VERDICT MAIN — dominant content zone
+   ========================================================= */
+
+#verdictShell .mi-verdict-main{
+  position: relative;
+  border-radius: 14px;
+  padding: 12px 14px 12px 10px;
+
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.00) 30%),
+    rgba(2, 6, 23, 0.18);
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.03);
+}
+
+/* =========================================================
+   VERDICT GRID — rebuilt from scratch
+   Restores narrative left / scorebug right
+   while keeping the shell visually unified
+   ========================================================= */
+
+#verdictShell .mi-verdict-grid{
+  display: grid;
+  grid-template-columns: minmax(0, 1.12fr) minmax(460px, 0.88fr);
+  align-items: start;
+  gap: 4px;
+
+  width: 100%;
+  min-width: 0;
+
+  padding: 10px 12px 8px;
+  border-radius: 16px;
+
+  /* shared surface, not a separate card */
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.025), rgba(255,255,255,0.00) 26%),
+    rgba(2, 6, 23, 0.14);
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.03),
+    inset 0 0 0 1px rgba(255,255,255,0.02);
+}
+
+/* Winner-side focal glow stays subtle and local */
+#verdictShell.mi-winner-a .mi-verdict-main{
+  box-shadow:
+    inset 1px 0 0 rgb(var(--team-a-primary-rgb, 148 163 184) / 0.18),
+    inset 0 1px 0 rgba(255,255,255,0.03);
+}
+
+#verdictShell.mi-winner-b .mi-verdict-main{
+  box-shadow:
+    inset -1px 0 0 rgb(var(--team-b-primary-rgb, 148 163 184) / 0.18),
+    inset 0 1px 0 rgba(255,255,255,0.03);
+}
+
+/* =========================================================
+   VERDICT RAIL — subordinate support zone
+   ========================================================= */
+
+#verdictShell .mi-verdict-rail{
+  min-width: 0;
+  width: 100%;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+
+  padding: 2px 0 0;
+  border-radius: 14px;
+
+  /* slightly darker than main, but still part of same slab */
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.015), rgba(255,255,255,0.00) 22%),
+    rgba(2, 6, 23, 0.10);
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.025);
+}
+
+#verdictShell .mi-verdict-main{
+  min-width: 0;
+  width: 100%;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+
+  padding: 8px 10px 8px 8px;
+  border-radius: 14px;
+
+  /* keep this very light so it feels embedded */
+  background: transparent;
+  box-shadow: none;
+  border: 0;
+}
+
+#verdictShell .mi-verdict-rail::before{
+  content: "";
+  position: absolute;
+  top: 10px;
+  bottom: 10px;
+  left: -9px;
+  width: 1px;
+
+  background: linear-gradient(
+    180deg,
+    rgba(148,163,184,0.00),
+    rgba(148,163,184,0.18),
+    rgba(148,163,184,0.00)
+  );
+
+  pointer-events: none;
+}
+
+#verdictShell .mi-scorebug-grid{
+  width: 100%;
+  min-width: 0;
+}
+
+/* =========================================================
+   METRICS TILE — embedded into verdict rail
+   ========================================================= */
+
+#miVerdictMetricsTile.mi-verdict-metrics-tile{
+  border: 1px solid rgba(148,163,184,0.34) !important;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.025), rgba(255,255,255,0.00) 24%),
+    rgba(3, 8, 20, 0.56) !important;
+
+  box-shadow:
+    0 14px 28px rgba(0,0,0,0.42),
+    inset 0 1px 0 rgba(255,255,255,0.03) !important;
+}
+
+/* =========================================================
+   SCOREBUG TEAM HIERARCHY
+   ========================================================= */
+
+#verdictShell.mi-winner-a #miVerdictMetricsTile .mi-scorebug-team--a,
+#verdictShell.mi-winner-b #miVerdictMetricsTile .mi-scorebug-team--b{
+  border-color: rgba(255,255,255,0.82) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.05),
+    0 0 0 1px rgba(255,255,255,0.05),
+    0 10px 24px rgba(0,0,0,0.28) !important;
+  transform: translateY(-1px);
+}
+
+#verdictShell.mi-winner-a #miVerdictMetricsTile .mi-scorebug-team--b,
+#verdictShell.mi-winner-b #miVerdictMetricsTile .mi-scorebug-team--a{
+  opacity: 0.82;
+  filter: saturate(0.86) brightness(0.94);
+}
+
+/* =========================================================
+   VERDICT / SUMMARY WINNER OWNERSHIP PASS
+   Paste at absolute bottom of styles2.css
+   ========================================================= */
+
+/* -----------------------------------------
+   Shared winner atmosphere tokens
+   ----------------------------------------- */
+#verdictShell.mi-winner-a,
+#summarySection .syn-center.mi-winner-a{
+  --mi-owner-rgb: var(--team-a-primary-rgb, 148 163 184);
+  --mi-owner-secondary-rgb: var(--team-a-secondary-rgb, 148 163 184);
+  --mi-owner-edge-x: 10%;
+  --mi-owner-hero-x: 18%;
+}
+
+#verdictShell.mi-winner-b,
+#summarySection .syn-center.mi-winner-b{
+  --mi-owner-rgb: var(--team-b-primary-rgb, 148 163 184);
+  --mi-owner-secondary-rgb: var(--team-b-secondary-rgb, 148 163 184);
+  --mi-owner-edge-x: 90%;
+  --mi-owner-hero-x: 82%;
+}
+
+/* summary uses brand tokens, so remap there */
+#summarySection .syn-center.mi-winner-a{
+  --mi-owner-rgb: var(--mi-brand-a-rgb, 148 163 184);
+  --mi-owner-secondary-rgb: var(--mi-brand-a-secondary-ambient-rgb, 148 163 184);
+}
+#summarySection .syn-center.mi-winner-b{
+  --mi-owner-rgb: var(--mi-brand-b-rgb, 148 163 184);
+  --mi-owner-secondary-rgb: var(--mi-brand-b-secondary-ambient-rgb, 148 163 184);
+}
+
+/* -----------------------------------------
+   VERDICT SHELL — broader shell ownership
+   ----------------------------------------- */
+#verdictShell.mi-winner-a,
+#verdictShell.mi-winner-b{
+  position: relative;
+  overflow: hidden;
+
+  background:
+    radial-gradient(
+      140% 165% at var(--mi-owner-edge-x) -8%,
+      rgb(var(--mi-owner-rgb) / 0.30) 0%,
+      rgb(var(--mi-owner-rgb) / 0.16) 22%,
+      rgba(7, 10, 18, 0.00) 56%
+    ),
+    linear-gradient(
+      90deg,
+      rgb(var(--mi-owner-rgb) / 0.13) 0%,
+      rgb(var(--mi-owner-rgb) / 0.06) 18%,
+      rgba(7, 10, 18, 0.00) 36%,
+      rgba(7, 10, 18, 0.00) 64%,
+      rgb(var(--mi-owner-rgb) / 0.04) 100%
+    ),
+    rgba(7, 10, 18, 0.92);
+
+  box-shadow:
+    0 0 0 1px rgb(var(--mi-owner-rgb) / 0.32),
+    0 0 0 3px rgb(var(--mi-owner-rgb) / 0.08),
+    0 26px 54px rgba(0,0,0,0.60),
+    0 0 46px rgb(var(--mi-owner-rgb) / 0.16);
+}
+
+/* keep directional bias correct for B */
+#verdictShell.mi-winner-b{
+  background:
+    radial-gradient(
+      140% 165% at var(--mi-owner-edge-x) -8%,
+      rgb(var(--mi-owner-rgb) / 0.30) 0%,
+      rgb(var(--mi-owner-rgb) / 0.16) 22%,
+      rgba(7, 10, 18, 0.00) 56%
+    ),
+    linear-gradient(
+      270deg,
+      rgb(var(--mi-owner-rgb) / 0.13) 0%,
+      rgb(var(--mi-owner-rgb) / 0.06) 18%,
+      rgba(7, 10, 18, 0.00) 36%,
+      rgba(7, 10, 18, 0.00) 64%,
+      rgb(var(--mi-owner-rgb) / 0.04) 100%
+    ),
+    rgba(7, 10, 18, 0.92);
+}
+
+/* -----------------------------------------
+   Shared shell slab — unify the inside
+   ----------------------------------------- */
+#verdictShell.mi-winner-a .mi-verdict-grid,
+#verdictShell.mi-winner-b .mi-verdict-grid{
+  background:
+    radial-gradient(
+      120% 120% at var(--mi-owner-edge-x) 0%,
+      rgb(var(--mi-owner-rgb) / 0.10),
+      rgba(255,255,255,0.00) 46%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(255,255,255,0.030),
+      rgba(255,255,255,0.00) 28%
+    ),
+    rgba(2, 6, 23, 0.16);
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.04),
+    inset 0 0 0 1px rgba(255,255,255,0.025);
+}
+
+/* -----------------------------------------
+   Narrative hero bloom — the main upgrade
+   ----------------------------------------- */
+#verdictShell.mi-winner-a .mi-verdict-main,
+#verdictShell.mi-winner-b .mi-verdict-main{
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+
+  background:
+    radial-gradient(
+      115% 140% at var(--mi-owner-hero-x) 10%,
+      rgb(var(--mi-owner-rgb) / 0.16) 0%,
+      rgb(var(--mi-owner-rgb) / 0.08) 28%,
+      rgba(255,255,255,0.00) 62%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(255,255,255,0.025),
+      rgba(255,255,255,0.00) 34%
+    ),
+    rgba(2, 6, 23, 0.12);
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.04),
+    inset 0 0 0 1px rgb(var(--mi-owner-rgb) / 0.08);
+}
+
+#verdictShell.mi-winner-a .mi-verdict-main::before,
+#verdictShell.mi-winner-b .mi-verdict-main::before{
+  content: "";
+  position: absolute;
+  inset: -10% -4% -14% -4%;
+  pointer-events: none;
+  z-index: -1;
+
+  background:
+    radial-gradient(
+      70% 78% at var(--mi-owner-hero-x) 18%,
+      rgb(var(--mi-owner-secondary-rgb) / 0.16) 0%,
+      rgb(var(--mi-owner-rgb) / 0.10) 32%,
+      rgba(255,255,255,0.00) 72%
+    );
+
+  opacity: 0.95;
+  filter: blur(10px);
+}
+
+/* -----------------------------------------
+   Rail becomes support, not main spectacle
+   ----------------------------------------- */
+#verdictShell.mi-winner-a .mi-verdict-rail,
+#verdictShell.mi-winner-b .mi-verdict-rail{
+  background:
+    linear-gradient(
+      180deg,
+      rgb(var(--mi-owner-rgb) / 0.05),
+      rgba(255,255,255,0.00) 24%
+    ),
+    rgba(2, 6, 23, 0.10);
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.025),
+    inset 0 0 0 1px rgb(var(--mi-owner-rgb) / 0.05);
+}
+
+/* -----------------------------------------
+   Scorebug stays technical, but slightly richer
+   ----------------------------------------- */
+#verdictShell.mi-winner-a .mi-scorebug-team--a,
+#verdictShell.mi-winner-b .mi-scorebug-team--b{
+  background:
+    radial-gradient(
+      120% 120% at 50% 0%,
+      rgb(var(--mi-owner-rgb) / 0.15),
+      rgba(255,255,255,0.00) 52%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(255,255,255,0.03),
+      rgba(255,255,255,0.00) 32%
+    ),
+    rgba(2, 6, 23, 0.26);
+
+  border-color: rgb(255 255 255 / 0.92);
+
+  box-shadow:
+    inset 0 0 0 1px rgba(0,0,0,0.62),
+    0 0 0 2px rgb(var(--mi-owner-rgb) / 0.24),
+    0 0 24px rgb(var(--mi-owner-rgb) / 0.17);
+}
+
+/* -----------------------------------------
+   SUMMARY CENTER — same ownership language
+   ----------------------------------------- */
+#summarySection .syn-center.mi-winner-a,
+#summarySection .syn-center.mi-winner-b{
+  position: relative;
+  overflow: hidden;
+
+  background:
+    radial-gradient(
+      140% 160% at var(--mi-owner-edge-x) -10%,
+      rgb(var(--mi-owner-rgb) / 0.22) 0%,
+      rgb(var(--mi-owner-rgb) / 0.10) 22%,
+      rgba(15, 23, 42, 0.00) 56%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(255,255,255,0.028),
+      rgba(255,255,255,0.00) 28%
+    ),
+    rgba(7, 10, 18, 0.90);
+
+  box-shadow:
+    inset 0 0 0 1px rgb(var(--mi-owner-rgb) / 0.24),
+    inset 0 0 0 3px rgb(var(--mi-owner-rgb) / 0.055),
+    0 20px 42px rgba(0,0,0,0.42),
+    0 0 34px rgb(var(--mi-owner-rgb) / 0.13);
+}
+
+/* localized verdict strip inside summary center */
+#summarySection .syn-center.mi-winner-a .syn-verdict,
+#summarySection .syn-center.mi-winner-b .syn-verdict,
+#summarySection .syn-center.mi-winner-a #synVerdict,
+#summarySection .syn-center.mi-winner-b #synVerdict,
+#summarySection .syn-center.mi-winner-a .syn-center-verdict,
+#summarySection .syn-center.mi-winner-b .syn-center-verdict{
+  background:
+    radial-gradient(
+      125% 125% at var(--mi-owner-hero-x) 0%,
+      rgb(var(--mi-owner-rgb) / 0.12),
+      rgba(255,255,255,0.00) 56%
+    ),
+    linear-gradient(
+      to bottom,
+      rgba(255,255,255,0.06),
+      rgba(15, 23, 42, 0.35)
+    );
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.10),
+    inset 0 0 0 1px rgb(var(--mi-owner-rgb) / 0.08),
+    0 10px 26px rgba(0,0,0,0.28);
+}
+
+/* =========================================================
+   VERDICT SHELL — INNER HERO PLATE PASS
+   Purpose:
+   Make the winner color visibly inhabit the left narrative zone,
+   not just the shell edge / rail / scorebug outline.
+   ========================================================= */
+
+/* stronger owner variables */
+#verdictShell.mi-winner-a{
+  --mi-verdict-owner-rgb: var(--team-a-primary-rgb, 148 163 184);
+  --mi-verdict-owner-secondary-rgb: var(--team-a-secondary-rgb, 148 163 184);
+  --mi-verdict-owner-x: 18%;
+}
+
+#verdictShell.mi-winner-b{
+  --mi-verdict-owner-rgb: var(--team-b-primary-rgb, 148 163 184);
+  --mi-verdict-owner-secondary-rgb: var(--team-b-secondary-rgb, 148 163 184);
+  --mi-verdict-owner-x: 82%;
+}
+
+/* -----------------------------------------
+   1) keep shell ownership, but push it a bit
+   ----------------------------------------- */
+#verdictShell.mi-winner-a,
+#verdictShell.mi-winner-b{
+  background:
+    radial-gradient(
+      135% 150% at var(--mi-verdict-owner-x) -6%,
+      rgb(var(--mi-verdict-owner-rgb) / 0.34) 0%,
+      rgb(var(--mi-verdict-owner-rgb) / 0.16) 24%,
+      rgba(7, 10, 18, 0.00) 58%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(255,255,255,0.03),
+      rgba(255,255,255,0.00) 24%
+    ),
+    rgba(7, 10, 18, 0.92);
+
+  box-shadow:
+    0 0 0 1px rgb(var(--mi-verdict-owner-rgb) / 0.34),
+    0 0 0 3px rgb(var(--mi-verdict-owner-rgb) / 0.08),
+    0 0 44px rgb(var(--mi-verdict-owner-rgb) / 0.18),
+    0 24px 52px rgba(0,0,0,0.60);
+}
+
+/* -----------------------------------------
+   2) THIS is the important part:
+   give the left copy zone a visible inner plate
+   ----------------------------------------- */
+#verdictShell.mi-winner-a .mi-verdict-main,
+#verdictShell.mi-winner-b .mi-verdict-main{
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+
+  background:
+    radial-gradient(
+      125% 135% at var(--mi-verdict-owner-x) 8%,
+      rgb(var(--mi-verdict-owner-rgb) / 0.20) 0%,
+      rgb(var(--mi-verdict-owner-rgb) / 0.10) 28%,
+      rgba(255,255,255,0.00) 65%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(255,255,255,0.04),
+      rgba(255,255,255,0.00) 34%
+    ),
+    rgba(2, 6, 23, 0.30) !important;
+
+  border: 1px solid rgb(var(--mi-verdict-owner-rgb) / 0.12);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.05),
+    inset 0 0 0 1px rgb(var(--mi-verdict-owner-rgb) / 0.06),
+    0 14px 28px rgba(0,0,0,0.22);
+}
+
+/* soft bloom behind the plate */
+#verdictShell.mi-winner-a .mi-verdict-main::before,
+#verdictShell.mi-winner-b .mi-verdict-main::before{
+  content: "";
+  position: absolute;
+  inset: -14% -8% -18% -8%;
+  z-index: -1;
+  pointer-events: none;
+
+  background:
+    radial-gradient(
+      68% 74% at var(--mi-verdict-owner-x) 16%,
+      rgb(var(--mi-verdict-owner-secondary-rgb) / 0.20) 0%,
+      rgb(var(--mi-verdict-owner-rgb) / 0.12) 34%,
+      rgba(255,255,255,0.00) 74%
+    );
+
+  filter: blur(12px);
+  opacity: 0.95;
+}
+
+/* -----------------------------------------
+   3) slightly quiet the rail so the main plate wins
+   ----------------------------------------- */
+#verdictShell.mi-winner-a .mi-verdict-rail,
+#verdictShell.mi-winner-b .mi-verdict-rail{
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255,255,255,0.02),
+      rgba(255,255,255,0.00) 22%
+    ),
+    rgba(2, 6, 23, 0.12);
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.025);
+}
+
+/* -----------------------------------------
+   4) make winner scorebug side read a little richer
+   ----------------------------------------- */
+#verdictShell.mi-winner-a #miVerdictMetricsTile .mi-scorebug-team--a,
+#verdictShell.mi-winner-b #miVerdictMetricsTile .mi-scorebug-team--b{
+  background:
+    radial-gradient(
+      120% 120% at 50% 0%,
+      rgb(var(--mi-verdict-owner-rgb) / 0.16),
+      rgba(255,255,255,0.00) 54%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(255,255,255,0.03),
+      rgba(255,255,255,0.00) 34%
+    ),
+    rgba(2, 6, 23, 0.24);
+
+  border-color: rgba(255,255,255,0.92) !important;
+  box-shadow:
+    inset 0 0 0 1px rgba(0,0,0,0.65),
+    0 0 0 2px rgb(var(--mi-verdict-owner-rgb) / 0.24),
+    0 0 24px rgb(var(--mi-verdict-owner-rgb) / 0.16) !important;
+}
+
+/* =========================================================
+   VERDICT SHELL — MAX STRENGTH TEST PASS
+   INTENTIONALLY LOUD
+   Use this to see the full ceiling of the current structure.
+   ========================================================= */
+
+#verdictShell.mi-winner-a{
+  --mi-max-owner-rgb: var(--team-a-primary-rgb, 148 163 184);
+  --mi-max-owner-secondary-rgb: var(--team-a-secondary-rgb, 255 255 255);
+  --mi-max-owner-x: 14%;
+}
+
+#verdictShell.mi-winner-b{
+  --mi-max-owner-rgb: var(--team-b-primary-rgb, 148 163 184);
+  --mi-max-owner-secondary-rgb: var(--team-b-secondary-rgb, 255 255 255);
+  --mi-max-owner-x: 86%;
+}
+
+/* -----------------------------------------
+   OUTER SHELL: much stronger ownership
+   ----------------------------------------- */
+#verdictShell.mi-winner-a,
+#verdictShell.mi-winner-b{
+  background:
+    radial-gradient(
+      145% 165% at var(--mi-max-owner-x) -8%,
+      rgb(var(--mi-max-owner-rgb) / 0.52) 0%,
+      rgb(var(--mi-max-owner-rgb) / 0.24) 24%,
+      rgba(7, 10, 18, 0.00) 60%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(255,255,255,0.05),
+      rgba(255,255,255,0.00) 26%
+    ),
+    rgba(7, 10, 18, 0.94) !important;
+
+  border-color: rgb(var(--mi-max-owner-rgb) / 0.64) !important;
+
+  box-shadow:
+    0 0 0 1px rgb(var(--mi-max-owner-rgb) / 0.42),
+    0 0 0 4px rgb(var(--mi-max-owner-rgb) / 0.12),
+    0 0 72px rgb(var(--mi-max-owner-rgb) / 0.26),
+    0 28px 64px rgba(0,0,0,0.68) !important;
+}
+
+/* -----------------------------------------
+   SHARED INNER GRID: stronger atmosphere
+   ----------------------------------------- */
+#verdictShell.mi-winner-a .mi-verdict-grid,
+#verdictShell.mi-winner-b .mi-verdict-grid{
+  background:
+    radial-gradient(
+      130% 140% at var(--mi-max-owner-x) 4%,
+      rgb(var(--mi-max-owner-rgb) / 0.16),
+      rgba(255,255,255,0.00) 48%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(255,255,255,0.05),
+      rgba(255,255,255,0.00) 30%
+    ),
+    rgba(2, 6, 23, 0.18) !important;
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.05),
+    inset 0 0 0 1px rgb(var(--mi-max-owner-rgb) / 0.08) !important;
+}
+
+/* -----------------------------------------
+   HERO PLATE: this is the main test
+   ----------------------------------------- */
+#verdictShell.mi-winner-a .mi-verdict-main,
+#verdictShell.mi-winner-b .mi-verdict-main{
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+
+  background:
+    radial-gradient(
+      135% 145% at var(--mi-max-owner-x) 10%,
+      rgb(var(--mi-max-owner-rgb) / 0.34) 0%,
+      rgb(var(--mi-max-owner-rgb) / 0.18) 28%,
+      rgba(255,255,255,0.00) 68%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(255,255,255,0.07),
+      rgba(255,255,255,0.00) 34%
+    ),
+    rgba(3, 8, 20, 0.52) !important;
+
+  border: 1px solid rgb(var(--mi-max-owner-rgb) / 0.26) !important;
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.07),
+    inset 0 0 0 1px rgb(var(--mi-max-owner-rgb) / 0.10),
+    0 20px 38px rgba(0,0,0,0.34),
+    0 0 34px rgb(var(--mi-max-owner-rgb) / 0.14) !important;
+}
+
+#verdictShell.mi-winner-a .mi-verdict-main::before,
+#verdictShell.mi-winner-b .mi-verdict-main::before{
+  content: "";
+  position: absolute;
+  inset: -18% -10% -22% -10%;
+  z-index: -1;
+  pointer-events: none;
+
+  background:
+    radial-gradient(
+      72% 78% at var(--mi-max-owner-x) 16%,
+      rgb(var(--mi-max-owner-secondary-rgb) / 0.28) 0%,
+      rgb(var(--mi-max-owner-rgb) / 0.22) 22%,
+      rgb(var(--mi-max-owner-rgb) / 0.10) 42%,
+      rgba(255,255,255,0.00) 76%
+    );
+
+  filter: blur(18px);
+  opacity: 1;
+}
+
+/* -----------------------------------------
+   VERDICT COPY: let it react to the plate
+   ----------------------------------------- */
+#verdictShell.mi-winner-a .mi-verdict-headline,
+#verdictShell.mi-winner-b .mi-verdict-headline{
+  text-shadow:
+    0 2px 12px rgba(0,0,0,0.52),
+    0 0 24px rgb(var(--mi-max-owner-rgb) / 0.18);
+}
+
+#verdictShell.mi-winner-a .mi-verdict-body,
+#verdictShell.mi-winner-b .mi-verdict-body{
+  text-shadow:
+    0 1px 10px rgba(0,0,0,0.34);
+}
+
+/* -----------------------------------------
+   RAIL: still subordinate, but now clearly branded
+   ----------------------------------------- */
+#verdictShell.mi-winner-a .mi-verdict-rail,
+#verdictShell.mi-winner-b .mi-verdict-rail{
+  background:
+    radial-gradient(
+      120% 120% at 50% 0%,
+      rgb(var(--mi-max-owner-rgb) / 0.14),
+      rgba(255,255,255,0.00) 56%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(255,255,255,0.03),
+      rgba(255,255,255,0.00) 24%
+    ),
+    rgba(2, 6, 23, 0.18) !important;
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.04),
+    inset 0 0 0 1px rgb(var(--mi-max-owner-rgb) / 0.08) !important;
+}
+
+/* -----------------------------------------
+   LEFT VERTICAL ACCENT: max it out
+   ----------------------------------------- */
+#verdictShell.mi-winner-a::after,
+#verdictShell.mi-winner-b::after{
+  width: 6px !important;
+  opacity: 1 !important;
+
+  background:
+    linear-gradient(
+      180deg,
+      rgb(var(--mi-max-owner-secondary-rgb) / 1.00),
+      rgb(var(--mi-max-owner-rgb) / 1.00)
+    ) !important;
+
+  box-shadow:
+    0 0 18px rgb(var(--mi-max-owner-rgb) / 0.52),
+    0 0 34px rgb(var(--mi-max-owner-rgb) / 0.34),
+    0 0 56px rgb(var(--mi-max-owner-rgb) / 0.18) !important;
+}
+
+/* -----------------------------------------
+   METRICS TILE: make it visibly participate
+   ----------------------------------------- */
+#verdictShell.mi-winner-a #miVerdictMetricsTile,
+#verdictShell.mi-winner-b #miVerdictMetricsTile{
+  border-color: rgb(var(--mi-max-owner-rgb) / 0.34) !important;
+
+  background:
+    radial-gradient(
+      120% 130% at 50% 0%,
+      rgb(var(--mi-max-owner-rgb) / 0.12),
+      rgba(255,255,255,0.00) 56%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(255,255,255,0.04),
+      rgba(255,255,255,0.00) 28%
+    ),
+    rgba(3, 8, 20, 0.62) !important;
+
+  box-shadow:
+    0 20px 40px rgba(0,0,0,0.48),
+    0 0 26px rgb(var(--mi-max-owner-rgb) / 0.12),
+    inset 0 1px 0 rgba(255,255,255,0.04) !important;
+}
+
+/* -----------------------------------------
+   WINNING TEAM BLOCK: go loud on purpose
+   ----------------------------------------- */
+#verdictShell.mi-winner-a #miVerdictMetricsTile .mi-scorebug-team--a,
+#verdictShell.mi-winner-b #miVerdictMetricsTile .mi-scorebug-team--b{
+  background:
+    radial-gradient(
+      125% 125% at 50% 0%,
+      rgb(var(--mi-max-owner-rgb) / 0.26),
+      rgba(255,255,255,0.00) 54%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(255,255,255,0.05),
+      rgba(255,255,255,0.00) 34%
+    ),
+    rgba(2, 6, 23, 0.36) !important;
+
+  border-color: rgba(255,255,255,0.96) !important;
+
+  box-shadow:
+    inset 0 0 0 1px rgba(0,0,0,0.66),
+    0 0 0 2px rgb(var(--mi-max-owner-rgb) / 0.34),
+    0 0 30px rgb(var(--mi-max-owner-rgb) / 0.24),
+    0 14px 28px rgba(0,0,0,0.32) !important;
+
+  transform: translateY(-2px) scale(1.01);
+}
+
+/* losing side pushed back harder for contrast */
+#verdictShell.mi-winner-a #miVerdictMetricsTile .mi-scorebug-team--b,
+#verdictShell.mi-winner-b #miVerdictMetricsTile .mi-scorebug-team--a{
+  opacity: 0.70 !important;
+  filter: saturate(0.72) brightness(0.84) !important;
+}
+
+/* -----------------------------------------
+   MADNESS DELTA TILE: let it catch some winner light
+   ----------------------------------------- */
+#verdictShell.mi-winner-a #miVerdictMetricsTile .mi-scorebug-gap,
+#verdictShell.mi-winner-b #miVerdictMetricsTile .mi-scorebug-gap{
+  background:
+    radial-gradient(
+      120% 120% at 50% 0%,
+      rgb(var(--mi-max-owner-rgb) / 0.14),
+      rgba(255,255,255,0.00) 58%
+    ),
+    rgba(2, 6, 23, 0.22) !important;
+
+  border-color: rgb(var(--mi-max-owner-rgb) / 0.20) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.04),
+    0 0 18px rgb(var(--mi-max-owner-rgb) / 0.08) !important;
+}
+
+/* =========================================================
+   FIX: Scorecard button outline is using native browser chrome
+   Force a fully custom button skin
+   ========================================================= */
+
+#verdictShell #miEvidenceToggle.mi-evidence-toggle{
+  -webkit-appearance: none !important;
+  appearance: none !important;
+
+  border: 1px solid rgba(255,255,255,0.26) !important;
+  outline: none !important;
+
+  background-clip: padding-box !important;
+  box-sizing: border-box !important;
+
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.00) 42%),
+    rgba(9,9,15,0.82) !important;
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.06),
+    0 0 0 1px rgba(255,255,255,0.04),
+    0 10px 24px rgba(0,0,0,0.34) !important;
+}
+
+/* Hover / focus remain fully custom too */
+#verdictShell #miEvidenceToggle.mi-evidence-toggle:hover{
+  border-color: rgba(255,255,255,0.34) !important;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.00) 42%),
+    rgba(9,9,15,0.92) !important;
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.07),
+    0 0 0 1px rgba(255,255,255,0.05),
+    0 14px 30px rgba(0,0,0,0.40) !important;
+}
+
+#verdictShell #miEvidenceToggle.mi-evidence-toggle:focus-visible{
+  outline: none !important;
+  border-color: rgba(255,255,255,0.42) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.08),
+    0 0 0 1px rgba(255,255,255,0.06),
+    0 0 0 3px rgba(56,189,248,0.16),
+    0 14px 30px rgba(0,0,0,0.40) !important;
+}
+
+/* TEAM CARD HEADER: logo + name vertical alignment fix */
+#teamBrandA,
+#teamBrandB,
+.mi-team-brand--card {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 10px;
+}
+
+/* Make sure the logo doesn't sit on an inline-image baseline */
+#teamLogoA,
+#teamLogoB,
+.mi-team-brand--card .mi-team-brand-logo {
+  display: block !important;
+  flex: 0 0 auto;
+  align-self: center !important;
+  position: relative;
+}
+
+/* Keep the text wrapper centered with the logo */
+#teamBrandA .team-label-wrap,
+#teamBrandB .team-label-wrap,
+.mi-team-brand--card .team-label-wrap {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.team-card-header .mi-team-brand--card .mi-team-brand-logo{
+  margin-right: 6px;
+}
+
+/* =========================================================
+   SUMMARY SYNTHESIS — NUCLEAR OWNERSHIP PASS
+   Full paste-over replacement for the attached text block
+   ========================================================= */
+
+/* -----------------------------------------
+   1) Core side tokens
+   ----------------------------------------- */
+#summarySection{
+  --syn-a-rgb: var(--mi-brand-a-rgb, 148 163 184);
+  --syn-b-rgb: var(--mi-brand-b-rgb, 148 163 184);
+
+  --syn-a-ambient-rgb: var(--mi-brand-a-secondary-ambient-rgb, 220 230 240);
+  --syn-b-ambient-rgb: var(--mi-brand-b-secondary-ambient-rgb, 220 230 240);
+
+  --syn-a-wash:
+    radial-gradient(
+      140% 165% at 6% 0%,
+      rgb(var(--syn-a-rgb) / 0.30),
+      transparent 56%
+    ),
+    linear-gradient(
+      180deg,
+      rgb(var(--syn-a-rgb) / 0.10),
+      rgba(2,6,23,0.00) 64%
+    );
+
+  --syn-b-wash:
+    radial-gradient(
+      140% 165% at 94% 0%,
+      rgb(var(--syn-b-rgb) / 0.30),
+      transparent 56%
+    ),
+    linear-gradient(
+      180deg,
+      rgb(var(--syn-b-rgb) / 0.10),
+      rgba(2,6,23,0.00) 64%
+    );
+}
+
+/* -----------------------------------------
+   2) Structural table zoning
+   ----------------------------------------- */
+#summarySection .summary-synthesis-table{
+  position: relative;
+  overflow: hidden;
+  border-radius: 18px;
+  isolation: isolate;
+}
+
+/* colgroup = subtle structural ownership only */
+#summarySection .summary-synthesis-table colgroup col:nth-child(1),
+#summarySection .summary-synthesis-table colgroup col:nth-child(2),
+#summarySection .summary-synthesis-table colgroup col:nth-child(3){
+  background-color: rgb(var(--syn-a-rgb) / 0.05);
+}
+
+#summarySection .summary-synthesis-table colgroup col:nth-child(5),
+#summarySection .summary-synthesis-table colgroup col:nth-child(6),
+#summarySection .summary-synthesis-table colgroup col:nth-child(7){
+  background-color: rgb(var(--syn-b-rgb) / 0.05);
+}
+
+/* -----------------------------------------
+   3) Base side ownership lanes
+   ----------------------------------------- */
+#summarySection .summary-synthesis-table .syn-label-a,
+#summarySection .summary-synthesis-table .syn-val-a,
+#summarySection .summary-synthesis-table .syn-final-a{
+  border-color: rgb(var(--syn-a-rgb) / 0.30) !important;
+  background-image: var(--syn-a-wash) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.02),
+    inset 0 0 0 1px rgb(var(--syn-a-rgb) / 0.05) !important;
+}
+
+#summarySection .summary-synthesis-table .syn-label-b,
+#summarySection .summary-synthesis-table .syn-val-b,
+#summarySection .summary-synthesis-table .syn-final-b{
+  border-color: rgb(var(--syn-b-rgb) / 0.30) !important;
+  background-image: var(--syn-b-wash) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.02),
+    inset 0 0 0 1px rgb(var(--syn-b-rgb) / 0.05) !important;
+}
+
+/* stronger center separator walls */
+#summarySection .summary-synthesis-table tr > *:nth-child(4){
+  border-left: 1px solid rgba(255,255,255,0.12) !important;
+  border-right: 1px solid rgba(255,255,255,0.12) !important;
+  box-shadow:
+    inset 1px 0 0 rgba(255,255,255,0.04),
+    inset -1px 0 0 rgba(255,255,255,0.04) !important;
+}
+
+/* -----------------------------------------
+   4) Header row — logo + team name locked together
+   ----------------------------------------- */
+#summarySection .summary-synthesis-table .syn-team{
+  position: relative;
+  overflow: hidden;
+  padding: 0 !important;
+  filter: none !important;
+  opacity: 1 !important;
+}
+
+#summarySection .summary-synthesis-table .mi-summary-team-head{
+  width: 100%;
+  min-width: 0;
+
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  padding: 10px 14px 12px !important;
+}
+
+#summarySection .summary-synthesis-table .mi-team-brand--summary{
+  width: auto !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+
+  display: inline-grid !important;
+  grid-template-columns: auto minmax(0, auto) !important;
+  align-items: center !important;
+  justify-content: center !important;
+  column-gap: 10px !important;
+
+  padding: 0 !important;
+  margin: 0 auto !important;
+
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+}
+
+#summarySection .summary-synthesis-table .mi-team-brand--summary:has(.mi-team-brand-logo[hidden]){
+  grid-template-columns: minmax(0, auto) !important;
+}
+
+#summarySection .summary-synthesis-table .mi-team-brand--summary .mi-team-brand-logo{
+  width: 50px !important;
+  height: 50px !important;
+  display: block !important;
+  object-fit: contain !important;
+  margin: 0 !important;
+  align-self: center !important;
+  justify-self: center !important;
+
+  filter:
+    drop-shadow(0 0 10px rgba(255,255,255,0.04))
+    drop-shadow(0 0 16px rgba(0,0,0,0.28));
+}
+
+#summarySection .summary-synthesis-table .mi-team-brand--summary .mi-team-brand-name{
+  min-width: 0 !important;
+  display: block !important;
+  text-align: left !important;
+  padding: 0 !important;
+  margin: 0 !important;
+
+  font-size: 15px !important;
+  font-weight: 900 !important;
+  letter-spacing: 0.01em !important;
+  line-height: 1.05 !important;
+  color: rgba(241,245,249,0.98) !important;
+  text-shadow:
+    0 1px 0 rgba(0,0,0,0.44),
+    0 0 14px rgba(255,255,255,0.04) !important;
+}
+
+/* Header ownership shells */
+#summarySection .summary-synthesis-table .syn-team-a{
+  border-color: rgb(var(--syn-a-rgb) / 0.42) !important;
+  background:
+    radial-gradient(
+      135% 170% at 6% 0%,
+      rgb(var(--syn-a-rgb) / 0.28),
+      transparent 58%
+    ),
+    linear-gradient(
+      90deg,
+      rgb(var(--syn-a-rgb) / 0.10) 0%,
+      rgba(255,255,255,0.00) 54%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(255,255,255,0.04),
+      rgba(255,255,255,0.00) 30%
+    ),
+    rgba(4, 10, 24, 0.88) !important;
+
+  box-shadow:
+    inset 0 -1px 0 rgba(0,0,0,0.34),
+    inset 0 1px 0 rgba(255,255,255,0.04),
+    0 0 24px rgb(var(--syn-a-rgb) / 0.14) !important;
+}
+
+#summarySection .summary-synthesis-table .syn-team-b{
+  border-color: rgb(var(--syn-b-rgb) / 0.42) !important;
+  background:
+    radial-gradient(
+      135% 170% at 94% 0%,
+      rgb(var(--syn-b-rgb) / 0.28),
+      transparent 58%
+    ),
+    linear-gradient(
+      270deg,
+      rgb(var(--syn-b-rgb) / 0.10) 0%,
+      rgba(255,255,255,0.00) 54%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(255,255,255,0.04),
+      rgba(255,255,255,0.00) 30%
+    ),
+    rgba(4, 10, 24, 0.88) !important;
+
+  box-shadow:
+    inset 0 -1px 0 rgba(0,0,0,0.34),
+    inset 0 1px 0 rgba(255,255,255,0.04),
+    0 0 24px rgb(var(--syn-b-rgb) / 0.14) !important;
+}
+
+/* subtle vertical team rails in headers */
+#summarySection .summary-synthesis-table .syn-team-a::before,
+#summarySection .summary-synthesis-table .syn-team-b::before{
+  content: "";
+  position: absolute;
+  top: 10px;
+  bottom: 10px;
+  width: 3px;
+  border-radius: 999px;
+  pointer-events: none;
+}
+
+#summarySection .summary-synthesis-table .syn-team-a::before{
+  left: 10px;
+  background:
+    linear-gradient(
+      180deg,
+      rgb(var(--syn-a-ambient-rgb) / 0.98),
+      rgb(var(--syn-a-rgb) / 0.88)
+    ) !important;
+  box-shadow:
+    0 0 10px rgb(var(--syn-a-rgb) / 0.38),
+    0 0 20px rgb(var(--syn-a-rgb) / 0.20) !important;
+}
+
+#summarySection .summary-synthesis-table .syn-team-b::before{
+  left: 10px;
+  background:
+    linear-gradient(
+      180deg,
+      rgb(var(--syn-b-ambient-rgb) / 0.98),
+      rgb(var(--syn-b-rgb) / 0.88)
+    ) !important;
+  box-shadow:
+    0 0 10px rgb(var(--syn-b-rgb) / 0.38),
+    0 0 20px rgb(var(--syn-b-rgb) / 0.20) !important;
+}
+
+/* -----------------------------------------
+   5) Base final MI pillars
+   ----------------------------------------- */
+#summarySection .summary-synthesis-table tr > .syn-final:nth-child(3),
+#summarySection .summary-synthesis-table tr > .syn-final:nth-child(5){
+  border-radius: 16px !important;
+}
+
+#summarySection .summary-synthesis-table tr > .syn-final:nth-child(3){
+  border-color: rgb(var(--syn-a-rgb) / 0.32) !important;
+}
+
+#summarySection .summary-synthesis-table tr > .syn-final:nth-child(5){
+  border-color: rgb(var(--syn-b-rgb) / 0.32) !important;
+}
+
+#summarySection .summary-synthesis-table tr > .syn-final:nth-child(3) .syn-final-inner{
+  background:
+    radial-gradient(
+      140% 150% at 8% 0%,
+      rgb(var(--syn-a-rgb) / 0.18),
+      transparent 58%
+    ),
+    linear-gradient(
+      180deg,
+      rgb(var(--syn-a-rgb) / 0.12),
+      rgba(2,6,23,0.82)
+    ) !important;
+  border-color: rgb(var(--syn-a-rgb) / 0.24) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.03),
+    0 0 0 1px rgb(var(--syn-a-rgb) / 0.08) !important;
+}
+
+#summarySection .summary-synthesis-table tr > .syn-final:nth-child(5) .syn-final-inner{
+  background:
+    radial-gradient(
+      140% 150% at 92% 0%,
+      rgb(var(--syn-b-rgb) / 0.18),
+      transparent 58%
+    ),
+    linear-gradient(
+      180deg,
+      rgb(var(--syn-b-rgb) / 0.12),
+      rgba(2,6,23,0.82)
+    ) !important;
+  border-color: rgb(var(--syn-b-rgb) / 0.24) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.03),
+    0 0 0 1px rgb(var(--syn-b-rgb) / 0.08) !important;
+}
+
+/* -----------------------------------------
+   6) Center narrative card — hard verdict-shell energy
+   ----------------------------------------- */
+#summarySection .summary-synthesis-table .syn-center{
+  position: relative !important;
+  overflow: visible !important;
+  isolation: isolate !important;
+
+  border: 1px solid rgba(255,255,255,0.14) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.03),
+    0 12px 28px rgba(0,0,0,0.40) !important;
+}
+
+/* Team A winner center */
+#summarySection .summary-synthesis-table .syn-center.mi-winner-a{
+  border-color: rgba(255,255,255,0.74) !important;
+  background:
+    radial-gradient(
+      140% 170% at 4% 0%,
+      rgb(var(--syn-a-rgb) / 0.22),
+      transparent 56%
+    ),
+    linear-gradient(
+      90deg,
+      rgb(var(--syn-a-rgb) / 0.18) 0%,
+      rgb(var(--syn-a-rgb) / 0.06) 38%,
+      rgba(2,6,23,0.00) 62%
+    ),
+    rgba(3,8,20,0.82) !important;
+
+  box-shadow:
+    inset 0 0 0 1px rgb(var(--syn-a-rgb) / 0.26),
+    0 0 0 1px rgba(255,255,255,0.14),
+    -20px 0 42px rgb(var(--syn-a-rgb) / 0.22),
+    0 18px 40px rgba(0,0,0,0.44) !important;
+}
+
+#summarySection .summary-synthesis-table .syn-center.mi-winner-a::after{
+  content: "";
+  position: absolute;
+  top: 12px;
+  bottom: 12px;
+  left: 8px;
+  width: 7px;
+  border-radius: 999px;
+  background:
+    linear-gradient(
+      180deg,
+      rgb(var(--syn-a-ambient-rgb) / 0.98),
+      rgb(var(--syn-a-rgb) / 0.90)
+    ) !important;
+  box-shadow:
+    0 0 14px rgb(var(--syn-a-rgb) / 0.42),
+    0 0 28px rgb(var(--syn-a-rgb) / 0.24) !important;
+}
+
+/* Team B winner center */
+#summarySection .summary-synthesis-table .syn-center.mi-winner-b{
+  border-color: rgba(255,255,255,0.74) !important;
+  background:
+    radial-gradient(
+      140% 170% at 96% 0%,
+      rgb(var(--syn-b-rgb) / 0.22),
+      transparent 56%
+    ),
+    linear-gradient(
+      270deg,
+      rgb(var(--syn-b-rgb) / 0.18) 0%,
+      rgb(var(--syn-b-rgb) / 0.06) 38%,
+      rgba(2,6,23,0.00) 62%
+    ),
+    rgba(3,8,20,0.82) !important;
+
+  box-shadow:
+    inset 0 0 0 1px rgb(var(--syn-b-rgb) / 0.26),
+    0 0 0 1px rgba(255,255,255,0.14),
+    20px 0 42px rgb(var(--syn-b-rgb) / 0.22),
+    0 18px 40px rgba(0,0,0,0.44) !important;
+}
+
+#summarySection .summary-synthesis-table .syn-center.mi-winner-b::after{
+  content: "";
+  position: absolute;
+  top: 12px;
+  bottom: 12px;
+  right: 8px;
+  width: 7px;
+  border-radius: 999px;
+  background:
+    linear-gradient(
+      180deg,
+      rgb(var(--syn-b-ambient-rgb) / 0.98),
+      rgb(var(--syn-b-rgb) / 0.90)
+    ) !important;
+  box-shadow:
+    0 0 14px rgb(var(--syn-b-rgb) / 0.42),
+    0 0 28px rgb(var(--syn-b-rgb) / 0.24) !important;
+}
+
+/* -----------------------------------------
+   7) Winner / loser side saturation logic
+   BODY rows only — headers stay vivid like verdictShell
+   ----------------------------------------- */
+
+/* ===== TEAM A WINS ===== */
+#summarySection.mi-winner-a .summary-synthesis-table .syn-label-a,
+#summarySection.mi-winner-a .summary-synthesis-table .syn-val-a,
+#summarySection.mi-winner-a .summary-synthesis-table .syn-final-a{
+  border-color: rgb(var(--syn-a-rgb) / 0.52) !important;
+  background-image:
+    radial-gradient(
+      150% 180% at 6% 0%,
+      rgb(var(--syn-a-rgb) / 0.34),
+      transparent 58%
+    ),
+    linear-gradient(
+      180deg,
+      rgb(var(--syn-a-rgb) / 0.18),
+      rgba(2,6,23,0.00) 66%
+    ) !important;
+  box-shadow:
+    inset 0 1px 0 rgb(var(--syn-a-ambient-rgb) / 0.10),
+    inset 0 0 0 1px rgb(var(--syn-a-rgb) / 0.08),
+    0 0 18px rgb(var(--syn-a-rgb) / 0.08) !important;
+  filter: saturate(1.24) brightness(1.04) !important;
+  opacity: 1 !important;
+}
+
+#summarySection.mi-winner-a .summary-synthesis-table .syn-label-b,
+#summarySection.mi-winner-a .summary-synthesis-table .syn-val-b,
+#summarySection.mi-winner-a .summary-synthesis-table .syn-final-b{
+  border-color: rgba(148,163,184,0.15) !important;
+  background-image:
+    linear-gradient(
+      180deg,
+      rgba(148,163,184,0.04),
+      rgba(2,6,23,0.00) 66%
+    ) !important;
+  filter: saturate(0.52) brightness(0.84) !important;
+  opacity: 0.76 !important;
+}
+
+/* headers stay vivid; winner just gets stronger emphasis */
+#summarySection.mi-winner-a .summary-synthesis-table .syn-team-a{
+  filter: none !important;
+  opacity: 1 !important;
+  box-shadow:
+    inset 0 1px 0 rgb(var(--syn-a-ambient-rgb) / 0.10),
+    0 0 0 1px rgb(var(--syn-a-rgb) / 0.16),
+    -14px 0 32px rgb(var(--syn-a-rgb) / 0.16),
+    0 0 28px rgb(var(--syn-a-rgb) / 0.18) !important;
+}
+
+#summarySection.mi-winner-a .summary-synthesis-table .syn-team-b{
+  filter: none !important;
+  opacity: 1 !important;
+  box-shadow:
+    inset 0 1px 0 rgb(var(--syn-b-ambient-rgb) / 0.05),
+    0 0 0 1px rgb(var(--syn-b-rgb) / 0.10),
+    0 0 18px rgb(var(--syn-b-rgb) / 0.10) !important;
+}
+
+#summarySection.mi-winner-a .summary-synthesis-table tbody tr > .syn-final:nth-child(3) .syn-final-inner{
+  border-color: rgba(255,255,255,0.62) !important;
+  box-shadow:
+    inset 0 1px 0 rgb(var(--syn-a-ambient-rgb) / 0.10),
+    0 0 0 1px rgb(var(--syn-a-rgb) / 0.18),
+    0 12px 24px rgb(var(--syn-a-rgb) / 0.16) !important;
+}
+
+#summarySection.mi-winner-a .summary-synthesis-table tbody tr > .syn-final:nth-child(5) .syn-final-inner{
+  filter: saturate(0.58) brightness(0.86) !important;
+  opacity: 0.82 !important;
+}
+
+/* ===== TEAM B WINS ===== */
+#summarySection.mi-winner-b .summary-synthesis-table .syn-label-b,
+#summarySection.mi-winner-b .summary-synthesis-table .syn-val-b,
+#summarySection.mi-winner-b .summary-synthesis-table .syn-final-b{
+  border-color: rgb(var(--syn-b-rgb) / 0.52) !important;
+  background-image:
+    radial-gradient(
+      150% 180% at 94% 0%,
+      rgb(var(--syn-b-rgb) / 0.34),
+      transparent 58%
+    ),
+    linear-gradient(
+      180deg,
+      rgb(var(--syn-b-rgb) / 0.18),
+      rgba(2,6,23,0.00) 66%
+    ) !important;
+  box-shadow:
+    inset 0 1px 0 rgb(var(--syn-b-ambient-rgb) / 0.10),
+    inset 0 0 0 1px rgb(var(--syn-b-rgb) / 0.08),
+    0 0 18px rgb(var(--syn-b-rgb) / 0.08) !important;
+  filter: saturate(1.24) brightness(1.04) !important;
+  opacity: 1 !important;
+}
+
+#summarySection.mi-winner-b .summary-synthesis-table .syn-label-a,
+#summarySection.mi-winner-b .summary-synthesis-table .syn-val-a,
+#summarySection.mi-winner-b .summary-synthesis-table .syn-final-a{
+  border-color: rgba(148,163,184,0.15) !important;
+  background-image:
+    linear-gradient(
+      180deg,
+      rgba(148,163,184,0.04),
+      rgba(2,6,23,0.00) 66%
+    ) !important;
+  filter: saturate(0.52) brightness(0.84) !important;
+  opacity: 0.76 !important;
+}
+
+#summarySection.mi-winner-b .summary-synthesis-table .syn-team-b{
+  filter: none !important;
+  opacity: 1 !important;
+  box-shadow:
+    inset 0 1px 0 rgb(var(--syn-b-ambient-rgb) / 0.10),
+    0 0 0 1px rgb(var(--syn-b-rgb) / 0.16),
+    14px 0 32px rgb(var(--syn-b-rgb) / 0.16),
+    0 0 28px rgb(var(--syn-b-rgb) / 0.18) !important;
+}
+
+#summarySection.mi-winner-b .summary-synthesis-table .syn-team-a{
+  filter: none !important;
+  opacity: 1 !important;
+  box-shadow:
+    inset 0 1px 0 rgb(var(--syn-a-ambient-rgb) / 0.05),
+    0 0 0 1px rgb(var(--syn-a-rgb) / 0.10),
+    0 0 18px rgb(var(--syn-a-rgb) / 0.10) !important;
+}
+
+#summarySection.mi-winner-b .summary-synthesis-table tbody tr > .syn-final:nth-child(5) .syn-final-inner{
+  border-color: rgba(255,255,255,0.62) !important;
+  box-shadow:
+    inset 0 1px 0 rgb(var(--syn-b-ambient-rgb) / 0.10),
+    0 0 0 1px rgb(var(--syn-b-rgb) / 0.18),
+    0 12px 24px rgb(var(--syn-b-rgb) / 0.16) !important;
+}
+
+#summarySection.mi-winner-b .summary-synthesis-table tbody tr > .syn-final:nth-child(3) .syn-final-inner{
+  filter: saturate(0.58) brightness(0.86) !important;
+  opacity: 0.82 !important;
+}
+
+/* =====================================================================
+   CRISP TEAM NAME — preserves team color, removes bloom blur
+   ===================================================================== */
+
+.team-card-header h2,
+#analysisShell[data-lens] .team-card-header h2 {
+  color: var(--team-primary) !important;
+  text-shadow: none !important;
+  -webkit-font-smoothing: antialiased !important;
+  -moz-osx-font-smoothing: grayscale !important;
+}
+
+.mi-team-brand--scorebug .mi-team-brand-name {
+  color: var(--team-primary) !important;
+  text-shadow: none !important;
+  -webkit-font-smoothing: antialiased !important;
+  -moz-osx-font-smoothing: grayscale !important;
+}
+
+.mi-scorebug-team-name,
+#miScorebugTeamA,
+#miScorebugTeamB {
+  text-shadow: none !important;
+  -webkit-font-smoothing: antialiased !important;
+  -moz-osx-font-smoothing: grayscale !important;
+}
+
+/* Also neutralize the --text-glow variable fallback */
+.mi-team-brand--scorebug,
+.mi-scorebug-team--a,
+.mi-scorebug-team--b {
+  --text-glow: none;
+}
+
+#teamABrand .mi-team-brand .mi-team-brand--card {
+  padding: 2px;
+}
+
+#teamBBrand .mi-team-brand .mi-team-brand--card {
+  padding: 2px;
+}
+
+/* =========================================================
+   SUMMARY SECTION — TEAM NAME COLOR INJECTION (CANONICAL)
+   Match scorebug / team-card branding behavior
+   ========================================================= */
+
+#summarySection .summary-header-head .mi-team-brand-name{
+  font-weight: 700;
+  letter-spacing: 0.01em;
+
+  /* shared visual identity */
+  text-shadow:
+    0 0 6px rgb(var(--team-a-primary-rgb, 148 163 184) / 0.28),
+    0 0 14px rgb(var(--team-a-primary-rgb, 148 163 184) / 0.18);
+}
+
+/* TEAM A */
+
+#summarySection.mi-winner-a #summaryTeamA,
+#summarySection #summaryTeamA{
+  color: rgb(var(--team-a-primary-rgb, 148 163 184)) !important;
+
+  text-shadow:
+    0 0 6px rgb(var(--team-a-primary-rgb, 148 163 184) / 0.30),
+    0 0 14px rgb(var(--team-a-primary-rgb, 148 163 184) / 0.20);
+}
+
+/* TEAM B */
+
+#summarySection.mi-winner-b #summaryTeamB,
+#summarySection #summaryTeamB{
+  color: rgb(var(--team-b-primary-rgb, 148 163 184)) !important;
+
+  text-shadow:
+    0 0 6px rgb(var(--team-b-primary-rgb, 148 163 184) / 0.30),
+    0 0 14px rgb(var(--team-b-primary-rgb, 148 163 184) / 0.20);
+}
+
+#summarySection.mi-winner-a #summaryTeamA,
+#summarySection #summaryTeamA,
+#summarySection.mi-winner-b #summaryTeamB,
+#summarySection #summaryTeamB{
+  font-size: 18px !important;
+  font-weight: 750 !important;
+}
+
+/* =========================================================
+   SUMMARY TEAMHEAD — READABILITY BOOST
+   ========================================================= */
+
+#summarySection .mi-summary-team-head .mi-team-brand-name{
+
+  /* existing color stays */
+
+  text-shadow:
+
+    /* crisp edge */
+    0 0 0.5px rgba(0,0,0,0.95),
+    0 0 1px rgba(0,0,0,0.90),
+
+    /* soft glow */
+    0 0 6px currentColor,
+    0 0 14px currentColor;
+}
+
+#summarySection .mi-summary-team-head{
+
+  background:
+
+    linear-gradient(
+      180deg,
+      rgba(255,255,255,0.06),
+      rgba(255,255,255,0.00) 55%
+    ),
+
+    linear-gradient(
+      90deg,
+      rgba(255,255,255,0.04),
+      rgba(255,255,255,0.00) 60%
+    );
+
+  border-radius: 10px;
+}
+
+#summarySection .mi-summary-team-head{
+  filter: brightness(1.08) saturate(1.05);
+}
+
+#datasetCard .round-step-label {
+  margin-bottom: 8px;
+  margin-top: 4px;
+  z-index: 1;
+  font-size: 0.98rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-align: center;
+  text-transform: uppercase;
+  color: var(--mi-text-primary);
+}
+
+#preMatchupHub .round-step-label {
+  margin-bottom: 0;
+  margin-top: 4px;
+  z-index: 1;
+  font-size: 0.98rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-align: center;
+  text-transform: uppercase;
+  color: var(--mi-text-primary);
 }

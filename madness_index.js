@@ -319,6 +319,25 @@ function miApplyCanonicalTeamHeaderBranding(aName, bName) {
     side: 'b'
   });
 
+  // Score synthesis mobile headers (new mobile brand clusters)
+  const summaryMobileABrandWrap = applyCluster({
+    wrapId: 'summaryMobileBrandA',
+    logoId: 'summaryMobileLogoA',
+    nameId: 'summaryMobileTeamA',
+    teamName: aName,
+    branding: brandA,
+    side: 'a'
+  });
+
+  const summaryMobileBBrandWrap = applyCluster({
+    wrapId: 'summaryMobileBrandB',
+    logoId: 'summaryMobileLogoB',
+    nameId: 'summaryMobileTeamB',
+    teamName: bName,
+    branding: brandB,
+    side: 'b'
+  });
+
   // Whole card shells inherit team vars for border + header glow
   const cindCard = document.getElementById('cindCard');
   const favCard = document.getElementById('favCard');
@@ -344,6 +363,22 @@ function miApplyCanonicalTeamHeaderBranding(aName, bName) {
     summarySection.style.setProperty('--mi-brand-b-secondary-ambient-rgb', brandB.ambientSecondaryRgb);
   }
 
+  const summarySectionMobile = document.getElementById('summarySectionMobile');
+  if (summarySectionMobile) {
+    summarySectionMobile.style.setProperty('--mi-brand-a', brandA.primary);
+    summarySectionMobile.style.setProperty('--mi-brand-b', brandB.primary);
+    summarySectionMobile.style.setProperty('--mi-brand-a-secondary', brandA.secondary);
+    summarySectionMobile.style.setProperty('--mi-brand-b-secondary', brandB.secondary);
+    summarySectionMobile.style.setProperty('--mi-brand-a-rgb', brandA.primaryRgb);
+    summarySectionMobile.style.setProperty('--mi-brand-b-rgb', brandB.primaryRgb);
+    summarySectionMobile.style.setProperty('--mi-brand-a-secondary-ambient-rgb', brandA.ambientSecondaryRgb);
+    summarySectionMobile.style.setProperty('--mi-brand-b-secondary-ambient-rgb', brandB.ambientSecondaryRgb);
+    summarySectionMobile.style.setProperty('--syn-a-rgb', brandA.primaryRgb);
+    summarySectionMobile.style.setProperty('--syn-b-rgb', brandB.primaryRgb);
+    summarySectionMobile.style.setProperty('--syn-a-ambient-rgb', brandA.ambientSecondaryRgb);
+    summarySectionMobile.style.setProperty('--syn-b-ambient-rgb', brandB.ambientSecondaryRgb);
+  }
+
   // Also apply inherited vars to the actual header cells
   const synTeamA = summaryABrandWrap?.closest('.syn-team-a');
   const synTeamB = summaryBBrandWrap?.closest('.syn-team-b');
@@ -356,18 +391,117 @@ function miApplyCanonicalTeamHeaderBranding(aName, bName) {
     miApplyBrandVariables(synTeamB, brandB, 'b');
   }
 
+  const summaryMobileTeamSlotA = summaryMobileABrandWrap?.closest('.mi-sum-mob-team-slot-a');
+  const summaryMobileTeamSlotB = summaryMobileBBrandWrap?.closest('.mi-sum-mob-team-slot-b');
+
+  if (summaryMobileTeamSlotA) {
+    miApplyBrandVariables(summaryMobileTeamSlotA, brandA, 'a');
+  }
+
+  if (summaryMobileTeamSlotB) {
+    miApplyBrandVariables(summaryMobileTeamSlotB, brandB, 'b');
+  }
+
   // Preserve existing mobile summary names if present
   document.querySelectorAll('.mi-sum-mob-team-name-a').forEach(el => {
     el.textContent = brandA.shortName || aName || 'Team A';
     el.style.setProperty('--team-primary', brandA.primary);
     el.style.setProperty('--team-secondary', brandA.secondary);
+    el.style.setProperty('--team-primary-rgb', brandA.primaryRgb);
+    el.style.setProperty('--team-secondary-rgb', brandA.secondaryRgb);
+    el.style.setProperty('--team-secondary-ambient-rgb', brandA.ambientSecondaryRgb);
+    el.style.setProperty('--team-glow-mid-rgb', brandA.glowMidRgb);
+    el.style.setProperty('--team-glow-edge-rgb', brandA.glowEdgeRgb);
   });
 
   document.querySelectorAll('.mi-sum-mob-team-name-b').forEach(el => {
     el.textContent = brandB.shortName || bName || 'Team B';
     el.style.setProperty('--team-primary', brandB.primary);
     el.style.setProperty('--team-secondary', brandB.secondary);
+    el.style.setProperty('--team-primary-rgb', brandB.primaryRgb);
+    el.style.setProperty('--team-secondary-rgb', brandB.secondaryRgb);
+    el.style.setProperty('--team-secondary-ambient-rgb', brandB.ambientSecondaryRgb);
+    el.style.setProperty('--team-glow-mid-rgb', brandB.glowMidRgb);
+    el.style.setProperty('--team-glow-edge-rgb', brandB.glowEdgeRgb);
   });
+}
+
+function miColorDistance(rgbA, rgbB) {
+  const a = miRgbStringToChannels(rgbA, [107, 114, 128]);
+  const b = miRgbStringToChannels(rgbB, [107, 114, 128]);
+
+  const dr = a[0] - b[0];
+  const dg = a[1] - b[1];
+  const db = a[2] - b[2];
+
+  return Math.sqrt((dr * dr) + (dg * dg) + (db * db));
+}
+
+function miApplyWinnerTokens(winnerSide, brandA, brandB) {
+  const verdictShell = document.getElementById('verdictShell');
+  const summarySection = document.getElementById('summarySection');
+  const summarySectionMobile = document.getElementById('summarySectionMobile');
+  
+  if (!verdictShell && !summarySection && !summarySectionMobile) return;
+
+  const safeA = brandA || miNormalizeTeamBranding('');
+  const safeB = brandB || miNormalizeTeamBranding('');
+
+  const winnerBrand =
+    winnerSide === 'a' ? safeA :
+    winnerSide === 'b' ? safeB :
+    null;
+
+  const loserBrand =
+    winnerSide === 'a' ? safeB :
+    winnerSide === 'b' ? safeA :
+    null;
+
+  const applySharedWinnerVars = (el) => {
+    if (!el) return;
+
+    if (winnerBrand) {
+      el.style.setProperty('--mi-winner-primary-rgb', winnerBrand.primaryRgb);
+      el.style.setProperty('--mi-winner-secondary-rgb', winnerBrand.secondaryRgb);
+      el.style.setProperty('--mi-winner-ambient-rgb', winnerBrand.ambientSecondaryRgb);
+    } else {
+      el.style.setProperty('--mi-winner-primary-rgb', '148 163 184');
+      el.style.setProperty('--mi-winner-secondary-rgb', '148 163 184');
+      el.style.setProperty('--mi-winner-ambient-rgb', '148 163 184');
+    }
+
+    if (loserBrand) {
+      el.style.setProperty('--mi-loser-primary-rgb', loserBrand.primaryRgb);
+      el.style.setProperty('--mi-loser-secondary-rgb', loserBrand.secondaryRgb);
+    } else {
+      el.style.setProperty('--mi-loser-primary-rgb', '107 114 128');
+      el.style.setProperty('--mi-loser-secondary-rgb', '107 114 128');
+    }
+  };
+
+  applySharedWinnerVars(verdictShell);
+  applySharedWinnerVars(summarySection);
+  applySharedWinnerVars(summarySectionMobile);
+
+  if (verdictShell) {
+    const verdictRgb = winnerBrand ? winnerBrand.primaryRgb : '148 163 184';
+    verdictShell.style.setProperty('--mi-verdict-rgb', verdictRgb);
+  }
+
+  const colorDistance = miColorDistance(safeA.primaryRgb, safeB.primaryRgb);
+  const proximity = colorDistance < 40 ? 'close' : 'distinct';
+
+  if (verdictShell) {
+    verdictShell.setAttribute('data-color-proximity', proximity);
+  }
+
+  if (summarySection) {
+    summarySection.setAttribute('data-color-proximity', proximity);
+  }
+
+  if (summarySectionMobile) {
+    summarySectionMobile.setAttribute('data-color-proximity', proximity);
+  }
 }
 
 // Default Profile Mark descriptions (fallback if JSON not present)
@@ -649,6 +783,19 @@ function normalizePreMatchupCopy(data) {
   };
 }
 
+function miSetVerdictScrollLock(locked) {
+  const isMobile = window.matchMedia && window.matchMedia('(max-width: 720px)').matches;
+  const body = document.body;
+  const html = document.documentElement;
+
+  if (!body || !html) return;
+
+  const shouldLock = !!locked && isMobile;
+
+  body.classList.toggle('mi-verdict-scroll-lock', shouldLock);
+  html.classList.toggle('mi-verdict-scroll-lock', shouldLock);
+}
+
 // ===============================
 // Verdict-first UI (Option A)
 // ===============================
@@ -671,6 +818,8 @@ function setEvidenceOpen(isOpen) {
 
   // Visual open/close
   if (isOpen) {
+    miSetVerdictScrollLock(false);
+
     shell.classList.remove('hidden');
     requestAnimationFrame(() => {
       shell.classList.add('analysis-visible');
@@ -685,6 +834,8 @@ function setEvidenceOpen(isOpen) {
       }
     });
   } else {
+    miSetVerdictScrollLock(true);
+
     shell.classList.remove('analysis-visible');
     window.setTimeout(() => {
       shell.classList.add('hidden');
@@ -721,11 +872,118 @@ function showVerdictShell() {
   vs.classList.remove('hidden');
 }
 
+function persistWorkflowState() {
+  const datasetSelect = document.getElementById('datasetSelect');
+  const teamASelect = document.getElementById('teamA');
+  const teamBSelect = document.getElementById('teamB');
+
+  const state = {
+    dataset: datasetSelect?.value || '',
+    teamA: teamASelect?.value || '',
+    teamB: teamBSelect?.value || '',
+    round: (typeof CURRENT_ROUND !== 'undefined' && CURRENT_ROUND) ? CURRENT_ROUND : ''
+  };
+
+  localStorage.setItem('miWorkflowState', JSON.stringify(state));
+}
+
+function restoreWorkflowState() {
+  const raw = localStorage.getItem('miWorkflowState');
+  if (!raw) return;
+
+  try {
+    const state = JSON.parse(raw);
+
+    const datasetSelect = document.getElementById('datasetSelect');
+    const teamASelect = document.getElementById('teamA');
+    const teamBSelect = document.getElementById('teamB');
+    const roundBtn = document.getElementById('roundSelectBtn');
+
+    if (datasetSelect && state.dataset) {
+      datasetSelect.value = state.dataset;
+    }
+
+    if (teamASelect && state.teamA) {
+      teamASelect.value = state.teamA;
+    }
+
+    if (teamBSelect && state.teamB) {
+      teamBSelect.value = state.teamB;
+    }
+
+    if (state.round) {
+      CURRENT_ROUND = state.round;
+      if (roundBtn && typeof getRoundLabelFromCode === 'function') {
+        roundBtn.textContent = getRoundLabelFromCode(CURRENT_ROUND);
+      }
+    }
+  } catch (err) {
+    console.warn('[MI] Workflow state restore failed:', err);
+  }
+}
+
+function logWorkflowEvent(event, details = {}) {
+  console.log(
+    '[MI Workflow]',
+    event,
+    details
+  );
+}
+
+function resetWorkflowFrom(level) {
+  const teamA = document.getElementById('teamA');
+  const teamB = document.getElementById('teamB');
+  const roundBtn = document.getElementById('roundSelectBtn');
+
+  if (level === 'dataset') {
+    if (teamA) teamA.value = '';
+    if (teamB) teamB.value = '';
+
+    CURRENT_ROUND = null;
+
+    if (roundBtn) {
+      roundBtn.textContent = 'Select Round';
+    }
+  }
+
+  if (level === 'teams') {
+    CURRENT_ROUND = null;
+
+    if (roundBtn) {
+      roundBtn.textContent = 'Select Round';
+    }
+  }
+
+  updatePreMatchupHubProgress();
+}
+
+function clearWorkflowState() {
+  localStorage.removeItem('miWorkflowState');
+
+  const datasetSelect = document.getElementById('datasetSelect');
+  const teamA = document.getElementById('teamA');
+  const teamB = document.getElementById('teamB');
+  const roundBtn = document.getElementById('roundSelectBtn');
+
+  if (datasetSelect) datasetSelect.value = '';
+  if (teamA) teamA.value = '';
+  if (teamB) teamB.value = '';
+
+  CURRENT_ROUND = null;
+
+  if (roundBtn) {
+    roundBtn.textContent = 'Select Round';
+  }
+
+  updatePreMatchupHubProgress();
+}
+
 function resetPostMatchupDefaultView() {
   // After each run: verdict visible, evidence closed
   showVerdictShell();
   initEvidenceToggleOnce();
   setEvidenceOpen(false);
+  miSetVerdictScrollLock(true);
 }
 
 // ===== PATCH NOTES: render from canonical MI_COPY =====
@@ -5169,6 +5427,10 @@ function compareTeams(teamAName, teamBName, roleMode = 'auto', opts = MI_V2_DEFA
   renderVolatilityMeter(result);
   renderInteractionsConsole(result);
   renderSummary(result);
+  
+  miApplyCanonicalTeamHeaderBranding(a.name, b.name);
+  miApplyScorebugAmbientBranding(a.name, b.name);
+ 
   updateMatchupBarFromDOM();
   updateCoreBacksForResult(result);
   updateBreadthBacksForResult(result);
@@ -5841,8 +6103,6 @@ function miUpdateMatchupLensHeaders(result) {
     applyRoleTagClass(cardB, 'chalk_mirror');
 
     applyLensState(analysisShell, 'chalk_mirror');
-    applyLensState(cindCard, 'chalk_mirror');
-    applyLensState(favCard, 'chalk_mirror');
     return;
   }
 
@@ -5856,8 +6116,6 @@ function miUpdateMatchupLensHeaders(result) {
     applyRoleTagClass(cardB, 'chaos_mirror');
 
     applyLensState(analysisShell, 'chaos_mirror');
-    applyLensState(cindCard, 'chaos_mirror');
-    applyLensState(favCard, 'chaos_mirror');
     return;
   }
 
@@ -5871,8 +6129,6 @@ function miUpdateMatchupLensHeaders(result) {
     applyRoleTagClass(cardB, 'neutral_mirror');
 
     applyLensState(analysisShell, 'neutral_mirror');
-    applyLensState(cindCard, 'neutral_mirror');
-    applyLensState(favCard, 'neutral_mirror');
     return;
   }
 
@@ -5891,11 +6147,7 @@ function miUpdateMatchupLensHeaders(result) {
   applyRoleTagClass(cardA, roleA);
   applyRoleTagClass(cardB, roleB);
 
-  // Keep the page-level lens tied to Team A role for existing token systems,
-  // but allow each outer card shell to carry its own resolved role.
   applyLensState(analysisShell, roleA || 'cinderella');
-  applyLensState(cindCard, roleA || 'cinderella');
-  applyLensState(favCard, roleB || 'favorite');
 }
 
 // ---------- Lean band helper (for ΔMI) ----------
@@ -6840,32 +7092,58 @@ function renderSummary(result = {}) {
   const breadthSDA = getNum(a.breadthSD, getNum(v2?.breadthSDA, offBreadthSDA + defBreadthSDA));
   const breadthSDB = getNum(b.breadthSD, getNum(v2?.breadthSDB, offBreadthSDB + defBreadthSDB));
 
-  // =========================================================
-  // Summary center tint
-  // =========================================================
-  const explainCard = summarySection
-    ? summarySection.querySelector('.summary-mid-card--explain')
+// =========================================================
+// Summary section + summary center + verdict shell winner emphasis
+// =========================================================
+  const summaryCenterCard = summarySection
+    ? summarySection.querySelector('.syn-center')
     : null;
 
-  if (explainCard) {
-    explainCard.classList.remove('mi-winner-cinderella', 'mi-winner-favorite', 'mi-winner-neutral');
+  const winnerSide = (diff === 0)
+    ? 'neutral'
+    : (diff > 0 ? 'a' : 'b');
 
-    const winnerRole = (diff === 0)
-      ? 'neutral'
-      : (diff > 0 ? 'cinderella' : 'favorite');
-
-    explainCard.classList.add(`mi-winner-${winnerRole}`);
+  if (summarySection) {
+    summarySection.classList.remove(
+      'mi-winner-a',
+      'mi-winner-b',
+      'mi-winner-neutral'
+    );
+    summarySection.classList.add(`mi-winner-${winnerSide}`);
   }
 
-  if (explainCard) {
-    explainCard.classList.remove('mi-winner-cinderella', 'mi-winner-favorite', 'mi-winner-neutral');
+  const summarySectionMobileWinnerEl = document.getElementById('summarySectionMobile');
 
-    const winnerRole = (diff === 0)
-      ? 'neutral'
-      : (diff > 0 ? 'cinderella' : 'favorite');
-
-    explainCard.classList.add(`mi-winner-${winnerRole}`);
+  if (summarySectionMobileWinnerEl) {
+    summarySectionMobileWinnerEl.classList.remove(
+      'mi-winner-a',
+      'mi-winner-b',
+      'mi-winner-neutral'
+    );
+    summarySectionMobileWinnerEl.classList.add(`mi-winner-${winnerSide}`);
   }
+
+  if (summaryCenterCard) {
+    summaryCenterCard.classList.remove(
+      'mi-winner-a',
+      'mi-winner-b',
+      'mi-winner-neutral'
+    );
+    summaryCenterCard.classList.add(`mi-winner-${winnerSide}`);
+  }
+
+  const verdictShellWinnerEl = document.getElementById('verdictShell');
+
+  if (verdictShellWinnerEl) {
+    verdictShellWinnerEl.classList.remove(
+      'mi-winner-a',
+      'mi-winner-b',
+      'mi-winner-neutral'
+    );
+    verdictShellWinnerEl.classList.add(`mi-winner-${winnerSide}`);
+  }
+
+  miApplyWinnerTokens(winnerSide, brandA, brandB);
 
   // =========================================================
   // Score Synthesis lens / side token wiring
@@ -6879,59 +7157,20 @@ function renderSummary(result = {}) {
   const verdictShellEl = document.getElementById('verdictShell');
   const analysisShellEl = document.getElementById('analysisShell');
 
-  if (summarySection && typeof resolveIdentityContext === 'function') {
-    const roundCode = round || CURRENT_ROUND || 'R64';
-    const ctx = resolveIdentityContext(a, b, roundCode);
-
-  let sideA = 'neutral_mirror';
-  let sideB = 'neutral_mirror';
-
-  const shellLensKey =
-    (ctx && (
-      ctx.mode === 'chalk_mirror' ||
-      ctx.mode === 'chaos_mirror' ||
-      ctx.mode === 'neutral_mirror'
-    ))
-      ? ctx.mode
-      : ((diff === 0)
-          ? 'neutral'
-          : (diff > 0 ? 'cinderella' : 'favorite'));
-
-  if (ctx && (
-    ctx.mode === 'chalk_mirror' ||
-    ctx.mode === 'chaos_mirror' ||
-    ctx.mode === 'neutral_mirror'
-  )) {
-    sideA = ctx.mode;
-    sideB = ctx.mode;
-  } else if (ctx && ctx.mode === 'standard') {
-    sideA = ctx.roleA || 'neutral_mirror';
-    sideB = ctx.roleB || 'neutral_mirror';
+  if (summarySection) {
+    summarySection.removeAttribute('data-lens');
+    summarySection.removeAttribute('data-side-a');
+    summarySection.removeAttribute('data-side-b');
   }
-
-  summarySection.setAttribute('data-lens', shellLensKey);
-  summarySection.setAttribute('data-side-a', sideA);
-  summarySection.setAttribute('data-side-b', sideB);
 
   const summarySectionMobile = document.getElementById('summarySectionMobile');
   if (summarySectionMobile) {
-    summarySectionMobile.setAttribute('data-lens', shellLensKey);
-    summarySectionMobile.setAttribute('data-side-a', sideA);
-    summarySectionMobile.setAttribute('data-side-b', sideB);
-  }
- 
-  if (verdictShellEl) {
-    verdictShellEl.setAttribute('data-lens', shellLensKey);
-    verdictShellEl.setAttribute('data-side-a', sideA);
-    verdictShellEl.setAttribute('data-side-b', sideB);
+    summarySectionMobile.removeAttribute('data-lens');
+    summarySectionMobile.removeAttribute('data-side-a');
+    summarySectionMobile.removeAttribute('data-side-b');
+    summarySectionMobile.classList.add('visible');
   }
 
-  if (analysisShellEl) {
-    analysisShellEl.setAttribute('data-lens', shellLensKey);
-    analysisShellEl.setAttribute('data-side-a', sideA);
-    analysisShellEl.setAttribute('data-side-b', sideB);
-  }
-  }
   // =========================================================
   // Copy wiring
   // =========================================================
@@ -6940,13 +7179,8 @@ function renderSummary(result = {}) {
   const tableLabels = summaryCopy.table_labels || {};
   const phrases     = copy.summary_phrases || {};
 
-  const cTeamLabel = tableLabels.cinderella_label
-    || (copy.card && copy.card.cinderella_label)
-    || 'Team A';
-
-  const fTeamLabel = tableLabels.favorite_label
-    || (copy.card && copy.card.favorite_label)
-    || 'Team B';
+  const cTeamLabel = brandA.shortName || a.name || 'Team A';
+  const fTeamLabel = brandB.shortName || b.name || 'Team B';
 
   const baselineLabel    = tableLabels.baseline_label    || 'Baseline MI';
   const matchupLabel     = tableLabels.matchup_label     || 'Matchup MI';
@@ -7477,11 +7711,6 @@ function renderSummary(result = {}) {
 
   if (summarySection) {
     summarySection.classList.add('visible');
-  }
-
-  const summarySectionMobile = document.getElementById('summarySectionMobile');
-    if (summarySectionMobile) {
-      summarySectionMobile.classList.add('visible');
   }
 
   // =========================================================
@@ -9161,12 +9390,6 @@ function miRenderScorebugMetrics({
   setText('miScorebugTeamA', brandA.shortName || aName || 'Team A');
   setText('miScorebugTeamB', brandB.shortName || bName || 'Team B');
 
-  const sbA = document.getElementById('miScorebugTeamA');
-  const sbB = document.getElementById('miScorebugTeamB');
-
-  if (sbA) sbA.textContent = aName;
-  if (sbB) sbB.textContent = bName;
-
   miApplyScorebugAmbientBranding(aName, bName);
   miApplyCanonicalTeamHeaderBranding(aName, bName);
 
@@ -10024,11 +10247,9 @@ function updatePreMatchupHubProgress() {
   if (!hub) return;
 
   const els = {
-    // progress bar (top)
     statusWrap: document.querySelector('#preHubStatusWrap .pre-hub-status'),
     fill: document.getElementById('preStatusFill'),
 
-    // left “Start a matchup” steps
     stepsWrap: hub.querySelector('.pre-hub-steps'),
     step1: document.getElementById('preStep1'),
     step2: document.getElementById('preStep2'),
@@ -10043,9 +10264,6 @@ function updatePreMatchupHubProgress() {
     s3: document.getElementById('preStepStatus3')
   };
 
-  // ----------------------------
-  // State inputs
-  // ----------------------------
   const csvLoaded = (typeof isCSVLoaded === 'function')
     ? isCSVLoaded()
     : (Array.isArray(TEAM_LIST) && TEAM_LIST.length > 0);
@@ -10057,20 +10275,14 @@ function updatePreMatchupHubProgress() {
   const hasA = !!sel.a;
   const hasB = !!sel.b && sel.b !== sel.a;
   const teamsOk = !!sel.ok;
-
-  // ✅ Sandbox counts as “round selected”
   const roundChosen = !!SANDBOX_MODE || !!CURRENT_ROUND;
 
-  // ----------------------------
-  // Progress %
-  // ----------------------------
   let pct = 0;
   if (csvLoaded) pct = 25;
   if (csvLoaded && hasA) pct = 50;
   if (csvLoaded && hasA && hasB) pct = 75;
   if (csvLoaded && teamsOk && roundChosen) pct = 100;
 
-  // Paint progress (class-driven + inline fallback)
   if (els.statusWrap) {
     els.statusWrap.classList.remove('is-idle', 'is-25', 'is-50', 'is-75', 'is-100');
 
@@ -10082,100 +10294,152 @@ function updatePreMatchupHubProgress() {
 
     els.statusWrap.classList.add(cls);
   }
+
   if (els.fill) els.fill.style.width = `${pct}%`;
 
-  // ----------------------------
-  // Single-step visibility (LEFT HUB ONLY)
-  // Rule: show only the current step
-  // 1 until csv loaded
-  // 2 until teams ok
-  // 3 after teams ok (even if “done”)
-  // ----------------------------
-  let activeStep = 1;
-  if (!csvLoaded) activeStep = 1;
-  else if (!teamsOk) activeStep = 2;
-  else activeStep = 3;
-
-  const applyHidden = (el, shouldHide) => {
-    if (!el) return;
-    el.classList.toggle('is-hidden', !!shouldHide);
-    el.setAttribute('aria-hidden', shouldHide ? 'true' : 'false');
-
-    // Keep keyboard focus out of hidden steps
-    el.querySelectorAll('button, a, input, select, textarea').forEach((node) => {
-      node.tabIndex = shouldHide ? -1 : 0;
-    });
-  };
-
-  applyHidden(els.step1, activeStep !== 1);
-  applyHidden(els.step2, activeStep !== 2);
-  applyHidden(els.step3, activeStep !== 3);
-
-  if (els.stepsWrap) els.stepsWrap.classList.add('is-single');
-
-  // ----------------------------
-  // Step state helper
-  // ----------------------------
   const setStepState = (el, state) => {
     if (!el) return;
     el.classList.remove('is-done', 'is-next', 'is-locked');
     el.classList.add(state);
+    el.classList.remove('is-hidden');
+    el.setAttribute('aria-hidden', 'false');
   };
 
-  // ----------------------------
-  // Step 1 copy + state
-  // ----------------------------
-  if (els.t1) els.t1.textContent = (copy && copy.step1_pending) || 'Load tournament data to unlock team selection.';
-  if (csvLoaded) {
-    setStepState(els.step1, 'is-done');
-    if (els.s1) els.s1.textContent = (copy && copy.step1_ready) || 'Field loaded and teams unlocked.';
-  } else {
-    setStepState(els.step1, 'is-next');
-    if (els.s1) els.s1.textContent = (copy && copy.step1_pending) || 'Tournament field not loaded.';
+  // Row 1 — Dataset
+  if (els.t1) {
+    els.t1.textContent = csvLoaded
+      ? ((copy && copy.step1_ready) || 'Field loaded')
+      : ((copy && copy.step1_pending) || 'Not loaded');
   }
 
-  // ----------------------------
-  // Step 2 copy + state
-  // ----------------------------
+  if (els.s1) {
+    els.s1.textContent = csvLoaded
+      ? 'Ready'
+      : 'Required';
+  }
+
+  if (!csvLoaded) setStepState(els.step1, 'is-next');
+  else setStepState(els.step1, 'is-done');
+
+  // Row 2 — Teams
   if (els.t2) {
-    if (!hasA) els.t2.textContent = (copy && copy.step2_pending) || 'Select two teams to compare.';
-    else if (!hasB) els.t2.textContent = (copy && copy.step2_pending) || 'Select a second team to continue.';
-    else els.t2.textContent = (copy && copy.step2_ready) || 'Teams selected.';
+    if (!csvLoaded) {
+      els.t2.textContent = 'Locked until dataset is loaded';
+    } else if (!hasA) {
+      els.t2.textContent = 'Waiting for Team A';
+    } else if (!hasB) {
+      els.t2.textContent = 'Waiting for Team B';
+    } else if (teamsOk) {
+      els.t2.textContent = (copy && copy.step2_ready) || 'Both teams selected';
+    } else {
+      els.t2.textContent = 'Select two different teams';
+    }
   }
 
-  if (!csvLoaded) {
-    setStepState(els.step2, 'is-locked');
-    if (els.s2) els.s2.textContent = (copy && copy.status_pending) || 'Pending';
-  } else if (teamsOk) {
-    setStepState(els.step2, 'is-done');
-    if (els.s2) els.s2.textContent = (copy && copy.step2_ready) || 'Teams selected. Matchup is queued.';
-  } else {
-    setStepState(els.step2, 'is-next');
-    if (els.s2) els.s2.textContent = (copy && copy.step2_pending) || 'Select two different teams.';
+  if (els.s2) {
+    if (!csvLoaded) els.s2.textContent = 'Locked';
+    else if (teamsOk) els.s2.textContent = 'Ready';
+    else els.s2.textContent = 'Pending';
   }
 
-  // ----------------------------
-  // Step 3 copy + state
-  // ----------------------------
+  if (!csvLoaded) setStepState(els.step2, 'is-locked');
+  else if (teamsOk) setStepState(els.step2, 'is-done');
+  else setStepState(els.step2, 'is-next');
+
+  // Row 3 — Round + Run
   if (els.t3) {
-    els.t3.textContent = roundChosen
-      ? ((copy && copy.step3_ready) || 'Ready. Run the comparison to begin analysis.')
-      : ((copy && copy.step3_pending) || 'Choose a round, or choose Sandbox Mode to ignore constraints.');
+    if (!csvLoaded || !teamsOk) {
+      els.t3.textContent = 'Locked until matchup inputs are complete';
+    } else if (!roundChosen) {
+      els.t3.textContent = (copy && copy.step3_pending) || 'Round not selected';
+    } else {
+      els.t3.textContent = (copy && copy.step3_ready) || 'Ready to compare';
+    }
   }
 
-  if (!csvLoaded || !teamsOk) {
-    setStepState(els.step3, 'is-locked');
-    if (els.s3) els.s3.textContent = (copy && copy.status_pending) || 'Pending';
-  } else if (roundChosen) {
-    setStepState(els.step3, 'is-done');
-    if (els.s3) els.s3.textContent = (copy && copy.step3_ready) || 'Briefing complete. Run Compare when ready.';
-  } else {
-    setStepState(els.step3, 'is-next');
-    if (els.s3) els.s3.textContent = (copy && copy.step3_pending) || 'Choose a round, then run Compare.';
+  if (els.s3) {
+    if (!csvLoaded || !teamsOk) els.s3.textContent = 'Locked';
+    else if (!roundChosen) els.s3.textContent = 'Pending';
+    else els.s3.textContent = 'Ready';
   }
 
-  const step3Num = els.step3 && els.step3.querySelector('.pre-step-num');
-  if (step3Num) step3Num.textContent = (teamsOk && roundChosen) ? '4' : '3';
+  if (!csvLoaded || !teamsOk) setStepState(els.step3, 'is-locked');
+  else if (!roundChosen) setStepState(els.step3, 'is-next');
+  else setStepState(els.step3, 'is-done');
+
+  if (els.stepsWrap) els.stepsWrap.classList.remove('is-single');
+
+  const preview = document.getElementById('preMatchupPreview');
+  if (preview) {
+    preview.classList.remove('is-open');
+    preview.setAttribute('aria-hidden', 'true');
+  }
+
+  if (csvLoaded && pct === 25) {
+    logWorkflowEvent('Dataset loaded');
+  }
+
+  if (teamsOk && pct === 75) {
+    logWorkflowEvent('Teams selected');
+  }
+
+  if (roundChosen && pct === 100) {
+    logWorkflowEvent('Round selected');
+  }
+
+  /* =========================================================
+   FINAL SYSTEM READY STATE
+   ========================================================= */
+
+  const compareBtn = document.getElementById('compareMatchupBtn');
+
+  const systemReady =
+    csvLoaded &&
+    teamsOk &&
+    roundChosen;
+
+  if (compareBtn) {
+  compareBtn.disabled = !systemReady;
+
+    compareBtn.classList.toggle(
+      'is-ready',
+      systemReady
+    );
+  }
+
+  persistWorkflowState();
+  updateActiveStepHighlight();
+}
+
+function updateActiveStepHighlight() {
+  const csvLoaded = isCSVLoaded();
+  const sel = getSelectedTeams();
+
+  let activeId = "step1Card";
+
+  if (csvLoaded && !sel.ok) {
+    activeId = "step2Card";
+  }
+
+  if (csvLoaded && sel.ok && !CURRENT_ROUND) {
+    activeId = "step3Card";
+  }
+
+  if (csvLoaded && sel.ok && CURRENT_ROUND) {
+    activeId = "step4Card";
+  }
+
+  const cards = document.querySelectorAll(".workflow-step-card");
+
+  cards.forEach(card => {
+    card.classList.remove("is-active-step");
+  });
+
+  const active = document.getElementById(activeId);
+
+  if (active) {
+    active.classList.add("is-active-step");
+  }
 }
 
 // Dynamically filter which rounds are available based on selected teams' seeds
@@ -10429,6 +10693,9 @@ function setupEventListeners() {
 
       // If a download button exists, update it
       syncDatasetDownloadState();
+
+      resetWorkflowFrom('dataset');
+      persistWorkflowState();
     });
   }
 
@@ -10724,6 +10991,7 @@ if (roundBtn && roundDropdown) {
 
       refreshCompareButtonState();
       updatePreMatchupHubProgress();
+      persistWorkflowState();
     });
   });
 
@@ -11328,7 +11596,7 @@ function miInitInstallPromptUI() {
 // Build Version — must match service-worker.js and index.html
 // =========================================================
 
-const MI_BUILD = '23';
+const MI_BUILD = '24';
 
 function bootMadnessIndex() {
   console.log("[MI] bootMadnessIndex fired");
@@ -11354,7 +11622,7 @@ function bootMadnessIndex() {
     }
 
     miSyncGlossaryToMatchupState();
-
+    restoreWorkflowState();
     updatePreMatchupHubProgress();
   };
 
@@ -11378,3 +11646,13 @@ if (document.readyState === 'loading') {
 } else {
   bootMadnessIndex();
 }
+
+document
+  .getElementById("clearWorkflowStateBtn")
+  ?.addEventListener("click", () => {
+
+    if (!confirm("Reset the current workflow?")) return;
+
+    clearWorkflowState();
+
+  });

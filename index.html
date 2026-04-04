@@ -11,12 +11,12 @@
   <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
 
   <!-- Core styles -->
-  <link rel="stylesheet" href="styles2.css?v=23" />
-  <link rel="stylesheet" href="mobile.css?v=23" />
+  <link rel="stylesheet" href="styles2.css?v=24" />
+  <link rel="stylesheet" href="mobile.css?v=24" />
   <link rel="icon" type="image/png" href="assets/img/logos/madness-index-app-logo.PNG" />
 
   <!-- PWA manifest -->
-  <link rel="manifest" href="manifest.json?v=23" />
+  <link rel="manifest" href="manifest.json?v=24" />
 </head>
 <body>
 
@@ -133,30 +133,39 @@
 <section id="preSetupRow" class="pre-setup-row top-bar">
 
   <!-- COL 1: Start a Matchup (dynamic single-step) -->
-  <section id="preMatchupHub" class="card pre-matchup-hub">
-    <div class="pre-hub-inner">   
-    
-      <div class="pre-hub-title" data-copy="prematch.progress.title">Start a matchup</div>
+<section id="preMatchupHub" class="card pre-matchup-hub">
+  <div class="pre-hub-inner">
 
-      <div class="pre-hub-steps">
-        <div class="pre-step" id="preStep1">
-          <div class="pre-step-num">1</div>
-          <div class="pre-step-text" id="preStepText1" data-copy="prematch.progress.step1"></div>
-          <div class="pre-step-status" id="preStepStatus1"></div>
-        </div>
+    <div class="round-step-label" data-copy="controls.step0_label">Matchup Status</div>
 
-        <div class="pre-step" id="preStep2">
-          <div class="pre-step-num">2</div>
-          <div class="pre-step-text" id="preStepText2" data-copy="prematch.progress.step2"></div>
-          <div class="pre-step-status" id="preStepStatus2"></div>
+    <div class="pre-hub-steps pre-hub-status-grid">
+      <div class="pre-step pre-step--status" id="preStep1">
+        <div class="pre-step-num">1</div>
+        <div class="pre-step-copy">
+          <div class="pre-step-label" id="preStepLabel1" data-copy="prematch.progress.step1">Dataset</div>
+          <div class="pre-step-text" id="preStepText1">Not loaded</div>
         </div>
-
-        <div class="pre-step" id="preStep3">
-          <div class="pre-step-num">3</div>
-          <div class="pre-step-text" id="preStepText3" data-copy="prematch.progress.step3"></div>
-          <div class="pre-step-status" id="preStepStatus3"></div>
-        </div>
+        <div class="pre-step-status" id="preStepStatus1">Pending</div>
       </div>
+
+      <div class="pre-step pre-step--status" id="preStep2">
+        <div class="pre-step-num">2</div>
+        <div class="pre-step-copy">
+          <div class="pre-step-label" id="preStepLabel2" data-copy="prematch.progress.step2">Teams</div>
+          <div class="pre-step-text" id="preStepText2">Waiting for selections</div>
+        </div>
+        <div class="pre-step-status" id="preStepStatus2">Locked</div>
+      </div>
+
+      <div class="pre-step pre-step--status" id="preStep3">
+        <div class="pre-step-num">3</div>
+        <div class="pre-step-copy">
+          <div class="pre-step-label" id="preStepLabel3" data-copy="prematch.progress.step3">Round + Run</div>
+          <div class="pre-step-text" id="preStepText3">Round not selected</div>
+        </div>
+        <div class="pre-step-status" id="preStepStatus3">Locked</div>
+      </div>
+    </div>
 
       <section id="preMatchupPreview" class="prematch-preview" aria-hidden="true">
         <div class="prematch-preview-inner">
@@ -211,9 +220,7 @@
 
   <!-- COL 2: CSV / Dataset -->
   <div class="card controls-card is-primary-entry" id="datasetCard">
-    <div class="controls-card-head">
-      <h2 class="card-title" data-copy="controls.data_title">Load Tournament Data</h2>
-    </div>
+    <div class="round-step-label" data-copy="controls.step1_label">STEP 1: Load Tournament Data</div>
 
     <div class="controls-grid">
       <div class="dataset-select-wrap">
@@ -224,20 +231,24 @@
             2026 Official Tournament Field
           </option>
 
-          <option value="data/csvs/mi_2025_official.csv" data-filename="MadnessIndex_2025_Official.csv" disabled>
+          <option value="data/csvs/mi_2025_official.csv" data-filename="MadnessIndex_2025_Official.csv">
             2025 Official Tournament Field
           </option>
 
-          <option value="data/csvs/mi_2024_official.csv" data-filename="MadnessIndex_2024_Official.csv" disabled>
+          <option value="data/csvs/mi_2024_official.csv" data-filename="MadnessIndex_2024_Official.csv">
             2024 Official Tournament Field
           </option>
 
-          <option value="data/csvs/mi_2023_official.csv" data-filename="MadnessIndex_2023_Official.csv" disabled>
+          <option value="data/csvs/mi_2023_official.csv" data-filename="MadnessIndex_2023_Official.csv">
             2023 Official Tournament Field
           </option>
 
-          <option value="data/csvs/mi_2022_official.csv" data-filename="MadnessIndex_2022_Official.csv" disabled>
+          <option value="data/csvs/mi_2022_official.csv" data-filename="MadnessIndex_2022_Official.csv">
             2022 Official Tournament Field
+          </option>
+
+      <option value="data/csvs/mi_2021_official.csv" data-filename="MadnessIndex_2021_Official.csv" disabled>
+            2021 Official Tournament Field
           </option>
         </select>
       </div>
@@ -261,7 +272,7 @@
     <div class="matchup-steps">
       <!-- ROW 1 -->
       <div class="matchup-step mc-row" id="mcRow1">
-        <div class="round-step-label step-label" data-copy="controls.step1_label">STEP 1: Select Teams</div>
+        <div class="round-step-label step-label" data-copy="controls.step2_label">STEP 2: Select Teams</div>
 
         <div class="control-row">
           <div class="select-wrap home-team-select" id="teamASelectWrap">
@@ -279,7 +290,7 @@
     </div>
       <!-- ROW 2 -->
       <div class="matchup-step mc-row" id="mcRow2">
-        <div class="round-step-label" data-copy="controls.step2_label">STEP 2: Select Round</div>
+        <div class="round-step-label" data-copy="controls.step3_label">STEP 3: Select Round</div>
 
         <div class="round-control-row">
           <div class="round-selector-wrap" id="roundSelectorWrap">
@@ -304,13 +315,24 @@
 
       <!-- ROW 3 -->
       <div class="matchup-step mc-row" id="mcRow3">
-        <div class="round-step-label" data-copy="controls.step3_label">STEP 3: Run the Matchup</div>
+        <div class="round-step-label" data-copy="controls.step4_label">STEP 4: Run the Matchup</div>
 
         <p id="roundHelp" class="helper-text" data-copy="controls.round_help"></p>
 
         <div class="matchup-actions-row">
           <button id="compareBtn" class="btn primary compare-btn-disabled" disabled>
             <span data-copy="controls.compare_btn">Compare Matchup</span>
+          </button>
+
+          <!-- Clear Workflow State -->
+          <button
+            id="clearWorkflowStateBtn"
+            class="btn ghost clear-workflow-btn"
+            type="button"
+            aria-label="Reset workflow"
+            title="Reset all selections"
+          >
+            Reset Workflow
           </button>
         </div>
       </div>
@@ -538,15 +560,15 @@
         <!-- Header -->
 <header class="team-card-header">
   <div class="team-card-header-main">
-    <div id="teamABrand" class="mi-team-brand mi-team-brand--card">
-      <img id="teamALogo" class="mi-team-brand-logo" alt="" hidden>
+    <div class="team-card-brand-stack">
+  <span id="roleTagA" class="role-tag cind-tag">Cinderella</span>
 
-      <div class="team-label-wrap">
-        <span id="roleTagA" class="role-tag cind-tag">Cinderella</span>
-        <h2 id="teamATitle" class="mi-team-brand-name">Team A</h2>
-      </div>
-    </div>
+  <div id="teamABrand" class="mi-team-brand mi-team-brand--card">
+    <img id="teamALogo" class="mi-team-brand-logo" alt="" hidden>
+    <h2 id="teamATitle" class="mi-team-brand-name">Team A</h2>
   </div>
+</div>  
+</div>
 
   <div class="seed-label"><span id="teamASeed"></span></div>
 </header>
@@ -737,21 +759,6 @@
        </div><!-- END card-front -->
 
       <!-- ===================== BACK FACE ====================== -->
-      <div class="card-face card-back">
-        <div class="card-back-content">
-          <h3 data-copy="card.card_back_title">How This Scorecard Works</h3>
-
-          <p id="backFormulaA" class="back-line"></p>
-          <div id="backCoreA" class="back-line core-back-container"></div>
-          <p id="backBreadthA" class="back-line"></p>
-          <p id="backResumeA" class="back-line"></p>
-          <p id="backMarksA" class="back-line"></p>
-
-          <p class="back-helper" data-copy="card.card_back_helper">
-            Click this card again to flip back to the full stat view.
-          </p>
-        </div>
-      </div>
 
     </div><!-- END flip-inner -->
   </section>
@@ -768,15 +775,15 @@
         <!-- Header -->
 <header class="team-card-header">
   <div class="team-card-header-main">
-    <div id="teamBBrand" class="mi-team-brand mi-team-brand--card">
-      <img id="teamBLogo" class="mi-team-brand-logo" alt="" hidden>
+<div class="team-card-brand-stack">
+  <span id="roleTagB" class="role-tag fav-tag">Favorite</span>
 
-      <div class="team-label-wrap">
-        <span id="roleTagB" class="role-tag fav-tag">Favorite</span>
-        <h2 id="teamBTitle" class="mi-team-brand-name">Team B</h2>
-      </div>
-    </div>
+  <div id="teamBBrand" class="mi-team-brand mi-team-brand--card">
+    <img id="teamBLogo" class="mi-team-brand-logo" alt="" hidden>
+    <h2 id="teamBTitle" class="mi-team-brand-name">Team B</h2>
   </div>
+</div>
+</div>
 
   <div class="seed-label"><span id="teamBSeed"></span></div>
 </header>        
@@ -931,22 +938,6 @@
       </div><!-- END card-front -->
 
       <!-- ===================== BACK FACE ====================== -->
-      <div class="card-face card-back">
-        <div class="card-back-content">
-          <h3 data-copy="card.card_back_title">How This Scorecard Works</h3>
-
-          <p id="backFormulaB" class="back-line"></p>
-          <div id="backCoreB" class="back-line core-back-container"></div>
-          <p id="backBreadthB" class="back-line"></p>
-          <p id="backResumeB" class="back-line"></p>
-          <p id="backMarksB" class="back-line"></p>
-
-          <p class="back-helper" data-copy="card.card_back_helper">
-            Click this card again to flip back to the full stat view.
-          </p>
-        </div>
-      </div>
-
     </div><!-- END flip-inner -->
   </section>
 
@@ -1474,11 +1465,31 @@
 <!-- ================ SCORE SYNTHESIS (MOBILE ONLY) ================ -->
 <section id="summarySectionMobile" class="card summary-card mi-sum-mob-wrap" aria-label="Score Synthesis">
   <div class="mi-sum-mob-title matchup-kicker">Score Synthesis</div>
-  <div class="mi-sum-mob-header-row">
-    <div class="mi-sum-mob-team-name mi-sum-mob-team-name-a" data-sum-team="a">Team A</div>
-    <div class="mi-sum-mob-col-spacer"></div>
-    <div class="mi-sum-mob-team-name mi-sum-mob-team-name-b" data-sum-team="b">Team B</div>
+<div class="mi-sum-mob-header-row">
+  <div class="mi-sum-mob-team-slot mi-sum-mob-team-slot-a">
+    <div id="summaryMobileBrandA" class="mi-team-brand mi-team-brand--summary-mobile">
+      <img id="summaryMobileLogoA" class="mi-team-brand-logo" alt="" hidden>
+      <span
+        id="summaryMobileTeamA"
+        class="mi-team-brand-name mi-sum-mob-team-name mi-sum-mob-team-name-a"
+        data-sum-team="a"
+      >Team A</span>
+    </div>
   </div>
+
+  <div class="mi-sum-mob-col-spacer"></div>
+
+  <div class="mi-sum-mob-team-slot mi-sum-mob-team-slot-b">
+    <div id="summaryMobileBrandB" class="mi-team-brand mi-team-brand--summary-mobile">
+      <img id="summaryMobileLogoB" class="mi-team-brand-logo" alt="" hidden>
+      <span
+        id="summaryMobileTeamB"
+        class="mi-team-brand-name mi-sum-mob-team-name mi-sum-mob-team-name-b"
+        data-sum-team="b"
+      >Team B</span>
+    </div>
+  </div>
+</div>
   <div class="mi-sum-mob-rows">
     <div class="mi-sum-mob-row">
       <span class="mi-sum-mob-val mi-sum-mob-val-a" data-value="a.base">—</span>
