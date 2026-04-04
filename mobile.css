@@ -1863,8 +1863,8 @@
     display: block !important;
     min-width: 0 !important;
 
-    font-size: 11px !important;
-    font-weight: 900 !important;
+    font-size: 10px !important;
+    font-weight: 850 !important;
     letter-spacing: 0.03em !important;
     line-height: 1.1 !important;
 
@@ -3868,7 +3868,7 @@
 
   #verdictShell .mi-metrics-back-text {
     padding: 0 !important;
-    font-size: 16px;
+    font-size: 12px !important;
   }
   
   #verdictShell .mi-verdict-metrics-tile .tile-back {

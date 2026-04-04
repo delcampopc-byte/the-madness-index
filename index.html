@@ -11,12 +11,12 @@
   <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
 
   <!-- Core styles -->
-  <link rel="stylesheet" href="styles2.css?v=24" />
-  <link rel="stylesheet" href="mobile.css?v=24" />
+  <link rel="stylesheet" href="styles2.css?v=25" />
+  <link rel="stylesheet" href="mobile.css?v=25" />
   <link rel="icon" type="image/png" href="assets/img/logos/madness-index-app-logo.PNG" />
 
   <!-- PWA manifest -->
-  <link rel="manifest" href="manifest.json?v=24" />
+  <link rel="manifest" href="manifest.json?v=25" />
 </head>
 <body>
 
@@ -371,17 +371,28 @@
       </div>
 
       <!-- CENTER -->
-      <div class="matchup-bar-center">
-        <div class="matchup-bar-vs">vs</div>
-        <span id="matchupRoundPill" class="summary-round-pill matchup-bar-round">Round</span>
-        <button id="editMatchupBtn" class="matchup-bar-edit" type="button">Edit matchup ▾</button>
-        <div id="matchupQuickRound" class="matchup-quick-slot matchup-quick-round" aria-hidden="true"></div>
+<div class="matchup-bar-center">
+  <div class="matchup-bar-vs">vs</div>
+  <span id="matchupRoundPill" class="summary-round-pill matchup-bar-round">Round</span>
+  <button id="editMatchupBtn" class="matchup-bar-edit" type="button">Edit matchup ▾</button>
 
-        <div class="matchup-quick-actions" aria-hidden="true">
-          <button id="matchupQuickRun" class="btn primary matchup-quick-run" type="button">Run</button>
-          <button id="matchupQuickCancel" class="btn ghost matchup-quick-cancel" type="button">Cancel</button>
-        </div>
-      </div>
+  <div
+    id="matchupQuickDataset"
+    class="matchup-quick-slot matchup-quick-dataset"
+    aria-hidden="true"
+  ></div>
+
+  <div
+    id="matchupQuickRound"
+    class="matchup-quick-slot matchup-quick-round"
+    aria-hidden="true"
+  ></div>
+
+  <div class="matchup-quick-actions" aria-hidden="true">
+    <button id="matchupQuickRun" class="btn primary matchup-quick-run" type="button">Run</button>
+    <button id="matchupQuickCancel" class="btn ghost matchup-quick-cancel" type="button">Cancel</button>
+  </div>
+</div>
 
       <!-- RIGHT: FAVORITE -->
       <div class="matchup-bar-right">

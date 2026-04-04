@@ -263,7 +263,15 @@ function miApplyCanonicalTeamHeaderBranding(aName, bName) {
   const brandA = miNormalizeTeamBranding(aName);
   const brandB = miNormalizeTeamBranding(bName);
 
-  const applyCluster = ({ wrapId, logoId, nameId, teamName, branding, side }) => {
+  const applyCluster = ({
+    wrapId,
+    logoId,
+    nameId,
+    teamName,
+    branding,
+    side,
+    useShortName = false
+  }) => {
     const wrap = document.getElementById(wrapId);
     const logo = document.getElementById(logoId);
     const name = document.getElementById(nameId);
@@ -274,8 +282,12 @@ function miApplyCanonicalTeamHeaderBranding(aName, bName) {
 
     miApplyTeamLogo(logo, branding, teamName || `Team ${side.toUpperCase()}`);
 
+    const displayName = useShortName
+      ? (branding.shortName || branding.team || teamName || `Team ${side.toUpperCase()}`)
+      : (branding.team || teamName || branding.shortName || `Team ${side.toUpperCase()}`);
+
     if (name) {
-      name.textContent = branding.shortName || teamName || `Team ${side.toUpperCase()}`;
+      name.textContent = displayName;
     }
 
     return wrap;
@@ -404,7 +416,7 @@ function miApplyCanonicalTeamHeaderBranding(aName, bName) {
 
   // Preserve existing mobile summary names if present
   document.querySelectorAll('.mi-sum-mob-team-name-a').forEach(el => {
-    el.textContent = brandA.shortName || aName || 'Team A';
+    el.textContent = brandA.team || aName || brandA.shortName || 'Team A';
     el.style.setProperty('--team-primary', brandA.primary);
     el.style.setProperty('--team-secondary', brandA.secondary);
     el.style.setProperty('--team-primary-rgb', brandA.primaryRgb);
@@ -415,7 +427,7 @@ function miApplyCanonicalTeamHeaderBranding(aName, bName) {
   });
 
   document.querySelectorAll('.mi-sum-mob-team-name-b').forEach(el => {
-    el.textContent = brandB.shortName || bName || 'Team B';
+    el.textContent = brandB.team || bName || brandB.shortName || 'Team B';
     el.style.setProperty('--team-primary', brandB.primary);
     el.style.setProperty('--team-secondary', brandB.secondary);
     el.style.setProperty('--team-primary-rgb', brandB.primaryRgb);
@@ -935,47 +947,222 @@ function resetWorkflowFrom(level) {
   const teamB = document.getElementById('teamB');
   const roundBtn = document.getElementById('roundSelectBtn');
 
-  if (level === 'dataset') {
-    if (teamA) teamA.value = '';
-    if (teamB) teamB.value = '';
-
-    CURRENT_ROUND = null;
-
-    if (roundBtn) {
-      roundBtn.textContent = 'Select Round';
-    }
-  }
-
   if (level === 'teams') {
     CURRENT_ROUND = null;
+    MI_ROUND_TOUCHED = false;
+    MI_ROUND_NUDGE_SHOWN = false;
 
     if (roundBtn) {
       roundBtn.textContent = 'Select Round';
+      delete roundBtn.dataset.selected;
+    }
+
+    if (typeof setCompareButtonEnabled === 'function') {
+      setCompareButtonEnabled(false);
+    }
+
+    if (typeof updatePreMatchupHubProgress === 'function') {
+      updatePreMatchupHubProgress();
+    }
+
+    if (typeof refreshCompareButtonState === 'function') {
+      refreshCompareButtonState();
+    }
+
+    if (typeof syncNextHalo === 'function') {
+      syncNextHalo();
     }
   }
-
-  updatePreMatchupHubProgress();
 }
 
-function clearWorkflowState() {
+function resetNativeTeamSelect(selectEl, placeholderText) {
+  if (!selectEl) return;
+
+  selectEl.innerHTML = '';
+  const opt = document.createElement('option');
+  opt.value = '';
+  opt.disabled = true;
+  opt.selected = true;
+  opt.textContent = placeholderText;
+  selectEl.appendChild(opt);
+
+  selectEl.value = '';
+}
+
+function forceTeamSelectPlaceholder(selectEl, placeholderText) {
+  if (!selectEl) return;
+
+  const hasPlaceholder = Array.from(selectEl.options).some(opt => opt.value === '');
+
+  if (!hasPlaceholder) {
+    const opt = document.createElement('option');
+    opt.value = '';
+    opt.disabled = true;
+    opt.selected = true;
+    opt.textContent = placeholderText;
+    selectEl.insertBefore(opt, selectEl.firstChild);
+  }
+
+  selectEl.value = '';
+  selectEl.selectedIndex = 0;
+}
+
+function syncSearchableTeamDropdownUi(selectEl, wrapEl, placeholderText) {
+  if (!wrapEl) return;
+
+  const root = wrapEl.querySelector('.mi-team-dd');
+  if (!root) return;
+
+  const label = root.querySelector('.mi-label');
+  const panel = root.querySelector('.mi-team-dd-panel');
+  const search = root.querySelector('.mi-team-dd-search');
+  const list = root.querySelector('.mi-team-dd-list');
+
+  if (label) {
+    label.textContent = (selectEl && selectEl.value) ? selectEl.value : placeholderText;
+  }
+
+  if (panel) {
+    panel.hidden = true;
+  }
+
+  if (search) {
+    search.value = '';
+  }
+
+  if (list) {
+    list.innerHTML = '';
+  }
+}
+
+function destroySearchableTeamDropdown(wrapEl) {
+  if (!wrapEl) return;
+
+  wrapEl.querySelectorAll('.mi-team-dd').forEach(el => el.remove());
+}
+
+function hardResetWorkflow(options = {}) {
+  const {
+    clearDatasetSelection = true,
+    preserveDatasetSelection = false,
+    statusText = 'Select a dataset to begin.'
+  } = options;
+
+  // -----------------------------
+  // 1) Clear in-memory dataset state
+  // -----------------------------
+  RAW_ROWS = [];
+  TEAMS = {};
+  FIELD_STATS = {};
+  TEAM_LIST = [];
+  CURRENT_ROUND = null;
+  MI_ROUND_TOUCHED = false;
+  MI_ROUND_NUDGE_SHOWN = false;
+
+  try { window.LAST_RESULT = null; } catch (e) {}
+
+  if (typeof RESUME_CONTEXT_STATS_V2 !== 'undefined') {
+    RESUME_CONTEXT_STATS_V2 = null;
+  }
+
+  // -----------------------------
+  // 2) Clear persisted workflow state
+  // -----------------------------
   localStorage.removeItem('miWorkflowState');
 
+  // -----------------------------
+  // 3) Reset dataset controls
+  // -----------------------------
   const datasetSelect = document.getElementById('datasetSelect');
+  const datasetDownloadBtn = document.getElementById('datasetDownloadBtn');
+  const statusEl = document.getElementById('status');
+  const appShell = document.querySelector('.app-shell');
+
+  if (datasetSelect && !preserveDatasetSelection && clearDatasetSelection) {
+    datasetSelect.value = '';
+  }
+
+  if (datasetDownloadBtn) {
+    datasetDownloadBtn.disabled = true;
+    datasetDownloadBtn.classList.add('hidden');
+    datasetDownloadBtn.textContent = 'Download Dataset';
+  }
+
+  if (statusEl) {
+    statusEl.className = 'status';
+    statusEl.textContent = statusText;
+  }
+
+  if (appShell) {
+    appShell.classList.remove('csv-loaded');
+  }
+
+  // -----------------------------
+  // 4) Reset team / round controls
+  // -----------------------------
   const teamA = document.getElementById('teamA');
   const teamB = document.getElementById('teamB');
   const roundBtn = document.getElementById('roundSelectBtn');
 
-  if (datasetSelect) datasetSelect.value = '';
-  if (teamA) teamA.value = '';
-  if (teamB) teamB.value = '';
-
-  CURRENT_ROUND = null;
+  resetNativeTeamSelect(teamA, 'Select Team A');
+  resetNativeTeamSelect(teamB, 'Select Team B');
 
   if (roundBtn) {
     roundBtn.textContent = 'Select Round';
+    delete roundBtn.dataset.selected;
   }
 
-  updatePreMatchupHubProgress();
+  if (typeof updateInteractionHeadersFromSelections === 'function') {
+    updateInteractionHeadersFromSelections();
+  }
+
+  if (typeof clearRoundNudge === 'function') {
+    clearRoundNudge();
+  }
+
+  // -----------------------------
+  // 5) Destroy custom team dropdown UI
+  // -----------------------------
+  destroySearchableTeamDropdown(document.getElementById('teamASelectWrap'));
+  destroySearchableTeamDropdown(document.getElementById('teamBSelectWrap'));
+
+  // -----------------------------
+  // 6) Reset post-matchup / result state
+  // -----------------------------
+  if (typeof resetPreMatchupEmptyView === 'function') {
+    resetPreMatchupEmptyView();
+  }
+
+  if (typeof resetVolatilityMeter === 'function') {
+    resetVolatilityMeter();
+  }
+
+  if (typeof setCompareButtonEnabled === 'function') {
+    setCompareButtonEnabled(false);
+  }
+
+  // -----------------------------
+  // 7) Re-sync workflow UI
+  // -----------------------------
+  if (typeof updatePreMatchupHubProgress === 'function') {
+    updatePreMatchupHubProgress();
+  }
+
+  if (typeof refreshCompareButtonState === 'function') {
+    refreshCompareButtonState();
+  }
+
+  if (typeof syncNextHalo === 'function') {
+    syncNextHalo();
+  }
+}
+
+function clearWorkflowState() {
+  hardResetWorkflow({
+    clearDatasetSelection: true,
+    preserveDatasetSelection: false,
+    statusText: 'Select a dataset to begin.'
+  });
 }
 
 function resetPostMatchupDefaultView() {
@@ -984,6 +1171,32 @@ function resetPostMatchupDefaultView() {
   initEvidenceToggleOnce();
   setEvidenceOpen(false);
   miSetVerdictScrollLock(true);
+}
+
+function resetPreMatchupEmptyView() {
+  const verdictShell = document.getElementById('verdictShell');
+  const analysisShell = document.getElementById('analysisShell');
+  const evidenceBtn = document.getElementById('miEvidenceToggle');
+
+  if (verdictShell) {
+    verdictShell.classList.add('hidden');
+    verdictShell.classList.remove('scorecard-open');
+  }
+
+  if (analysisShell) {
+    analysisShell.classList.add('hidden');
+    analysisShell.classList.remove('analysis-visible');
+  }
+
+  if (evidenceBtn) {
+    evidenceBtn.setAttribute('aria-expanded', 'false');
+
+    const chev = evidenceBtn.querySelector('.mi-chev');
+    evidenceBtn.childNodes[0].nodeValue = 'View Full Scorecard ';
+    if (chev) chev.style.transform = 'rotate(0deg)';
+  }
+
+  miSetVerdictScrollLock(false);
 }
 
 // ===== PATCH NOTES: render from canonical MI_COPY =====
@@ -5487,6 +5700,11 @@ function populateTeamDropdowns() {
     selectB.appendChild(optB);
   });
 
+  // Always reset both team selects to placeholder after rebuilding options
+  // so no orphaned team from a previous dataset can survive.
+  forceTeamSelectPlaceholder(selectA, 'Select Team A');
+  forceTeamSelectPlaceholder(selectB, 'Select Team B');
+
   // 2) Mount searchable dropdown UI once
   const wrapA = document.getElementById('teamASelectWrap');
   const wrapB = document.getElementById('teamBSelectWrap');
@@ -5497,28 +5715,46 @@ function populateTeamDropdowns() {
   if (wrapA) ensureSearchableTeamDropdown(selectA, wrapA, 'Select Team A', ctxA);
   if (wrapB) ensureSearchableTeamDropdown(selectB, wrapB, 'Select Team B', ctxB);
 
+  // Force the visible searchable-dropdown buttons back to placeholder too.
+  if (wrapA) syncSearchableTeamDropdownUi(selectA, wrapA, 'Select Team A');
+  if (wrapB) syncSearchableTeamDropdownUi(selectB, wrapB, 'Select Team B');
+
   // 3) listeners
-  let lastTeamsOk = false;
+  if (!selectA.__miTeamChangeBound || !selectB.__miTeamChangeBound) {
+    let lastTeamsOk = false;
 
-  const onTeamChange = () => {
-    updateRoundOptionsForCurrentSeeds();
-    updateInteractionHeadersFromSelections();
-    updatePreMatchupHubProgress();
-    refreshCompareButtonState();
+    const onTeamChange = () => {
+      updateRoundOptionsForCurrentSeeds();
+      updateInteractionHeadersFromSelections();
+      updatePreMatchupHubProgress();
+      refreshCompareButtonState();
 
-    const teamsOk = getSelectedTeams().ok;
-    const roundReady = isRoundSelected();
+      const teamsOk = getSelectedTeams().ok;
+      const roundReady = isRoundSelected();
 
-    if (!lastTeamsOk && teamsOk && !roundReady && !MI_ROUND_TOUCHED && !MI_ROUND_NUDGE_SHOWN) {
-      MI_ROUND_NUDGE_SHOWN = true;
-      nudgeRoundSelector();
+      if (!lastTeamsOk && teamsOk && !roundReady && !MI_ROUND_TOUCHED && !MI_ROUND_NUDGE_SHOWN) {
+        MI_ROUND_NUDGE_SHOWN = true;
+        nudgeRoundSelector();
+      }
+
+      lastTeamsOk = teamsOk;
+    };
+
+    if (!selectA.__miTeamChangeBound) {
+      selectA.addEventListener('change', onTeamChange);
+      selectA.__miTeamChangeBound = true;
     }
 
-    lastTeamsOk = teamsOk;
-  };
+    if (!selectB.__miTeamChangeBound) {
+      selectB.addEventListener('change', onTeamChange);
+      selectB.__miTeamChangeBound = true;
+    }
+  }
 
-  selectA.addEventListener('change', onTeamChange);
-  selectB.addEventListener('change', onTeamChange);
+  // Re-emit empty selection state so all downstream workflow logic
+  // treats the newly loaded dataset as unselected until the user picks teams.
+  selectA.dispatchEvent(new Event('change', { bubbles: true }));
+  selectB.dispatchEvent(new Event('change', { bubbles: true }));
 
   updatePreMatchupHubProgress();
   updateRoundOptionsForCurrentSeeds();
@@ -7182,6 +7418,9 @@ function renderSummary(result = {}) {
   const cTeamLabel = brandA.shortName || a.name || 'Team A';
   const fTeamLabel = brandB.shortName || b.name || 'Team B';
 
+  const cTeamLabelLong = brandA.team || a.name || 'Team A';
+  const fTeamLabelLong = brandB.team || b.name || 'Team B';
+
   const baselineLabel    = tableLabels.baseline_label    || 'Baseline MI';
   const matchupLabel     = tableLabels.matchup_label     || 'Matchup MI';
   const interactionLabel = tableLabels.interaction_label || 'Interaction Leverage';
@@ -7491,11 +7730,11 @@ function renderSummary(result = {}) {
   const resumeCalB = baseB - rawBaseB;
 
   // team headers
-  setText('summaryTeamAHeader', a.name || cTeamLabel);
-  setText('summaryTeamBHeader', b.name || fTeamLabel);
+  setText('summaryTeamAHeader', a.name || cTeamLabelLong);
+  setText('summaryTeamBHeader', b.name || fTeamLabelLong);
 
-  document.querySelectorAll('[data-sum-team="a"]').forEach(el => el.textContent = a.name || cTeamLabel);
-  document.querySelectorAll('[data-sum-team="b"]').forEach(el => el.textContent = b.name || fTeamLabel);
+  document.querySelectorAll('[data-sum-team="a"]').forEach(el => el.textContent = a.name || cTeamLabelLong);
+  document.querySelectorAll('[data-sum-team="b"]').forEach(el => el.textContent = b.name || fTeamLabelLong);
 
   // center lean
   setText('summarySynLean', leanText || '');
@@ -8558,6 +8797,8 @@ function ensureQuickEditSandboxToggle() {
 
 // ===== MATCHUP BAR QUICK EDIT (INLINE) =====
 let __MI_QUICK_EDIT_HOME = null;
+let __MI_DATASET_CHANGE_SEQ = 0;
+let __MI_DATASET_CHANGE_IN_FLIGHT = false;
 
 function enterMatchupQuickEdit() {
   const matchupBar = document.getElementById('matchupBar');
@@ -8565,6 +8806,7 @@ function enterMatchupQuickEdit() {
 
   const slotA = document.getElementById('matchupQuickA');
   const slotB = document.getElementById('matchupQuickB');
+  const slotD = document.getElementById('matchupQuickDataset');
   const slotR = document.getElementById('matchupQuickRound');
   if (!slotA || !slotB || !slotR) return;
 
@@ -8592,6 +8834,7 @@ function enterMatchupQuickEdit() {
   matchupBar.classList.add('is-editing');
   slotA.setAttribute('aria-hidden', 'false');
   slotB.setAttribute('aria-hidden', 'false');
+  slotD.setAttribute('aria-hidden', 'false');
   slotR.setAttribute('aria-hidden', 'false');
 
   // Show actions container
@@ -8607,7 +8850,57 @@ function enterMatchupQuickEdit() {
 
   slotA.innerHTML = '';
   slotB.innerHTML = '';
+  slotD.innerHTML = '';
   slotR.innerHTML = '';
+
+  // --- Dataset ---
+  const datasetHome = document.getElementById('datasetSelect');
+
+  const dWrapQ = document.createElement('div');
+  dWrapQ.className = 'select-wrap quick-dataset-select';
+  dWrapQ.id = 'datasetQuickSelectWrap';
+
+  const dSelQ = document.createElement('select');
+  dSelQ.id = 'datasetSelectQuick';
+  dSelQ.setAttribute('aria-label', 'Select dataset');
+
+  if (datasetHome) {
+    Array.from(datasetHome.options).forEach(opt => {
+      const clone = opt.cloneNode(true);
+
+      // Quick edit should allow the placeholder to remain selectable as a reset path.
+      if (clone.value === '') {
+        clone.disabled = false;
+      }
+
+      dSelQ.appendChild(clone);
+    });
+
+    dSelQ.value = datasetHome.value || '';
+  } else {
+    const fallback = document.createElement('option');
+    fallback.value = '';
+    fallback.textContent = 'Select a dataset…';
+    dSelQ.appendChild(fallback);
+    dSelQ.value = '';
+  }
+
+  dWrapQ.appendChild(dSelQ);
+  slotD.appendChild(dWrapQ);
+
+  dSelQ.addEventListener('change', async () => {
+    const home = document.getElementById('datasetSelect');
+    if (!home) return;
+
+    const nextValue = dSelQ.value || '';
+
+    // Even if the values match visually, keep quick + home perfectly synced.
+    if (home.value !== nextValue) {
+      home.value = nextValue;
+    }
+
+    await miHandleCanonicalDatasetChange();
+  });
 
   // --- Team A ---
   const aWrapQ = document.createElement('div');
@@ -8910,7 +9203,7 @@ function enterMatchupQuickEdit() {
     slotR.appendChild(clone);
   }
 
-  aSelQ.focus();
+  dSelQ.focus();
 }
 
 function exitMatchupQuickEdit() {
@@ -8919,6 +9212,7 @@ function exitMatchupQuickEdit() {
 
   const slotA = document.getElementById('matchupQuickA');
   const slotB = document.getElementById('matchupQuickB');
+  const slotD = document.getElementById('matchupQuickDataset');
   const slotR = document.getElementById('matchupQuickRound');
 
   const actions = matchupBar.querySelector('.matchup-quick-actions');
@@ -8930,6 +9224,7 @@ function exitMatchupQuickEdit() {
       (actions && actions.contains(active)) ||
       (slotA && slotA.contains(active)) ||
       (slotB && slotB.contains(active)) ||
+      (slotD && slotD.contains(active)) ||
       (slotR && slotR.contains(active))
     );
 
@@ -8950,6 +9245,7 @@ function exitMatchupQuickEdit() {
   matchupBar.classList.remove('is-editing');
   slotA?.setAttribute('aria-hidden', 'true');
   slotB?.setAttribute('aria-hidden', 'true');
+  slotD?.setAttribute('aria-hidden', 'true');
   slotR?.setAttribute('aria-hidden', 'true');
 
   if (actions) {
@@ -8959,6 +9255,7 @@ function exitMatchupQuickEdit() {
 
   slotA && (slotA.innerHTML = '');
   slotB && (slotB.innerHTML = '');
+  slotD?.setAttribute('aria-hidden', 'true');
   slotR && (slotR.innerHTML = '');
 
   const roundDropdown = document.getElementById('roundDropdown');
@@ -10632,6 +10929,99 @@ async function loadOfficialDatasetFromUrl(url, filename) {
   }
 }
 
+async function miHandleCanonicalDatasetChange() {
+  const datasetSelect = document.getElementById('datasetSelect');
+  const datasetDownloadBtn = document.getElementById('datasetDownloadBtn');
+  const matchupBar = document.getElementById('matchupBar');
+
+  if (!datasetSelect) return;
+
+  const requestId = ++__MI_DATASET_CHANGE_SEQ;
+  const wasQuickEditing =
+    !!matchupBar &&
+    matchupBar.classList.contains('is-editing');
+
+  const url = datasetSelect.value;
+  const opt = datasetSelect.options[datasetSelect.selectedIndex];
+  const filename = opt?.getAttribute('data-filename') || 'MadnessIndex_Dataset.csv';
+
+  const syncDatasetDownloadState = () => {
+    if (!datasetDownloadBtn || !datasetSelect) return;
+
+    const hasSelection = !!datasetSelect.value;
+    datasetDownloadBtn.disabled = !hasSelection;
+    datasetDownloadBtn.classList.toggle('hidden', !hasSelection);
+
+    if (hasSelection) {
+      const selectedOpt = datasetSelect.options[datasetSelect.selectedIndex];
+      const niceName = selectedOpt?.textContent?.trim() || 'dataset';
+      datasetDownloadBtn.textContent = `Download: ${niceName}`;
+    } else {
+      datasetDownloadBtn.textContent = 'Download Dataset';
+    }
+  };
+
+  // Prevent overlapping dataset loads from fighting each other.
+  // The newest request always wins.
+  __MI_DATASET_CHANGE_IN_FLIGHT = true;
+
+  try {
+    // If the user clears the selection, return fully to pre-dataset state
+    if (!url) {
+      hardResetWorkflow({
+        clearDatasetSelection: true,
+        preserveDatasetSelection: false,
+        statusText: 'Select a dataset to begin.'
+      });
+
+      syncDatasetDownloadState();
+
+      if (wasQuickEditing && requestId === __MI_DATASET_CHANGE_SEQ) {
+        requestAnimationFrame(() => {
+          enterMatchupQuickEdit();
+
+          const quickDataset = document.getElementById('datasetSelectQuick');
+          if (quickDataset) quickDataset.value = '';
+        });
+      }
+
+      return;
+    }
+
+    // Tear down old workflow first, but preserve the newly selected dataset value
+    hardResetWorkflow({
+      clearDatasetSelection: false,
+      preserveDatasetSelection: true,
+      statusText: 'Loading dataset…'
+    });
+
+    syncDatasetDownloadState();
+
+    await loadOfficialDatasetFromUrl(url, filename);
+
+    // Ignore stale completions if the user already picked another dataset
+    if (requestId !== __MI_DATASET_CHANGE_SEQ) return;
+
+    persistWorkflowState();
+
+    // Rebuild quick edit only after the new dataset is fully canonical
+    if (wasQuickEditing) {
+      requestAnimationFrame(() => {
+        enterMatchupQuickEdit();
+
+        const quickDataset = document.getElementById('datasetSelectQuick');
+        if (quickDataset) {
+          quickDataset.value = datasetSelect.value || '';
+        }
+      });
+    }
+  } finally {
+    if (requestId === __MI_DATASET_CHANGE_SEQ) {
+      __MI_DATASET_CHANGE_IN_FLIGHT = false;
+    }
+  }
+}
+
 function triggerCsvDownload(csvText, filename) {
   const blob = new Blob([csvText], { type: 'text/csv;charset=utf-8' });
   const a = document.createElement('a');
@@ -10682,20 +11072,8 @@ function setupEventListeners() {
 
   // ✅ ALWAYS auto-load when a dataset is selected (download button not required)
   if (datasetSelect) {
-    datasetSelect.addEventListener('change', () => {
-      const url = datasetSelect.value;
-      const opt = datasetSelect.options[datasetSelect.selectedIndex];
-      const filename = opt?.getAttribute('data-filename') || 'MadnessIndex_Dataset.csv';
-      if (!url) return;
-
-      // Load into app immediately
-      loadOfficialDatasetFromUrl(url, filename);
-
-      // If a download button exists, update it
-      syncDatasetDownloadState();
-
-      resetWorkflowFrom('dataset');
-      persistWorkflowState();
+    datasetSelect.addEventListener('change', async () => {
+      await miHandleCanonicalDatasetChange();
     });
   }
 
@@ -11596,7 +11974,7 @@ function miInitInstallPromptUI() {
 // Build Version — must match service-worker.js and index.html
 // =========================================================
 
-const MI_BUILD = '24';
+const MI_BUILD = '25';
 
 function bootMadnessIndex() {
   console.log("[MI] bootMadnessIndex fired");
