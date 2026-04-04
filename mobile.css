@@ -3921,7 +3921,7 @@
   html.mi-verdict-scroll-lock,
   body.mi-verdict-scroll-lock {
     overflow: hidden !important;
-    height: 100dvh !important;
+    min-height: 100dvh !important;
     overscroll-behavior: none !important;
     touch-action: pan-x !important;
   }
