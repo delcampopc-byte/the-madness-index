@@ -439,7 +439,7 @@
     "card_back_title": "How This Scorecard Works"
   },
   "interactions": {
-    "title": "4. Interaction Metrics",
+    "title": "4. Interaction Channels",
     "help": "",
     "howto_title": "How to read this table",
     "howto_items": [
@@ -453,7 +453,7 @@
     "flip_tile": {
       "front_hint": "Flip for channel guide",
       "back_intro": "These five channels describe where one team can create directional matchup pressure. The front face shows who benefits; the back face explains how to interpret those edges.",
-      "back_helper": "Tap again to return to the interaction metrics."
+      "back_helper": "Tap again to return to the Interaction Channels."
     }
   },
   "rounds": {
@@ -563,11 +563,11 @@
     "breadth_bonus": "Breadth Bonus",
     "breadth_bonus_hint": "Bonus for total hits across Core Traits",
 
-    "effective_adj": "Interaction Metrics Adjustment",
+    "effective_adj": "Interaction Channels Adjustment",
     "effective_adj_hint": "Driven by how each team's strengths and weaknesses interact.",
 
     "total_adj": "Net Matchup Adjustment",
-    "total_adj_hint": "Combined effect of interaction metrics and breadth bonus.",
+    "total_adj_hint": "Combined effect of Interaction Channels and breadth bonus.",
 
     "final": "Final MI",
     "final_hint": ""
@@ -577,13 +577,25 @@
     "syn_lean": ""
   }
 },
+
 "glossary": {
   "title": "Stat & Rule Glossary",
   "help": "Definitions for all metrics, rules, and analytical concepts used in the Madness Index.",
+  "category_order": [
+    "Overview",
+    "Score Synthesis",
+    "Core Traits",
+    "Profile Marks",
+    "Tournament Identities",
+    "Résumé Context",
+    "Interaction Channels",
+    "Volatility",
+    "Profile Marks"
+  ],
   "entries": [
     {
       "term": "The Madness Index",
-      "abbr": "MI",
+      "abbr": "",
       "category": "Overview",
       "definition": "A composite rating that summarizes a team’s tournament identity using baseline strength and profile breadth. MI is designed to be stable, comparable across teams, and readable as a single-number anchor."
     },
@@ -603,91 +615,109 @@
       "term": "Baseline MI",
       "abbr": "",
       "category": "Score Synthesis",
-      "definition": "The identity-only foundation of MI built from baseline strength plus breadth, without any résumé points being added into the baseline. It represents a team’s underlying profile before matchup interaction scaling."
-    },
-    {
-      "term": "Breadth Bonus",
-      "abbr": "",
-      "category": "Score Synthesis",
-      "definition": "A baseline add-on that rewards teams with wider, more reliable profile coverage across core traits. It reflects how many different ways a team can sustain performance without relying on one narrow strength."
+      "definition": "A team’s baseline matchup starting point before opponent-specific interaction effects are added. In the current engine, it begins with foundation, which is the team’s adjusted MI Efficiency Margin, then applies Résumé Base Trust to calibrate that raw baseline toward the field mean. So it is not just 'how good the team is', but 'how strong the team’s normalized internal profile is after structural adjustment and résumé calibration'."
     },
     {
       "term": "Matchup MI",
       "abbr": "",
       "category": "Score Synthesis",
-      "definition": "The matchup-adjusted version of MI after interaction metrics are applied between the two teams. It represents how each profile scales when placed directly against the opponent."
+      "definition": "A team’s final matchup score after adding opponent-specific interaction adjustments to Baseline MI. The interaction adjustment is also scaled by résumé-based interaction trust, so Matchup MI is the model’s final score for this exact pairing, not a general team power rating."
     },
     {
       "term": "Madness Delta",
-      "abbr": "MI Δ",
-      "category": "Score Synthesis",
-      "definition": "The net separation between the two teams’ matchup outputs, expressed as a single gap value. MI Δ is the primary “distance” signal used to summarize how far apart the profiles evaluate."
-    },
-    {
-      "term": "Lean Signals",
       "abbr": "",
       "category": "Score Synthesis",
-      "definition": "A set of directional indicators derived from the interaction layer that summarize where the matchup pressure is coming from. Lean Signals describe the type of edge being created, not a guaranteed result."
+      "definition": "The gap between the two teams’ final Matchup MI scores. In the engine, this is the final margin after both baseline and interaction adjustments have been applied. It is the model’s final separation signal for the matchup."
     },
     {
-      "term": "Offensive Efficiency",
-      "abbr": "OffEff",
+      "term": "Offensive Rebounding",
+      "abbr": "",
       "category": "Core Traits",
-      "definition": "A possession-based measure of how efficiently a team converts offense into points. OffEff describes scoring output per trip, independent of pace."
-    },
-    {
-      "term": "Defensive Efficiency",
-      "abbr": "DefEff",
-      "category": "Core Traits",
-      "definition": "A possession-based measure of how efficiently a team prevents scoring. DefEff describes points allowed per opponent trip, independent of pace."
-    },
-    {
-      "term": "Efficiency Margin",
-      "abbr": "EM",
-      "category": "Core Traits",
-      "definition": "The net efficiency gap between a team’s offense and defense on a per-possession basis. EM summarizes overall strength by combining both sides of the ball into one differential."
-    },
-    {
-      "term": "True Shooting %",
-      "abbr": "TS%",
-      "category": "Core Traits",
-      "definition": "A scoring efficiency rate that accounts for two-point shots, three-point shots, and free throws in one percentage. TS% represents overall point conversion efficiency per shot attempt."
+      "definition": "A field-normalized offensive rebounding driver in MI Offensive Efficiency. It measures how much a team creates second-chance value relative to the field, and it carries a 0.35 weight inside the offensive efficiency base."
     },
     {
       "term": "Effective FG%",
-      "abbr": "eFG%",
+      "abbr": "",
       "category": "Core Traits",
-      "definition": "A shooting efficiency rate that adjusts field-goal percentage to account for the added value of three-point shots. eFG% reflects how efficiently a team converts shot attempts into points from the field."
+      "definition": "A field-normalized shot-efficiency driver in MI Offensive Efficiency. It reflects shooting efficiency relative to the field and carries a 0.30 weight inside the offensive efficiency base."
     },
     {
-      "term": "Defensive eFG%",
-      "abbr": "Def eFG%",
+      "term": "Turnover Avoidance",
+      "abbr": "",
+      "category": "Core Traits",
+      "definition": "Not raw turnover rate by itself, but the inverted, field-normalized turnover signal used offensively so that lower turnover rate becomes better. It carries a 0.25 weight in MI Offensive Efficiency."
+    },
+    {
+      "term": "Free Throw Rate",
+      "abbr": "",
+      "category": "Core Traits",
+      "definition": "A field-normalized foul-pressure / line-access driver in MI Offensive Efficiency. It is the offensive ability to generate free-throw opportunities relative to the field, weighted 0.10."
+    },
+    {
+      "term": "Offensive Breadth",
+      "abbr": "",
+      "category": "Core Traits",
+      "definition": "A structural balance adjustment built from the spread of the team’s four offensive driver z-scores: offensive rebounding, eFG, turnover avoidance, and free-throw rate. Lower dispersion means a more balanced offensive profile and earns a stronger offensive breadth bonus; higher dispersion reduces it. This bonus is then added directly to MI Offensive Efficiency."
+    },
+    {
+      "term": "Opponent eFG%",
+      "abbr": "",
       "category": "Core Traits",
       "definition": "The opponent shooting efficiency a team allows, adjusted for the added value of three-point shots. Def eFG% reflects how well a defense limits quality shot conversion."
     },
     {
+      "term": "Defensive Rebounding",
+      "abbr": "",
+      "category": "Core Traits",
+      "definition": "A field-normalized defensive rebounding driver in MI Defensive Efficiency. It reflects how well a team ends possessions."
+    },
+    {
+      "term": "Forcing Turnovers",
+      "abbr": "",
+      "category": "Core Traits",
+      "definition": "A field-normalized defensive pressure driver built from opponent turnover creation proxy data. In the core traits layer, it is the defensive turnover-generation component inside MI Defensive Efficiency."
+    },
+    {
+      "term": "Free Throw Prevention",
+      "abbr": "",
+      "category": "Core Traits",
+      "definition": "An orientation-adjusted defensive discipline driver. It is based on opponent free-throw rate allowed, inverted so that allowing fewer free throws is better. It carries a 0.10 weight inside MI Defensive Efficiency."
+    },
+    {
+      "term": "Defensive Breadth",
+      "abbr": "",
+      "category": "Core Traits",
+      "definition": "A structural balance adjustment built from the spread of the team’s four defensive driver z-scores: opponent eFG suppression, defensive rebounding, turnover creation, and free-throw prevention. Lower dispersion means the defense is more evenly supported across battlefields, so the defensive breadth bonus is stronger. That bonus is then added directly to MI Defensive Efficiency."
+    },
+    {
+      "term": "Volatility Meter",
+      "abbr": "",
+      "category": "Volatility",
+      "definition": "A separate matchup-environment score from 1–100 created by equally weighting four normalized volatility drivers: tempo, 3-point environment, EPR environment, and extra scoring chances. It does not directly decide the winner; it describes how unstable or swing-prone the matchup environment is."
+    },
+    {
+      "term": "Tempo",
+      "abbr": "",
+      "category": "Volatility",
+      "definition": "A volatility driver built from both the average field-relative tempo level in the matchup and the tempo gap between the two teams. So it measures not just pace, but how much pace itself may destabilize the game environment."
+    },
+    {
+      "term": "3PT Dependence",
+      "abbr": "",
+      "category": "Volatility",
+      "definition": "A volatility driver built from average 3-point rate, average share of points from 3, the gap in 3-point rate between teams, and a small 3P% modifier that only matters when the matchup is already high-volume from deep. So it is really a 3-point environment / reliance signal, not just simple dependence."
+    },
+    {
       "term": "Effective Possession Ratio",
       "abbr": "EPR",
-      "category": "Core Traits",
-      "definition": "A possession-quality indicator that summarizes how reliably a team turns trips into usable scoring chances. EPR reflects possession management beyond raw pace or shooting splits."
+      "category": "Volatility",
+      "definition": "A volatility driver built from the matchup’s average field-relative EPR and the gap between the teams’ EPR values. The engine inverts the average component, so weaker possession efficiency environments increase volatility."
     },
     {
-      "term": "Turnover %",
-      "abbr": "TO%",
-      "category": "Core Traits",
-      "definition": "The share of possessions that end in a turnover rather than a shot attempt or trip to the line. TO% reflects ball security and offensive stability."
-    },
-    {
-      "term": "Thresholds (Mean / Standard Deviation)",
-      "abbr": "",
-      "category": "Thresholds & Tiers",
-      "definition": "The statistical baselines used to normalize team trait values across the full dataset. Mean and standard deviation define what counts as typical, strong, or extreme in each metric."
-    },
-    {
-      "term": "Tier Significance",
-      "abbr": "",
-      "category": "Thresholds & Tiers",
-      "definition": "A classification rule that groups metric values into meaningful bands based on distance from the dataset average. Tiers express how far a team sits from “normal” within a given trait."
+      "term": "Extra Scoring Chances/Game",
+      "abbr": "SCPG",
+      "category": "Volatility",
+      "definition": "A volatility driver built from average and gap values in extra scoring chances per game. Higher second-chance / extra-possession environments raise volatility."
     },
     {
       "term": "Cinderella Credibility",
@@ -723,7 +753,7 @@
       "term": "Résumé Context",
       "abbr": "",
       "category": "Résumé Context",
-      "definition": "A résumé-strength layer used to describe schedule quality and accomplishment signals alongside the profile model. Résumé Context is separate from baseline MI and is applied only through interaction scaling."
+      "definition": "A field-normalized résumé quality signal built from stabilized Q1/Q2 performance, weighted quality-win volume, bad-loss resistance, opponent-quality share, win percentage, and schedule hardness. In the current engine, résumé context does not directly replace baseline performance; instead it produces trust factors that calibrate baseline, interactions, and confidence."
     },
     {
       "term": "Résumé Tier",
@@ -780,58 +810,46 @@
       "definition": "A profile mark indicating performance is less stable when pace rises or possession flow becomes chaotic. It flags a profile that can lose efficiency under speed or disruption."
     },
     {
-      "term": "Interaction Metrics",
+      "term": "Channels Overview",
       "abbr": "",
-      "category": "Interaction Metrics",
-      "definition": "The set of pressure-based matchup measures that compare two teams’ profiles trait-by-trait. Interaction Metrics translate profile differences into directional competitive friction."
+      "category": "Interaction Channels",
+      "definition": "These are directional, opponent-specific channels. They do not just ask, “Is Team A good at X?” They ask, “How much does Team A’s strength in X pressure Team B’s vulnerability in X, and how much does the reverse apply?” They are also gated by baseline difference, so interactions matter less in lopsided matchups."
     },
     {
-      "term": "Perimeter Pressure",
+      "term": "Perimeter Variance",
       "abbr": "",
-      "category": "Interaction Metrics",
-      "definition": "An interaction measure describing how three-point volume, quality, and perimeter defense intersect between the two teams. It captures the matchup’s outside shooting and containment tension."
-    },
-    {
-      "term": "Whistle Bias",
-      "abbr": "",
-      "category": "Interaction Metrics",
-      "definition": "An interaction measure describing how foul pressure and free-throw dependence intersect between the two teams. It captures the matchup’s line-access and foul-risk tension."
+      "category": "Interaction Channels",
+      "definition": "An interaction channel that compares one team’s 3-point volume / scoring reliance against the opponent’s ability to limit opponent 3-point rate and accuracy. It is not merely “who shoots more threes,” but whether one side can impose a high-variance perimeter environment on the other."
     },
     {
       "term": "Rim Access",
       "abbr": "",
-      "category": "Interaction Metrics",
-      "definition": "An interaction measure describing how interior scoring leverage meets interior resistance between the two teams. It captures the matchup’s paint efficiency and rim protection tension."
+      "category": "Interaction Channels",
+      "definition": "An interaction channel that compares one team’s interior access profile, which is driven by non-blocked 2-point creation, 2-point scoring share, and eFG support, against the opponent’s rim protection and interior shot suppression."
     },
     {
-      "term": "Possession Security",
+      "term": "Turnover Pressure",
       "abbr": "",
-      "category": "Interaction Metrics",
-      "definition": "An interaction measure describing how ball security meets turnover forcing between the two teams. It captures the matchup’s control versus disruption tension on possessions."
+      "category": "Interaction Channels",
+      "definition": "An interaction channel that combines one team’s turnover-forcing ability with the opponent’s turnover vulnerability. In the engine, pressure side includes forced-turnover proxies and steal pressure, while vulnerability side includes the opponent’s turnover rate and assist/possession shape."
     },
     {
-      "term": "Second-Chance Equity",
+      "term": "Rebounding Pressure",
       "abbr": "",
-      "category": "Interaction Metrics",
-      "definition": "An interaction measure describing how rebounding and extra-possession generation intersect between the two teams. It captures the matchup’s offensive glass and cleanup leverage."
+      "category": "Interaction Channels",
+      "definition": "An interaction channel that compares one team’s offensive rebounding pressure against the opponent’s defensive rebounding resistance. It models extra-possession stress at the glass, not general rebounding quality in isolation."
     },
     {
-      "term": "Contact Advantage",
+      "term": "Foul Pressure",
       "abbr": "",
-      "category": "Interaction Metrics",
-      "definition": "An interaction measure describing how physical play tolerance intersects with the opponent’s ability to absorb or punish contact. It captures the matchup’s strength-through-contact and foul-resilience tension."
+      "category": "Interaction Channels",
+      "definition": "An interaction channel that compares one team’s free-throw drawing profile against the opponent’s foul-discipline vulnerability. In the engine it blends free-throw rate and FT scoring share on the offensive side against opponent FT-rate prevention on the defensive side."
     },
     {
-      "term": "Shot Diet Control",
+      "term": "",
       "abbr": "",
-      "category": "Interaction Metrics",
-      "definition": "An interaction measure describing how shot selection discipline intersects with the opponent’s ability to restrict preferred attempts. It captures the matchup’s ability to force or avoid low-value shots."
-    },
-    {
-      "term": "Volatility Leverage",
-      "abbr": "",
-      "category": "Interaction Metrics",
-      "definition": "An interaction measure describing how outcome variance intersects with the opponent’s stability profile. It captures the matchup’s swing potential as a profile interaction signal."
+      "category": "",
+      "definition": ""
     }
   ]
 },

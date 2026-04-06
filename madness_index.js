@@ -795,26 +795,6 @@ function normalizePreMatchupCopy(data) {
   };
 }
 
-function miSetVerdictScrollLock(locked) {
-  const body = document.body;
-  const html = document.documentElement;
-
-  if (!body || !html) return;
-
-  // Mobile should never hard-lock page scroll.
-  const isMobile = window.matchMedia && window.matchMedia('(max-width: 720px)').matches;
-  if (isMobile) {
-    body.classList.remove('mi-verdict-scroll-lock');
-    html.classList.remove('mi-verdict-scroll-lock');
-    return;
-  }
-
-  const shouldLock = !!locked;
-
-  body.classList.toggle('mi-verdict-scroll-lock', shouldLock);
-  html.classList.toggle('mi-verdict-scroll-lock', shouldLock);
-}
-
 // ===============================
 // Verdict-first UI (Option A)
 // ===============================
@@ -837,8 +817,6 @@ function setEvidenceOpen(isOpen) {
 
   // Visual open/close
   if (isOpen) {
-    miSetVerdictScrollLock(false);
-
     shell.classList.remove('hidden');
     requestAnimationFrame(() => {
       shell.classList.add('analysis-visible');
@@ -853,7 +831,6 @@ function setEvidenceOpen(isOpen) {
       }
     });
   } else {
-    miSetVerdictScrollLock(true);
 
     shell.classList.remove('analysis-visible');
     window.setTimeout(() => {
@@ -1177,7 +1154,6 @@ function resetPostMatchupDefaultView() {
   showVerdictShell();
   initEvidenceToggleOnce();
   setEvidenceOpen(false);
-  miSetVerdictScrollLock(true);
 }
 
 function resetPreMatchupEmptyView() {
@@ -1202,8 +1178,6 @@ function resetPreMatchupEmptyView() {
     evidenceBtn.childNodes[0].nodeValue = 'View Full Scorecard ';
     if (chev) chev.style.transform = 'rotate(0deg)';
   }
-
-  miSetVerdictScrollLock(false);
 }
 
 // ===== PATCH NOTES: render from canonical MI_COPY =====
@@ -10673,12 +10647,6 @@ function updatePreMatchupHubProgress() {
 
   if (els.stepsWrap) els.stepsWrap.classList.remove('is-single');
 
-  const preview = document.getElementById('preMatchupPreview');
-  if (preview) {
-    preview.classList.remove('is-open');
-    preview.setAttribute('aria-hidden', 'true');
-  }
-
   if (csvLoaded && pct === 25) {
     logWorkflowEvent('Dataset loaded');
   }
@@ -11181,6 +11149,11 @@ function setupEventListeners() {
         return;
       }
 
+      if (__MI_DATASET_CHANGE_IN_FLIGHT) {
+        alert('Dataset is still loading. Please wait a moment.');
+        return;
+      }
+
       const selectA = document.getElementById('teamA');
       const selectB = document.getElementById('teamB');
 
@@ -11275,7 +11248,14 @@ function setupEventListeners() {
   const quickRun = document.getElementById('matchupQuickRun');
   if (quickRun) {
     quickRun.addEventListener('click', () => {
+
+      if (__MI_DATASET_CHANGE_IN_FLIGHT) {
+        alert('Dataset is still loading. Please wait a moment.');
+        return;
+      }
+
       exitMatchupQuickEdit();
+
       const compareBtn = document.getElementById('compareBtn');
       if (compareBtn) compareBtn.click();
     });
@@ -11472,61 +11452,38 @@ if (roundBtn && roundDropdown) {
 }
 
 /* =========================================================
-   Glossary Drawer (matchup-only; JSON-driven; deterministic)
+   Glossary Drawer (matchup-only; category-driven accordion)
    ========================================================= */
 (function(){
-  const TOC_ORDER = [
-    "Verdict Shell",
-    "Baseline MI",
-    "Matchup MI",
-    "Madness Delta",
-    "Predicted Winner",
-    "Lean Signals",
-    "Team Scorecards",
-    "Offensive Efficiency",
-    "Defensive Efficiency",
-    "Efficiency Margin",
-    "True Shooting %",
-    "Effective FG%",
-    "Defensive eFG%",
-    "Effective Possession Ratio",
-    "Turnover %",
-    "Breadth Bonus",
-    "Profile Subtotal",
-    "Tournament Identities",
-    "Cinderella Credibility",
-    "Favorite Authenticity",
-    "Live Cinderella Profile",
-    "Live Favorite Profile",
-    "Résumé Context",
-    "Strength of Schedule",
-    "Win Percentage",
-    "Résumé Tier",
+  const FALLBACK_CATEGORY_ORDER = [
+    "Overview",
+    "Score Synthesis",
+    "Core Traits",
     "Profile Marks",
-    "Offensive Rigidity",
-    "Unstable Perimeter",
-    "Cold Arc Team",
-    "Undisciplined Defense",
-    "Soft Interior",
-    "Perimeter Leakage",
-    "Tempo Strain",
-    "Interactions",
-    "Perimeter Pressure",
-    "Whistle Bias",
-    "Rim Access",
-    "Possession Security",
-    "Second-Chance Equity",
-    "Contact Advantage",
-    "Shot Diet Control",
-    "Volatility Leverage"
+    "Tournament Identities",
+    "Résumé Context",
+    "Interaction Channels",
+    "Volatility",
+    "Profile Marks"
   ];
+
+  const CATEGORY_ALIASES = {
+    "resume context": "Résumé Context",
+    "resumé context": "Résumé Context",
+    "résumé context": "Résumé Context",
+    "interaction channel": "Interaction Channels",
+    "interaction channels": "Interaction Channels",
+    "interactions channels": "Interaction Channels",
+    "interactions channel": "Interaction Channels"
+  };
 
   const state = {
     available: false,
     open: false,
-    activeKey: null,
     indexByKey: Object.create(null),
-    grouped: null
+    grouped: null,
+    categoryOrder: [],
+    searchQuery: ""
   };
 
   function $(id){ return document.getElementById(id); }
@@ -11537,31 +11494,65 @@ if (roundBtn && roundDropdown) {
     return (t + (a ? `|${a}` : "")).toLowerCase();
   }
 
+  function normalizeCategoryLabel(label){
+    const raw = String(label || "").trim();
+    if (!raw) return "";
+
+    const aliasKey = raw.toLowerCase();
+    if (CATEGORY_ALIASES[aliasKey]) return CATEGORY_ALIASES[aliasKey];
+
+    return raw;
+  }
+
   function safeCopy(){
     const copy = window.MI_COPY || {};
     const g = copy.glossary || {};
-    const title = (typeof g.title === "string" && g.title.trim()) ? g.title.trim() : "Glossary";
-    const help  = (typeof g.help === "string"  && g.help.trim())  ? g.help.trim()  : "Definitions for key terms used in this app.";
+
+    const title =
+      (typeof g.title === "string" && g.title.trim())
+        ? g.title.trim()
+        : "Glossary";
+
+    const help =
+      (typeof g.help === "string" && g.help.trim())
+        ? g.help.trim()
+        : "Definitions for key terms used in this app.";
+
     const entries = Array.isArray(g.entries) ? g.entries : [];
-    return { title, help, entries };
+    const categoryOrder = Array.isArray(g.category_order) ? g.category_order : [];
+
+    return { title, help, entries, categoryOrder };
+  }
+
+  function deriveCategoryOrder(entries, requestedOrder){
+    const ordered = [];
+    const seen = new Set();
+
+    const pushLabel = (label) => {
+      const normalized = normalizeCategoryLabel(label);
+      if (!normalized || seen.has(normalized)) return;
+      seen.add(normalized);
+      ordered.push(normalized);
+    };
+
+    // 1) explicit order from copy.json, if present
+    requestedOrder.forEach(pushLabel);
+
+    // 2) fallback canonical order
+    FALLBACK_CATEGORY_ORDER.forEach(pushLabel);
+
+    // 3) anything present in entries but not covered above
+    entries.forEach(entry => {
+      const cat = normalizeCategoryLabel(entry && entry.category);
+      if (cat) pushLabel(cat);
+    });
+
+    return ordered;
   }
 
   function sectionForEntry(entry){
-    // Deterministic mapping: prefer explicit category match to TOC labels.
-    const cat = (entry && entry.category ? String(entry.category).trim() : "");
-    const term = (entry && entry.term ? String(entry.term).trim() : "");
-
-    if (cat && TOC_ORDER.includes(cat)) return cat;
-    if (term && TOC_ORDER.includes(term)) return term;
-
-    // Lightweight term-based mapping for resilience (exact matches only)
-    const termMap = Object.create(null);
-    // Populate common exact matches that might come through w/ a different category
-    TOC_ORDER.forEach(label => { termMap[label] = label; });
-    if (term && termMap[term]) return termMap[term];
-
-    // Final fallback bucket (kept deterministic)
-    return null;
+    const cat = normalizeCategoryLabel(entry && entry.category);
+    return cat || null;
   }
 
   function buildIndex(entries){
@@ -11569,79 +11560,86 @@ if (roundBtn && roundDropdown) {
 
     entries.forEach(e => {
       if (!e || !e.term) return;
+
       const term = String(e.term).trim();
       if (!term) return;
 
       const abbr = e.abbr ? String(e.abbr).trim() : "";
       const def  = e.definition ? String(e.definition).trim() : "";
+      const category = normalizeCategoryLabel(e.category);
 
       const key = normalizeKey(term, abbr);
       state.indexByKey[key] = {
         term,
-        abbr: abbr || "",
-        category: e.category ? String(e.category).trim() : "",
+        abbr,
+        category,
         definition: def || ""
       };
     });
   }
 
-  function groupEntries(entries){
+  function groupEntries(entries, categoryOrder){
     const groups = Object.create(null);
 
-    // Initialize groups in TOC order to keep stable rendering
-    TOC_ORDER.forEach(label => { groups[label] = []; });
+    categoryOrder.forEach(label => {
+      groups[label] = [];
+    });
 
     entries.forEach(e => {
       if (!e || !e.term) return;
+
       const term = String(e.term).trim();
       if (!term) return;
 
       const abbr = e.abbr ? String(e.abbr).trim() : "";
       const def  = e.definition ? String(e.definition).trim() : "";
+      const category = sectionForEntry(e);
 
-      const section = sectionForEntry(e);
-      if (!section) return;
+      if (!category) return;
+      if (!groups[category]) groups[category] = [];
 
-      groups[section].push({
+      groups[category].push({
         term,
-        abbr: abbr || "",
-        category: e.category ? String(e.category).trim() : "",
+        abbr,
+        category,
         definition: def || ""
-      });
-    });
-
-    // Within each section: stable alphabetical by term (deterministic)
-    Object.keys(groups).forEach(k => {
-      groups[k].sort((a,b) => {
-        const ta = (a.term || "").toLowerCase();
-        const tb = (b.term || "").toLowerCase();
-        return ta.localeCompare(tb);
       });
     });
 
     return groups;
   }
 
-  function renderTOC(groups){
+  function closeOtherSections(openSection){
+    const toc = $("glossaryTOC");
+    if (!toc) return;
+
+    toc.querySelectorAll("details.mi-glossary-section").forEach(sec => {
+      if (sec !== openSection) sec.open = false;
+    });
+  }
+
+  function renderTOC(groups, categoryOrder){
     const toc = $("glossaryTOC");
     if (!toc) return;
 
     toc.innerHTML = "";
 
-    const ordered = [...TOC_ORDER];
-
-    ordered.forEach(sectionName => {
-      const list = groups[sectionName] || [];
+    categoryOrder.forEach(categoryName => {
+      const list = groups[categoryName] || [];
       if (!list.length) return;
 
-      // Category accordion (single dropdown level)
       const details = document.createElement("details");
       details.className = "mi-glossary-section";
+      details.dataset.category = categoryName.toLowerCase();
       details.open = false;
+
+      details.addEventListener("toggle", () => {
+        if (details.open) closeOtherSections(details);
+      });
 
       const summary = document.createElement("summary");
       summary.innerHTML = `
-        <span class="mi-glossary-section-title">${sectionName}</span>
+        <span class="mi-glossary-section-title">${categoryName}</span>
         <span class="mi-glossary-caret">›</span>
       `;
       details.appendChild(summary);
@@ -11649,7 +11647,6 @@ if (roundBtn && roundDropdown) {
       const container = document.createElement("div");
       container.className = "mi-glossary-term-list";
 
-      // Terms render inline (no second dropdown)
       list.forEach(e => {
         const term = String(e.term || "").trim();
         if (!term) return;
@@ -11657,33 +11654,27 @@ if (roundBtn && roundDropdown) {
         const abbr = e.abbr ? String(e.abbr).trim() : "";
         const def  = e.definition ? String(e.definition).trim() : "";
 
-        const item = document.createElement("div");
-        item.className = "mi-glossary-item";
+        const termDetails = document.createElement("details");
+        termDetails.className = "mi-glossary-item mi-glossary-term";
+        termDetails.dataset.term = term.toLowerCase();
+        termDetails.dataset.abbr = abbr.toLowerCase();
+        termDetails.dataset.category = categoryName.toLowerCase();
+        termDetails.open = false;
 
-        const head = document.createElement("div");
-        head.className = "mi-glossary-item-header";
-
-        const name = document.createElement("div");
-        name.className = "mi-glossary-item-term";
-        name.textContent = term;
-
-        head.appendChild(name);
-
-        if (abbr){
-          const ab = document.createElement("div");
-          ab.className = "mi-glossary-item-abbr";
-          ab.textContent = abbr;
-          head.appendChild(ab);
-        }
+        const termSummary = document.createElement("summary");
+        termSummary.className = "mi-glossary-item-header";
+        termSummary.innerHTML = `
+          <span class="mi-glossary-item-term mi-glossary-term-name">${term}</span>
+          ${abbr ? `<span class="mi-glossary-item-abbr mi-glossary-term-abbr">${abbr}</span>` : ""}
+        `;
 
         const body = document.createElement("div");
         body.className = "mi-glossary-item-def";
         body.textContent = def || "Definition unavailable.";
 
-        item.appendChild(head);
-        item.appendChild(body);
-
-        container.appendChild(item);
+        termDetails.appendChild(termSummary);
+        termDetails.appendChild(body);
+        container.appendChild(termDetails);
       });
 
       details.appendChild(container);
@@ -11692,8 +11683,6 @@ if (roundBtn && roundDropdown) {
   }
 
   function clampDrawerWidthToLeftLane(){
-    // Contract: first open width must not intrude into Verdict Shell lane.
-    // We’ll clamp to the left edge of #verdictShell if present.
     const drawer = $("glossaryDrawer");
     const panel  = $("glossaryPanel");
     const verdict = document.getElementById("verdictShell");
@@ -11701,9 +11690,8 @@ if (roundBtn && roundDropdown) {
 
     const vr = verdict.getBoundingClientRect();
     const leftEdge = 0;
-    const safeGap = Math.max(0, Math.floor(vr.left - leftEdge - 12)); // 12px breathing room
+    const safeGap = Math.max(0, Math.floor(vr.left - leftEdge - 12));
 
-    // If verdict is very close to the edge, keep a tight minimum drawer width
     const minW = 260;
     const maxW = 360;
     const w = Math.max(minW, Math.min(maxW, safeGap));
@@ -11739,53 +11727,84 @@ if (roundBtn && roundDropdown) {
     const closeBtn = $("glossaryClose");
     if (!root || !handle || !closeBtn) return;
 
-    handle.addEventListener("click", () => setOpen(!state.open));
-    closeBtn.addEventListener("click", () => setOpen(false));
+    if (!handle.__miGlossaryBound) {
+      handle.addEventListener("click", () => setOpen(!state.open));
+      handle.__miGlossaryBound = true;
+    }
 
-    // Click outside panel closes (but doesn’t interfere with other UI)
-    document.addEventListener("mousedown", (e) => {
-      if (!state.open) return;
-      const panel = $("glossaryPanel");
-      if (!panel) return;
-      if (panel.contains(e.target) || handle.contains(e.target)) return;
-      setOpen(false);
-    });
+    if (!closeBtn.__miGlossaryBound) {
+      closeBtn.addEventListener("click", () => setOpen(false));
+      closeBtn.__miGlossaryBound = true;
+    }
 
-    window.addEventListener("resize", () => {
-      if (state.open) clampDrawerWidthToLeftLane();
-    });
+    if (!document.__miGlossaryMouseDownBound) {
+      document.addEventListener("mousedown", (e) => {
+        if (!state.open) return;
+        const panel = $("glossaryPanel");
+        if (!panel) return;
+        if (panel.contains(e.target) || handle.contains(e.target)) return;
+        setOpen(false);
+      });
+      document.__miGlossaryMouseDownBound = true;
+    }
 
-    document.addEventListener("keydown", onKeyDown);
+    if (!window.__miGlossaryResizeBound) {
+      window.addEventListener("resize", () => {
+        if (state.open) clampDrawerWidthToLeftLane();
+      });
+      window.__miGlossaryResizeBound = true;
+    }
+
+    if (!document.__miGlossaryKeydownBound) {
+      document.addEventListener("keydown", onKeyDown);
+      document.__miGlossaryKeydownBound = true;
+    }
   }
 
-  function renderGlossary(){
-    const { title, help, entries } = safeCopy();
+  function applySearchFilter(){
+    const toc = $("glossaryTOC");
+    const input = $("glossarySearchInput");
+    if (!toc || !input) return;
 
-    const root = $("glossaryDrawer");
-    if (!root) return;
+    const q = (input.value || "").trim().toLowerCase();
+    state.searchQuery = q;
 
-    // Title/help
-    const t = $("glossaryTitle");
-    const h = $("glossaryHelp");
-    if (t) t.textContent = title;
-    if (h) h.textContent = help;
+    const allSections = toc.querySelectorAll("details.mi-glossary-section");
 
-    buildIndex(entries);
-    state.grouped = groupEntries(entries);
-    renderTOC(state.grouped);
+    allSections.forEach(sec => {
+      let anyVisible = false;
 
-    prepGlossaryTopArea();
-  }
+      sec.querySelectorAll("details.mi-glossary-term").forEach(termDetails => {
+        const term = termDetails.dataset.term || "";
+        const abbr = termDetails.dataset.abbr || "";
+        const cat  = termDetails.dataset.category || "";
+        const def  = (termDetails.querySelector(".mi-glossary-item-def")?.textContent || "").toLowerCase();
 
-  function detectMatchupVisible(){
-    // Primary gate: analysis-visible on #analysisShell
-    const shell = document.getElementById("analysisShell");
-    if (shell && shell.classList.contains("analysis-visible")) return true;
+        const hit = !q ||
+          term.includes(q) ||
+          abbr.includes(q) ||
+          cat.includes(q) ||
+          def.includes(q);
 
-    // Secondary gate: body class (if you have it)
-    if (document.body && document.body.classList.contains("analysis-visible")) return true;
+        termDetails.style.display = hit ? "" : "none";
 
-    return false;
+        if (q && hit) {
+          termDetails.open = true;
+        } else if (!q) {
+          termDetails.open = false;
+        }
+
+        if (hit) anyVisible = true;
+      });
+
+      sec.style.display = (!q || anyVisible) ? "" : "none";
+
+      if (q && anyVisible) {
+        sec.open = true;
+      } else if (!q) {
+        sec.open = false;
+      }
+    });
   }
 
   function prepGlossaryTopArea(){
@@ -11793,7 +11812,6 @@ if (roundBtn && roundDropdown) {
     const host = $("glossarySearchHost");
     if (!toc || !host) return;
 
-    // Inject search row once
     if (!$("glossarySearchInput")){
       const row = document.createElement("div");
       row.className = "mi-glossary-searchrow";
@@ -11815,56 +11833,53 @@ if (roundBtn && roundDropdown) {
       const input = $("glossarySearchInput");
       const clear = $("glossarySearchClear");
 
-      const applyFilter = () => {
-        const q = (input.value || "").trim().toLowerCase();
-
-        const allSections = toc.querySelectorAll("details.mi-glossary-section");
-        allSections.forEach(sec => {
-          let anyVisible = false;
-
-          sec.querySelectorAll("details.mi-glossary-term").forEach(td => {
-            const name = (td.querySelector(".mi-glossary-term-name")?.textContent || "").toLowerCase();
-            const abbr = (td.querySelector(".mi-glossary-term-abbr")?.textContent || "").toLowerCase();
-            const hit = !q || name.includes(q) || abbr.includes(q);
-
-            td.style.display = hit ? "" : "none";
-            if (hit) anyVisible = true;
-
-            // When searching, optionally auto-open matching term defs (I recommend NO for calm UX)
-            // td.open = q && hit ? true : false;
-            if (!q) td.open = false; // return to collapsed default
-          });
-
-          // Hide category sections with no matches during search; show all when empty
-          sec.style.display = (!q || anyVisible) ? "" : "none";
-
-          // When searching, open sections that have matches
-          if (q && anyVisible) sec.open = true;
-          if (!q) sec.open = false;
-        });
-      };
-
-      input.addEventListener("input", applyFilter);
+      input.addEventListener("input", applySearchFilter);
 
       clear.addEventListener("click", () => {
         input.value = "";
         input.focus();
-        applyFilter();
+        applySearchFilter();
       });
 
       input.addEventListener("keydown", (e) => {
         if (e.key === "Escape"){
           input.value = "";
-          applyFilter();
+          applySearchFilter();
         }
       });
     }
+
+    applySearchFilter();
   }
 
-  // Public hooks (attach to window for deterministic integration)
+  function renderGlossary(){
+    const { title, help, entries, categoryOrder } = safeCopy();
+    const root = $("glossaryDrawer");
+    if (!root) return;
+
+    const t = $("glossaryTitle");
+    const h = $("glossaryHelp");
+    if (t) t.textContent = title;
+    if (h) h.textContent = help;
+
+    state.categoryOrder = deriveCategoryOrder(entries, categoryOrder);
+    buildIndex(entries);
+    state.grouped = groupEntries(entries, state.categoryOrder);
+    renderTOC(state.grouped, state.categoryOrder);
+    prepGlossaryTopArea();
+  }
+
+  function detectMatchupVisible(){
+    const shell = document.getElementById("analysisShell");
+    if (shell && shell.classList.contains("analysis-visible")) return true;
+
+    if (document.body && document.body.classList.contains("analysis-visible")) return true;
+
+    return false;
+  }
+
   window.miInitGlossary = function(){
     bindOnce();
-    // Render once; availability is controlled separately
     renderGlossary();
     window.miSetGlossaryAvailable(detectMatchupVisible());
   };
@@ -11875,7 +11890,6 @@ if (roundBtn && roundDropdown) {
 
     state.available = !!isAvailable;
 
-    // Only exists in matchup state
     if (!state.available){
       setOpen(false);
       root.setAttribute("hidden", "");
@@ -11885,11 +11899,9 @@ if (roundBtn && roundDropdown) {
   };
 
   window.miRefreshGlossary = function(){
-    // Call if glossary JSON changes or you reassign MI_COPY at runtime
     renderGlossary();
     if (state.open) clampDrawerWidthToLeftLane();
   };
-
 })();
 
 let miDeferredInstallPrompt = null;
@@ -11977,6 +11989,22 @@ function miInitInstallPromptUI() {
   miUpdateInstallUI();
 }
 
+function miForceMobileScrollUnlock() {
+  try {
+    document.documentElement.classList.remove('mi-verdict-scroll-lock');
+    document.body.classList.remove('mi-verdict-scroll-lock');
+    document.body.classList.remove('mi-entry-lock');
+
+    document.documentElement.style.overflowY = '';
+    document.documentElement.style.overflowX = '';
+    document.body.style.overflowY = '';
+    document.body.style.overflowX = '';
+    document.body.style.touchAction = '';
+  } catch (err) {
+    console.warn('[MI] Mobile scroll unlock failed:', err);
+  }
+}
+
 // =========================================================
 // Build Version — must match service-worker.js and index.html
 // =========================================================
@@ -11989,6 +12017,8 @@ function bootMadnessIndex() {
   let tries = 0;
   const tick = async () => {
     tries += 1;
+
+    miForceMobileScrollUnlock();
 
     const hub = document.getElementById('preMatchupHub');
     if (!hub && tries < 10) {

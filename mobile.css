@@ -58,16 +58,15 @@
     text-align: center !important;
   }
 
-  /* Version badge: pull out of absolute positioning, sit in flow */
+  /* Version badge stays in flow, but must remain the positioning anchor */
   .version-badge-btn {
-    position: static !important;
+    position: relative !important;
     align-self: center !important;
     margin-top: 4px !important;
+    z-index: 10020 !important;
   }
 
-  /* Patch notes panel: anchor relative to the badge,
-     not the top-left corner of the header */
-  /* Patch notes panel: open directly under the badge on mobile */
+  /* Patch notes panel: anchor to the badge itself and float above all mobile content */
   .version-notes {
     position: absolute !important;
     top: calc(100% + 8px) !important;
@@ -77,12 +76,20 @@
 
     width: min(340px, calc(100vw - 32px)) !important;
     max-width: calc(100vw - 32px) !important;
+    max-height: min(52vh, 320px) !important;
+    overflow: auto !important;
 
-    z-index: 9999 !important;
+    z-index: 10030 !important;
   }
 
   .version-notes.is-open {
     transform: translateX(-50%) translateY(0) !important;
+  }
+
+  .enhanced-header,
+  .app-header,
+  .enhanced-header * {
+    overflow: visible !important;
   }
 }
 
@@ -226,12 +233,10 @@
   }
 
   #preMatchupHub .pre-step{
-    grid-template-columns: 28px minmax(0, 1fr) !important;
-    grid-template-areas:
-      "num copy"
-      "status status" !important;
-    row-gap: 8px !important;
-    align-items: start !important;
+    grid-template-columns: 22px minmax(0, 1fr) !important;
+    grid-template-areas: "num copy status"!important;
+    row-gap: 0 !important;
+    align-items: center !important;
   }
 
   #preMatchupHub .pre-step-copy{
@@ -240,7 +245,9 @@
   }
 
   #preMatchupHub .pre-step-status{
-    justify-self: start !important;
+    justify-self: end !important;
+    align-self: center !important;
+    white-space: nowrap !important;
   }
 
   #preMatchupHub .pre-step-label,
@@ -274,17 +281,6 @@
      7-column table-layout:fixed table crushes to near-zero column widths
      below ~600px. Wrap it in a scroll container and set a safe min-width
      so the table renders legibly and the user can scroll to see all data. */
-
-  #summarySection .summary-synthesis-wrap {
-    overflow-x: auto !important;
-    -webkit-overflow-scrolling: touch;
-    border-radius: 12px;
-  }
-
-  #summarySection .summary-synthesis-table {
-    min-width: 560px !important;
-    width: 560px !important;
-  }
 
   /* ── Pre-setup row: consistent gap when stacked ─────────────────────  */
   .pre-setup-row {
@@ -438,49 +434,6 @@
     overflow: hidden !important;
   }
 
-  /* Dissolve center div — promotes its children into the grid directly */
-  #matchupBar:not(.is-editing) .matchup-bar-center {
-    display: contents !important;
-  }
-
-  /* vs: row 2, center col */
-  #matchupBar:not(.is-editing) .matchup-bar-vs {
-    display: block !important;
-    grid-column: 2 !important;
-    grid-row: 2 !important;
-    text-align: center !important;
-    font-size: 11px !important;
-    font-weight: 700 !important;
-    letter-spacing: 0.12em !important;
-    opacity: 0.5 !important;
-    padding: 0 6px !important;
-  }
-
-  /* Round pill: row 3, full width */
-  #matchupBar:not(.is-editing) #matchupRoundPill {
-    grid-column: 1 / -1 !important;
-    grid-row: 3 !important;
-    display: block !important;
-    text-align: center !important;
-    margin: 4px auto 0 !important;
-  }
-
-  /* Edit button: row 4, full width */
-  #matchupBar:not(.is-editing) #editMatchupBtn {
-    grid-column: 1 / -1 !important;
-    grid-row: 4 !important;
-    display: flex !important;
-    width: 100% !important;
-    min-height: 44px !important;
-    margin-top: 6px !important;
-  }
-
-  /* Hide other center children that don't belong in non-editing view */
-  #matchupBar:not(.is-editing) #matchupQuickRound,
-  #matchupBar:not(.is-editing) .matchup-quick-actions {
-    display: none !important;
-  }
-
   /* Team name: truncate, no wrapping */
   #matchupBar:not(.is-editing) .matchup-bar-team {
     font-size: 13px !important;
@@ -510,161 +463,6 @@
     grid-row: 1 !important;
     text-align: center !important;
     margin-bottom: 8px !important;
-  }
-
-/* ── EDITING STATE: mirrors pre-matchup home screen layout ──
-     Row 1: Kicker
-     Row 2: Team A | Team B
-     Row 3: Select Round | Sandbox Mode
-     Row 4: Run | Cancel
-  ── */
-
-  #matchupBar.is-editing .matchup-bar-main {
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: stretch !important;
-    gap: 10px !important;
-    padding: 6px !important;
-    width: 100% !important;
-  }
-
-  /* Kicker: top row, centered */
-  #matchupBar.is-editing .matchup-controls-label {
-    position: static !important;
-    text-align: center !important;
-    width: 100% !important;
-    margin-bottom: 2px !important;
-  }
-
-  /* Dissolve center div so its children participate in flex directly */
-  #matchupBar.is-editing .matchup-bar-center {
-    display: contents !important;
-  }
-
-  /* Team A + Team B: side-by-side */
-  #matchupBar.is-editing .matchup-bar-left,
-  #matchupBar.is-editing .matchup-bar-right {
-    order: 1 !important;
-    flex: 1 1 0 !important;
-    min-width: 0 !important;
-  }
-
-  /* Wrap Team A and Team B into their own row */
-  #matchupBar.is-editing .matchup-bar-left,
-  #matchupBar.is-editing .matchup-bar-right {
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: stretch !important;
-  }
-
-  /* Pull team slots into a shared flex row */
-  #matchupBar.is-editing .matchup-bar-left,
-  #matchupBar.is-editing .matchup-bar-right {
-    flex-basis: calc(50% - 5px) !important;
-    max-width: calc(50% - 5px) !important;
-  }
-
-  /* Wrap both team cols in a row — achieved by wrapping the parent */
-  #matchupBar.is-editing .matchup-bar-main {
-    flex-wrap: wrap !important;
-    flex-direction: row !important;
-  }
-
-  /* Kicker: force onto its own line */
-  #matchupBar.is-editing .matchup-controls-label {
-    flex: 0 0 100% !important;
-    order: 0 !important;
-  }
-
-  /* Teams share row 2 */
-  #matchupBar.is-editing .matchup-bar-left  { order: 1 !important; }
-  #matchupBar.is-editing .matchup-bar-right { order: 2 !important; }
-
-  /* Team dropdowns: full width within their column */
-  #matchupBar.is-editing .matchup-quick-slot {
-    width: 100% !important;
-  }
-
-  #matchupBar.is-editing .matchup-quick-slot select,
-  #matchupBar.is-editing .matchup-bar-left select,
-  #matchupBar.is-editing .matchup-bar-right select {
-    width: 100% !important;
-    min-height: 44px !important;
-  }
-
-  /* Round + Sandbox: row 3, side-by-side */
-  #matchupBar.is-editing #matchupQuickRound {
-    order: 3 !important;
-    flex: 0 0 100% !important;
-    display: flex !important;
-    flex-direction: row !important;
-    gap: 10px !important;
-    width: 100% !important;
-  }
-
-  #matchupBar.is-editing #matchupQuickRound > * {
-    flex: 1 1 0 !important;
-    min-height: 44px !important;
-  }
-
-  /* Match sandbox toggle appearance to round button */
-  #matchupBar.is-editing .sandbox-toggle.enhanced-sandbox {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    border: 1px solid rgba(255,255,255,0.12) !important;
-    border-radius: 999px !important;
-    padding: 0 14px !important;
-    white-space: nowrap !important;
-  }
-
-  /* Run + Cancel: row 4, side-by-side */
-  #matchupBar.is-editing .matchup-quick-actions {
-    order: 4 !important;
-    flex: 0 0 100% !important;
-    display: flex !important;
-    flex-direction: row !important;
-    gap: 10px !important;
-    width: 100% !important;
-  }
-
-  #matchupBar.is-editing .matchup-quick-run,
-  #matchupBar.is-editing .matchup-quick-cancel {
-    flex: 1 1 0 !important;
-    min-height: 44px !important;
-  }
-
-  /* vs divider: hide in editing state */
-  #matchupBar.is-editing .matchup-bar-vs { display: none !important; }
-
-   /* All rows use the same gap so column edges line up */
-  #matchupBar.is-editing .matchup-bar-left,
-  #matchupBar.is-editing .matchup-bar-right,
-  #matchupBar.is-editing #matchupQuickRound,
-  #matchupBar.is-editing .matchup-quick-actions {
-    gap: 10px !important;
-  }
-
-  /* Every interactive element in every row:
-     same flex basis so columns are pixel-identical */
-  #matchupBar.is-editing .matchup-bar-left,
-  #matchupBar.is-editing .matchup-bar-right,
-  #matchupBar.is-editing .matchup-quick-run,
-  #matchupBar.is-editing .matchup-quick-cancel,
-  #matchupBar.is-editing #matchupQuickRound > * {
-    flex: 1 1 0 !important;
-    min-width: 0 !important;
-    max-width: calc(50% - 5px) !important;
-    min-height: 44px !important;
-    box-sizing: border-box !important;
-  }
-
-  /* Team select dropdowns fill their column fully */
-  #matchupBar.is-editing .matchup-quick-slot,
-  #matchupBar.is-editing .matchup-quick-slot select {
-    width: 100% !important;
-    min-height: 44px !important;
-    box-sizing: border-box !important;
   }
 
   /* =========================================
@@ -1322,12 +1120,15 @@
   /* Interaction table: horizontal scroll for narrow widths */
   .interaction-table-wrap {
     overflow-x: auto !important;
+    overflow-y: visible !important;
     -webkit-overflow-scrolling: touch !important;
+    touch-action: pan-y !important;
   }
 
   .interaction-table,
   .mi-interaction-table {
-    min-width: 340px !important;
+    min-width: 300px !important;
+    width: 100% !important;
   }
 
   /* Volatility gauge: scale down to fit mobile width */
@@ -1449,153 +1250,6 @@
   #volatilityTierPill {
     position: relative;
     top: 20px;
-  }
-}
-
-/* =============================================
-   § SCORE SYNTHESIS TABLE — Mobile
-   ============================================= */
-@media (max-width: 720px) {
-
-  /* Scroll container */
-  #summarySection .summary-synthesis-wrap {
-    overflow-x: auto !important;
-    -webkit-overflow-scrolling: touch !important;
-    border-radius: 12px !important;
-  }
-
-  /* Table: fixed minimum width so all 7 columns render legibly */
-  #summarySection .summary-synthesis-table {
-    min-width: 520px !important;
-    width: 520px !important;
-    font-size: 10px !important;
-  }
-
-  /* All cells: tight padding */
-  #summarySection .summary-synthesis-table th,
-  #summarySection .summary-synthesis-table td {
-    padding: 4px 3px !important;
-    font-size: 10px !important;
-    line-height: 1.2 !important;
-    vertical-align: middle !important;
-  }
-
-  /* Hide lean line — not legible at this width */
-  #summarySection #summarySynLean {
-    display: none !important;
-  }
-
-  /* Center column: compress aggressively */
-  #summarySection .syn-center {
-    width: 80px !important;
-    min-width: 80px !important;
-    max-width: 80px !important;
-    padding: 4px 2px !important;
-  }
-
-  #summarySection .syn-center-inner {
-    gap: 6px !important;
-  }
-
-  /* Volatility mini: compress */
-  #summarySection .syn-volatility-mini {
-    width: 100% !important;
-  }
-
-  #summarySection .syn-volatility-top {
-    display: flex !important;
-    justify-content: space-between !important;
-    gap: 2px !important;
-  }
-
-  #summarySection .syn-volatility-label {
-    font-size: 9px !important;
-  }
-
-  #summarySection .syn-volatility-score {
-    font-size: 11px !important;
-  }
-
-  #summarySection .syn-volatility-beneficiary {
-    font-size: 9px !important;
-  }
-
-  /* Delta: compress */
-  #summarySection .syn-delta {
-    padding: 4px 6px !important;
-  }
-
-  #summarySection .syn-delta-value {
-    font-size: 14px !important;
-  }
-
-  /* Final MI columns: narrow */
-  #summarySection .syn-final-a,
-  #summarySection .syn-final-b {
-    width: 60px !important;
-    min-width: 60px !important;
-    padding: 4px 2px !important;
-  }
-
-  #summarySection .syn-final-label {
-    font-size: 8px !important;
-    line-height: 1.1 !important;
-  }
-
-  #summarySection .syn-final-hint {
-    display: none !important;
-  }
-
-  #summarySection .syn-final-value {
-    font-size: 14px !important;
-    line-height: 1 !important;
-  }
-
-  /* Label columns: allow wrap, tighten */
-  #summarySection .syn-label-a,
-  #summarySection .syn-label-b {
-    width: 90px !important;
-    min-width: 90px !important;
-  }
-
-  #summarySection .syn-label-main {
-    font-size: 9px !important;
-    line-height: 1.2 !important;
-    white-space: normal !important;
-  }
-
-  #summarySection .syn-label-hint {
-    display: none !important;
-  }
-
-  /* Value + bar columns */
-  #summarySection .syn-val-a,
-  #summarySection .syn-val-b {
-    width: 50px !important;
-    min-width: 50px !important;
-    padding: 4px 2px !important;
-  }
-
-  #summarySection .mi-synth-inline-wrap {
-    gap: 2px !important;
-  }
-
-  #summarySection .mi-synth-inline-value {
-    font-size: 10px !important;
-    white-space: nowrap !important;
-  }
-
-  /* Team headers */
-  #summarySection .syn-team-a,
-  #summarySection .syn-team-b {
-    font-size: 11px !important;
-    padding: 6px 4px !important;
-  }
-
-  /* Title row */
-  #summarySection .syn-kicker {
-    font-size: 10px !important;
-    letter-spacing: 0.10em !important;
   }
 }
 
@@ -2156,13 +1810,16 @@
     width: 100% !important;
     z-index: 9999 !important;
     pointer-events: none;            /* children opt back in individually */
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
   }
 
   /* Handle: full-width bottom tab */
   .mi-glossary-handle {
     pointer-events: auto !important;
-    width: 100% !important;
-    max-width: 100% !important;
+    width: min(320px, calc(100vw - 32px)) !important;
+    max-width: min(320px, calc(100vw - 32px)) !important;
     height: 48px !important;
     border-radius: 14px 14px 0 0 !important;
     justify-content: center !important;
@@ -2196,18 +1853,21 @@
 
   /* Panel: starts below the screen, slides up on open */
   .mi-glossary-panel {
+    top: auto !important;
     pointer-events: auto !important;
-    position: fixed !important;
-    inset: auto 0 48px 0 !important; /* sits flush above the 48px handle */
-    width: 100% !important;
-    max-width: 100% !important;
-    max-height: 65vh !important;
+    position: absolute !important;
+    left: 50% !important;
+    right: auto !important;
+    bottom: 48px !important; /* sits flush above the 48px handle */
+    width: min(320px, calc(100vw - 32px)) !important;
+    max-width: min(320px, calc(100vw - 32px)) !important;
+    max-height: min(65vh, calc(100dvh - 72px)) !important;
     overflow-y: auto !important;
+    overflow-x: hidden !important;
     border-radius: 16px 16px 0 0 !important;
     margin-right: 0 !important;
 
-    /* Hidden off-screen; transition only transform (not opacity + visibility) */
-    transform: translateY(110%) !important;
+    transform: translateX(-50%) translateY(110%) !important;
     opacity: 1 !important;
     visibility: visible !important;
     transition: transform 260ms cubic-bezier(.16, 1, .3, 1) !important;
@@ -2215,7 +1875,7 @@
 
   /* Open state: panel slides into view */
   .mi-glossary.mi-glossary--open .mi-glossary-panel {
-    transform: translateY(0) !important;
+    transform: translateX(-50%) translateY(0) !important;
   }
 
   /* Keep handle fully visible when panel is open
@@ -2235,7 +1895,28 @@
     z-index: -1 !important;
   }
 
-  
+  .mi-glossary-header {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 20 !important;
+
+    background: linear-gradient(
+      180deg,
+      rgba(10, 16, 30, 0.98) 0%,
+      rgba(10, 16, 30, 0.96) 100%
+    ) !important;
+
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+
+    border-bottom: 1px solid rgba(255,255,255,0.10) !important;
+  }
+
+  .mi-glossary-title {
+    position: relative !important;
+    z-index: 21 !important;
+  }  
+
   /* Verdict scorebug team-name side accents */
   #verdictShell #miVerdictMetricsTile .mi-scorebug-team--a .mi-scorebug-team-name {
     color: var(--syn-role-a) !important;
@@ -2782,613 +2463,6 @@
   }
 }
 
-/* =============================================
-   § PRE-MATCHUP HUB — Mobile compaction
-   Reduce height of MATCHUP STATUS on phones
-   ============================================= */
-@media (max-width: 720px) {
-
-  #preMatchupHub {
-    padding: 10px !important;
-    border-radius: 18px !important;
-  }
-
-  #preMatchupHub .pre-hub-shell,
-  #preMatchupHub .pre-hub-card,
-  #preMatchupHub .pre-hub-inner {
-    padding: 0 !important;
-  }
-
-  #preMatchupHub .pre-hub-title,
-  #preMatchupHub .matchup-status-title {
-    margin-bottom: 10px !important;
-    font-size: 11px !important;
-    letter-spacing: 0.14em !important;
-  }
-
-  #preMatchupHub .pre-step {
-    grid-template-columns: 24px minmax(0, 1fr) !important;
-    grid-template-areas:
-      "num copy"
-      "num status" !important;
-    column-gap: 10px !important;
-    row-gap: 4px !important;
-
-    padding: 10px 12px !important;
-    min-height: 0 !important;
-    border-radius: 16px !important;
-  }
-
-  #preMatchupHub .pre-step + .pre-step {
-    margin-top: 10px !important;
-  }
-
-  #preMatchupHub .pre-step-num,
-  #preMatchupHub .pre-step-index,
-  #preMatchupHub .step-num,
-  #preMatchupHub .step-index {
-    width: 24px !important;
-    height: 24px !important;
-    min-width: 24px !important;
-    min-height: 24px !important;
-    font-size: 14px !important;
-  }
-
-  #preMatchupHub .pre-step-copy {
-    gap: 2px !important;
-  }
-
-  #preMatchupHub .pre-step-label {
-    font-size: 10px !important;
-    line-height: 1.05 !important;
-    letter-spacing: 0.12em !important;
-    margin: 0 !important;
-  }
-
-  #preMatchupHub .pre-step-text {
-    font-size: 12px !important;
-    line-height: 1.2 !important;
-    margin: 0 !important;
-  }
-
-  #preMatchupHub .pre-step-status {
-    justify-self: start !important;
-    align-self: start !important;
-    margin-top: 2px !important;
-  }
-
-  #preMatchupHub .pre-step-status .status-pill,
-  #preMatchupHub .pre-step-status .pre-step-pill,
-  #preMatchupHub .pre-step-status .locked-pill,
-  #preMatchupHub .pre-step-status .required-pill,
-  #preMatchupHub .pre-step-status .status-chip,
-  #preMatchupHub .pre-step-status .pill {
-    min-height: 26px !important;
-    padding: 0 12px !important;
-    font-size: 10px !important;
-    letter-spacing: 0.10em !important;
-  }
-}
-
-@media (max-width: 600px) {
-
-  #preMatchupHub {
-    padding: 8px !important;
-  }
-
-  #preMatchupHub .pre-step {
-    grid-template-columns: 22px minmax(0, 1fr) !important;
-    column-gap: 9px !important;
-    row-gap: 3px !important;
-    padding: 9px 10px !important;
-    border-radius: 14px !important;
-  }
-
-  #preMatchupHub .pre-step + .pre-step {
-    margin-top: 8px !important;
-  }
-
-  #preMatchupHub .pre-step-num,
-  #preMatchupHub .pre-step-index,
-  #preMatchupHub .step-num,
-  #preMatchupHub .step-index {
-    width: 22px !important;
-    height: 22px !important;
-    min-width: 22px !important;
-    min-height: 22px !important;
-    font-size: 13px !important;
-  }
-
-  #preMatchupHub .pre-step-label {
-    font-size: 9px !important;
-  }
-
-  #preMatchupHub .pre-step-text {
-    font-size: 11px !important;
-    line-height: 1.18 !important;
-  }
-}
-
-/* =============================================
-   § PRE-MATCHUP HUB — Single-row compact strips
-   ============================================= */
-@media (max-width: 720px) {
-
-  #preMatchupHub {
-    padding: 8px !important;
-    border-radius: 18px !important;
-  }
-
-  #preMatchupHub .pre-hub-title,
-  #preMatchupHub .matchup-status-title {
-    margin: 0 0 10px !important;
-    font-size: 11px !important;
-    letter-spacing: 0.14em !important;
-  }
-
-  #preMatchupHub .pre-step {
-    display: grid !important;
-    grid-template-columns: 22px minmax(0, 1fr) auto !important;
-    grid-template-areas: "num copy status" !important;
-    align-items: center !important;
-    column-gap: 10px !important;
-    row-gap: 0 !important;
-
-    min-height: 0 !important;
-    padding: 10px 12px !important;
-    border-radius: 14px !important;
-  }
-
-  #preMatchupHub .pre-step + .pre-step {
-    margin-top: 8px !important;
-  }
-
-  #preMatchupHub .pre-step-num,
-  #preMatchupHub .pre-step-index,
-  #preMatchupHub .step-num,
-  #preMatchupHub .step-index {
-    grid-area: num !important;
-    width: 22px !important;
-    height: 22px !important;
-    min-width: 22px !important;
-    min-height: 22px !important;
-    font-size: 13px !important;
-    line-height: 1 !important;
-  }
-
-  #preMatchupHub .pre-step-copy {
-    grid-area: copy !important;
-    display: flex !important;
-    flex-direction: row !important;
-    align-items: center !important;
-    gap: 8px !important;
-    min-width: 0 !important;
-    text-align: left !important;
-  }
-
-  #preMatchupHub .pre-step-label {
-    flex: 0 0 auto !important;
-    margin: 0 !important;
-    font-size: 10px !important;
-    line-height: 1 !important;
-    letter-spacing: 0.12em !important;
-    white-space: nowrap !important;
-  }
-
-  #preMatchupHub .pre-step-text {
-    display: block !important;
-    margin: 0 !important;
-    min-width: 0 !important;
-
-    font-size: 11px !important;
-    line-height: 1.15 !important;
-    text-align: left !important;
-
-    white-space: nowrap !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-  }
-
-  #preMatchupHub .pre-step-status {
-    grid-area: status !important;
-    justify-self: end !important;
-    align-self: center !important;
-    margin: 0 !important;
-  }
-
-  #preMatchupHub .pre-step-status .status-pill,
-  #preMatchupHub .pre-step-status .pre-step-pill,
-  #preMatchupHub .pre-step-status .locked-pill,
-  #preMatchupHub .pre-step-status .required-pill,
-  #preMatchupHub .pre-step-status .status-chip,
-  #preMatchupHub .pre-step-status .pill {
-    min-height: 24px !important;
-    padding: 0 10px !important;
-    font-size: 9px !important;
-    letter-spacing: 0.10em !important;
-    white-space: nowrap !important;
-  }
-}
-
-@media (max-width: 600px) {
-
-  #preMatchupHub {
-    padding: 6px !important;
-  }
-
-  #preMatchupHub .pre-step {
-    grid-template-columns: 20px minmax(0, 1fr) auto !important;
-    column-gap: 8px !important;
-    padding: 8px 10px !important;
-    border-radius: 12px !important;
-  }
-
-  #preMatchupHub .pre-step + .pre-step {
-    margin-top: 6px !important;
-  }
-
-  #preMatchupHub .pre-step-num,
-  #preMatchupHub .pre-step-index,
-  #preMatchupHub .step-num,
-  #preMatchupHub .step-index {
-    width: 20px !important;
-    height: 20px !important;
-    min-width: 20px !important;
-    min-height: 20px !important;
-    font-size: 12px !important;
-  }
-
-  #preMatchupHub .pre-step-copy {
-    gap: 6px !important;
-  }
-
-  #preMatchupHub .pre-step-label {
-    font-size: 9px !important;
-  }
-
-  #preMatchupHub .pre-step-text {
-    font-size: 10px !important;
-  }
-
-  #preMatchupHub .pre-step-status .status-pill,
-  #preMatchupHub .pre-step-status .pre-step-pill,
-  #preMatchupHub .pre-step-status .locked-pill,
-  #preMatchupHub .pre-step-status .required-pill,
-  #preMatchupHub .pre-step-status .status-chip,
-  #preMatchupHub .pre-step-status .pill {
-    min-height: 22px !important;
-    padding: 0 8px !important;
-    font-size: 8px !important;
-  }
-}
-
-/* =============================================
-   § PRE-MATCHUP HUB — ultra-compact mobile strips
-   ============================================= */
-@media (max-width: 720px) {
-
-  #preMatchupHub {
-    padding: 4px !important;
-    border-radius: 14px !important;
-  }
-
-  #preMatchupHub .pre-hub-title,
-  #preMatchupHub .matchup-status-title {
-    margin: 0 0 6px !important;
-    font-size: 10px !important;
-    line-height: 1 !important;
-    letter-spacing: 0.12em !important;
-  }
-
-  #preMatchupHub .pre-step {
-    display: grid !important;
-    grid-template-columns: 18px minmax(0, 1fr) auto !important;
-    grid-template-areas: "num copy status" !important;
-    align-items: center !important;
-    column-gap: 6px !important;
-    row-gap: 0 !important;
-
-    min-height: 0 !important;
-    padding: 6px 8px !important;
-    border-radius: 10px !important;
-  }
-
-  #preMatchupHub .pre-step + .pre-step {
-    margin-top: 4px !important;
-  }
-
-  #preMatchupHub .pre-step-num,
-  #preMatchupHub .pre-step-index,
-  #preMatchupHub .step-num,
-  #preMatchupHub .step-index {
-    grid-area: num !important;
-    width: 18px !important;
-    height: 18px !important;
-    min-width: 18px !important;
-    min-height: 18px !important;
-    font-size: 11px !important;
-    line-height: 1 !important;
-  }
-
-  #preMatchupHub .pre-step-copy {
-    grid-area: copy !important;
-    display: flex !important;
-    flex-direction: row !important;
-    align-items: center !important;
-    gap: 5px !important;
-    min-width: 0 !important;
-    text-align: left !important;
-  }
-
-  #preMatchupHub .pre-step-label {
-    flex: 0 0 auto !important;
-    margin: 0 !important;
-    font-size: 8px !important;
-    line-height: 1 !important;
-    letter-spacing: 0.10em !important;
-    white-space: nowrap !important;
-    opacity: 0.82 !important;
-  }
-
-  #preMatchupHub .pre-step-text {
-    display: block !important;
-    margin: 0 !important;
-    min-width: 0 !important;
-
-    font-size: 9px !important;
-    line-height: 1.05 !important;
-    text-align: left !important;
-
-    white-space: nowrap !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-  }
-
-  #preMatchupHub .pre-step-status {
-    grid-area: status !important;
-    justify-self: end !important;
-    align-self: center !important;
-    margin: 0 !important;
-  }
-
-  #preMatchupHub .pre-step-status .status-pill,
-  #preMatchupHub .pre-step-status .pre-step-pill,
-  #preMatchupHub .pre-step-status .locked-pill,
-  #preMatchupHub .pre-step-status .required-pill,
-  #preMatchupHub .pre-step-status .status-chip,
-  #preMatchupHub .pre-step-status .pill {
-    min-height: 12px !important;
-    height: 12px !important;
-    padding: 0 5px !important;
-    border-radius: 999px !important;
-    font-size: 3px !important;
-    line-height: 1 !important;
-    letter-spacing: 0.05em !important;
-    white-space: nowrap !important;
-  }
-}
-
-@media (max-width: 600px) {
-
-  #preMatchupHub {
-    padding: 3px !important;
-    border-radius: 12px !important;
-  }
-
-  #preMatchupHub .pre-hub-title,
-  #preMatchupHub .matchup-status-title {
-    margin: 0 0 5px !important;
-    font-size: 9px !important;
-  }
-
-  #preMatchupHub .pre-step {
-    grid-template-columns: 16px minmax(0, 1fr) auto !important;
-    column-gap: 5px !important;
-    padding: 5px 6px !important;
-    border-radius: 9px !important;
-  }
-
-  #preMatchupHub .pre-step + .pre-step {
-    margin-top: 3px !important;
-  }
-
-  #preMatchupHub .pre-step-num,
-  #preMatchupHub .pre-step-index,
-  #preMatchupHub .step-num,
-  #preMatchupHub .step-index {
-    width: 16px !important;
-    height: 16px !important;
-    min-width: 16px !important;
-    min-height: 16px !important;
-    font-size: 10px !important;
-  }
-
-  #preMatchupHub .pre-step-copy {
-    gap: 4px !important;
-  }
-
-  #preMatchupHub .pre-step-label {
-    font-size: 7px !important;
-    letter-spacing: 0.08em !important;
-  }
-
-  #preMatchupHub .pre-step-text {
-    font-size: 8px !important;
-  }
-
-  #preMatchupHub .pre-step-status .status-pill,
-  #preMatchupHub .pre-step-status .pre-step-pill,
-  #preMatchupHub .pre-step-status .locked-pill,
-  #preMatchupHub .pre-step-status .required-pill,
-  #preMatchupHub .pre-step-status .status-chip,
-  #preMatchupHub .pre-step-status .pill {
-    min-height: 11px !important;
-    height: 11px !important;
-    padding: 0 4px !important;
-    font-size: 3px !important;
-  }
-
-  #preMatchupHub .pre-step-status {
-    padding: 2px;
-    font-size: 6px;
-    align-self: center;
-  }
-}
-
-/* =============================================
-   § PRE-MATCHUP HUB — final ultra-tight pass
-   ============================================= */
-@media (max-width: 720px) {
-
-  /* Tighten the entire status shell */
-  #preMatchupHub {
-    padding: 2px !important;
-    border-radius: 12px !important;
-  }
-
-  #preMatchupHub .pre-hub-inner,
-  #preMatchupHub .pre-hub-shell,
-  #preMatchupHub .pre-hub-card {
-    padding: 0 !important;
-    margin: 0 !important;
-  }
-
-  /* Header/title */
-  #preMatchupHub .pre-hub-title,
-  #preMatchupHub .matchup-status-title,
-  #preMatchupHub .preHubStatusTitle {
-    margin: 0 0 4px !important;
-    padding: 0 !important;
-    font-size: 9px !important;
-    line-height: 1 !important;
-    letter-spacing: 0.10em !important;
-  }
-
-  /* Wrapper holding all 3 rows */
-  #preMatchupHub .pre-hub-steps,
-  #preMatchupHub .pre-hub-status-grid {
-    gap: 2px !important;
-    row-gap: 2px !important;
-    column-gap: 0 !important;
-    margin: 0 !important;
-    padding: 0 !important;
-  }
-
-  /* Each strip */
-  #preMatchupHub .pre-step {
-    grid-template-columns: 15px minmax(0, 1fr) auto !important;
-    align-items: center !important;
-    column-gap: 4px !important;
-    row-gap: 0 !important;
-
-    min-height: 0 !important;
-    padding: 4px 6px !important;
-    border-radius: 8px !important;
-    margin: 0 !important;
-  }
-
-  #preMatchupHub .pre-step + .pre-step {
-    margin-top: 2px !important;
-  }
-
-  /* Number bubble */
-  #preMatchupHub .pre-step-num,
-  #preMatchupHub .pre-step-index,
-  #preMatchupHub .step-num,
-  #preMatchupHub .step-index {
-    width: 15px !important;
-    height: 15px !important;
-    min-width: 15px !important;
-    min-height: 15px !important;
-    font-size: 9px !important;
-    line-height: 1 !important;
-  }
-
-  /* Copy block */
-  #preMatchupHub .pre-step-copy {
-    gap: 3px !important;
-    min-width: 0 !important;
-  }
-
-  #preMatchupHub .pre-step-label {
-    font-size: 7px !important;
-    line-height: 1 !important;
-    letter-spacing: 0.06em !important;
-    margin: 0 !important;
-  }
-
-  #preMatchupHub .pre-step-text {
-    font-size: 8px !important;
-    line-height: 1 !important;
-    margin: 0 !important;
-  }
-
-  /* Status pill */
-  #preMatchupHub .pre-step-status {
-    margin: 0 !important;
-  }
-
-  #preMatchupHub .pre-step-status .status-pill,
-  #preMatchupHub .pre-step-status .pre-step-pill,
-  #preMatchupHub .pre-step-status .locked-pill,
-  #preMatchupHub .pre-step-status .required-pill,
-  #preMatchupHub .pre-step-status .status-chip,
-  #preMatchupHub .pre-step-status .pill {
-    min-height: 12px !important;
-    height: 12px !important;
-    padding: 0 4px !important;
-    border-radius: 999px !important;
-    font-size: 5px !important;
-    line-height: 1 !important;
-    letter-spacing: 0.03em !important;
-    font-weight: 800 !important;
-  }
-}
-
-@media (max-width: 600px) {
-  #preMatchupHub .pre-step {
-    grid-template-columns: 14px minmax(0, 1fr) auto !important;
-    padding: 3px 5px !important;
-    column-gap: 4px !important;
-    border-radius: 7px !important;
-  }
-
-  #preMatchupHub .pre-step-num,
-  #preMatchupHub .pre-step-index,
-  #preMatchupHub .step-num,
-  #preMatchupHub .step-index {
-    width: 14px !important;
-    height: 14px !important;
-    min-width: 14px !important;
-    min-height: 14px !important;
-    font-size: 8px !important;
-  }
-
-  #preMatchupHub .pre-step-label {
-    font-size: 6px !important;
-  }
-
-  #preMatchupHub .pre-step-text {
-    font-size: 7px !important;
-  }
-
-  .profile-section {
-    margin: 1px !important;
-  }
-
-  #preMatchupHub .pre-step-status .status-pill,
-  #preMatchupHub .pre-step-status .pre-step-pill,
-  #preMatchupHub .pre-step-status .locked-pill,
-  #preMatchupHub .pre-step-status .required-pill,
-  #preMatchupHub .pre-step-status .status-chip,
-  #preMatchupHub .pre-step-status .pill {
-    min-height: 11px !important;
-    height: 11px !important;
-    padding: 0 3px !important;
-    font-size: 4.5px !important;
-  }
-}
-
 /* =========================================================
    TEAM CARDS — MOBILE HEADER RESCUE
    Append at very bottom of mobile.css
@@ -3911,19 +2985,26 @@
   #interactionsSection .volatility-threshold-text {
    display: none !important
   }
-}
 
-/* =========================================================
-   MOBILE — verdict-only scroll lock
-   Locks page scroll until scorecard is opened
-   ========================================================= */
-@media (max-width: 720px) {
-  html.mi-verdict-scroll-lock,
-  body.mi-verdict-scroll-lock {
-    overflow: hidden !important;
-    min-height: 100dvh !important;
-    overscroll-behavior: none !important;
-    touch-action: pan-x !important;
+  #interactionsSection .interaction-table.mi-interaction-table thead th{
+   font-size: 9px !important;
+  }
+
+  #interactionsSection .interaction-table.mi-interaction-table .mi-int-intensity-pill {
+   font-size: 8px !important;
+  }
+
+  #interactionsSection .interaction-table.mi-interaction-table .mi-int-row td {
+    padding: 6px !important;
+  }
+
+  #interactionsSection .interaction-table.mi-interaction-table .mi-int-bar-sub {
+    margin-top: 2px !important;
+    color: var(--mi-text-primary);
+  }
+
+  #interactionsSection .interaction-table.mi-interaction-table .mi-int-label-main {
+    font-size: 10px !important;
   }
 }
 
@@ -3961,5 +3042,767 @@
   #matchupBar .matchup-bar-main::before,
   #matchupBar .matchup-bar-main::after {
     pointer-events: none !important;
+  }
+}
+
+
+/* =========================================================
+   MOBILE — FIX EDIT MATCHUP TAP TARGET ON IPHONE
+   Avoid display: contents on the center wrapper in closed state
+   ========================================================= */
+@media (max-width: 720px) {
+
+  /* Keep the center wrapper real on mobile */
+  #matchupBar:not(.is-editing) .matchup-bar-center {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    justify-content: center !important;
+
+    grid-column: 1 / -1 !important;
+    grid-row: 4 !important;
+
+    width: 100% !important;
+    min-width: 0 !important;
+    pointer-events: auto !important;
+  }
+
+  /* Move the edit button into that real wrapper row */
+  #matchupBar:not(.is-editing) #editMatchupBtn {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    width: 100% !important;
+    min-height: 44px !important;
+    margin: 6px 0 0 !important;
+
+    position: relative !important;
+    z-index: 5 !important;
+    pointer-events: auto !important;
+    touch-action: manipulation !important;
+  }
+
+  /* Keep only the button visible in the center wrapper */
+  #matchupBar:not(.is-editing) .matchup-bar-center .matchup-bar-vs,
+  #matchupBar:not(.is-editing) .matchup-bar-center #matchupRoundPill,
+  #matchupBar:not(.is-editing) .matchup-bar-center #matchupQuickDataset,
+  #matchupBar:not(.is-editing) .matchup-bar-center #matchupQuickRound,
+  #matchupBar:not(.is-editing) .matchup-bar-center .matchup-quick-actions {
+    display: none !important;
+  }
+}
+
+@media (max-width: 600px) {
+  #matchupBar:not(.is-editing) #editMatchupBtn {
+    min-height: 40px !important;
+  }
+}
+
+/* =========================================================
+   MOBILE — MATCHUP BAR EDIT MODE
+   Excel-map layout:
+   header
+   dataset
+   team A | team B
+   round | sandbox
+   run | cancel
+   ========================================================= */
+@media (max-width: 720px) {
+
+  #matchupBar.is-editing .matchup-bar-main {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+    grid-template-areas:
+      "label label"
+      "dataset dataset"
+      "left right"
+      "round sandbox"
+      "actions actions" !important;
+    gap: 8px !important;
+    padding: 7px !important;
+    width: 100% !important;
+    align-items: stretch !important;
+  }
+
+  #matchupBar.is-editing .matchup-bar-left,
+  #matchupBar.is-editing .matchup-bar-right,
+  #matchupBar.is-editing .matchup-bar-center {
+    min-width: 0 !important;
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+  }
+
+  /* header */
+  #matchupBar.is-editing .matchup-controls-label {
+    grid-area: label !important;
+    position: static !important;
+    width: 100% !important;
+    margin: 0 0 2px 0 !important;
+    text-align: center !important;
+  }
+
+  /* team selectors */
+  #matchupBar.is-editing .matchup-bar-left {
+    grid-area: left !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0 !important;
+  }
+
+  #matchupBar.is-editing .matchup-bar-right {
+    grid-area: right !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0 !important;
+  }
+
+  /* hide display-only stuff in edit mode */
+  #matchupBar.is-editing .matchup-bar-label,
+  #matchupBar.is-editing .matchup-bar-team,
+  #matchupBar.is-editing .matchup-bar-vs,
+  #matchupBar.is-editing #matchupRoundPill,
+  #matchupBar.is-editing #editMatchupBtn {
+    display: none !important;
+  }
+
+  #matchupBar.is-editing .matchup-bar-left .matchup-quick-slot,
+  #matchupBar.is-editing .matchup-bar-right .matchup-quick-slot {
+    display: block !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+  }
+
+  #matchupBar.is-editing .matchup-bar-left .matchup-quick-slot select,
+  #matchupBar.is-editing .matchup-bar-right .matchup-quick-slot select,
+  #matchupBar.is-editing #teamAQuickSelectWrap,
+  #matchupBar.is-editing #teamBQuickSelectWrap,
+  #matchupBar.is-editing #teamAQuick,
+  #matchupBar.is-editing #teamBQuick {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    min-height: 44px !important;
+    box-sizing: border-box !important;
+    margin: 0 !important;
+  }
+
+  /* flatten center wrapper so its children can sit in the main grid */
+  #matchupBar.is-editing .matchup-bar-center {
+    display: contents !important;
+  }
+
+  /* dataset row */
+  #matchupBar.is-editing #matchupQuickDataset {
+    grid-area: dataset !important;
+    display: block !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+  }
+
+  #matchupBar.is-editing #matchupQuickDataset .quick-dataset-select,
+  #matchupBar.is-editing #matchupQuickDataset .select-wrap,
+  #matchupBar.is-editing #matchupQuickDataset select,
+  #matchupBar.is-editing #datasetQuickSelectWrap,
+  #matchupBar.is-editing #datasetSelectQuick {
+    display: block !important;
+    width: auto !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    min-height: 44px !important;
+    box-sizing: border-box !important;
+    margin: 0 !important;
+    align-self: center;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+    left: 80px;
+  }
+
+  /* round + sandbox
+     Keep a REAL wrapper box so the dropdown panel has a correct anchor */
+  #matchupBar.is-editing #matchupQuickRound {
+    grid-area: round / round / sandbox / sandbox !important;
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+    gap: 8px !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    align-items: stretch !important;
+    overflow: visible !important;
+  }
+
+  #matchupBar.is-editing #matchupQuickRound #roundQuickSelectWrap,
+  #matchupBar.is-editing #matchupQuickRound #miSandboxQuickLabelBar {
+    width: 100% !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+  }
+
+  #matchupBar.is-editing #matchupQuickRound #roundQuickSelectWrap {
+    position: relative !important;
+    z-index: 10000 !important;
+    overflow: visible !important;
+  }
+
+  #matchupBar.is-editing #matchupQuickRound #miSandboxQuickLabelBar {
+    grid-column: 2 !important;
+    min-height: 44px !important;
+    box-sizing: border-box !important;
+  }
+
+  #matchupBar.is-editing #matchupQuickRound .round-btn,
+  #matchupBar.is-editing #matchupQuickRound .sandbox-toggle {
+    width: 100% !important;
+    min-width: 0 !important;
+    min-height: 44px !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+  }
+
+  #matchupBar.is-editing #roundDropdownQuick.round-dropdown,
+  #matchupBar.is-editing #roundDropdown.round-dropdown {
+    position: absolute !important;
+    top: calc(100% + 8px) !important;
+    left: 0 !important;
+    right: auto !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    z-index: 10050 !important;
+  }
+
+  /* run + cancel */
+  #matchupBar.is-editing .matchup-quick-actions {
+    grid-area: actions !important;
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+    gap: 8px !important;
+    width: 100% !important;
+    margin: 0 !important;
+  }
+
+  #matchupBar.is-editing .matchup-quick-run,
+  #matchupBar.is-editing .matchup-quick-cancel {
+    width: 100% !important;
+    min-width: 0 !important;
+    min-height: 44px !important;
+    box-sizing: border-box !important;
+    margin: 0 !important;
+  }
+}
+
+/* =========================================================
+   MOBILE — FINAL STABILITY RECONCILIATION
+   Canonical mobile behavior for all small screens
+   ========================================================= */
+@media (max-width: 720px) {
+
+  html,
+  body {
+    overflow-x: hidden !important;
+    max-width: 100% !important;
+  }
+
+  .app-shell {
+    padding-bottom: 88px !important;
+  }
+
+  #matchupBar,
+  #matchupBar .mi-matchup-dock,
+  #matchupBar .matchup-bar-main {
+    overflow: visible !important;
+  }
+
+  #matchupBar::before,
+  #matchupBar::after,
+  #matchupBar .mi-matchup-dock::before,
+  #matchupBar .mi-matchup-dock::after,
+  #matchupBar .matchup-bar-main::before,
+  #matchupBar .matchup-bar-main::after {
+    pointer-events: none !important;
+  }
+}
+
+/* =========================================================
+   MOBILE — DROPDOWN CLIPPING FIX
+   Ensure dropdown panels can escape layout containers
+   ========================================================= */
+
+@media (max-width: 720px) {
+
+  /* Primary matchup bar containers */
+  #matchupBar,
+  #matchupBar.is-editing,
+  .matchup-controls,
+  .matchup-bar-left,
+  .matchup-bar-right,
+  .matchup-bar-team,
+  .matchup-quick-slot {
+    overflow: visible !important;
+  }
+
+  .mi-team-dd .mi-team-dd-panel {
+    overflow: visible !important;
+  }
+
+  .mi-team-dd .mi-team-dd-search {
+    overflow: visible !important;
+  }
+}
+
+@media (max-width: 720px) {
+
+  /* Normalize dropdown panel positioning */
+  .mi-team-dd-panel {
+    top: 40px !important;
+  }
+}
+
+/* =============================================
+   § MOBILE — INTERACTIONS HEIGHT RELEASE
+   Desktop interaction tiles should not own the viewport on phones.
+   ============================================= */
+@media (max-width: 720px) {
+
+  #interactionsSection .interactions-grid {
+    height: auto !important;
+    max-height: none !important;
+    align-items: stretch !important;
+  }
+
+  #interactionsSection .interactions-left,
+  #interactionsSection .interactions-right,
+  #interactionsSection .interactions-left-tile,
+  #interactionsSection .interactions-console-tile,
+  #interactionsSection .interaction-table-wrap,
+  #interactionsSection .interaction-table,
+  #interactionsSection .int-console-body,
+  #interactionsSection #interactionConsoleBody {
+    height: auto !important;
+    max-height: none !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+  }
+
+  .mi-glossary-panel {
+    overscroll-behavior: contain !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+}
+
+/* =========================================================
+   MOBILE — PATCH NOTES TRUE ANCHOR FIX
+   ========================================================= */
+@media (max-width: 720px) {
+
+  .enhanced-header {
+    position: relative !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    overflow: visible !important;
+    z-index: 10020 !important;
+  }
+
+  .hero-logo-wrap,
+  .hero-text-wrap {
+    width: 100% !important;
+    text-align: center !important;
+  }
+
+  .version-notes-anchor {
+    position: relative !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    width: 100% !important;
+    margin: 6px auto 0 !important;
+    overflow: visible !important;
+    z-index: 10030 !important;
+  }
+
+  .version-badge-btn {
+    position: relative !important;
+    display: inline-flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    align-self: center !important;
+    margin: 0 !important;
+    left: auto !important;
+    right: auto !important;
+    transform: none !important;
+    z-index: 10040 !important;
+  }
+
+  .version-notes {
+    position: absolute !important;
+    top: calc(100% + 8px) !important;
+    left: 50% !important;
+    right: auto !important;
+    bottom: auto !important;
+    transform: translateX(-50%) !important;
+
+    width: min(340px, calc(100vw - 32px)) !important;
+    max-width: calc(100vw - 32px) !important;
+    max-height: min(52vh, 320px) !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+
+    z-index: 10100 !important;
+  }
+
+  .version-notes.is-open {
+    transform: translateX(-50%) !important;
+  }
+
+  .enhanced-header .version-badge {
+    top: 0 !important;
+  }
+
+  /* keep following sections below the open notes panel */
+  #preHubStatusWrap,
+  #preSetupRow,
+  #matchupBar,
+  #verdictShell {
+    position: relative !important;
+    z-index: 1 !important;
+  }
+}
+
+/* =============================================
+   § PRE-MATCHUP HUB — compact progress indicator
+   Replaces the bulky mini-card feel with a tight
+   stacked status list on phones.
+   ============================================= */
+@media (max-width: 720px) {
+
+  /* Outer shell: less padding, less visual weight */
+  #preMatchupHub {
+    padding: 10px 10px 8px !important;
+    border-radius: 16px !important;
+    margin-top: 0 !important;
+  }
+
+  #preMatchupHub .pre-hub-inner {
+    gap: 8px !important;
+  }
+
+  /* Header stays prominent, but tighter */
+  #preMatchupHub .round-step-label {
+    margin: 0 0 4px 0 !important;
+    font-size: 11px !important;
+    letter-spacing: 0.12em !important;
+    line-height: 1.05 !important;
+    text-align: center !important;
+  }
+
+  /* Stack stays compact */
+  #preMatchupHub .pre-hub-steps {
+    gap: 6px !important;
+    margin-top: 0 !important;
+  }
+
+  /* Each step becomes a compact status row, not a full tile */
+  #preMatchupHub .pre-step {
+    grid-template-columns: 22px minmax(0, 1fr) !important;
+    grid-template-areas:
+      "num copy"
+      "status status" !important;
+
+    row-gap: 5px !important;
+    column-gap: 10px !important;
+    align-items: start !important;
+
+    padding: 6px 6px 6px !important;
+    border-radius: 10px !important;
+
+    background: rgba(15, 23, 42, 0.34) !important;
+    border: 1px solid rgba(148, 163, 184, 0.12) !important;
+    box-shadow: none !important;
+  }
+
+  /* Keep active row visible, but less huge */
+  #preMatchupHub .pre-step.is-next {
+    border-color: rgba(56, 189, 248, 0.45) !important;
+    box-shadow: inset 0 0 0 1px rgba(56, 189, 248, 0.10) !important;
+  }
+
+  /* Number bubble: smaller and less dominant */
+  #preMatchupHub .pre-step-num {
+    width: 22px !important;
+    height: 22px !important;
+    min-width: 22px !important;
+    min-height: 22px !important;
+
+    font-size: 12px !important;
+    font-weight: 800 !important;
+    line-height: 1 !important;
+
+    align-self: start !important;
+  }
+
+  /* Copy block: tighter vertical rhythm */
+  #preMatchupHub .pre-step-copy {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    justify-content: flex-start !important;
+    gap: 2px !important;
+    min-width: 0 !important;
+  }
+
+  #preMatchupHub .pre-step-label {
+    font-size: 10px !important;
+    line-height: 1 !important;
+    letter-spacing: 0.12em !important;
+    text-transform: uppercase !important;
+    text-align: left !important;
+  }
+
+  #preMatchupHub .pre-step-text {
+    margin-top: 0 !important;
+    font-size: 8px !important;
+    line-height: 1.15 !important;
+    max-width: none !important;
+    text-align: left !important;
+    color: rgba(226, 232, 240, 0.78) !important;
+  }
+
+  /* Status pill: secondary, compact badge */
+  #preMatchupHub .pre-step-status {
+    justify-self: start !important;
+    align-self: start !important;
+
+    padding: 3px 8px !important;
+    border-radius: 999px !important;
+
+    font-size: 9px !important;
+    line-height: 1 !important;
+    letter-spacing: 0.08em !important;
+
+    min-height: 0 !important;
+    box-shadow: none !important;
+  }
+
+  /* Locked rows should recede more */
+  #preMatchupHub .pre-step.is-locked {
+    opacity: 0.62 !important;
+  }
+
+  #preMatchupHub .pre-step {
+    min-height: 0 !important;
+    height: auto! important;
+  }
+}
+
+@media (max-width: 420px) {
+
+  #preMatchupHub {
+    padding: 8px 8px 7px !important;
+  }
+
+  #preMatchupHub .round-step-label {
+    font-size: 10px !important;
+  }
+
+  #preMatchupHub .pre-hub-steps {
+    gap: 5px !important;
+  }
+
+  #preMatchupHub .pre-step {
+    grid-template-columns: 20px minmax(0, 1fr) !important;
+    column-gap: 8px !important;
+    row-gap: 4px !important;
+    padding: 6px !important;
+  }
+
+  #preMatchupHub .pre-step-num {
+    width: 20px !important;
+    height: 20px !important;
+    min-width: 20px !important;
+    min-height: 20px !important;
+    font-size: 11px !important;
+  }
+
+  #preMatchupHub .pre-step-label {
+    font-size: 9px !important;
+  }
+
+  #preMatchupHub .pre-step-text {
+    font-size: 7px !important;
+    line-height: 1.1 !important;
+  }
+
+  #preMatchupHub .pre-step-status {
+    font-size: 8px !important;
+    padding: 3px 7px !important;
+  }
+}
+
+@media (max-width: 720px) {
+  #preMatchupHub .pre-step {
+    display: grid !important;
+    grid-template-columns: 22px minmax(0, 1fr) auto !important;
+    grid-template-areas: "num copy status" !important;
+    column-gap: 10px !important;
+    row-gap: 0 !important;
+    align-items: center !important;
+  }
+
+  #preMatchupHub .pre-step-copy {
+    grid-area: copy !important;
+    min-width: 0 !important;
+  }
+
+  #preMatchupHub .pre-step-status {
+    grid-area: status !important;
+    justify-self: end !important;
+    align-self: center !important;
+    white-space: nowrap !important;
+  }
+}
+
+@media (max-width: 420px) {
+  #preMatchupHub .pre-step {
+    display: grid !important;
+    grid-template-columns: 20px minmax(0, 1fr) auto !important;
+    grid-template-areas: "num copy status" !important;
+    column-gap: 8px !important;
+    row-gap: 0 !important;
+    align-items: center !important;
+  }
+
+  #preMatchupHub .pre-step-status {
+    justify-self: end !important;
+    align-self: center !important;
+    white-space: nowrap !important;
+  }
+}
+
+#preMatchupHub .pre-step {
+  display: grid !important;
+  grid-template-columns: 22px minmax(0, 1fr) auto !important;
+  grid-template-areas: "num copy status" !important;
+  align-items: center !important;
+}
+
+#preMatchupHub .pre-step-num {
+  grid-area: num !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+#preMatchupHub .pre-step-copy {
+  grid-area: copy !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  min-width: 0 !important;
+}
+
+#preMatchupHub .pre-step-status {
+  grid-area: status !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  white-space: nowrap !important;
+}
+
+#preMatchupHub .pre-step-status-pill {
+  display: inline-flex !important;
+  align-items: center !important;
+  width: auto !important;
+}
+
+/* =========================================================
+   MOBILE — QUICK EDIT TEAM DROPDOWNS ABOVE VERDICTSHELL
+   Promote Team A / Team B wrappers into the same stacking
+   tier as the quick round control so their panels can float
+   over any content below.
+   ========================================================= */
+@media (max-width: 720px) {
+
+  /* Keep the edit shell itself above surrounding content */
+  #matchupBar.is-editing,
+  #matchupBar.is-editing .mi-matchup-dock,
+  #matchupBar.is-editing .matchup-bar-main,
+  #matchupBar.is-editing .matchup-bar-left,
+  #matchupBar.is-editing .matchup-bar-right {
+    overflow: visible !important;
+  }
+
+  /* Real stacking anchors for Team A / Team B quick selects */
+  #matchupBar.is-editing #matchupQuickA,
+  #matchupBar.is-editing #matchupQuickB,
+  #matchupBar.is-editing #teamAQuickSelectWrap,
+  #matchupBar.is-editing #teamBQuickSelectWrap,
+  #matchupBar.is-editing #teamAQuickSelectWrap .mi-team-dd,
+  #matchupBar.is-editing #teamBQuickSelectWrap .mi-team-dd {
+    position: relative !important;
+    z-index: 10040 !important;
+    overflow: visible !important;
+  }
+
+  /* Force the actual dropdown panels above EVERYTHING underneath */
+  #matchupBar.is-editing #teamAQuickSelectWrap .mi-team-dd-panel,
+  #matchupBar.is-editing #teamBQuickSelectWrap .mi-team-dd-panel,
+  #matchupBar.is-editing #matchupQuickA .mi-team-dd-panel,
+  #matchupBar.is-editing #matchupQuickB .mi-team-dd-panel {
+    position: absolute !important;
+    top: calc(100% + 8px) !important;
+    left: 0 !important;
+    right: auto !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    z-index: 10050 !important;
+  }
+
+  /* Optional safety: when either side is open, keep that column above peers */
+  #matchupBar.is-editing .matchup-bar-left:has(.mi-team-dd-panel),
+  #matchupBar.is-editing .matchup-bar-right:has(.mi-team-dd-panel) {
+    position: relative !important;
+    z-index: 10035 !important;
+  }
+}
+
+/* =========================================================
+   MOBILE — QUICK EDIT DROPDOWNS MUST OUTRANK VERDICTSHELL
+   The patch-notes anchor fix flattened #matchupBar to z-index:1.
+   Restore a higher stacking context when the bar is in edit mode.
+   ========================================================= */
+@media (max-width: 720px) {
+
+  /* Keep verdict shell low */
+  #verdictShell {
+    position: relative !important;
+    z-index: 1 !important;
+  }
+
+  /* Restore the matchup bar as the top stacking context while editing */
+  #matchupBar.is-editing {
+    position: relative !important;
+    z-index: 10040 !important;
+    isolation: isolate !important;
+    overflow: visible !important;
+  }
+
+
+
+  /* Actual floating team panels */
+  #matchupBar.is-editing .mi-team-dd-panel,
+  #matchupBar.is-editing #teamAQuickSelectWrap .mi-team-dd-panel,
+  #matchupBar.is-editing #teamBQuickSelectWrap .mi-team-dd-panel,
+  #matchupBar.is-editing #matchupQuickA .mi-team-dd-panel,
+  #matchupBar.is-editing #matchupQuickB .mi-team-dd-panel {
+    position: absolute !important;
+    z-index: 10051 !important;
   }
 }

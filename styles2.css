@@ -13,20 +13,23 @@
 *::before,
 *::after { box-sizing: border-box; }
 
-html, body {
+html,
+body {
   margin: 0;
   padding: 0;
-  height: 100%;
+  min-height: 100%;
 }
 
-/* Prevent whole-app “jump” when edit mode toggles height (scrollbar gutter stability) */
-html{
-  overflow-y: scroll;            /* always reserve vertical scrollbar space */
-  scrollbar-gutter: stable;      /* modern browsers: keep gutter stable */
+html {
+  overflow-x: hidden;
+  overflow-y: auto;
+  scrollbar-gutter: stable;
 }
 
-body{
-  overflow-y: scroll;
+body {
+  min-height: 100dvh;
+  overflow-x: hidden;
+  overflow-y: visible;
   scrollbar-gutter: stable;
 }
 
@@ -899,31 +902,6 @@ body{
   padding: 12px 14px;
 }
 
-/* ===== Prematch preview: premium expand/collapse ===== */
-.prematch-preview {
-  overflow: hidden;
-  max-height: 0;
-  opacity: 0;
-  transform: translateY(-6px);
-  pointer-events: none;
-
-  transition:
-    max-height 260ms ease,
-    opacity 180ms ease,
-    transform 220ms ease;
-
-  /* keep spacing controlled while closed */
-  margin-top: 0;
-}
-
-.prematch-preview.is-open {
-  max-height: 1200px; /* big enough for your content */
-  opacity: 1;
-  transform: translateY(0);
-  pointer-events: auto;
-  margin-top: 12px; /* optional: gives it breathing room */
-}
-
 /* Show preview only before matchup */
 .app-shell.has-matchup #preMatchupPreview { display: none; }
 
@@ -1535,7 +1513,7 @@ body{
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-size: 11px;
+  font-size: 15px;
   color: var(--mi-text-muted);
   padding: 2px 8px;
   border-radius: var(--mi-radius-pill);
@@ -2154,7 +2132,7 @@ section#matchupBar.card.matchup-bar.visible:not(.is-editing){
 #matchupBar.is-editing .matchup-quick-slot select,
 #matchupBar.is-editing .matchup-quick-slot .round-btn{
   width: 100%;
-  min-height: 48px;
+  min-height: 44px;
   font-size: 15px;
   padding: 10px 14px;
   border-radius: 14px;
@@ -5079,7 +5057,6 @@ explain-table td:first-child{
 .pre-step-text{
   flex: 1;                        /* allow text to take remaining room */
   min-width: 0;                   /* critical: allows wrapping inside grid */
-  padding-right: 92px;            /* reserve space for the pill INSIDE text area */
 }
 
 .pre-step-status{
@@ -5386,11 +5363,11 @@ explain-table td:first-child{
   border: 1px solid rgba(148,163,184,0.32);
   background: rgba(2,6,23,0.55);
   color: rgba(226,232,240,0.92);
-  font-size: 12px;
+  font-size: 10px;
   letter-spacing: 0.02em;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+
+
   gap: 10px;
   cursor: pointer;
 }
@@ -5460,22 +5437,6 @@ explain-table td:first-child{
   overscroll-behavior: contain;
 }
 
-.mi-team-dd .mi-team-dd-panel::before{
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 38px; /* start below the search strip */
-  height: 18px;
-  pointer-events: none;
-  background: linear-gradient(
-    to bottom,
-    rgba(2,6,23,0.85),
-    rgba(2,6,23,0)
-  );
-  opacity: 0.35;
-}
-
 .mi-team-dd .mi-team-dd-search{
   background: linear-gradient(180deg, rgba(30,41,59,0.92), rgba(15,23,42,0.85));
   border-bottom: 1px solid rgba(148,163,184,0.22);
@@ -5485,22 +5446,6 @@ explain-table td:first-child{
   min-height: 38px;
   flex: 0 0 auto;
   line-height: 38px;
-}
-
-/* Bottom fade cue (broadcast ticker style) */
-.mi-team-dd .mi-team-dd-panel::after{
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 34px;
-  pointer-events: none;
-  background: linear-gradient(
-    to bottom,
-    rgba(2,6,23,0),
-    rgba(2,6,23,0.92)
-  );
 }
 
 .mi-team-dd-item {
@@ -8950,7 +8895,7 @@ button,
   top: 0;
   z-index: 2;
 
-  padding: 12px 12px 10px 12px;
+  padding: 4px 8px;
   background: linear-gradient(
     to bottom,
     rgba(0,0,0,0.24),
@@ -8961,9 +8906,18 @@ button,
 
 .mi-glossary-title{
   font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
   font-weight: 700;
   letter-spacing: 0.02em;
   color: var(--mi-ink, rgba(249,246,238,0.92));
+}
+
+.mi-glossary-close {
+  margin-left: auto;
+  line-height: 1;
 }
 
 .mi-glossary-header-actions{
@@ -9010,7 +8964,7 @@ button,
   border-radius: 14px;
   border: 1px solid rgba(255,255,255,0.10);
   background: rgba(255,255,255,0.04);
-  margin-bottom: 8px;
+  margin-bottom: 4px;
   overflow: hidden;
 }
 
@@ -9023,8 +8977,8 @@ button,
   align-items: center;
   justify-content: space-between;
 
-  padding: 10px 10px;
-  font-size: 12px;
+  padding: 8px;
+  font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.03em;
   text-transform: uppercase;
@@ -9045,7 +8999,7 @@ button,
 }
 
 .mi-glossary-term-list{
-  padding: 6px 8px 10px 8px;
+  padding: 6px;
   display: grid;
   gap: 6px;
 }
@@ -9087,8 +9041,8 @@ button,
 }
 
 .mi-glossary-term-name{
-  font-size: 12px;
-  font-weight: 700;
+  font-size: 10px;
+  font-weight: 600;
   letter-spacing: 0.01em;
 }
 
@@ -9125,29 +9079,6 @@ button,
 
 .mi-glossary.mi-glossary--open::before{
   opacity: 0.20;
-}
-
-.mi-glossary::after{
-  content: "";
-  position: absolute;
-  top: 6px;
-  left: 6px;
-
-  height: 32px;
-  width: 3px;
-  border-radius: 3px;
-
-  background: linear-gradient(
-    to bottom,
-    rgba(var(--mi-role-chalk-mirror-rgb,56,189,248),0.65),
-    rgba(var(--mi-role-chalk-mirror-rgb,56,189,248),0.20)
-  );
-
-  box-shadow:
-    0 0 14px rgba(var(--mi-role-chalk-mirror-rgb,56,189,248),0.30);
-
-  opacity: 0.75;
-  pointer-events: none;
 }
 
 /* ===============================
@@ -9341,7 +9272,7 @@ button,
   border-radius: 12px;
   border: 1px solid rgba(255,255,255,0.10);
   background: rgba(0,0,0,0.16);
-  padding: 10px 10px;
+  padding: 4px;
 }
 
 .mi-glossary-item-header{
@@ -9351,7 +9282,7 @@ button,
   font-size: 12px;
   font-weight: 800;
   letter-spacing: 0.01em;
-  color: rgba(249,246,238,0.90);
+  color: var(--mi-text-primary);
 }
 
 .mi-glossary-item-abbr{
@@ -9362,8 +9293,10 @@ button,
 }
 
 .mi-glossary-item-def{
-  margin-top: 6px;
+  margin-top: 2px;
   font-size: 12px;
+  font-weight: 600;
+  text-align: center;
   line-height: 1.35;
   color: rgba(249,246,238,0.78);
 }
@@ -9850,57 +9783,6 @@ button,
   .subtotal-identity{
     justify-self: stretch;
   }
-}
-
-/* =========================================================
-   v3.91 — Interactions: shrink left tile, keep console scroll
-   Goal:
-   - Left column becomes content-height (no filler gap)
-   - Right console keeps a fixed height + scrolls internally
-   ========================================================= */
-
-#interactionsSection .interactions-grid{
-  /* stop forcing equal-height stretch behavior */
-  align-items: start !important;
-}
-
-/* LEFT: do not match the console height */
-#interactionsSection .interactions-left,
-#interactionsSection .interactions-left-tile{
-  min-height: unset !important;
-  height: auto !important;
-}
-
-/* If you have a wrapper that was designed to "stretch" (creates the gap), kill it */
-#interactionsSection .interaction-table-wrap{
-  flex: 0 0 auto !important;
-  min-height: unset !important;
-  overflow: visible !important;
-}
-
-/* Totals should sit right under the table, not be pushed down by filler */
-#interactionsSection #interactionTotalsBar,
-#interactionsSection .interaction-totals-bar{
-  margin-top: 10px !important;
-}
-
-/* RIGHT: set the section height by the console tile only */
-#interactionsSection .interactions-right,
-#interactionsSection .interactions-console-tile{
-  min-height: 0 !important;
-  height: clamp(420px, 55vh, 560px) !important; /* tweak to taste */
-  overflow: hidden !important;
-  display: flex !important;
-  flex-direction: column !important;
-}
-
-/* The body remains the scroll container */
-#interactionsSection .int-console-body,
-#interactionsSection #interactionConsoleBody{
-  flex: 1 1 auto !important;
-  min-height: 0 !important;
-  overflow-y: auto !important;
-  overflow-x: hidden !important;
 }
 
 /* v3.91 — remove residual slack under Total Interaction Leverage (left tile) */
@@ -14216,7 +14098,7 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
 
 .interaction-table.mi-interaction-table .mi-int-label-main{
   color: rgba(241,245,249,0.95);
-  font-size: 12px;
+  font-size: 10px;
   font-weight: 700;
   line-height: 1.15;
 }
