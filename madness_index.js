@@ -11933,29 +11933,52 @@ function miUpdateInstallUI() {
     return;
   }
 
-  if (miInstallPromptSupported && miDeferredInstallPrompt) {
+  // iPhone / iPad: show a real button that opens instructions
+  if (miIsIosLike()) {
     installBtn.hidden = false;
+    installBtn.textContent = 'Add to Home Screen';
+    installBtn.setAttribute('aria-label', 'Show iPhone install instructions');
     return;
   }
 
-  if (miIsIosLike()) {
-    helpEl.textContent = 'On iPhone or iPad, use Share → Add to Home Screen.';
-    helpEl.hidden = false;
+  // Chromium / supported browsers: show install prompt button
+  if (miInstallPromptSupported && miDeferredInstallPrompt) {
+    installBtn.hidden = false;
+    installBtn.textContent = 'Install App';
+    installBtn.setAttribute('aria-label', 'Install app');
+    return;
   }
 }
 
 function miInitInstallPromptUI() {
   const installBtn = document.getElementById('miInstallBtn');
-  if (!installBtn) return;
+  const helpEl = document.getElementById('miInstallHelp');
+
+  if (!installBtn || !helpEl) return;
 
   installBtn.addEventListener('click', async () => {
     console.log('[MI] Install button clicked', {
       hasPrompt: !!miDeferredInstallPrompt,
       promptSupported: miInstallPromptSupported,
-      standalone: miIsStandaloneMode()
+      standalone: miIsStandaloneMode(),
+      isIosLike: miIsIosLike()
     });
 
+    if (miIsStandaloneMode()) {
+      return;
+    }
+
+    // iPhone / iPad flow: show manual install instructions
+    if (miIsIosLike()) {
+      helpEl.hidden = false;
+      helpEl.textContent = 'To install on iPhone: open this site in Safari, tap Share, then tap Add to Home Screen.';
+      return;
+    }
+
+    // Standard browser install prompt flow
     if (!miDeferredInstallPrompt) {
+      helpEl.hidden = false;
+      helpEl.textContent = 'Install is not available in this browser right now.';
       miUpdateInstallUI();
       return;
     }
