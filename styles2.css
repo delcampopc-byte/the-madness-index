@@ -7366,7 +7366,6 @@ button,
 #verdictShell .mi-verdict-footer{
   display:flex;
   justify-content:center;
-  padding: 6px 0 2px;
 }
 
 #verdictShell .mi-verdict-disclaimer{
@@ -9322,9 +9321,9 @@ button,
 
   border-top: 1px solid var(--mi-line-strong);
 
-  font-size: 20px;
-  letter-spacing: 0.3px;
-  font-weight: 500;
+  font-size: 14px;
+  letter-spacing: 0.25px;
+  font-weight: 600;
   color: rgba(255,255,255,0.85);
 
   position: relative;
@@ -9487,9 +9486,8 @@ button,
   padding: 0 4px 10px 8px;
 
   font-size: 16px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  font-weight: 650;
+  letter-spacing: 0.08em;
   color: var(--mi-text-primary);
 
   border-bottom: 1px solid rgba(255,255,255,0.08);
@@ -9655,6 +9653,7 @@ button,
   align-items: baseline;
   justify-content: center;
   gap: 10px;
+  width: 100%;
 }
 
 .subtotal-identity{
@@ -11197,9 +11196,13 @@ body::before{
 /* Tile-specific placement */
 .flip-tile .tile-face.tile-front .mi-flip-hint{
   position: relative;
-  justify-content: center; /* centered, more like a footer */
+  display: block;
+  margin-top: auto;
+  margin-left: auto;
+  margin-right: auto;
   pointer-events: none;
   opacity: 0.92;
+  text-align: center;
 }
 
 /* Ensure it never overlaps content */
@@ -15460,8 +15463,7 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
 
 /* Helper text */
 .mi-eff-helper {
-  text-align: center;
-  opacity: 0.65;
+  display: none;
 }
 
 /* Value — give it presence and separation */
@@ -18670,17 +18672,17 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
-  top: calc(100% + 8px);
+  top: calc(100% + 4px);
 
-  width: 56px;
+  width: 100px;
   height: 1px;
   border-radius: 999px;
 
   background: linear-gradient(
     90deg,
-    rgba(255,255,255,0),
-    rgba(255,255,255,0.30),
-    rgba(255,255,255,0)
+    rgba(255,255,255,0.10),
+    rgba(255,255,255,0.70),
+    rgba(255,255,255,0.10)
   );
 
   box-shadow: 0 0 8px rgba(255,255,255,0.08);
@@ -18910,29 +18912,7 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
     0 0 20px rgb(var(--team-primary-rgb, 148 163 184) / 0.08) !important;
 }
 
-#cindCard > .flip-inner > .card-face::before,
-#favCard > .flip-inner > .card-face::before{
-  content: "";
-  position: absolute;
-  inset: -12%;
-  z-index: 0;
-  pointer-events: none;
-  opacity: 0.26;
-  mix-blend-mode: screen;
-  background:
-    linear-gradient(
-      118deg,
-      transparent 0%,
-      rgb(255 255 255 / 0.00) 16%,
-      rgb(255 255 255 / 0.06) 22%,
-      rgb(170 220 255 / 0.09) 27%,
-      rgb(255 170 210 / 0.07) 33%,
-      rgb(160 255 220 / 0.07) 39%,
-      rgb(255 255 255 / 0.03) 45%,
-      transparent 54%
-    ) !important;
-  transform: rotate(-8deg) translateX(-2%);
-}
+
 
 #cindCard > .flip-inner > .card-face::after,
 #favCard > .flip-inner > .card-face::after{
@@ -21551,4 +21531,86 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
       ),
       rgba(7, 10, 18, 0.92) !important;
   }
+}
+
+/* Flip container border uses each card's team primary color */
+#cindCard .flip-inner,
+#favCard .flip-inner {
+  border: 2px solid rgba(var(--team-secondary-rgb) / 0.85);
+  border-radius: inherit;
+  box-sizing: border-box;
+}
+
+
+/* Front face border uses the team secondary color (optional contrast) */
+#cindCard .card-face.card-front,
+#favCard .card-face.card-front {
+  border: 8px solid rgba(var(--team-primary-rgb) / 0.85);
+  border-radius: inherit;
+  box-sizing: border-box;
+}
+
+/* =========================================================
+   VERDICT → TEAM CARDS SECTION BREAK
+   Creates a deliberate transition between #verdictShell and #analysisShell
+   ========================================================= */
+
+#analysisShell{
+  position: relative;
+  margin-top: 20px;
+  padding-top: 18px;
+}
+
+/* Divider rail + soft fade so the team-card zone feels like a new section */
+#analysisShell::before{
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 18px;
+  right: 18px;
+  height: 1px;
+  pointer-events: none;
+
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(148,163,184,0.16) 18%,
+    rgba(255,255,255,0.22) 50%,
+    rgba(148,163,184,0.16) 82%,
+    transparent 100%
+  );
+
+  box-shadow:
+    0 0 12px rgba(56,189,248,0.10),
+    0 1px 0 rgba(0,0,0,0.30);
+}
+
+/* Soft atmosphere break under the divider */
+#analysisShell::after{
+  content: "";
+  position: absolute;
+  top: 1px;
+  left: 10px;
+  right: 10px;
+  height: 26px;
+  pointer-events: none;
+
+  background: linear-gradient(
+    180deg,
+    rgba(255,255,255,0.03) 0%,
+    rgba(56,189,248,0.035) 18%,
+    rgba(2,6,23,0.00) 100%
+  );
+
+  border-radius: 18px;
+}
+
+/* Let the scorecard row breathe a little more below the divider */
+#analysisShell #result.result-layout{
+  position: relative;
+  z-index: 1;
+}
+
+.subtotal-row.profile-subtotal-row {
+  justify-content: space-between;
 }

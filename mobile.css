@@ -619,7 +619,7 @@
   }
 
   #verdictShell .mi-verdict-shell-inner > .mi-verdict-actions.mi-verdict-actions-rail{
-    padding-top: 0px;
+    padding-top: 6px;
     padding-bottom: 6px;
   }
 }
@@ -759,10 +759,7 @@
 }
 
 @media (max-width: 720px) {
-  #cindCard .profile-resume-tile .context-header,
-  #favCard .profile-resume-tile .context-header {
-    padding-top: 12px !important;
-  }
+
 
   .team-card-header {
     margin-bottom: 0;
@@ -770,14 +767,11 @@
 }
 
 @media (max-width: 720px) {
-  #cindCard .profile-resume-tile .tile-face.tile-front,
-  #favCard .profile-resume-tile .tile-face.tile-front {
-    padding-bottom: 20px !important;
-  }
+
 
   #cindCard .profile-resume-tile .mi-flip-hint,
   #favCard .profile-resume-tile .mi-flip-hint {
-    position: absolute !important;
+
     bottom: 8px !important;
     left: 0 !important;
     right: 0 !important;
@@ -1084,7 +1078,7 @@
     position: relative !important;
     padding-top: 44px !important; /* room for the injected kicker label */
     border-top: 1px solid rgba(56, 189, 248, 0.20) !important;
-    margin-top: 12px !important;
+    margin: 6px 1px !important;
   }
 
   /* Inject MATCHUP VOLATILITY kicker above the volatility panel */
@@ -1249,7 +1243,7 @@
 @media (max-width: 720px) {
   #volatilityTierPill {
     position: relative;
-    top: 20px;
+    top: 40px;
   }
 }
 
@@ -2597,7 +2591,6 @@
   #cindCard .tile-face.tile-front,
   #favCard .tile-face.tile-front {
     padding: 2px !important;
-    margin-top: 12px !important;
   }
 
   #cindCard .profile-section.flip-tile,
@@ -2917,7 +2910,7 @@
   }
 
   .mi-verdict-shell {
-    margin-bottom: 2px !important;
+    margin-bottom: 10px !important;
   }
 
   #verdictShell #miVerdictMetricsTile .tile-face.tile-front{
@@ -3219,7 +3212,7 @@
     text-align: center;
     justify-content: center;
     align-items: center;
-    left: 80px;
+    left: 56px;
   }
 
   /* round + sandbox
@@ -3794,8 +3787,6 @@
     overflow: visible !important;
   }
 
-
-
   /* Actual floating team panels */
   #matchupBar.is-editing .mi-team-dd-panel,
   #matchupBar.is-editing #teamAQuickSelectWrap .mi-team-dd-panel,
@@ -3806,3 +3797,79 @@
     z-index: 10051 !important;
   }
 }
+
+/* =========================================================
+   MOBILE — VERDICT → TEAM CARDS SECTION BREAK
+   ========================================================= */
+@media (max-width: 720px) {
+  #analysisShell{
+    margin-top: 14px !important;
+    padding-top: 14px !important;
+  }
+
+  #analysisShell::before{
+    left: 12px !important;
+    right: 12px !important;
+    height: 1px !important;
+
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(148,163,184,0.14) 20%,
+      rgba(255,255,255,0.24) 50%,
+      rgba(148,163,184,0.14) 80%,
+      transparent 100%
+    ) !important;
+
+    box-shadow:
+      0 0 10px rgba(56,189,248,0.08),
+      0 1px 0 rgba(0,0,0,0.30) !important;
+  }
+
+  #analysisShell::after{
+    left: 8px !important;
+    right: 8px !important;
+    height: 20px !important;
+    background: linear-gradient(
+      180deg,
+      rgba(255,255,255,0.025) 0%,
+      rgba(56,189,248,0.03) 18%,
+      rgba(2,6,23,0.00) 100%
+    ) !important;
+  }
+}
+
+@media (max-width: 720px) {
+  .legend-header--interactions {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    text-align: center !important;
+  }
+
+  .legend-header--interactions .interactions-head--grid,
+  .legend-header--interactions .interactions-head--left {
+    width: 100% !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    text-align: center !important;
+  }
+
+  .legend-header--interactions .interactions-head--right {
+    display: none !important;
+  }
+
+  #interactionsSection .volatility-tier-pill {
+    height: 24px !important;
+    width: auto !important;
+    padding-left: 4px !important;
+    padding-right: 4px !important;
+  }
+
+  #interactionsSection .interactions-right {
+    justify-content: none !important;
+  }
+}
+
+

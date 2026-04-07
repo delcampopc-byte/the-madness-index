@@ -39,15 +39,17 @@
   "patch_notes": {
     "title": "Patch Notes",
     "hint": "Click for Patch Notes",
-    "badge": "Version 3.0 (Build 25)",
+    "badge": "Version 4.0 (Build 27)",
     "max_items": 10,
     "items": [
       {
-        "build": "Build 25",
-        "date": "2026-04-04",
+        "build": "Build 27",
+        "date": "2026-04-07",
         "bullets": [
-          "The Madness Index should now be fully compatible on all mobile devices.",
-          "Team branding has been fully incorporated throughout the app.",
+          "Added the 2021 Dataset and updated all other Datasets to the new canonical set of statistics, including Quadrant 1/2/3/4 wins.",
+          "The Glossary has been updated to remove legacy terms and definitions, and all new terms are now defined.",
+          "The Madness Index should now be fully compatible on all mobile devices. iPhone users can now add The Madness Index to their homescreen.",
+          "Team branding has been fully incorporated throughout the app, including all team logos and color schemes.",
           "Added a new feature that allows users to select a different dataset from the Matchup Controls bar for easier navigation across tournaments."
         ]
       }

@@ -11236,11 +11236,37 @@ function setupEventListeners() {
   if (editMatchupBtn) {
     editMatchupBtn.addEventListener('click', (e) => {
       e.preventDefault();
+      e.stopPropagation();
+
       const matchupBar = document.getElementById('matchupBar');
-      if (matchupBar && matchupBar.classList.contains('is-editing')) {
+      if (!matchupBar) return;
+
+      if (matchupBar.classList.contains('is-editing')) {
         exitMatchupQuickEdit();
-      } else {
+        return;
+      }
+
+      const isMobileViewport =
+        window.matchMedia &&
+        window.matchMedia('(max-width: 720px)').matches;
+
+      const openQuickEdit = () => {
         enterMatchupQuickEdit();
+
+        if (isMobileViewport) {
+          requestAnimationFrame(() => {
+            const quickDataset = document.getElementById('datasetSelectQuick');
+            if (quickDataset && document.activeElement === quickDataset) {
+              quickDataset.blur();
+            }
+          });
+        }
+      };
+
+      if (isMobileViewport) {
+        window.setTimeout(openQuickEdit, 40);
+      } else {
+        openQuickEdit();
       }
     });
   }
@@ -12032,7 +12058,7 @@ function miForceMobileScrollUnlock() {
 // Build Version — must match service-worker.js and index.html
 // =========================================================
 
-const MI_BUILD = '26';
+const MI_BUILD = '27';
 
 function bootMadnessIndex() {
   console.log("[MI] bootMadnessIndex fired");
