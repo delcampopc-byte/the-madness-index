@@ -98,15 +98,6 @@
     "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/21.png"
   },
 
-  "san-jose-state": {
-    "team": "",
-    "aliases": ["", ""],
-    "shortName": "",
-    "primary": "#",
-    "secondary": "#",
-    "logo": ""
-  },
-
   "alabama": {
     "team": "Alabama",
     "aliases": ["Alabama", "Alabama Crimson Tide"],
@@ -2429,57 +2420,21 @@
     "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2856.png"
   },
 
-  "": {
-    "team": "",
-    "aliases": ["", ""],
-    "shortName": "",
-    "primary": "#",
-    "secondary": "#",
-    "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/.png"
+  "cleveland-state": {
+    "team": "Cleveland State",
+    "aliases": ["Cleveland State", "Cleveland State Vikings"],
+    "shortName": "Cleveland St.",
+    "primary": "#006747",
+    "secondary": "#0F0708",
+    "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/325.png"
   },
 
-  "": {
-    "team": "",
-    "aliases": ["", ""],
-    "shortName": "",
-    "primary": "#",
-    "secondary": "#",
-    "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/.png"
-  },
-
-  "": {
-    "team": "",
-    "aliases": ["", ""],
-    "shortName": "",
-    "primary": "#",
-    "secondary": "#",
-    "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/.png"
-  },
-
-  "": {
-    "team": "",
-    "aliases": ["", ""],
-    "shortName": "",
-    "primary": "#",
-    "secondary": "#",
-    "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/.png"
-  },
-
-  "": {
-    "team": "",
-    "aliases": ["", ""],
-    "shortName": "",
-    "primary": "#",
-    "secondary": "#",
-    "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/.png"
-  },
-
-  "": {
-    "team": "",
-    "aliases": ["", ""],
-    "shortName": "",
-    "primary": "#",
-    "secondary": "#",
-    "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/.png"
+  "hartford": {
+    "team": "Hartford",
+    "aliases": ["Hartford", "Hartford Hawks"],
+    "shortName": "Hartford",
+    "primary": "#C02427",
+    "secondary": "#0F0708",
+    "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/42.png"
   }
 }
