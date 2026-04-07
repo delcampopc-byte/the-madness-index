@@ -12009,7 +12009,7 @@ function miForceMobileScrollUnlock() {
 // Build Version — must match service-worker.js and index.html
 // =========================================================
 
-const MI_BUILD = '25';
+const MI_BUILD = '26';
 
 function bootMadnessIndex() {
   console.log("[MI] bootMadnessIndex fired");

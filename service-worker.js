@@ -1,17 +1,18 @@
-const MI_BUILD = '24';
+const MI_BUILD = '26';
 const MI_CACHE_NAME = `mi-cache-${MI_BUILD}`;
 
 const MI_ASSETS = [
   './',
   './index.html',
-  './styles2.css?v=25',
-  './mobile.css?v=25',
-  './madness_index.js?v=25',
-  './copy.json?v=25',
-  './manifest.json?v=25',
+  './styles2.css?v=26',
+  './mobile.css?v=26',
+  './madness_index.js?v=26',
+  './copy.json?v=26',
+  './manifest.json?v=26',
   './assets/img/logos/madness-index-home-logo.png',
   './assets/img/logos/mi-app-icon-192.png',
   './assets/img/logos/mi-app-icon-512.png',
+  './data/csvs/mi_2021_official.csv',
   './data/csvs/mi_2022_official.csv',
   './data/csvs/mi_2023_official.csv',
   './data/csvs/mi_2024_official.csv',
