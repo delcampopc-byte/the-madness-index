@@ -1025,6 +1025,168 @@ function destroySearchableTeamDropdown(wrapEl) {
   wrapEl.querySelectorAll('.mi-team-dd').forEach(el => el.remove());
 }
 
+function ensureCustomDatasetDropdown(selectEl, wrapEl, placeholderText = 'Select a dataset…', options = {}) {
+  if (!selectEl || !wrapEl) return null;
+
+  const {
+    uiId = '',
+    buttonClass = '',
+    panelClass = '',
+    optionClass = ''
+  } = options || {};
+
+  // Reuse existing UI if already mounted for this wrapper
+  let root = wrapEl.querySelector('.mi-dataset-dd');
+  let trigger = root?.querySelector('.mi-dataset-dd-trigger');
+  let label = root?.querySelector('.mi-dataset-dd-label');
+  let chevron = root?.querySelector('.mi-dataset-dd-chevron');
+  let panel = root?.querySelector('.mi-dataset-dd-panel');
+
+  if (!root) {
+    root = document.createElement('div');
+    root.className = 'mi-dataset-dd';
+    if (uiId) root.id = uiId;
+
+    trigger = document.createElement('button');
+    trigger.type = 'button';
+    trigger.className = `mi-dataset-dd-trigger ${buttonClass}`.trim();
+    trigger.setAttribute('aria-haspopup', 'listbox');
+    trigger.setAttribute('aria-expanded', 'false');
+
+    label = document.createElement('span');
+    label.className = 'mi-dataset-dd-label';
+
+    chevron = document.createElement('span');
+    chevron.className = 'mi-dataset-dd-chevron';
+    chevron.setAttribute('aria-hidden', 'true');
+    chevron.textContent = '▾';
+
+    trigger.appendChild(label);
+    trigger.appendChild(chevron);
+
+    panel = document.createElement('div');
+    panel.className = `mi-dataset-dd-panel hidden ${panelClass}`.trim();
+    panel.setAttribute('role', 'listbox');
+
+    root.appendChild(trigger);
+    root.appendChild(panel);
+    wrapEl.appendChild(root);
+  }
+
+  // Keep native select as canonical backing control, but hide it visually
+  selectEl.hidden = true;
+  selectEl.setAttribute('aria-hidden', 'true');
+  selectEl.tabIndex = -1;
+
+  const closePanel = () => {
+    panel.classList.add('hidden');
+    trigger.setAttribute('aria-expanded', 'false');
+    root.classList.remove('is-open');
+  };
+
+  const openPanel = () => {
+    panel.classList.remove('hidden');
+    trigger.setAttribute('aria-expanded', 'true');
+    root.classList.add('is-open');
+  };
+
+  const syncLabel = () => {
+    const selectedOpt = selectEl.options[selectEl.selectedIndex];
+    const hasValue = !!selectEl.value;
+    label.textContent = hasValue
+      ? (selectedOpt?.textContent?.trim() || placeholderText)
+      : placeholderText;
+
+    root.classList.toggle('is-placeholder', !hasValue);
+  };
+
+  const rebuildPanel = () => {
+    panel.innerHTML = '';
+
+    Array.from(selectEl.options).forEach((opt) => {
+      const value = opt.value ?? '';
+      const text = opt.textContent?.trim() || '';
+      const isPlaceholder = value === '' || opt.disabled;
+
+      // Do not render placeholder/default option as a clickable row
+      if (isPlaceholder) return;
+
+      const item = document.createElement('button');
+      item.type = 'button';
+      item.className = `mi-dataset-dd-option ${optionClass}`.trim();
+      item.setAttribute('role', 'option');
+      item.setAttribute('data-value', value);
+      item.textContent = text;
+
+      const isSelected = value === (selectEl.value || '');
+      item.setAttribute('aria-selected', isSelected ? 'true' : 'false');
+      item.classList.toggle('is-selected', isSelected);
+
+      item.addEventListener('click', (e) => {
+        e.stopPropagation();
+
+        if (selectEl.value !== value) {
+          selectEl.value = value;
+          syncLabel();
+          rebuildPanel();
+          selectEl.dispatchEvent(new Event('change', { bubbles: true }));
+        } else {
+          syncLabel();
+        }
+
+        closePanel();
+      });
+
+      panel.appendChild(item);
+    });
+  };
+
+  // Avoid double-binding on repeated calls
+  if (!root.__miDatasetBound) {
+    root.__miDatasetBound = true;
+
+    trigger.addEventListener('click', (e) => {
+      e.stopPropagation();
+
+      const isOpen = !panel.classList.contains('hidden');
+      if (isOpen) closePanel();
+      else openPanel();
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!root.contains(e.target)) {
+        closePanel();
+      }
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closePanel();
+      }
+    });
+
+    selectEl.addEventListener('change', () => {
+      syncLabel();
+      rebuildPanel();
+    });
+  }
+
+  syncLabel();
+  rebuildPanel();
+
+  return {
+    root,
+    trigger,
+    panel,
+    sync: () => {
+      syncLabel();
+      rebuildPanel();
+    },
+    close: closePanel,
+    open: openPanel
+  };
+}
+
 function hardResetWorkflow(options = {}) {
   const {
     clearDatasetSelection = true,
@@ -8835,6 +8997,7 @@ function enterMatchupQuickEdit() {
   slotR.innerHTML = '';
 
   // --- Dataset ---
+  // --- Dataset ---
   const datasetHome = document.getElementById('datasetSelect');
 
   const dWrapQ = document.createElement('div');
@@ -8847,20 +9010,15 @@ function enterMatchupQuickEdit() {
 
   if (datasetHome) {
     Array.from(datasetHome.options).forEach(opt => {
-      const clone = opt.cloneNode(true);
-
-      // Quick edit should allow the placeholder to remain selectable as a reset path.
-      if (clone.value === '') {
-        clone.disabled = false;
-      }
-
-      dSelQ.appendChild(clone);
+      dSelQ.appendChild(opt.cloneNode(true));
     });
 
     dSelQ.value = datasetHome.value || '';
   } else {
     const fallback = document.createElement('option');
     fallback.value = '';
+    fallback.disabled = true;
+    fallback.selected = true;
     fallback.textContent = 'Select a dataset…';
     dSelQ.appendChild(fallback);
     dSelQ.value = '';
@@ -8869,18 +9027,27 @@ function enterMatchupQuickEdit() {
   dWrapQ.appendChild(dSelQ);
   slotD.appendChild(dWrapQ);
 
+  ensureCustomDatasetDropdown(
+    dSelQ,
+    dWrapQ,
+    'Select a dataset…',
+    {
+      uiId: 'datasetSelectQuickUi',
+      buttonClass: 'btn ghost'
+    }
+  );
+
   dSelQ.addEventListener('change', async () => {
     const home = document.getElementById('datasetSelect');
     if (!home) return;
 
     const nextValue = dSelQ.value || '';
 
-    // Even if the values match visually, keep quick + home perfectly synced.
     if (home.value !== nextValue) {
       home.value = nextValue;
     }
 
-    await miHandleCanonicalDatasetChange();
+    home.dispatchEvent(new Event('change', { bubbles: true }));
   });
 
   // --- Team A ---
@@ -10679,6 +10846,24 @@ function updatePreMatchupHubProgress() {
     );
   }
 
+  /* =========================================================
+     MOBILE-ONLY ACTIVE STEP TOKEN
+     ========================================================= */
+
+  let mobileActiveStep = '1';
+
+  if (csvLoaded && !teamsOk) {
+    mobileActiveStep = '2';
+  } else if (csvLoaded && teamsOk) {
+    mobileActiveStep = '3';
+  }
+
+  hub.setAttribute('data-mobile-step', mobileActiveStep);
+
+  if (els.stepsWrap) {
+    els.stepsWrap.setAttribute('data-mobile-step', mobileActiveStep);
+  }
+
   persistWorkflowState();
   updateActiveStepHighlight();
 }
@@ -11029,6 +11214,21 @@ function setupEventListeners() {
 
   const datasetSelect = document.getElementById('datasetSelect');
   const datasetDownloadBtn = document.getElementById('datasetDownloadBtn');
+
+  const datasetWrap = document.querySelector('.dataset-select-wrap');
+  if (datasetSelect && datasetWrap) {
+    ensureCustomDatasetDropdown(
+      datasetSelect,
+      datasetWrap,
+      'Select a dataset…',
+      {
+        uiId: 'datasetSelectUi',
+        buttonClass: 'btn ghost',
+        panelClass: 'round-dropdown',
+        optionClass: 'round-option'
+      }
+    );
+  }
 
   // --- Helper: sync download button (only if it exists) ---
   const syncDatasetDownloadState = () => {
@@ -12058,7 +12258,7 @@ function miForceMobileScrollUnlock() {
 // Build Version — must match service-worker.js and index.html
 // =========================================================
 
-const MI_BUILD = '27';
+const MI_BUILD = '29';
 
 function bootMadnessIndex() {
   console.log("[MI] bootMadnessIndex fired");

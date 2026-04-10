@@ -3588,26 +3588,6 @@ section#matchupBar.card.matchup-bar.visible:not(.is-editing){
 .chaos-tag   { color: var(--mi-role-chaos-mirror); }
 .neutral-tag { color: var(--mi-role-neutral-mirror); }
 
-/* Role glow */
-.team-card-header .cind-tag{
-  text-shadow: 0 0 6px rgba(34, 197, 94, 0.65), 0 0 12px rgba(34, 197, 94, 0.45);
-}
-.team-card-header .fav-tag{
-  text-shadow: 0 0 6px rgba(249, 115, 22, 0.65), 0 0 12px rgba(249, 115, 22, 0.45);
-}
-.team-card-header .chalk-tag{
-  text-shadow: 0 0 6px rgba(var(--mi-role-chalk-mirror-rgb), 0.65),
-               0 0 12px rgba(var(--mi-role-chalk-mirror-rgb), 0.45);
-}
-.team-card-header .chaos-tag{
-  text-shadow: 0 0 6px rgba(var(--mi-role-chaos-mirror-rgb), 0.65),
-               0 0 12px rgba(var(--mi-role-chaos-mirror-rgb), 0.45);
-}
-.team-card-header .neutral-tag{
-  text-shadow: 0 0 6px rgba(var(--mi-role-neutral-mirror-rgb), 0.65),
-               0 0 12px rgba(var(--mi-role-neutral-mirror-rgb), 0.45);
-}
-
 /* Team title (add mirror-aware glow like fav/cind) */
 .team-card-header:has(.fav-tag) h2{
   text-shadow: 0 0 8px rgba(249, 115, 22, 0.45), 0 0 14px rgba(249, 115, 22, 0.35);
@@ -4250,7 +4230,6 @@ section.profile-section.flip-tile{
 }
 .context-label {
   font-weight: 700;
-  text-transform: uppercase;
   letter-spacing: 0.18em;
   color: var(--mi-text-primary);
 }
@@ -11420,7 +11399,6 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
 .profile-section .context-label,
 .mi-efficiency-headline,
 .mi-efficiency-kicker{
-  text-transform: uppercase;
   letter-spacing: var(--mi-kicker-track);
   font-weight: var(--mi-kicker-weight);
 }
@@ -11584,7 +11562,7 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
 .profile-support-row .context-tile .tile-face.tile-front,
 .profile-support-row .context-tile .tile-face.tile-back{
   padding: 16px 16px 14px;
-  gap: 10px;
+  gap: 4px;
 }
 
 /* Unify resume tile typography with core profile panel language */
@@ -12019,20 +11997,29 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
 }
 
 /* subtle vignette only, not a card */
-.subtotal-main::before{
+.subtotal-main::before {
   content: "";
   position: absolute;
-  inset: -6px -12px -6px -10px;
+  inset: -6px -10px;          /* slightly larger halo */
   border-radius: 18px;
+
+  background:
+    radial-gradient(
+      circle at 50% 30%,
+      rgba(56, 189, 248, 0.14),
+      rgba(56, 189, 248, 0.04) 60%,
+      transparent 85%
+    );
+
+  border: 1px solid rgba(56, 189, 248, 0.28);
+
+  box-shadow:
+    0 0 0 1px rgba(56, 189, 248, 0.18),
+    0 4px 10px rgba(0, 0, 0, 0.35);
+
+  opacity: 0.95;
   pointer-events: none;
-  background: radial-gradient(
-    circle at 28% 50%,
-    rgba(56,189,248,0.10) 0%,
-    rgba(23,95,195,0.05) 32%,
-    rgba(2,6,23,0.00) 72%
-  );
-  filter: blur(10px);
-  opacity: 0.9;
+  z-index: -1;
 }
 
 .subtotal-main > *{
@@ -18558,12 +18545,6 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
 
   opacity: 0.82;
 
-  text-shadow:
-    0 0 4px currentColor,
-    0 0 8px currentColor;
-
-  filter: saturate(0.92);
-
   transition:
     opacity 160ms ease,
     filter 160ms ease;
@@ -18576,12 +18557,7 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
 #analysisShell .chalk-tag,
 #analysisShell .chaos-tag,
 #analysisShell .neutral-tag {
-
   opacity: 0.78;
-
-  text-shadow:
-    0 0 3px currentColor,
-    0 0 6px currentColor;
 }
 
 /* ─────────────────────────────────────────────
@@ -18650,11 +18626,6 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
   text-transform: uppercase;
 
   opacity: 0.72 !important;
-  filter: saturate(0.85);
-
-  text-shadow:
-    0 0 2px currentColor,
-    0 0 5px currentColor !important;
 
   background: rgba(2, 6, 23, 0.28);
   border: 1px solid rgba(255, 255, 255, 0.08);
@@ -21613,4 +21584,237 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
 
 .subtotal-row.profile-subtotal-row {
   justify-content: space-between;
+}
+
+/* ================================
+   Custom Dataset Dropdown
+   ================================ */
+
+.dataset-select-wrap {
+  position: relative;
+}
+
+.dataset-select-wrap > select#datasetSelect {
+  position: absolute !important;
+  inset: 0 auto auto 0;
+  width: 1px !important;
+  height: 1px !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+.mi-dataset-dd {
+  position: relative;
+  width: 100%;
+}
+
+.mi-dataset-dd-trigger {
+  width: 100%;
+  min-height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  text-align: left;
+}
+
+.mi-dataset-dd-label {
+  display: block;
+  min-width: 0;
+  flex: 1 1 auto;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: center;
+}
+
+.mi-dataset-dd-chevron {
+  flex: 0 0 auto;
+  transition: transform 0.18s ease;
+}
+
+.mi-dataset-dd.is-open .mi-dataset-dd-chevron {
+  transform: rotate(180deg);
+}
+
+.mi-dataset-dd-panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  z-index: 2000;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px;
+  max-height: 320px;
+  overflow-y: auto;
+  border-radius: 16px;
+  background:
+    linear-gradient(180deg, rgba(10, 18, 40, 0.98), rgba(8, 14, 32, 0.98));
+  border: 1px solid rgba(90, 140, 220, 0.22);
+  box-shadow:
+    0 16px 40px rgba(0, 0, 0, 0.42),
+    0 0 0 1px rgba(255, 255, 255, 0.03) inset;
+  backdrop-filter: blur(12px);
+}
+
+.mi-dataset-dd-option {
+  width: 100%;
+  min-height: 42px;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  text-align: left;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid transparent;
+  border-radius: 12px;
+  cursor: pointer;
+  color: rgba(235, 242, 255, 0.92);
+  font: inherit;
+  line-height: 1.2;
+  transition:
+    background 0.16s ease,
+    border-color 0.16s ease,
+    transform 0.16s ease,
+    color 0.16s ease;
+}
+
+.mi-dataset-dd-option:hover,
+.mi-dataset-dd-option:focus-visible {
+  background: rgba(64, 136, 255, 0.10);
+  border-color: rgba(88, 160, 255, 0.28);
+  color: #ffffff;
+  outline: none;
+}
+
+.mi-dataset-dd-option.is-selected {
+  background: rgba(44, 190, 120, 0.12);
+  border-color: rgba(44, 190, 120, 0.34);
+  color: #ffffff;
+  font-weight: 700;
+}
+
+.mi-dataset-dd.is-placeholder .mi-dataset-dd-label {
+  opacity: 0.82;
+}
+
+#resumeTileA .mi-flip-hint {
+  margin-top: 40px;
+}
+
+#resumeTileB .mi-flip-hint {
+  margin-top: 40px;
+}
+
+#resumeTileA .tile-face.tile-front,
+#resumeTileB .tile-face.tile-front {
+  justify-content: flex-start;
+  align-items: stretch;
+  padding-top: 14px;
+  padding-bottom: 10px;
+  min-height: 0;
+}
+
+.profile-subtotal-row .subtotal-main {
+  flex: 0 0 auto;
+  width: fit-content;
+  align-content: center;
+  justify-content: center;
+  text-align: center;
+}
+
+section.profile-section.flip-tile .subtotal-row.profile-subtotal-row {
+  justify-content: center !important;
+  gap: 12px;
+}
+
+.profile-section.flip-tile .subtotal-row.profile-subtotal-row {
+  justify-content: center !important;
+  gap: 12px;
+}
+
+.profile-section.flip-tile .subtotal-row.profile-subtotal-row > * {
+  flex: 0 0 auto;
+}
+
+.profile-subtotal-row {
+  display: grid !important;
+  grid-template-columns: max-content max-content !important;
+  justify-content: center !important;
+  width: fit-content !important;
+  margin: 0 auto !important;
+  column-gap: 48px !important;
+}
+
+.profile-subtotal-row .subtotal-main {
+  position: relative;
+  isolation: isolate;
+  z-index: 0;
+  padding: 12px 16px 12px 16px;
+  border-radius: 18px;
+  overflow: visible;
+}
+
+.profile-subtotal-row .subtotal-main::before {
+  content: "";
+  position: absolute;
+  inset: -8px -12px;
+  z-index: -1;
+  pointer-events: none;
+  border-radius: 20px;
+
+  background:
+    radial-gradient(circle at 50% 18%, rgba(110, 200, 255, 0.26) 0%, rgba(110, 200, 255, 0.10) 26%, transparent 62%),
+    radial-gradient(circle at 15% 50%, rgba(30, 144, 255, 0.18) 0%, transparent 58%),
+    radial-gradient(circle at 85% 50%, rgba(56, 189, 248, 0.16) 0%, transparent 58%),
+    linear-gradient(180deg, rgba(14, 24, 46, 0.96) 0%, rgba(8, 15, 32, 0.96) 100%);
+
+  border: 1px solid rgba(95, 180, 255, 0.42);
+
+  box-shadow:
+    0 0 0 1px rgba(145, 220, 255, 0.20) inset,
+    0 0 20px rgba(56, 189, 248, 0.20),
+    0 0 42px rgba(37, 99, 235, 0.18),
+    0 10px 24px rgba(0, 0, 0, 0.42),
+    0 2px 0 rgba(255, 255, 255, 0.05) inset;
+
+  opacity: 1;
+}
+
+.profile-subtotal-row .subtotal-main::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  z-index: -1;
+  pointer-events: none;
+  border-radius: 18px;
+  background:
+    linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.14) 0%,
+      rgba(255, 255, 255, 0.03) 22%,
+      rgba(255, 255, 255, 0.00) 45%,
+      rgba(90, 180, 255, 0.08) 100%
+    );
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  padding: 1px;
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+
+.profile-subtotal-row .subtotal-main > span:first-child {
+  position: relative;
+  z-index: 1;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.05);
+}
+
+.profile-subtotal-row .subtotal-main .subtotal-value {
+  position: relative;
+  z-index: 1;
+  text-shadow:
+    0 0 10px rgba(255, 255, 255, 0.08),
+    0 0 18px rgba(96, 165, 250, 0.18);
 }

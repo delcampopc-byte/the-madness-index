@@ -565,7 +565,7 @@
     "breadth_bonus": "Breadth Bonus",
     "breadth_bonus_hint": "Bonus for total hits across Core Traits",
 
-    "effective_adj": "Interaction Channels Adjustment",
+    "effective_adj": "Interactions Adjustment",
     "effective_adj_hint": "Driven by how each team's strengths and weaknesses interact.",
 
     "total_adj": "Net Matchup Adjustment",
