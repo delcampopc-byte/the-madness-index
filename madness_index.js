@@ -5800,6 +5800,7 @@ function compareTeams(teamAName, teamBName, roleMode = 'auto', opts = MI_V2_DEFA
     updateMadnessBacksForResult(result, window.MI_COPY, roleMode);
   }
 
+  miSyncShareButtons();
   miPushLogFromResult(result);
   miRenderShelf();
   syncCoreTraitsProfileSectionHeights();
@@ -11200,6 +11201,247 @@ async function downloadDatasetFromUrl(url, filename) {
   triggerCsvDownload(text, filename);
 }
 
+/* =========================================================
+   Native Share + Save Matchup Card (v1)
+   ========================================================= */
+
+function miGetCurrentResultForShare() {
+  return window.LAST_RESULT || null;
+}
+
+function miRoundLabelFromCode(code) {
+  if (!code) return 'Round N/A';
+  if (typeof getRoundLabelFromCode === 'function') return getRoundLabelFromCode(code);
+  return code;
+}
+
+function miSafeNum(v, fallback = 0) {
+  return Number.isFinite(v) ? v : fallback;
+}
+
+function miBuildSharePayload(result) {
+  if (!result || !result.a || !result.b) return null;
+
+  const teamA = result.a.name || 'Team A';
+  const teamB = result.b.name || 'Team B';
+  const miA = miSafeNum(result.miA_raw, miSafeNum(result.miA, 0));
+  const miB = miSafeNum(result.miB_raw, miSafeNum(result.miB, 0));
+  const diff = miSafeNum(result.final_delta, miA - miB);
+  const roundCode = result.activeRound || result.round || CURRENT_ROUND || '';
+  const roundLabel = miRoundLabelFromCode(roundCode);
+
+  let lean = 'Toss-Up';
+  if (typeof getLeanBand === 'function') lean = getLeanBand(diff);
+
+  const winner = diff > 0 ? teamA : diff < 0 ? teamB : 'No clear edge';
+
+  return {
+    teamA,
+    teamB,
+    miA: miA.toFixed(3),
+    miB: miB.toFixed(3),
+    diff: diff.toFixed(3),
+    absDiff: Math.abs(diff).toFixed(3),
+    lean,
+    winner,
+    roundLabel,
+    generatedAt: new Date().toLocaleString()
+  };
+}
+
+function miBuildShareText(payload) {
+  return [
+    `${payload.teamA} vs ${payload.teamB}`,
+    `${payload.roundLabel} • ${payload.lean} (ΔMI ${payload.diff})`,
+    `MI: ${payload.teamA} ${payload.miA} | ${payload.teamB} ${payload.miB}`,
+    `Edge: ${payload.winner}`,
+    `Generated with The Madness Index`
+  ].join('\n');
+}
+
+function miRenderMatchupCardCanvas(payload) {
+  const width = 1200;
+  const height = 630;
+  const canvas = document.createElement('canvas');
+  canvas.width = width;
+  canvas.height = height;
+
+  const ctx = canvas.getContext('2d');
+
+  // background
+  ctx.fillStyle = '#020817';
+  ctx.fillRect(0, 0, width, height);
+
+  // accent bar
+  ctx.fillStyle = '#1c6fb0';
+  ctx.fillRect(0, 0, width, 14);
+
+  // title
+  ctx.fillStyle = '#E2E8F0';
+  ctx.font = '700 44px Rajdhani, Arial, sans-serif';
+  ctx.fillText('The Madness Index', 60, 80);
+
+  ctx.fillStyle = '#94A3B8';
+  ctx.font = '600 26px Rajdhani, Arial, sans-serif';
+  ctx.fillText(payload.roundLabel, 60, 120);
+
+  // matchup
+  ctx.fillStyle = '#F8FAFC';
+  ctx.font = '700 52px Rajdhani, Arial, sans-serif';
+  ctx.fillText(payload.teamA, 60, 220);
+
+  ctx.fillStyle = '#64748B';
+  ctx.font = '600 32px Rajdhani, Arial, sans-serif';
+  ctx.fillText('vs', 60, 270);
+
+  ctx.fillStyle = '#F8FAFC';
+  ctx.font = '700 52px Rajdhani, Arial, sans-serif';
+  ctx.fillText(payload.teamB, 60, 340);
+
+  // MI values
+  ctx.fillStyle = '#CBD5E1';
+  ctx.font = '600 28px Rajdhani, Arial, sans-serif';
+  ctx.fillText(`MI: ${payload.teamA} ${payload.miA}`, 60, 420);
+  ctx.fillText(`MI: ${payload.teamB} ${payload.miB}`, 60, 460);
+
+  // right card
+  ctx.fillStyle = '#0F172A';
+  ctx.fillRect(760, 120, 380, 360);
+  ctx.strokeStyle = '#1E293B';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(760, 120, 380, 360);
+
+  ctx.fillStyle = '#93C5FD';
+  ctx.font = '700 30px Rajdhani, Arial, sans-serif';
+  ctx.fillText('Matchup Edge', 800, 180);
+
+  ctx.fillStyle = '#F8FAFC';
+  ctx.font = '700 56px Rajdhani, Arial, sans-serif';
+  ctx.fillText(payload.lean, 800, 250);
+
+  ctx.fillStyle = '#E2E8F0';
+  ctx.font = '600 34px Rajdhani, Arial, sans-serif';
+  ctx.fillText(`ΔMI ${payload.diff}`, 800, 310);
+
+  ctx.fillStyle = '#CBD5E1';
+  ctx.font = '600 28px Rajdhani, Arial, sans-serif';
+  ctx.fillText(`Winner: ${payload.winner}`, 800, 370);
+
+  ctx.fillStyle = '#64748B';
+  ctx.font = '500 20px Rajdhani, Arial, sans-serif';
+  ctx.fillText(`Generated ${payload.generatedAt}`, 60, 590);
+
+  return canvas;
+}
+
+function miCanvasToBlob(canvas, type = 'image/png', quality = 0.92) {
+  return new Promise((resolve, reject) => {
+    canvas.toBlob((blob) => {
+      if (!blob) {
+        reject(new Error('Unable to generate image blob.'));
+        return;
+      }
+      resolve(blob);
+    }, type, quality);
+  });
+}
+
+function miDownloadBlob(blob, filename) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+function miBuildCardFilename(payload) {
+  const safeA = String(payload.teamA || 'A').replace(/[^a-z0-9]+/gi, '_');
+  const safeB = String(payload.teamB || 'B').replace(/[^a-z0-9]+/gi, '_');
+  return `MadnessIndex_${safeA}_vs_${safeB}.png`;
+}
+
+async function miSaveCurrentMatchupImage() {
+  const result = miGetCurrentResultForShare();
+  const payload = miBuildSharePayload(result);
+
+  if (!payload) {
+    alert('Run a matchup first, then save image.');
+    return;
+  }
+
+  try {
+    const canvas = miRenderMatchupCardCanvas(payload);
+    const blob = await miCanvasToBlob(canvas);
+    miDownloadBlob(blob, miBuildCardFilename(payload));
+  } catch (err) {
+    console.error('[MI] Save image failed:', err);
+    alert('Could not save image on this device/browser.');
+  }
+}
+
+async function miShareCurrentMatchup() {
+  const result = miGetCurrentResultForShare();
+  const payload = miBuildSharePayload(result);
+
+  if (!payload) {
+    alert('Run a matchup first, then share.');
+    return;
+  }
+
+  const text = miBuildShareText(payload);
+  const url = window.location.href;
+
+  try {
+    // Attempt file share first (when supported)
+    const canvas = miRenderMatchupCardCanvas(payload);
+    const blob = await miCanvasToBlob(canvas);
+    const file = new File([blob], miBuildCardFilename(payload), { type: 'image/png' });
+
+    if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+      await navigator.share({
+        title: 'The Madness Index',
+        text,
+        files: [file],
+        url
+      });
+      return;
+    }
+
+    // Fallback to text/url share
+    if (navigator.share) {
+      await navigator.share({
+        title: 'The Madness Index',
+        text,
+        url
+      });
+      return;
+    }
+
+    // Final fallback: copy text to clipboard + prompt save image
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(`${text}\n${url}`);
+      alert('Share is not supported here. Summary copied to clipboard.');
+    } else {
+      alert('Share is not supported here. Use Save Image instead.');
+    }
+  } catch (err) {
+    console.warn('[MI] Share canceled/failed:', err);
+  }
+}
+
+function miSyncShareButtons() {
+  const shareBtn = document.getElementById('shareMatchupBtn');
+  const saveBtn = document.getElementById('saveMatchupImageBtn');
+  if (!shareBtn || !saveBtn) return;
+
+  const hasResult = !!miBuildSharePayload(miGetCurrentResultForShare());
+  shareBtn.disabled = !hasResult;
+  saveBtn.disabled = !hasResult;
+}
+
 // ========== EVENT WIRING & DOM READY ==========
 
 function setupEventListeners() {
@@ -11675,6 +11917,24 @@ if (roundBtn && roundDropdown) {
 
     initInteractionConsoleSync();
   }
+
+  // Share / Save buttons
+  const shareMatchupBtn = document.getElementById('shareMatchupBtn');
+  const saveMatchupImageBtn = document.getElementById('saveMatchupImageBtn');
+
+  if (shareMatchupBtn) {
+    shareMatchupBtn.addEventListener('click', async () => {
+      await miShareCurrentMatchup();
+    });
+  }
+
+  if (saveMatchupImageBtn) {
+    saveMatchupImageBtn.addEventListener('click', async () => {
+      await miSaveCurrentMatchupImage();
+    });
+  }
+
+  miSyncShareButtons();
 }
 
 /* =========================================================
@@ -12132,6 +12392,8 @@ if (roundBtn && roundDropdown) {
 
 let miDeferredInstallPrompt = null;
 let miInstallPromptSupported = false;
+let miInstallUiActive = false;
+let miInstallUiInitialized = false;
 
 function miIsIosLike() {
   const ua = window.navigator.userAgent || '';
@@ -12145,6 +12407,28 @@ function miIsStandaloneMode() {
     window.navigator.standalone === true;
 }
 
+function miSetInstallUiActive(next) {
+  miInstallUiActive = !!next;
+
+  if (!miInstallUiActive) {
+    miDeferredInstallPrompt = null;
+    miInstallPromptSupported = false;
+  }
+
+  miUpdateInstallUI();
+}
+
+function miIsEntryScreenActive() {
+  const entryScreen = document.getElementById('mi-entry-screen');
+  if (!entryScreen) return false;
+
+  return (
+    !entryScreen.hidden &&
+    !entryScreen.classList.contains('is-hidden') &&
+    entryScreen.getAttribute('aria-hidden') !== 'true'
+  );
+}
+
 function miUpdateInstallUI() {
   const installBtn = document.getElementById('miInstallBtn');
   const helpEl = document.getElementById('miInstallHelp');
@@ -12154,6 +12438,16 @@ function miUpdateInstallUI() {
   installBtn.hidden = true;
   helpEl.hidden = true;
   helpEl.textContent = '';
+
+  // Install UI is entry-screen only. Once inactive, it becomes inert.
+  if (!miInstallUiActive) {
+    return;
+  }
+
+  // Never show install UI unless the entry screen is currently active.
+  if (!miIsEntryScreenActive()) {
+    return;
+  }
 
   if (miIsStandaloneMode()) {
     return;
@@ -12181,13 +12475,24 @@ function miInitInstallPromptUI() {
   const helpEl = document.getElementById('miInstallHelp');
 
   if (!installBtn || !helpEl) return;
+  if (miInstallUiInitialized) {
+    miUpdateInstallUI();
+    return;
+  }
+
+  miInstallUiInitialized = true;
 
   installBtn.addEventListener('click', async () => {
+    if (!miInstallUiActive) {
+      return;
+    }
+
     console.log('[MI] Install button clicked', {
       hasPrompt: !!miDeferredInstallPrompt,
       promptSupported: miInstallPromptSupported,
       standalone: miIsStandaloneMode(),
-      isIosLike: miIsIosLike()
+      isIosLike: miIsIosLike(),
+      installUiActive: miInstallUiActive
     });
 
     if (miIsStandaloneMode()) {
@@ -12222,6 +12527,10 @@ function miInitInstallPromptUI() {
   });
 
   window.addEventListener('beforeinstallprompt', (event) => {
+    if (!miInstallUiActive) {
+      return;
+    }
+
     console.log('[MI] beforeinstallprompt captured');
     event.preventDefault();
     miDeferredInstallPrompt = event;
@@ -12230,6 +12539,10 @@ function miInitInstallPromptUI() {
   });
 
   window.addEventListener('appinstalled', () => {
+    if (!miInstallUiActive) {
+      return;
+    }
+
     miDeferredInstallPrompt = null;
     miInstallPromptSupported = false;
     miUpdateInstallUI();
@@ -12258,7 +12571,7 @@ function miForceMobileScrollUnlock() {
 // Build Version — must match service-worker.js and index.html
 // =========================================================
 
-const MI_BUILD = '29';
+const MI_BUILD = '31';
 
 function bootMadnessIndex() {
   console.log("[MI] bootMadnessIndex fired");
@@ -12277,9 +12590,10 @@ function bootMadnessIndex() {
 
     await loadTeamBranding();
 
-    miInitInstallPromptUI();
     setupEventListeners();
     loadCopyJSON();
+
+    miSyncShareButtons();
 
     if (typeof miInitGlossary === 'function') {
       miInitGlossary();

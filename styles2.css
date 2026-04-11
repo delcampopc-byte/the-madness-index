@@ -10139,13 +10139,6 @@ button,
               transform 600ms ease 250ms;
 }
 
-#mi-entry-screen.is-hidden {
-  opacity: 0;
-  transform: translateY(-120px) scale(0.92);
-  filter: blur(6px);
-  pointer-events: none;
-}
-
 .mi-entry-inner {
   display: flex;
   flex-direction: column;
@@ -21642,7 +21635,7 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
   top: calc(100% + 8px);
   left: 0;
   right: 0;
-  z-index: 2000;
+  z-index: 2000000000000000;
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -21817,4 +21810,408 @@ section.profile-section.flip-tile .subtotal-row.profile-subtotal-row {
   text-shadow:
     0 0 10px rgba(255, 255, 255, 0.08),
     0 0 18px rgba(96, 165, 250, 0.18);
+}
+
+/* =========================================
+   SHARE / SAVE MATCHUP ACTION BUTTONS
+   ========================================= */
+
+/* Allow 3+ actions in this row without crowding */
+.matchup-actions-row {
+  flex-wrap: wrap;
+}
+
+/* Shared style for the two new action buttons */
+#shareMatchupBtn,
+#saveMatchupImageBtn {
+  min-width: 132px;
+  justify-content: center;
+
+  border: 1px solid rgba(148, 163, 184, 0.34);
+  color: var(--mi-text-primary);
+  background:
+    linear-gradient(
+      180deg,
+      rgba(15, 23, 42, 0.72) 0%,
+      rgba(2, 6, 23, 0.86) 100%
+    );
+
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,0.03),
+    0 6px 16px rgba(2, 6, 23, 0.45);
+
+  transition:
+    transform 0.16s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    opacity 0.2s ease;
+}
+
+#shareMatchupBtn:hover,
+#saveMatchupImageBtn:hover {
+  transform: translateY(-1px);
+  border-color: rgba(125, 211, 252, 0.55);
+  color: #e6f3ff;
+  box-shadow:
+    inset 0 0 0 1px rgba(125, 211, 252, 0.14),
+    0 0 0 2px rgba(56, 189, 248, 0.12),
+    0 12px 24px rgba(2, 132, 199, 0.18);
+}
+
+#shareMatchupBtn:active,
+#saveMatchupImageBtn:active {
+  transform: translateY(0);
+}
+
+/* Disabled state is critical while no matchup result exists */
+#shareMatchupBtn:disabled,
+#saveMatchupImageBtn:disabled {
+  opacity: 0.48;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+  border-color: rgba(100, 116, 139, 0.35);
+  color: rgba(148, 163, 184, 0.72);
+}
+
+/* =========================================================
+   MATCHUP BAR — INTERACTION SAFETY OVERRIDES
+   Put at very bottom of styles2.css
+   Goal: keep decorative layers from stealing clicks and
+   guarantee the quick-edit action row is a real interactive layer.
+   ========================================================= */
+
+/* Decorative shells should never intercept clicks/taps */
+#matchupBar::before,
+#matchupBar::after,
+#matchupBar .mi-matchup-backplate::before,
+#matchupBar .mi-matchup-backplate::after,
+#matchupBar .mi-matchup-dock::before,
+#matchupBar .mi-matchup-dock::after,
+#matchupBar .matchup-bar-main::before,
+#matchupBar .matchup-bar-main::after {
+  pointer-events: none !important;
+}
+
+/* Keep actual controls interactive */
+#matchupBar .matchup-bar-main,
+#matchupBar .matchup-bar-left,
+#matchupBar .matchup-bar-center,
+#matchupBar .matchup-bar-right,
+#matchupBar .matchup-quick-slot,
+#matchupBar .matchup-quick-actions,
+#matchupBar #editMatchupBtn,
+#matchupBar #matchupQuickRun,
+#matchupBar #matchupQuickCancel {
+  pointer-events: auto !important;
+}
+
+/* Quick-edit action row must sit above decorative shell layers */
+#matchupBar.is-editing .matchup-quick-actions {
+  position: relative !important;
+  z-index: 2305 !important;
+}
+
+/* Action buttons themselves get their own stacking context */
+#matchupBar.is-editing #matchupQuickRun,
+#matchupBar.is-editing #matchupQuickCancel,
+#matchupBar:not(.is-editing) #editMatchupBtn {
+  position: relative !important;
+  z-index: 2310 !important;
+  pointer-events: auto !important;
+}
+
+/* Prevent hidden rest-state action row from occupying an interaction layer */
+#matchupBar:not(.is-editing) .matchup-quick-actions {
+  display: none !important;
+  pointer-events: none !important;
+}
+
+/* Keep quick-edit shell open for floating controls */
+#matchupBar.is-editing,
+#matchupBar.is-editing .mi-matchup-dock,
+#matchupBar.is-editing .matchup-bar-main {
+  overflow: visible !important;
+}
+
+.mi-team-dd-search {
+  border-radius: inherit !important;
+}
+
+/* Dataset dropdown — hovered row should own the green highlight */
+.mi-dataset-dd-option:hover,
+.mi-dataset-dd-option:focus-visible {
+  background: linear-gradient(
+    180deg,
+    rgba(16, 185, 129, 0.20),
+    rgba(16, 185, 129, 0.12)
+  ) !important;
+  border-color: rgba(16, 185, 129, 0.55) !important;
+  color: rgba(255, 255, 255, 0.98) !important;
+}
+
+/* Keep selected row styled, but less dominant than hover */
+.mi-dataset-dd-option.is-selected[aria-selected="true"] {
+  background: rgba(16, 185, 129, 0.10) !important;
+  border-color: rgba(16, 185, 129, 0.30) !important;
+}
+
+/* If the selected row is hovered, let hover fully take over */
+.mi-dataset-dd-option.is-selected[aria-selected="true"]:hover,
+.mi-dataset-dd-option.is-selected[aria-selected="true"]:focus-visible {
+  background: linear-gradient(
+    180deg,
+    rgba(16, 185, 129, 0.22),
+    rgba(16, 185, 129, 0.14)
+  ) !important;
+  border-color: rgba(16, 185, 129, 0.60) !important;
+}
+
+#datasetQuickSelectWrap .mi-dataset-dd-panel .mi-dataset-dd-option:hover,
+#datasetSelectQuickUi .mi-dataset-dd-panel .mi-dataset-dd-option:hover {
+  background: linear-gradient(
+    180deg,
+    rgba(16, 185, 129, 0.22),
+    rgba(16, 185, 129, 0.14)
+  ) !important;
+  border-color: rgba(16, 185, 129, 0.60) !important;
+}
+
+#preSetupRow:has(#mcRow1.is-primary-entry) #datasetCard .or-divider,
+#preSetupRow:has(#mcRow1.is-primary-entry) #datasetCard .file-label.file-label--manual,
+#preSetupRow:has(#mcRow2.is-primary-entry) #datasetCard .or-divider,
+#preSetupRow:has(#mcRow2.is-primary-entry) #datasetCard .file-label.file-label--manual,
+#preSetupRow:has(#mcRow3.is-primary-entry) #datasetCard .or-divider,
+#preSetupRow:has(#mcRow3.is-primary-entry) #datasetCard .file-label.file-label--manual {
+  display: none !important;
+}
+
+#entry-screen #miInstallBtn,
+#entry-screen #miInstallHelp {
+  display: none !important;
+}
+
+/* =========================================================
+   HARD-OVERLAY FIX: desktop/global dropdown opacity + priority
+   ========================================================= */
+
+.mi-dataset-dd,
+.mi-quick-select,
+#matchupQuickSlot,
+#matchupQuickDataset,
+#matchupBar,
+#matchupBar .matchup-bar-main {
+  isolation: isolate;
+}
+
+.mi-dataset-dd.is-open,
+.mi-quick-select.is-open,
+.mi-quick-select[aria-expanded="true"],
+.mi-dataset-dd[aria-expanded="true"] {
+  z-index: 2147482000 !important;
+}
+
+.mi-dataset-dd-panel,
+.mi-quick-select-menu,
+.mi-quick-select-panel,
+.mi-select-menu,
+.mi-select-panel {
+  z-index: 2147483000 !important;
+
+  background: rgb(10, 18, 40) !important;
+  background-image: none !important;
+  opacity: 1 !important;
+
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  filter: none !important;
+  mix-blend-mode: normal !important;
+
+  box-shadow:
+    0 22px 54px rgba(0, 0, 0, 0.62),
+    0 8px 22px rgba(0, 0, 0, 0.42) !important;
+
+  border: 1px solid rgba(90, 140, 220, 0.32) !important;
+}
+
+.mi-dataset-dd.is-open .mi-dataset-dd-panel,
+.mi-quick-select.is-open .mi-quick-select-menu,
+.mi-quick-select.is-open .mi-quick-select-panel,
+.mi-quick-select[aria-expanded="true"] .mi-quick-select-menu,
+.mi-quick-select[aria-expanded="true"] .mi-quick-select-panel {
+  opacity: 1 !important;
+  visibility: visible;
+
+  background: rgb(10, 18, 40) !important;
+  background-image: none !important;
+
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  filter: none !important;
+}
+
+#mi-entry-screen.is-hidden #miInstallBtn,
+#mi-entry-screen.is-hidden #miInstallHelp {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+/* =========================================================
+   ENTRY SCREEN: once hidden, it must be completely inert
+   ========================================================= */
+
+#mi-entry-screen[hidden],
+#mi-entry-screen.is-hidden {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transform: none !important;
+  filter: none !important;
+}
+
+#mi-entry-screen[hidden] *,
+#mi-entry-screen.is-hidden * {
+  pointer-events: none !important;
+}
+
+/* =========================================================
+   DATASET DROPDOWN MUST OUTRANK QUICK ACTIONS / CENTER LAYERS
+   ========================================================= */
+
+/* Let the matchup bar and its children allow overlays */
+#matchupBar,
+#matchupBar .matchup-bar-main,
+#matchupQuickDataset,
+#matchupQuickRound,
+#matchupQuickActions,
+#matchupQuickSlot {
+  overflow: visible !important;
+}
+
+/* Baseline positioning so z-index can actually apply */
+#matchupQuickDataset,
+#matchupQuickRound,
+#matchupQuickActions,
+#matchupQuickSlot,
+.mi-dataset-dd,
+.mi-dataset-dd-panel {
+  position: relative;
+}
+
+/* The quick actions area is currently winning.
+   Keep it lower unless specifically needed above something else. */
+#matchupQuickActions,
+.matchup-quick-actions {
+  z-index: 20 !important;
+}
+
+/* Dataset slot sits above normal siblings */
+#matchupQuickDataset,
+#matchupQuickSlot {
+  z-index: 40 !important;
+}
+
+/* When dataset dropdown is open, elevate the WHOLE BRANCH */
+#matchupQuickDataset:has(.mi-dataset-dd.is-open),
+#matchupQuickSlot:has(.mi-dataset-dd.is-open),
+.mi-dataset-dd.is-open {
+  z-index: 5000 !important;
+}
+
+/* The actual panel sits above everything inside that raised branch */
+.mi-dataset-dd.is-open .mi-dataset-dd-panel,
+.mi-dataset-dd-panel {
+  position: absolute !important;
+  z-index: 5001 !important;
+}
+
+/* =========================================
+   VERDICT INLINE ACTIONS — SIDE BY SIDE
+   ========================================= */
+
+#miVerdictInlineActions.mi-verdict-inline-actions {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 12px;
+
+  /* place under the copy column */
+  width: fit-content;
+  margin-top: 18px;
+  margin-left: clamp(170px, 18vw, 210px);
+
+  padding-top: 0;
+  border-top: none;
+  align-self: flex-start;
+}
+
+#miVerdictInlineActions .mi-verdict-action-btn {
+  min-height: 44px;
+  min-width: 0;
+  padding: 10px 16px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 850;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  flex: 0 0 auto;
+
+  color: rgba(226, 232, 240, 0.94);
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.015)),
+    rgba(2, 6, 23, 0.58);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+
+  box-shadow:
+    0 10px 22px rgba(0,0,0,0.38),
+    inset 0 1px 0 rgba(255,255,255,0.05);
+
+  transition:
+    transform 160ms ease,
+    border-color 160ms ease,
+    background 160ms ease,
+    box-shadow 160ms ease,
+    color 160ms ease;
+}
+
+#miVerdictInlineActions .mi-verdict-action-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  color: rgba(241, 245, 249, 0.98);
+  border-color: rgba(56, 189, 248, 0.40);
+  background:
+    linear-gradient(180deg, rgba(56,189,248,0.10), rgba(255,255,255,0.03)),
+    rgba(2, 6, 23, 0.7);
+  box-shadow:
+    0 14px 28px rgba(0,0,0,0.44),
+    0 0 18px rgba(56,189,248,0.10),
+    inset 0 1px 0 rgba(255,255,255,0.06);
+}
+
+#miVerdictInlineActions .mi-verdict-action-btn:focus-visible {
+  outline: none;
+  border-color: rgba(56, 189, 248, 0.55);
+  box-shadow:
+    0 0 0 3px rgba(56, 189, 248, 0.16),
+    0 14px 28px rgba(0,0,0,0.44),
+    inset 0 1px 0 rgba(255,255,255,0.06);
+}
+
+#miVerdictInlineActions .mi-verdict-action-btn:disabled {
+  opacity: 0.56;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow:
+    0 8px 18px rgba(0,0,0,0.24),
+    inset 0 1px 0 rgba(255,255,255,0.03);
 }

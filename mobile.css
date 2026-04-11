@@ -489,6 +489,14 @@
     font-size: 0.9rem;
     padding: 10px 12px;
   }
+
+  #shareMatchupBtn,
+  #saveMatchupImageBtn {
+    width: 50%;
+    min-width: 0;
+    font-size: 0.9rem;
+    padding: 10px 12px;
+  }
 }
 
 /* =============================================
@@ -3292,25 +3300,6 @@
     margin: 0 !important;
   }
 
-  #matchupBar.is-editing #matchupQuickDataset .quick-dataset-select,
-  #matchupBar.is-editing #matchupQuickDataset .select-wrap,
-  #matchupBar.is-editing #matchupQuickDataset select,
-  #matchupBar.is-editing #datasetQuickSelectWrap,
-  #matchupBar.is-editing #datasetSelectQuick {
-    display: block !important;
-    width: auto !important;
-    max-width: 100% !important;
-    min-width: 0 !important;
-    min-height: 44px !important;
-    box-sizing: border-box !important;
-    margin: 0 !important;
-    align-self: center;
-    text-align: center;
-    justify-content: center;
-    align-items: center;
-    left: 56px;
-  }
-
   /* round + sandbox
      Keep a REAL wrapper box so the dropdown panel has a correct anchor */
   #matchupBar.is-editing #matchupQuickRound {
@@ -4028,5 +4017,355 @@
 
   #preSetupRow.pre-setup-row.top-bar {
     row-gap: 8px !important;        /* was 18px */
+  }
+}
+
+@media (max-width: 720px) {
+
+  /* QUICK EDIT DATASET — new custom dropdown only */
+  #matchupBar.is-editing #matchupQuickDataset {
+    grid-area: dataset !important;
+    display: block !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    position: relative !important;
+    overflow: visible !important;
+    z-index: 10030 !important;
+  }
+
+  #matchupBar.is-editing #datasetQuickSelectWrap,
+  #matchupBar.is-editing #matchupQuickDataset .quick-dataset-select {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    position: relative !important;
+    overflow: visible !important;
+  }
+
+  /* native backing select must remain hidden */
+  #matchupBar.is-editing #datasetSelectQuick {
+    display: none !important;
+  }
+
+  /* visible custom control */
+  #matchupBar.is-editing #datasetQuickSelectWrap .mi-dataset-dd,
+  #matchupBar.is-editing #datasetSelectQuickUi {
+    display: block !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    position: relative !important;
+    overflow: visible !important;
+    z-index: 10040 !important;
+  }
+
+  #matchupBar.is-editing #datasetQuickSelectWrap .mi-dataset-dd-trigger,
+  #matchupBar.is-editing #datasetSelectQuickUi .mi-dataset-dd-trigger {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 100% !important;
+    min-height: 44px !important;
+    padding: 0 14px !important;
+    box-sizing: border-box !important;
+    margin: 0 !important;
+    text-align: center !important;
+  }
+
+  #matchupBar.is-editing #datasetQuickSelectWrap .mi-dataset-dd-label,
+  #matchupBar.is-editing #datasetSelectQuickUi .mi-dataset-dd-label {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    text-align: center !important;
+  }
+
+  #matchupBar.is-editing #datasetQuickSelectWrap .mi-dataset-dd-panel,
+  #matchupBar.is-editing #datasetSelectQuickUi .mi-dataset-dd-panel {
+    position: absolute !important;
+    top: calc(100% + 8px) !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    z-index: 10050 !important;
+  }
+}
+
+/* =========================================================
+   MOBILE — QUICK EDIT DATASET DROPDOWN TRUE OVERLAY
+   Make the custom dataset panel float over everything below
+   exactly like the quick team dropdowns.
+   ========================================================= */
+@media (max-width: 720px) {
+
+  /* Keep the whole edit shell unclipped */
+  #matchupBar.is-editing,
+  #matchupBar.is-editing .mi-matchup-dock,
+  #matchupBar.is-editing .matchup-bar-main,
+  #matchupBar.is-editing .matchup-bar-center,
+  #matchupBar.is-editing #matchupQuickDataset,
+  #matchupBar.is-editing #datasetQuickSelectWrap {
+    overflow: visible !important;
+  }
+
+  /* Real stacking anchors for the dataset control */
+  #matchupBar.is-editing #matchupQuickDataset,
+  #matchupBar.is-editing #datasetQuickSelectWrap,
+  #matchupBar.is-editing #datasetQuickSelectWrap .mi-dataset-dd,
+  #matchupBar.is-editing #datasetSelectQuickUi {
+    position: relative !important;
+    z-index: 10040 !important;
+    overflow: visible !important;
+  }
+
+  /* Force the actual dataset panel above anything underneath */
+  #matchupBar.is-editing #datasetQuickSelectWrap .mi-dataset-dd-panel,
+  #matchupBar.is-editing #datasetSelectQuickUi .mi-dataset-dd-panel {
+    position: absolute !important;
+    top: calc(100% + 8px) !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    z-index: 10050 !important;
+    overflow: auto !important;
+  }
+
+  /* Keep the center dataset row above sibling rows when open */
+  #matchupBar.is-editing .matchup-bar-main:has(#datasetQuickSelectWrap .mi-dataset-dd.is-open),
+  #matchupBar.is-editing #matchupQuickDataset:has(.mi-dataset-dd.is-open) {
+    position: relative !important;
+    z-index: 10035 !important;
+  }
+}
+
+/* =========================================================
+   MOBILE — DATASET DROPDOWN MUST OUTRANK TEAM B QUICK SELECT
+   ========================================================= */
+@media (max-width: 720px) {
+
+  /* Dataset row becomes the strongest local stacking anchor */
+  #matchupBar.is-editing #matchupQuickDataset,
+  #matchupBar.is-editing #datasetQuickSelectWrap,
+  #matchupBar.is-editing #datasetQuickSelectWrap .mi-dataset-dd,
+  #matchupBar.is-editing #datasetSelectQuickUi {
+    position: relative !important;
+    z-index: 10070 !important;
+    overflow: visible !important;
+  }
+
+  /* Actual dataset panel floats above Team A / Team B quick controls */
+  #matchupBar.is-editing #datasetQuickSelectWrap .mi-dataset-dd-panel,
+  #matchupBar.is-editing #datasetSelectQuickUi .mi-dataset-dd-panel {
+    position: absolute !important;
+    top: calc(100% + 8px) !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    z-index: 10080 !important;
+    overflow: auto !important;
+  }
+
+  /* When the dataset dropdown is open, explicitly keep its slot above both team columns */
+  #matchupBar.is-editing #matchupQuickDataset:has(.mi-dataset-dd.is-open) {
+    position: relative !important;
+    z-index: 10079 !important;
+  }
+
+  /* And temporarily demote the side quick-select columns underneath it */
+  #matchupBar.is-editing .matchup-bar-main:has(#matchupQuickDataset .mi-dataset-dd.is-open) #matchupQuickA,
+  #matchupBar.is-editing .matchup-bar-main:has(#matchupQuickDataset .mi-dataset-dd.is-open) #matchupQuickB,
+  #matchupBar.is-editing .matchup-bar-main:has(#matchupQuickDataset .mi-dataset-dd.is-open) #teamAQuickSelectWrap,
+  #matchupBar.is-editing .matchup-bar-main:has(#matchupQuickDataset .mi-dataset-dd.is-open) #teamBQuickSelectWrap,
+  #matchupBar.is-editing .matchup-bar-main:has(#matchupQuickDataset .mi-dataset-dd.is-open) #teamAQuickSelectWrap .mi-team-dd,
+  #matchupBar.is-editing .matchup-bar-main:has(#matchupQuickDataset .mi-dataset-dd.is-open) #teamBQuickSelectWrap .mi-team-dd {
+    z-index: 10020 !important;
+  }
+
+/* =========================================================
+   HARD-OVERLAY FIX: dataset + custom dropdown panels
+   Forces open menus to render as fully opaque overlays
+   above all matchup controls/content on mobile.
+   ========================================================= */
+
+  #matchupBar,
+  #matchupBar .matchup-bar-main,
+  #matchupQuickDataset,
+  #matchupQuickTeams,
+  #matchupQuickRound,
+  #matchupQuickActions,
+  #matchupQuickSlot {
+    overflow: visible !important;
+  }
+
+  #matchupBar,
+  #matchupBar .matchup-bar-main,
+  #matchupQuickDataset,
+  #matchupQuickSlot,
+  .mi-dataset-dd,
+  .mi-quick-select {
+    position: relative;
+    isolation: isolate;
+  }
+
+  /* Open dropdown host gets lifted above neighbors */
+  .mi-dataset-dd.is-open,
+  .mi-quick-select.is-open,
+  .mi-quick-select[aria-expanded="true"],
+  .mi-dataset-dd[aria-expanded="true"] {
+    z-index: 2147482000 !important;
+  }
+
+  /* Actual panel/menu */
+  .mi-dataset-dd-panel,
+  .mi-quick-select-menu,
+  .mi-quick-select-panel,
+  .mi-select-menu,
+  .mi-select-panel {
+    position: absolute;
+    z-index: 2147483000 !important;
+
+    background: rgb(10, 18, 40) !important;
+    background-image: none !important;
+    opacity: 1 !important;
+
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    filter: none !important;
+    mix-blend-mode: normal !important;
+
+    box-shadow:
+      0 22px 54px rgba(0, 0, 0, 0.62),
+      0 8px 22px rgba(0, 0, 0, 0.42) !important;
+
+    border: 1px solid rgba(90, 140, 220, 0.32) !important;
+  }
+
+  /* When specifically open, make sure nothing softens the panel */
+  .mi-dataset-dd.is-open .mi-dataset-dd-panel,
+  .mi-quick-select.is-open .mi-quick-select-menu,
+  .mi-quick-select.is-open .mi-quick-select-panel,
+  .mi-quick-select[aria-expanded="true"] .mi-quick-select-menu,
+  .mi-quick-select[aria-expanded="true"] .mi-quick-select-panel {
+    display: block;
+    visibility: visible;
+    opacity: 1 !important;
+
+    background: rgb(10, 18, 40) !important;
+    background-image: none !important;
+
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    filter: none !important;
+  }
+
+  /* Individual options should also be fully opaque */
+  .mi-dataset-dd-option,
+  .mi-quick-select-option,
+  .mi-select-option,
+  .mi-dataset-dd-panel > *,
+  .mi-quick-select-menu > *,
+  .mi-quick-select-panel > * {
+    background-color: transparent;
+    opacity: 1 !important;
+  }
+
+  /* Hover/selected states can glow, but must stay opaque */
+  .mi-dataset-dd-option:hover,
+  .mi-dataset-dd-option[aria-selected="true"],
+  .mi-quick-select-option:hover,
+  .mi-quick-select-option[aria-selected="true"],
+  .mi-select-option:hover,
+  .mi-select-option[aria-selected="true"] {
+    background: rgb(14, 35, 70) !important;
+    background-image: none !important;
+    opacity: 1 !important;
+  }
+}
+
+/* =========================================
+   MOBILE — VERDICT INLINE SHARE / SAVE ACTIONS
+   ========================================= */
+
+@media (max-width: 600px) {
+  #miVerdictInlineActions.mi-verdict-inline-actions {
+    justify-content: center !important;
+    gap: 8px !important;
+    margin-top: 12px !important;
+    padding-top: 1px !important;
+  }
+
+  #miVerdictInlineActions .mi-verdict-action-btn {
+    flex: 1 1 0 !important;
+    min-width: 0 !important;
+    min-height: 42px !important;
+    padding: 10px 12px !important;
+
+    font-size: 11px !important;
+    letter-spacing: 0.08em !important;
+  }
+}
+
+/* =========================================
+   MOBILE — VERDICT INLINE ACTIONS FIX
+   ========================================= */
+
+@media (max-width: 720px) {
+  #miVerdictInlineActions.mi-verdict-inline-actions {
+    width: 100% !important;
+    margin: auto !important;
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    justify-content: center !important;
+    align-items: center !important;
+    gap: 6px !important;
+  }
+
+  #miVerdictInlineActions .mi-verdict-action-btn {
+    flex: 0 0 auto !important;
+    width: auto !important;
+
+    min-height: 28px !important;
+    padding: 4px 8px !important;
+
+    font-size: 9px !important;
+    font-weight: 800 !important;
+    letter-spacing: 0.04em !important;
+    border-radius: 999px !important;
+  }
+}
+
+/* =========================================
+   MOBILE — SMALLER VERDICT ACTION BUTTONS
+   ========================================= */
+
+@media (max-width: 720px) {
+
+  #miVerdictInlineActions.mi-verdict-inline-actions {
+    gap: 8px !important;
+    margin-top: 1px !important;
+    padding-top: 0 !important;
+    padding-bottom: 6px !important;
+  }
+
+  #miVerdictInlineActions .mi-verdict-action-btn {
+    flex: 0 0 auto !important;
+    width: auto !important;
+
+    min-height: 28px !important;
+    max-height: 28px !important;
+    padding: 4px 8px !important;
+
+    font-size: 9px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.04em !important;
+    border-radius: 999px !important;
   }
 }
