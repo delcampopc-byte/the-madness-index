@@ -1361,13 +1361,23 @@
     background:
       radial-gradient(
         120% 160% at 0% 0%,
-        rgb(var(--mi-brand-a-rgb, 107 114 128) / 0.16),
-        transparent 48%
+        rgb(var(--mi-brand-a-rgb, 107 114 128) / 0.14),
+        transparent 42%
+      ),
+      radial-gradient(
+        110% 150% at 12% 8%,
+        rgb(var(--mi-brand-a-tertiary-rgb, 107 114 128) / 0.10),
+        transparent 34%
       ),
       radial-gradient(
         120% 160% at 100% 0%,
-        rgb(var(--mi-brand-b-rgb, 107 114 128) / 0.16),
-        transparent 48%
+        rgb(var(--mi-brand-b-rgb, 107 114 128) / 0.14),
+        transparent 42%
+      ),
+      radial-gradient(
+        110% 150% at 88% 8%,
+        rgb(var(--mi-brand-b-tertiary-rgb, 107 114 128) / 0.10),
+        transparent 34%
       ),
       linear-gradient(
         180deg,
@@ -1392,10 +1402,12 @@
     background:
       linear-gradient(
         90deg,
-        rgb(var(--mi-winner-primary-rgb, 148 163 184) / 0.10) 0%,
-        transparent 28%,
-        transparent 72%,
-        rgb(var(--mi-loser-primary-rgb, 107 114 128) / 0.05) 100%
+        rgb(var(--mi-winner-primary-rgb, 148 163 184) / 0.08) 0%,
+        rgb(var(--mi-winner-tertiary-rgb, 148 163 184) / 0.05) 16%,
+        transparent 34%,
+        transparent 66%,
+        rgb(var(--mi-loser-tertiary-rgb, 107 114 128) / 0.025) 84%,
+        rgb(var(--mi-loser-primary-rgb, 107 114 128) / 0.04) 100%
       );
 
     opacity: 0.95 !important;
@@ -1412,8 +1424,8 @@
      ========================================================= */
 
   /* -----------------------------------------
-     Keep shell neutral
-     ----------------------------------------- */
+   Keep shell neutral
+   ----------------------------------------- */
   #summarySectionMobile.mi-winner-a,
   #summarySectionMobile.mi-winner-b {
     border-color: rgba(148,163,184,0.22) !important;
@@ -1424,23 +1436,23 @@
   }
 
   /* =========================================================
-     TEAM HEADER SLOT — WINNER EMPHASIS
-     ========================================================= */
+   TEAM HEADER SLOT — WINNER EMPHASIS
+   ========================================================= */
 
   #summarySectionMobile.mi-winner-a .mi-sum-mob-team-slot-a,
   #summarySectionMobile.mi-winner-b .mi-sum-mob-team-slot-b {
     border-color: rgba(255,255,255,0.92) !important;
     box-shadow:
       inset 0 0 0 1px rgba(0,0,0,0.65),
-      0 0 0 2px rgb(var(--mi-winner-primary-rgb) / 0.26),
-      0 0 22px rgb(var(--mi-winner-primary-rgb) / 0.16) !important;
+      0 0 0 2px rgb(var(--mi-winner-primary-rgb) / 0.22),
+      0 0 18px rgb(var(--mi-winner-tertiary-rgb, var(--mi-winner-primary-rgb)) / 0.12) !important;
 
     transform: translateY(-1px);
   }
 
   /* =========================================================
-     FINAL MI CARD — WINNER EMPHASIS
-     ========================================================= */
+   FINAL MI CARD — WINNER EMPHASIS
+   ========================================================= */
 
   #summarySectionMobile.mi-winner-a .mi-sum-mob-final-a,
   #summarySectionMobile.mi-winner-b .mi-sum-mob-final-b {
@@ -1448,8 +1460,13 @@
     background:
       radial-gradient(
         120% 120% at 50% 0%,
-        rgb(var(--mi-winner-primary-rgb) / 0.16),
-        rgba(255,255,255,0.00) 54%
+        rgb(var(--mi-winner-primary-rgb) / 0.12),
+        rgba(255,255,255,0.00) 48%
+      ),
+      radial-gradient(
+        120% 120% at 50% 10%,
+        rgb(var(--mi-winner-tertiary-rgb, var(--mi-winner-primary-rgb)) / 0.10),
+        rgba(255,255,255,0.00) 58%
       ),
       linear-gradient(
         180deg,
@@ -1460,14 +1477,14 @@
 
     box-shadow:
       inset 0 0 0 1px rgba(0,0,0,0.66),
-      0 0 0 2px rgb(var(--mi-winner-primary-rgb) / 0.34),
-      0 0 26px rgb(var(--mi-winner-primary-rgb) / 0.20),
+      0 0 0 2px rgb(var(--mi-winner-primary-rgb) / 0.28),
+      0 0 24px rgb(var(--mi-winner-tertiary-rgb, var(--mi-winner-primary-rgb)) / 0.16),
       0 14px 28px rgba(0,0,0,0.32) !important;
 
     transform: translateY(-2px) scale(1.01);
   }
 
-/* =========================================================
+  /* =========================================================
    LOSING SIDE — SUBTLE DE-EMPHASIS
    ========================================================= */
 
@@ -1513,8 +1530,8 @@
   }
 
   /* =========================================================
-     MOBILE HEADER ROW
-     ========================================================= */
+   MOBILE HEADER ROW
+   ========================================================= */
 
   #summarySectionMobile .mi-sum-mob-header-row {
     display: grid !important;
@@ -1548,8 +1565,13 @@
     background:
       radial-gradient(
         120% 160% at 10% 0%,
-        rgb(var(--team-a-primary-rgb, var(--mi-brand-a-rgb, 107 114 128)) / 0.22),
-        transparent 56%
+        rgb(var(--team-a-primary-rgb, var(--mi-brand-a-rgb, 107 114 128)) / 0.18),
+        transparent 52%
+      ),
+      radial-gradient(
+        115% 145% at 22% 12%,
+        rgb(var(--team-a-tertiary-rgb, var(--mi-brand-a-tertiary-rgb, 107 114 128)) / 0.14),
+        transparent 38%
       ),
       linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01)),
       rgba(10, 16, 30, 0.72) !important;
@@ -1559,8 +1581,13 @@
     background:
       radial-gradient(
         120% 160% at 90% 0%,
-        rgb(var(--team-b-primary-rgb, var(--mi-brand-b-rgb, 107 114 128)) / 0.22),
-        transparent 56%
+        rgb(var(--team-b-primary-rgb, var(--mi-brand-b-rgb, 107 114 128)) / 0.18),
+        transparent 52%
+      ),
+      radial-gradient(
+        115% 145% at 78% 12%,
+        rgb(var(--team-b-tertiary-rgb, var(--mi-brand-b-tertiary-rgb, 107 114 128)) / 0.14),
+        transparent 38%
       ),
       linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01)),
       rgba(10, 16, 30, 0.72) !important;
@@ -2202,7 +2229,7 @@
     overflow-wrap: anywhere !important;
 
     line-height: 1.05 !important;
-    font-size: 16px !important;
+    font-size: 14px !important;
   }
 
   #verdictShell #miVerdictMetricsTile .mi-team-brand--scorebug .mi-team-brand-logo {

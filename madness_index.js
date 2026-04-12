@@ -55,6 +55,11 @@ function normalizeTeamKey(name = '') {
     .replace(/\s+/g, '-');
 }
 
+function miRgbStringToRgba(rgbString, alpha = 1) {
+  const [r, g, b] = miRgbStringToChannels(rgbString, [107, 114, 128]);
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
 function getTeamBranding(teamName) {
   if (!teamName || !MI_TEAM_BRANDING) {
     return defaultBranding(teamName);
@@ -90,6 +95,7 @@ function defaultBranding(teamName) {
     shortName: teamName || "Unknown Team",
     primary: "#6b7280",
     secondary: "#ffffff",
+    tertiary: "#6b7280",
     logo: ""
   };
 }
@@ -172,6 +178,7 @@ function miNormalizeTeamBranding(teamName) {
 
   const safePrimary = miIsValidHexColor(raw?.primary) ? raw.primary.trim() : '#6b7280';
   const rawSecondary = miIsValidHexColor(raw?.secondary) ? raw.secondary.trim() : '';
+  const rawTertiary = miIsValidHexColor(raw?.tertiary) ? raw.tertiary.trim() : '';
 
   const primaryRgb = miHexToRgbString(safePrimary, '107 114 128');
 
@@ -180,9 +187,18 @@ function miNormalizeTeamBranding(teamName) {
     safeSecondary = safePrimary;
   }
 
+  let safeTertiary = rawTertiary;
+  if (!safeTertiary) {
+    // Prefer an explicitly distinct third layer when available,
+    // but preserve existing behavior by falling back safely.
+    safeTertiary = safeSecondary || safePrimary;
+  }
+
   const secondaryRgb = miHexToRgbString(safeSecondary, primaryRgb);
+  const tertiaryRgb = miHexToRgbString(safeTertiary, secondaryRgb || primaryRgb);
 
   const secondaryLum = miRelativeLuminanceFromRgbString(secondaryRgb);
+  const tertiaryLum = miRelativeLuminanceFromRgbString(tertiaryRgb);
 
   // If secondary is essentially white/very bright, keep it as a highlight color,
   // but derive a more useful ambient blend color so the glow still has depth.
@@ -191,6 +207,14 @@ function miNormalizeTeamBranding(teamName) {
       ? miMixRgbStrings(primaryRgb, '255 255 255', 0.72)
       : secondaryRgb;
 
+  // Same idea for tertiary so downstream styling can use it safely
+  // even when the tertiary color is near-white.
+  const ambientTertiaryRgb =
+    tertiaryLum > 0.88
+      ? miMixRgbStrings(primaryRgb, '255 255 255', 0.58)
+      : tertiaryRgb;
+
+  // Preserve existing glow behavior exactly as anchored to primary + ambient secondary.
   const glowMidRgb = miMixRgbStrings(primaryRgb, ambientSecondaryRgb, 0.58);
   const glowEdgeRgb = miMixRgbStrings(primaryRgb, ambientSecondaryRgb, 0.32);
 
@@ -200,9 +224,12 @@ function miNormalizeTeamBranding(teamName) {
     shortName: raw?.shortName || raw?.team || teamName || 'Unknown Team',
     primary: safePrimary,
     secondary: safeSecondary,
+    tertiary: safeTertiary,
     primaryRgb,
     secondaryRgb,
+    tertiaryRgb,
     ambientSecondaryRgb,
+    ambientTertiaryRgb,
     glowMidRgb,
     glowEdgeRgb
   };
@@ -213,18 +240,26 @@ function miApplyBrandVariables(el, branding, side = '') {
 
   el.style.setProperty('--team-primary', branding.primary);
   el.style.setProperty('--team-secondary', branding.secondary);
+  el.style.setProperty('--team-tertiary', branding.tertiary);
 
   el.style.setProperty('--team-primary-rgb', branding.primaryRgb);
   el.style.setProperty('--team-secondary-rgb', branding.secondaryRgb);
+  el.style.setProperty('--team-tertiary-rgb', branding.tertiaryRgb);
   el.style.setProperty('--team-secondary-ambient-rgb', branding.ambientSecondaryRgb);
+  el.style.setProperty('--team-tertiary-ambient-rgb', branding.ambientTertiaryRgb);
   el.style.setProperty('--team-glow-mid-rgb', branding.glowMidRgb);
   el.style.setProperty('--team-glow-edge-rgb', branding.glowEdgeRgb);
 
   if (side === 'a' || side === 'b') {
     el.style.setProperty(`--team-${side}-primary`, branding.primary);
     el.style.setProperty(`--team-${side}-secondary`, branding.secondary);
+    el.style.setProperty(`--team-${side}-tertiary`, branding.tertiary);
+
     el.style.setProperty(`--team-${side}-primary-rgb`, branding.primaryRgb);
     el.style.setProperty(`--team-${side}-secondary-rgb`, branding.secondaryRgb);
+    el.style.setProperty(`--team-${side}-tertiary-rgb`, branding.tertiaryRgb);
+    el.style.setProperty(`--team-${side}-secondary-ambient-rgb`, branding.ambientSecondaryRgb);
+    el.style.setProperty(`--team-${side}-tertiary-ambient-rgb`, branding.ambientTertiaryRgb);
     el.style.setProperty(`--team-${side}-glow-mid-rgb`, branding.glowMidRgb);
     el.style.setProperty(`--team-${side}-glow-edge-rgb`, branding.glowEdgeRgb);
   }
@@ -369,10 +404,20 @@ function miApplyCanonicalTeamHeaderBranding(aName, bName) {
     summarySection.style.setProperty('--mi-brand-b', brandB.primary);
     summarySection.style.setProperty('--mi-brand-a-secondary', brandA.secondary);
     summarySection.style.setProperty('--mi-brand-b-secondary', brandB.secondary);
+    summarySection.style.setProperty('--mi-brand-a-tertiary', brandA.tertiary);
+    summarySection.style.setProperty('--mi-brand-b-tertiary', brandB.tertiary);
+
     summarySection.style.setProperty('--mi-brand-a-rgb', brandA.primaryRgb);
     summarySection.style.setProperty('--mi-brand-b-rgb', brandB.primaryRgb);
+    summarySection.style.setProperty('--mi-brand-a-secondary-rgb', brandA.secondaryRgb);
+    summarySection.style.setProperty('--mi-brand-b-secondary-rgb', brandB.secondaryRgb);
+    summarySection.style.setProperty('--mi-brand-a-tertiary-rgb', brandA.tertiaryRgb);
+    summarySection.style.setProperty('--mi-brand-b-tertiary-rgb', brandB.tertiaryRgb);
+
     summarySection.style.setProperty('--mi-brand-a-secondary-ambient-rgb', brandA.ambientSecondaryRgb);
     summarySection.style.setProperty('--mi-brand-b-secondary-ambient-rgb', brandB.ambientSecondaryRgb);
+    summarySection.style.setProperty('--mi-brand-a-tertiary-ambient-rgb', brandA.ambientTertiaryRgb);
+    summarySection.style.setProperty('--mi-brand-b-tertiary-ambient-rgb', brandB.ambientTertiaryRgb);
   }
 
   const summarySectionMobile = document.getElementById('summarySectionMobile');
@@ -381,14 +426,29 @@ function miApplyCanonicalTeamHeaderBranding(aName, bName) {
     summarySectionMobile.style.setProperty('--mi-brand-b', brandB.primary);
     summarySectionMobile.style.setProperty('--mi-brand-a-secondary', brandA.secondary);
     summarySectionMobile.style.setProperty('--mi-brand-b-secondary', brandB.secondary);
+    summarySectionMobile.style.setProperty('--mi-brand-a-tertiary', brandA.tertiary);
+    summarySectionMobile.style.setProperty('--mi-brand-b-tertiary', brandB.tertiary);
+
     summarySectionMobile.style.setProperty('--mi-brand-a-rgb', brandA.primaryRgb);
     summarySectionMobile.style.setProperty('--mi-brand-b-rgb', brandB.primaryRgb);
+    summarySectionMobile.style.setProperty('--mi-brand-a-secondary-rgb', brandA.secondaryRgb);
+    summarySectionMobile.style.setProperty('--mi-brand-b-secondary-rgb', brandB.secondaryRgb);
+    summarySectionMobile.style.setProperty('--mi-brand-a-tertiary-rgb', brandA.tertiaryRgb);
+    summarySectionMobile.style.setProperty('--mi-brand-b-tertiary-rgb', brandB.tertiaryRgb);
+
     summarySectionMobile.style.setProperty('--mi-brand-a-secondary-ambient-rgb', brandA.ambientSecondaryRgb);
     summarySectionMobile.style.setProperty('--mi-brand-b-secondary-ambient-rgb', brandB.ambientSecondaryRgb);
+    summarySectionMobile.style.setProperty('--mi-brand-a-tertiary-ambient-rgb', brandA.ambientTertiaryRgb);
+    summarySectionMobile.style.setProperty('--mi-brand-b-tertiary-ambient-rgb', brandB.ambientTertiaryRgb);
+
     summarySectionMobile.style.setProperty('--syn-a-rgb', brandA.primaryRgb);
     summarySectionMobile.style.setProperty('--syn-b-rgb', brandB.primaryRgb);
     summarySectionMobile.style.setProperty('--syn-a-ambient-rgb', brandA.ambientSecondaryRgb);
     summarySectionMobile.style.setProperty('--syn-b-ambient-rgb', brandB.ambientSecondaryRgb);
+    summarySectionMobile.style.setProperty('--syn-a-tertiary-rgb', brandA.tertiaryRgb);
+    summarySectionMobile.style.setProperty('--syn-b-tertiary-rgb', brandB.tertiaryRgb);
+    summarySectionMobile.style.setProperty('--syn-a-tertiary-ambient-rgb', brandA.ambientTertiaryRgb);
+    summarySectionMobile.style.setProperty('--syn-b-tertiary-ambient-rgb', brandB.ambientTertiaryRgb);
   }
 
   // Also apply inherited vars to the actual header cells
@@ -419,9 +479,14 @@ function miApplyCanonicalTeamHeaderBranding(aName, bName) {
     el.textContent = brandA.team || aName || brandA.shortName || 'Team A';
     el.style.setProperty('--team-primary', brandA.primary);
     el.style.setProperty('--team-secondary', brandA.secondary);
+    el.style.setProperty('--team-tertiary', brandA.tertiary);
+
     el.style.setProperty('--team-primary-rgb', brandA.primaryRgb);
     el.style.setProperty('--team-secondary-rgb', brandA.secondaryRgb);
+    el.style.setProperty('--team-tertiary-rgb', brandA.tertiaryRgb);
+
     el.style.setProperty('--team-secondary-ambient-rgb', brandA.ambientSecondaryRgb);
+    el.style.setProperty('--team-tertiary-ambient-rgb', brandA.ambientTertiaryRgb);
     el.style.setProperty('--team-glow-mid-rgb', brandA.glowMidRgb);
     el.style.setProperty('--team-glow-edge-rgb', brandA.glowEdgeRgb);
   });
@@ -430,9 +495,14 @@ function miApplyCanonicalTeamHeaderBranding(aName, bName) {
     el.textContent = brandB.team || bName || brandB.shortName || 'Team B';
     el.style.setProperty('--team-primary', brandB.primary);
     el.style.setProperty('--team-secondary', brandB.secondary);
+    el.style.setProperty('--team-tertiary', brandB.tertiary);
+
     el.style.setProperty('--team-primary-rgb', brandB.primaryRgb);
     el.style.setProperty('--team-secondary-rgb', brandB.secondaryRgb);
+    el.style.setProperty('--team-tertiary-rgb', brandB.tertiaryRgb);
+
     el.style.setProperty('--team-secondary-ambient-rgb', brandB.ambientSecondaryRgb);
+    el.style.setProperty('--team-tertiary-ambient-rgb', brandB.ambientTertiaryRgb);
     el.style.setProperty('--team-glow-mid-rgb', brandB.glowMidRgb);
     el.style.setProperty('--team-glow-edge-rgb', brandB.glowEdgeRgb);
   });
@@ -475,19 +545,29 @@ function miApplyWinnerTokens(winnerSide, brandA, brandB) {
     if (winnerBrand) {
       el.style.setProperty('--mi-winner-primary-rgb', winnerBrand.primaryRgb);
       el.style.setProperty('--mi-winner-secondary-rgb', winnerBrand.secondaryRgb);
+      el.style.setProperty('--mi-winner-tertiary-rgb', winnerBrand.tertiaryRgb);
       el.style.setProperty('--mi-winner-ambient-rgb', winnerBrand.ambientSecondaryRgb);
+      el.style.setProperty('--mi-winner-tertiary-ambient-rgb', winnerBrand.ambientTertiaryRgb);
     } else {
       el.style.setProperty('--mi-winner-primary-rgb', '148 163 184');
       el.style.setProperty('--mi-winner-secondary-rgb', '148 163 184');
+      el.style.setProperty('--mi-winner-tertiary-rgb', '148 163 184');
       el.style.setProperty('--mi-winner-ambient-rgb', '148 163 184');
+      el.style.setProperty('--mi-winner-tertiary-ambient-rgb', '148 163 184');
     }
 
     if (loserBrand) {
       el.style.setProperty('--mi-loser-primary-rgb', loserBrand.primaryRgb);
       el.style.setProperty('--mi-loser-secondary-rgb', loserBrand.secondaryRgb);
+      el.style.setProperty('--mi-loser-tertiary-rgb', loserBrand.tertiaryRgb);
+      el.style.setProperty('--mi-loser-ambient-rgb', loserBrand.ambientSecondaryRgb);
+      el.style.setProperty('--mi-loser-tertiary-ambient-rgb', loserBrand.ambientTertiaryRgb);
     } else {
       el.style.setProperty('--mi-loser-primary-rgb', '107 114 128');
       el.style.setProperty('--mi-loser-secondary-rgb', '107 114 128');
+      el.style.setProperty('--mi-loser-tertiary-rgb', '107 114 128');
+      el.style.setProperty('--mi-loser-ambient-rgb', '107 114 128');
+      el.style.setProperty('--mi-loser-tertiary-ambient-rgb', '107 114 128');
     }
   };
 
@@ -5717,7 +5797,30 @@ function compareTeams(teamAName, teamBName, roleMode = 'auto', opts = MI_V2_DEFA
     base_diff,
     int_diff,
     final_delta,
+
+    // Canonical Snap metrics source of truth
+    snapMetrics: Object.freeze({
+      teamA: Object.freeze({
+        name: a.name,
+        seed: a.seed,
+        baselineMiRaw: baseA,
+        matchupMiRaw: miA_raw
+      }),
+      teamB: Object.freeze({
+        name: b.name,
+        seed: b.seed,
+        baselineMiRaw: baseB,
+        matchupMiRaw: miB_raw
+      }),
+      delta: Object.freeze({
+        raw: final_delta,
+        absRaw: Math.abs(final_delta)
+      })
+    }),
+
     roleMode: activeRoleMode,
+    round: activeRound,
+    roundCode: activeRound,
     activeRound,
     seedMeta,
     roles: roleAssignment,
@@ -5800,7 +5903,7 @@ function compareTeams(teamAName, teamBName, roleMode = 'auto', opts = MI_V2_DEFA
     updateMadnessBacksForResult(result, window.MI_COPY, roleMode);
   }
 
-  miSyncShareButtons();
+  miSyncSnapButtons();
   miPushLogFromResult(result);
   miRenderShelf();
   syncCoreTraitsProfileSectionHeights();
@@ -11202,8 +11305,670 @@ async function downloadDatasetFromUrl(url, filename) {
 }
 
 /* =========================================================
-   Native Share + Save Matchup Card (v1)
+   MI SNAP — PAYLOAD + EXPORT HELPERS
+   Put this above the current share/save canvas functions.
    ========================================================= */
+
+function miSafeNumber(value, fallback = 0) {
+  const n = Number(value);
+  return Number.isFinite(n) ? n : fallback;
+}
+
+function miFormatSnapMi(value) {
+  const n = miSafeNumber(value, 0);
+  return n.toFixed(3);
+}
+
+function miFormatSnapDelta(value) {
+  const n = Math.abs(miSafeNumber(value, 0));
+  return n.toFixed(3);
+}
+
+function miGetCurrentDatasetMeta() {
+  const datasetSelect = document.getElementById('datasetSelect');
+  if (!datasetSelect) {
+    return {
+      key: '',
+      label: '',
+      season: null,
+      filename: ''
+    };
+  }
+
+  const opt = datasetSelect.options[datasetSelect.selectedIndex];
+  const label = opt?.textContent?.trim() || '';
+  const filename = opt?.getAttribute('data-filename') || '';
+  const value = datasetSelect.value || '';
+
+  const seasonMatch =
+    label.match(/\b(20\d{2})\b/) ||
+    filename.match(/\b(20\d{2})\b/) ||
+    value.match(/\b(20\d{2})\b/);
+
+  const season = seasonMatch ? Number(seasonMatch[1]) : null;
+
+  return {
+    key: value
+      ? String(value)
+          .replace(/^.*\/([^/]+)\.csv$/i, '$1')
+          .trim()
+      : '',
+    label,
+    season,
+    filename
+  };
+}
+
+function miGetRoundLabelSafe(roundCode) {
+  if (typeof getRoundLabelFromCode === 'function' && roundCode) {
+    return getRoundLabelFromCode(roundCode);
+  }
+  return roundCode || 'Round';
+}
+
+function miGetLeanInfoFromResult(result) {
+  const absDelta = Math.abs(
+    miSafeNumber(result?.delta, result?.diff, 0)
+  );
+
+  const copy = window.MI_COPY;
+  const phrases = copy?.summary_phrases || {};
+
+  let key = 'default';
+
+  if (absDelta <= 0.25) key = 'tiny_0_25';
+  else if (absDelta <= 0.50) key = 'tiny_0_50';
+  else if (absDelta <= 0.75) key = 'tiny_0_75';
+  else if (absDelta <= 1.00) key = 'tiny_0_100';
+  else if (absDelta <= 1.75) key = 'small_gap';
+  else if (absDelta <= 2.75) key = 'medium_gap';
+  else key = 'large_gap';
+
+  const entry = phrases[key] || phrases.default || {};
+  const label = entry.label || 'Lean';
+
+  return {
+    key,
+    label
+  };
+}
+
+function miGetSnapTeamsFromResult(result) {
+  const a = result?.a || {};
+  const b = result?.b || {};
+
+  const nameA =
+    a.name ||
+    result?.teamA ||
+    document.getElementById('miScorebugTeamA')?.textContent?.trim() ||
+    document.getElementById('matchupCinderName')?.textContent?.trim() ||
+    'Team A';
+
+  const nameB =
+    b.name ||
+    result?.teamB ||
+    document.getElementById('miScorebugTeamB')?.textContent?.trim() ||
+    document.getElementById('matchupFavoriteName')?.textContent?.trim() ||
+    'Team B';
+
+  return {
+    a: {
+      side: 'a',
+      name: nameA,
+      shortName: miNormalizeTeamBranding(nameA).shortName || nameA,
+      displayName: nameA,
+      seed: Number.isFinite(Number(a.seed)) ? Number(a.seed) : null,
+      role: a.role || null
+    },
+    b: {
+      side: 'b',
+      name: nameB,
+      shortName: miNormalizeTeamBranding(nameB).shortName || nameB,
+      displayName: nameB,
+      seed: Number.isFinite(Number(b.seed)) ? Number(b.seed) : null,
+      role: b.role || null
+    }
+  };
+}
+
+function miGetSnapMetricsFromResult(result) {
+  const snap = result?.snapMetrics || null;
+
+  if (snap) {
+    const baselineMiA = miSafeNumber(snap.teamA?.baselineMiRaw, 0);
+    const baselineMiB = miSafeNumber(snap.teamB?.baselineMiRaw, 0);
+    const matchupMiA = miSafeNumber(snap.teamA?.matchupMiRaw, 0);
+    const matchupMiB = miSafeNumber(snap.teamB?.matchupMiRaw, 0);
+    const rawDelta = miSafeNumber(snap.delta?.raw, matchupMiA - matchupMiB);
+
+    return {
+      delta: {
+        raw: rawDelta,
+        absRaw: Math.abs(rawDelta),
+        display: miFormatSnapDelta(rawDelta),
+        absDisplay: miFormatSnapDelta(rawDelta)
+      },
+      teamA: {
+        baselineMiRaw: baselineMiA,
+        baselineMiDisplay: miFormatSnapMi(baselineMiA),
+        matchupMiRaw: matchupMiA,
+        matchupMiDisplay: miFormatSnapMi(matchupMiA)
+      },
+      teamB: {
+        baselineMiRaw: baselineMiB,
+        baselineMiDisplay: miFormatSnapMi(baselineMiB),
+        matchupMiRaw: matchupMiB,
+        matchupMiDisplay: miFormatSnapMi(matchupMiB)
+      }
+    };
+  }
+
+  // Fallback only if snapMetrics somehow does not exist
+  const rawBaseA = miSafeNumber(result?.baseA, 0);
+  const rawBaseB = miSafeNumber(result?.baseB, 0);
+  const rawMatchupA = miSafeNumber(result?.miA_raw, 0);
+  const rawMatchupB = miSafeNumber(result?.miB_raw, 0);
+  const rawDelta = miSafeNumber(
+    result?.final_delta,
+    rawMatchupA - rawMatchupB
+  );
+
+  return {
+    delta: {
+      raw: rawDelta,
+      absRaw: Math.abs(rawDelta),
+      display: miFormatSnapDelta(rawDelta),
+      absDisplay: miFormatSnapDelta(rawDelta)
+    },
+    teamA: {
+      baselineMiRaw: rawBaseA,
+      baselineMiDisplay: miFormatSnapMi(rawBaseA),
+      matchupMiRaw: rawMatchupA,
+      matchupMiDisplay: miFormatSnapMi(rawMatchupA)
+    },
+    teamB: {
+      baselineMiRaw: rawBaseB,
+      baselineMiDisplay: miFormatSnapMi(rawBaseB),
+      matchupMiRaw: rawMatchupB,
+      matchupMiDisplay: miFormatSnapMi(rawMatchupB)
+    }
+  };
+}
+
+function miBuildSnapPayload(result, options = {}) {
+  if (!result) return null;
+
+  const layout = options.layout || 'landscape';
+  const teams = miGetSnapTeamsFromResult(result);
+  const metrics = miGetSnapMetricsFromResult(result);
+  const dataset = miGetCurrentDatasetMeta();
+
+  const roundCode =
+    result?.round ||
+    result?.roundCode ||
+    window.CURRENT_ROUND ||
+    CURRENT_ROUND ||
+    '';
+
+  const roundLabel = miGetRoundLabelSafe(roundCode);
+
+  const winnerSide =
+    metrics.teamA.matchupMiRaw >= metrics.teamB.matchupMiRaw ? 'a' : 'b';
+
+  const winnerName = winnerSide === 'a' ? teams.a.name : teams.b.name;
+  const loserName = winnerSide === 'a' ? teams.b.name : teams.a.name;
+
+  const lean = miGetLeanInfoFromResult({
+    ...result,
+    delta: metrics.delta.raw
+  });
+
+  const brandA = miNormalizeTeamBranding(teams.a.name);
+  const brandB = miNormalizeTeamBranding(teams.b.name);
+  const winnerBrand = winnerSide === 'a' ? brandA : brandB;
+
+  const now = new Date();
+  const generatedAtIso = now.toISOString();
+  const generatedAtDisplay = now.toLocaleString([], {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit'
+  });
+
+  const headline = `${winnerName} holds the edge`;
+  const subline = `${lean.label} • ΔMI ${metrics.delta.display}`;
+
+  const sizeMap = {
+    landscape: { width: 1200, height: 630 },
+    portrait: { width: 1080, height: 1350 },
+    square: { width: 1080, height: 1080 }
+  };
+
+  const size = sizeMap[layout] || sizeMap.landscape;
+
+  const payload = {
+    meta: {
+      appName: 'The Madness Index',
+      artifactName: 'MI Snap',
+      snapVersion: '1.0',
+      build: typeof MI_BUILD !== 'undefined' ? String(MI_BUILD) : '',
+      generatedAtIso,
+      generatedAtDisplay,
+      source: 'matchup_result'
+    },
+
+    matchup: {
+      round: {
+        code: roundCode || '',
+        label: roundLabel
+      },
+      dataset,
+      teamA: teams.a,
+      teamB: teams.b
+    },
+
+    verdict: {
+      winnerSide,
+      winnerName,
+      loserName,
+      edgeKey: lean.key,
+      edgeLabel: lean.label,
+      headline,
+      subline,
+      winnerDisplay: winnerName,
+      isTossUp: metrics.delta.absRaw < 0.15
+    },
+
+    metrics,
+
+    branding: {
+      teamA: {
+        primary: brandA.primary,
+        secondary: brandA.secondary,
+        primaryRgb: brandA.primaryRgb,
+        secondaryRgb: brandA.secondaryRgb,
+        ambientSecondaryRgb: brandA.ambientSecondaryRgb,
+        glowMidRgb: brandA.glowMidRgb,
+        glowEdgeRgb: brandA.glowEdgeRgb,
+        logo: brandA.logo || '',
+        hasLogo: !!brandA.logo
+      },
+      teamB: {
+        primary: brandB.primary,
+        secondary: brandB.secondary,
+        primaryRgb: brandB.primaryRgb,
+        secondaryRgb: brandB.secondaryRgb,
+        ambientSecondaryRgb: brandB.ambientSecondaryRgb,
+        glowMidRgb: brandB.glowMidRgb,
+        glowEdgeRgb: brandB.glowEdgeRgb,
+        logo: brandB.logo || '',
+        hasLogo: !!brandB.logo
+      },
+      winner: {
+        side: winnerSide,
+        primary: winnerBrand.primary,
+        secondary: winnerBrand.secondary,
+        primaryRgb: winnerBrand.primaryRgb,
+        secondaryRgb: winnerBrand.secondaryRgb,
+        logo: winnerBrand.logo || ''
+      }
+    },
+
+    export: {
+      layout,
+      width: size.width,
+      height: size.height,
+      filename: '',
+      shareText: ''
+    }
+  };
+
+  payload.export.filename = miBuildSnapFilename(payload);
+  payload.export.shareText = miBuildSnapShareText(payload);
+
+  return payload;
+}
+
+function miBuildSnapShareText(payload) {
+  if (!payload) return '';
+
+  const round = payload.matchup?.round?.label || 'Round';
+  const teamA = payload.matchup?.teamA?.name || 'Team A';
+  const teamB = payload.matchup?.teamB?.name || 'Team B';
+  const edge = payload.verdict?.edgeLabel || 'Lean';
+  const winner = payload.verdict?.winnerName || 'Winner';
+  const delta = payload.metrics?.delta?.display || '0.000';
+  const miA = payload.metrics?.teamA?.matchupMiDisplay || '0.000';
+  const miB = payload.metrics?.teamB?.matchupMiDisplay || '0.000';
+
+  return [
+    `${teamA} vs ${teamB}`,
+    `${round} • ${edge} (ΔMI ${delta})`,
+    `MI: ${teamA} ${miA} | ${teamB} ${miB}`,
+    `Edge: ${winner}`,
+    `Generated with The Madness Index`
+  ].join('\n');
+}
+
+function miBuildSnapFilename(payload) {
+  const safeA = String(payload?.matchup?.teamA?.name || 'TeamA')
+    .replace(/[^a-z0-9]+/gi, '_')
+    .replace(/^_+|_+$/g, '');
+
+  const safeB = String(payload?.matchup?.teamB?.name || 'TeamB')
+    .replace(/[^a-z0-9]+/gi, '_')
+    .replace(/^_+|_+$/g, '');
+
+  return `MI-Snap-${safeA}_vs_${safeB}.png`;
+}
+
+async function miLoadImageSafe(src) {
+  if (!src) return null;
+
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => resolve(img);
+    img.onerror = () => resolve(null);
+    img.src = src;
+  });
+}
+
+function miRoundRect(ctx, x, y, w, h, r) {
+  const radius = Math.min(r, w / 2, h / 2);
+  ctx.beginPath();
+  ctx.moveTo(x + radius, y);
+  ctx.arcTo(x + w, y, x + w, y + h, radius);
+  ctx.arcTo(x + w, y + h, x, y + h, radius);
+  ctx.arcTo(x, y + h, x, y, radius);
+  ctx.arcTo(x, y, x + w, y, radius);
+  ctx.closePath();
+}
+
+async function miRenderSnapCanvas(payload) {
+  if (!payload) {
+    throw new Error('Cannot render MI Snap without payload.');
+  }
+
+  const { width, height } = payload.export;
+  const canvas = document.createElement('canvas');
+  canvas.width = width;
+  canvas.height = height;
+
+  const ctx = canvas.getContext('2d');
+  if (!ctx) {
+    throw new Error('Canvas 2D context unavailable.');
+  }
+
+  const brandA = payload.branding.teamA;
+  const brandB = payload.branding.teamB;
+  const winner = payload.branding.winner;
+
+  const teamAName = payload.matchup.teamA.name;
+  const teamBName = payload.matchup.teamB.name;
+
+  const seedA = payload.matchup.teamA.seed != null ? `(${payload.matchup.teamA.seed}) ` : '';
+  const seedB = payload.matchup.teamB.seed != null ? `(${payload.matchup.teamB.seed}) ` : '';
+
+  const teamALine = `${seedA}${teamAName}`;
+  const teamBLine = `${seedB}${teamBName}`;
+
+  const winnerName = payload.verdict?.winnerName || 'Winner';
+  const edgeLabel = payload.verdict?.edgeLabel || 'Lean';
+  const deltaDisplay = payload.metrics?.delta?.display || '0.000';
+
+  function fitText(text, maxWidth, startSize, weight = 700, family = 'Rajdhani, Arial, sans-serif') {
+    let size = startSize;
+    while (size > 18) {
+      ctx.font = `${weight} ${size}px ${family}`;
+      if (ctx.measureText(text).width <= maxWidth) break;
+      size -= 2;
+    }
+    return size;
+  }
+
+  // -------------------------
+  // Background
+  // -------------------------
+  ctx.fillStyle = '#020817';
+  ctx.fillRect(0, 0, width, height);
+
+  const glow = ctx.createRadialGradient(
+    width * 0.72, height * 0.20, 0,
+    width * 0.72, height * 0.20, width * 0.68
+  );
+  glow.addColorStop(0, miRgbStringToRgba(winner.primaryRgb, 0.30));
+  glow.addColorStop(0.42, miRgbStringToRgba(winner.primaryRgb, 0.12));
+  glow.addColorStop(1, 'rgba(2, 8, 23, 0)');
+  ctx.fillStyle = glow;
+  ctx.fillRect(0, 0, width, height);
+
+  // top rail
+  ctx.fillStyle = brandA.primary;
+  ctx.fillRect(0, 0, width / 2, 10);
+
+  ctx.fillStyle = brandB.primary;
+  ctx.fillRect(width / 2, 0, width / 2, 10);
+
+  // main shell
+  ctx.fillStyle = 'rgba(15, 23, 42, 0.90)';
+  miRoundRect(ctx, 36, 36, width - 72, height - 72, 28);
+  ctx.fill();
+
+  ctx.strokeStyle = 'rgba(148, 163, 184, 0.18)';
+  ctx.lineWidth = 2;
+  miRoundRect(ctx, 36, 36, width - 72, height - 72, 28);
+  ctx.stroke();
+
+  // -------------------------
+  // Header
+  // -------------------------
+  ctx.fillStyle = '#E2E8F0';
+  ctx.font = '700 24px Rajdhani, Arial, sans-serif';
+  ctx.fillText(payload.meta.appName.toUpperCase(), 72, 92);
+
+  ctx.fillStyle = '#93C5FD';
+  ctx.font = '600 22px Rajdhani, Arial, sans-serif';
+  ctx.fillText(payload.matchup.round.label, 72, 126);
+
+  const datasetLine = payload.matchup?.dataset?.label || '';
+  if (datasetLine) {
+    ctx.fillStyle = '#64748B';
+    ctx.font = '500 18px Rajdhani, Arial, sans-serif';
+    ctx.fillText(datasetLine, 72, 152);
+  }
+
+  // -------------------------
+  // Team block (logos integrated with names)
+  // -------------------------
+  const logoA = await miLoadImageSafe(payload.branding.teamA.logo);
+  const logoB = await miLoadImageSafe(payload.branding.teamB.logo);
+
+  const winnerLogo = await miLoadImageSafe(winner.logo);
+  const deltaIcon = await miLoadImageSafe('assets/img/badges/madness_delta.svg');
+
+  const logoSize = 72;
+  const teamTextX = 162;
+  const logoX = 72;
+  const teamMaxWidth = 500;
+
+  const teamAFont = fitText(teamALine, teamMaxWidth, 50, 750);
+  const teamBFont = fitText(teamBLine, teamMaxWidth, 50, 750);
+
+  const rowAY = 222;
+  const rowBY = 336;
+  const vsY = 282;
+
+  if (logoA) {
+    ctx.drawImage(logoA, logoX, rowAY - 40, logoSize, logoSize);
+  } else {
+    ctx.fillStyle = brandA.primary;
+    ctx.fillRect(logoX + 8, rowAY - 34, 44, 44);
+  }
+
+  if (logoB) {
+    ctx.drawImage(logoB, logoX, rowBY - 40, logoSize, logoSize);
+  } else {
+    ctx.fillStyle = brandB.primary;
+    ctx.fillRect(logoX + 8, rowBY - 34, 44, 44);
+  }
+
+  ctx.fillStyle = '#F8FAFC';
+  ctx.font = `700 ${teamAFont}px Rajdhani, Arial, sans-serif`;
+  ctx.fillText(teamALine, teamTextX, rowAY);
+
+  ctx.fillStyle = '#64748B';
+  ctx.font = '600 30px Rajdhani, Arial, sans-serif';
+  ctx.textAlign = 'left';
+  ctx.fillText('vs', teamTextX, vsY);
+
+  ctx.fillStyle = '#F8FAFC';
+  ctx.font = `700 ${teamBFont}px Rajdhani, Arial, sans-serif`;
+  ctx.fillText(teamBLine, teamTextX, rowBY);
+
+  // -------------------------
+  // Metrics block (cleaner / less verbose)
+  // -------------------------
+  const metricsTopY = 404;
+  const sectionGap = 98;
+  const rowGap = 34;
+
+  const squareX = 72;
+  const squareSize = 14;
+  const metricTextX = squareX + 30;
+
+ const baselineLabelY = metricsTopY;
+  const baselineRowAY = baselineLabelY + 34;
+  const baselineRowBY = baselineRowAY + rowGap;
+
+  const matchupLabelY = baselineLabelY + sectionGap;
+  const matchupRowAY = matchupLabelY + 34;
+  const matchupRowBY = matchupRowAY + rowGap;
+
+  ctx.textAlign = 'left';
+
+  ctx.fillStyle = '#94A3B8';
+  ctx.font = '600 22px Rajdhani, Arial, sans-serif';
+  ctx.fillText('Baseline MI', squareX, baselineLabelY);
+
+  ctx.fillStyle = brandA.primary;
+  ctx.fillRect(squareX, baselineRowAY - 12, squareSize, squareSize);
+  ctx.fillStyle = '#CBD5E1';
+  ctx.font = '600 22px Rajdhani, Arial, sans-serif';
+  ctx.fillText(`${teamAName}: ${payload.metrics.teamA.baselineMiDisplay}`, metricTextX, baselineRowAY);
+
+  ctx.fillStyle = brandB.primary;
+  ctx.fillRect(squareX, baselineRowBY - 12, squareSize, squareSize);
+  ctx.fillStyle = '#CBD5E1';
+  ctx.fillText(`${teamBName}: ${payload.metrics.teamB.baselineMiDisplay}`, metricTextX, baselineRowBY);
+
+  ctx.fillStyle = '#94A3B8';
+  ctx.font = '600 22px Rajdhani, Arial, sans-serif';
+  ctx.fillText('Matchup MI', squareX, matchupLabelY);
+
+  ctx.fillStyle = brandA.primary;
+  ctx.fillRect(squareX, matchupRowAY - 12, squareSize, squareSize);
+  ctx.fillStyle = '#CBD5E1';
+  ctx.fillText(`${teamAName}: ${payload.metrics.teamA.matchupMiDisplay}`, metricTextX, matchupRowAY);
+
+  ctx.fillStyle = brandB.primary;
+  ctx.fillRect(squareX, matchupRowBY - 12, squareSize, squareSize);
+  ctx.fillStyle = '#CBD5E1';
+  ctx.fillText(`${teamBName}: ${payload.metrics.teamB.matchupMiDisplay}`, metricTextX, matchupRowBY);
+
+  // -------------------------
+  // Verdict panel
+  // -------------------------
+  const panelX = 708;
+  const panelY = 96;
+  const panelW = 424;
+  const panelH = 404;
+  const panelRadius = 30;
+
+  ctx.fillStyle = 'rgba(2, 6, 23, 0.94)';
+  miRoundRect(ctx, panelX, panelY, panelW, panelH, panelRadius);
+  ctx.fill();
+
+  ctx.strokeStyle = miRgbStringToRgba(winner.primaryRgb, 0.60);
+  ctx.lineWidth = 2;
+  miRoundRect(ctx, panelX, panelY, panelW, panelH, panelRadius);
+  ctx.stroke();
+
+  // subtle winner glow inside panel
+  const panelGlow = ctx.createLinearGradient(panelX, panelY, panelX, panelY + panelH);
+  panelGlow.addColorStop(0, miRgbStringToRgba(winner.primaryRgb, 0.14));
+  panelGlow.addColorStop(0.35, miRgbStringToRgba(winner.primaryRgb, 0.05));
+  panelGlow.addColorStop(1, 'rgba(2, 6, 23, 0)');
+  ctx.fillStyle = panelGlow;
+  miRoundRect(ctx, panelX, panelY, panelW, panelH, panelRadius);
+  ctx.fill();
+
+  ctx.fillStyle = '#94A3B8';
+  ctx.font = '600 24px Rajdhani, Arial, sans-serif';
+  ctx.fillText(edgeLabel.toUpperCase(), panelX + 34, panelY + 82);
+
+  const verdictLogoSize = 42;
+  const verdictLogoX = panelX + 34;
+  const verdictLogoY = panelY + 108;
+  const winnerTextX = verdictLogoX + verdictLogoSize + 16;
+  const winnerTextMax = panelW - 34 - (winnerTextX - panelX);
+
+  if (winnerLogo) {
+    ctx.drawImage(winnerLogo, verdictLogoX, verdictLogoY, verdictLogoSize, verdictLogoSize);
+  }
+
+  const winnerFont = fitText(winnerName, winnerTextMax, 70, 700);
+  ctx.fillStyle = '#F8FAFC';
+  ctx.font = `700 ${winnerFont}px Rajdhani, Arial, sans-serif`;
+  ctx.fillText(winnerName, winnerTextX, panelY + 150);
+
+  ctx.fillStyle = '#CBD5E1';
+  ctx.font = '600 28px Rajdhani, Arial, sans-serif';
+  ctx.fillText('holds the edge', panelX + 34, panelY + 200);
+
+  const deltaBaseY = panelY + 284;
+  const deltaIconSize = 36;
+  const deltaIconX = panelX + 34;
+  const deltaIconY = deltaBaseY - 30;
+  const deltaTextX = deltaIconX + deltaIconSize + 12;
+
+  ctx.fillStyle = '#E2E8F0';
+  ctx.font = '700 52px Rajdhani, Arial, sans-serif';
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'alphabetic';
+
+  if (deltaIcon) {
+    ctx.drawImage(deltaIcon, deltaIconX, deltaIconY, deltaIconSize, deltaIconSize);
+    ctx.fillText(`${deltaDisplay}`, deltaTextX, deltaBaseY);
+  } else {
+  ctx.fillText(`Δ ${deltaDisplay}`, panelX + 34, deltaBaseY);
+  }
+
+  // -------------------------
+  // Footer
+  // -------------------------
+  ctx.save();
+  ctx.fillStyle = '#64748B';
+  ctx.font = '500 18px Rajdhani, Arial, sans-serif';
+  ctx.textAlign = 'right';
+  ctx.textBaseline = 'alphabetic';
+  ctx.fillText(`Generated ${payload.meta.generatedAtDisplay}`, width - 56, height - 34);
+  ctx.restore();
+
+  return canvas;
+}
+
+function miSyncSnapButtons() {
+  const shareBtn = document.getElementById('shareMatchupBtn');
+  const saveBtn = document.getElementById('saveMatchupImageBtn');
+  if (!shareBtn || !saveBtn) return;
+
+  const hasResult = !!miBuildSnapPayload(miGetCurrentResultForShare());
+  shareBtn.disabled = !hasResult;
+  saveBtn.disabled = !hasResult;
+}
 
 function miGetCurrentResultForShare() {
   return window.LAST_RESULT || null;
@@ -11217,121 +11982,6 @@ function miRoundLabelFromCode(code) {
 
 function miSafeNum(v, fallback = 0) {
   return Number.isFinite(v) ? v : fallback;
-}
-
-function miBuildSharePayload(result) {
-  if (!result || !result.a || !result.b) return null;
-
-  const teamA = result.a.name || 'Team A';
-  const teamB = result.b.name || 'Team B';
-  const miA = miSafeNum(result.miA_raw, miSafeNum(result.miA, 0));
-  const miB = miSafeNum(result.miB_raw, miSafeNum(result.miB, 0));
-  const diff = miSafeNum(result.final_delta, miA - miB);
-  const roundCode = result.activeRound || result.round || CURRENT_ROUND || '';
-  const roundLabel = miRoundLabelFromCode(roundCode);
-
-  let lean = 'Toss-Up';
-  if (typeof getLeanBand === 'function') lean = getLeanBand(diff);
-
-  const winner = diff > 0 ? teamA : diff < 0 ? teamB : 'No clear edge';
-
-  return {
-    teamA,
-    teamB,
-    miA: miA.toFixed(3),
-    miB: miB.toFixed(3),
-    diff: diff.toFixed(3),
-    absDiff: Math.abs(diff).toFixed(3),
-    lean,
-    winner,
-    roundLabel,
-    generatedAt: new Date().toLocaleString()
-  };
-}
-
-function miBuildShareText(payload) {
-  return [
-    `${payload.teamA} vs ${payload.teamB}`,
-    `${payload.roundLabel} • ${payload.lean} (ΔMI ${payload.diff})`,
-    `MI: ${payload.teamA} ${payload.miA} | ${payload.teamB} ${payload.miB}`,
-    `Edge: ${payload.winner}`,
-    `Generated with The Madness Index`
-  ].join('\n');
-}
-
-function miRenderMatchupCardCanvas(payload) {
-  const width = 1200;
-  const height = 630;
-  const canvas = document.createElement('canvas');
-  canvas.width = width;
-  canvas.height = height;
-
-  const ctx = canvas.getContext('2d');
-
-  // background
-  ctx.fillStyle = '#020817';
-  ctx.fillRect(0, 0, width, height);
-
-  // accent bar
-  ctx.fillStyle = '#1c6fb0';
-  ctx.fillRect(0, 0, width, 14);
-
-  // title
-  ctx.fillStyle = '#E2E8F0';
-  ctx.font = '700 44px Rajdhani, Arial, sans-serif';
-  ctx.fillText('The Madness Index', 60, 80);
-
-  ctx.fillStyle = '#94A3B8';
-  ctx.font = '600 26px Rajdhani, Arial, sans-serif';
-  ctx.fillText(payload.roundLabel, 60, 120);
-
-  // matchup
-  ctx.fillStyle = '#F8FAFC';
-  ctx.font = '700 52px Rajdhani, Arial, sans-serif';
-  ctx.fillText(payload.teamA, 60, 220);
-
-  ctx.fillStyle = '#64748B';
-  ctx.font = '600 32px Rajdhani, Arial, sans-serif';
-  ctx.fillText('vs', 60, 270);
-
-  ctx.fillStyle = '#F8FAFC';
-  ctx.font = '700 52px Rajdhani, Arial, sans-serif';
-  ctx.fillText(payload.teamB, 60, 340);
-
-  // MI values
-  ctx.fillStyle = '#CBD5E1';
-  ctx.font = '600 28px Rajdhani, Arial, sans-serif';
-  ctx.fillText(`MI: ${payload.teamA} ${payload.miA}`, 60, 420);
-  ctx.fillText(`MI: ${payload.teamB} ${payload.miB}`, 60, 460);
-
-  // right card
-  ctx.fillStyle = '#0F172A';
-  ctx.fillRect(760, 120, 380, 360);
-  ctx.strokeStyle = '#1E293B';
-  ctx.lineWidth = 2;
-  ctx.strokeRect(760, 120, 380, 360);
-
-  ctx.fillStyle = '#93C5FD';
-  ctx.font = '700 30px Rajdhani, Arial, sans-serif';
-  ctx.fillText('Matchup Edge', 800, 180);
-
-  ctx.fillStyle = '#F8FAFC';
-  ctx.font = '700 56px Rajdhani, Arial, sans-serif';
-  ctx.fillText(payload.lean, 800, 250);
-
-  ctx.fillStyle = '#E2E8F0';
-  ctx.font = '600 34px Rajdhani, Arial, sans-serif';
-  ctx.fillText(`ΔMI ${payload.diff}`, 800, 310);
-
-  ctx.fillStyle = '#CBD5E1';
-  ctx.font = '600 28px Rajdhani, Arial, sans-serif';
-  ctx.fillText(`Winner: ${payload.winner}`, 800, 370);
-
-  ctx.fillStyle = '#64748B';
-  ctx.font = '500 20px Rajdhani, Arial, sans-serif';
-  ctx.fillText(`Generated ${payload.generatedAt}`, 60, 590);
-
-  return canvas;
 }
 
 function miCanvasToBlob(canvas, type = 'image/png', quality = 0.92) {
@@ -11357,15 +12007,9 @@ function miDownloadBlob(blob, filename) {
   URL.revokeObjectURL(url);
 }
 
-function miBuildCardFilename(payload) {
-  const safeA = String(payload.teamA || 'A').replace(/[^a-z0-9]+/gi, '_');
-  const safeB = String(payload.teamB || 'B').replace(/[^a-z0-9]+/gi, '_');
-  return `MadnessIndex_${safeA}_vs_${safeB}.png`;
-}
-
-async function miSaveCurrentMatchupImage() {
+async function miSaveCurrentSnap() {
   const result = miGetCurrentResultForShare();
-  const payload = miBuildSharePayload(result);
+  const payload = miBuildSnapPayload(result);
 
   if (!payload) {
     alert('Run a matchup first, then save image.');
@@ -11373,32 +12017,32 @@ async function miSaveCurrentMatchupImage() {
   }
 
   try {
-    const canvas = miRenderMatchupCardCanvas(payload);
+    const canvas = await miRenderSnapCanvas(payload);
     const blob = await miCanvasToBlob(canvas);
-    miDownloadBlob(blob, miBuildCardFilename(payload));
+    miDownloadBlob(blob, miBuildSnapFilename(payload));
   } catch (err) {
     console.error('[MI] Save image failed:', err);
     alert('Could not save image on this device/browser.');
   }
 }
 
-async function miShareCurrentMatchup() {
+async function miShareCurrentSnap() {
   const result = miGetCurrentResultForShare();
-  const payload = miBuildSharePayload(result);
+  const payload = miBuildSnapPayload(result);
 
   if (!payload) {
     alert('Run a matchup first, then share.');
     return;
   }
 
-  const text = miBuildShareText(payload);
+  const text = miBuildSnapShareText(payload);
   const url = window.location.href;
 
   try {
     // Attempt file share first (when supported)
-    const canvas = miRenderMatchupCardCanvas(payload);
+    const canvas = await miRenderSnapCanvas(payload);
     const blob = await miCanvasToBlob(canvas);
-    const file = new File([blob], miBuildCardFilename(payload), { type: 'image/png' });
+    const file = new File([blob], miBuildSnapFilename(payload), { type: 'image/png' });
 
     if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
       await navigator.share({
@@ -11430,16 +12074,6 @@ async function miShareCurrentMatchup() {
   } catch (err) {
     console.warn('[MI] Share canceled/failed:', err);
   }
-}
-
-function miSyncShareButtons() {
-  const shareBtn = document.getElementById('shareMatchupBtn');
-  const saveBtn = document.getElementById('saveMatchupImageBtn');
-  if (!shareBtn || !saveBtn) return;
-
-  const hasResult = !!miBuildSharePayload(miGetCurrentResultForShare());
-  shareBtn.disabled = !hasResult;
-  saveBtn.disabled = !hasResult;
 }
 
 // ========== EVENT WIRING & DOM READY ==========
@@ -11924,17 +12558,17 @@ if (roundBtn && roundDropdown) {
 
   if (shareMatchupBtn) {
     shareMatchupBtn.addEventListener('click', async () => {
-      await miShareCurrentMatchup();
+      await miShareCurrentSnap();
     });
   }
 
   if (saveMatchupImageBtn) {
     saveMatchupImageBtn.addEventListener('click', async () => {
-      await miSaveCurrentMatchupImage();
+      await miSaveCurrentSnap();
     });
   }
 
-  miSyncShareButtons();
+  miSyncSnapButtons();
 }
 
 /* =========================================================
@@ -12571,7 +13205,7 @@ function miForceMobileScrollUnlock() {
 // Build Version — must match service-worker.js and index.html
 // =========================================================
 
-const MI_BUILD = '31';
+const MI_BUILD = '32';
 
 function bootMadnessIndex() {
   console.log("[MI] bootMadnessIndex fired");
@@ -12593,7 +13227,7 @@ function bootMadnessIndex() {
     setupEventListeners();
     loadCopyJSON();
 
-    miSyncShareButtons();
+    miSyncSnapButtons();
 
     if (typeof miInitGlossary === 'function') {
       miInitGlossary();

@@ -37,6 +37,68 @@ body {
 
 :root {
   --mi-delta-size: 45px;  
+
+  /* ====== TEAM BRAND FALLBACKS — PRIMARY / SECONDARY / TERTIARY ====== */
+  --team-primary: #6b7280;
+  --team-secondary: #6b7280;
+  --team-tertiary: #6b7280;
+
+  --team-primary-rgb: 107 114 128;
+  --team-secondary-rgb: 107 114 128;
+  --team-tertiary-rgb: 107 114 128;
+
+  --team-secondary-ambient-rgb: 107 114 128;
+  --team-tertiary-ambient-rgb: 107 114 128;
+
+  --team-a-primary: #6b7280;
+  --team-a-secondary: #6b7280;
+  --team-a-tertiary: #6b7280;
+  --team-b-primary: #6b7280;
+  --team-b-secondary: #6b7280;
+  --team-b-tertiary: #6b7280;
+
+  --team-a-primary-rgb: 107 114 128;
+  --team-a-secondary-rgb: 107 114 128;
+  --team-a-tertiary-rgb: 107 114 128;
+  --team-b-primary-rgb: 107 114 128;
+  --team-b-secondary-rgb: 107 114 128;
+  --team-b-tertiary-rgb: 107 114 128;
+
+  --team-a-secondary-ambient-rgb: 107 114 128;
+  --team-a-tertiary-ambient-rgb: 107 114 128;
+  --team-b-secondary-ambient-rgb: 107 114 128;
+  --team-b-tertiary-ambient-rgb: 107 114 128;
+
+  --mi-brand-a: #6b7280;
+  --mi-brand-b: #6b7280;
+  --mi-brand-a-secondary: #6b7280;
+  --mi-brand-b-secondary: #6b7280;
+  --mi-brand-a-tertiary: #6b7280;
+  --mi-brand-b-tertiary: #6b7280;
+
+  --mi-brand-a-rgb: 107 114 128;
+  --mi-brand-b-rgb: 107 114 128;
+  --mi-brand-a-secondary-rgb: 107 114 128;
+  --mi-brand-b-secondary-rgb: 107 114 128;
+  --mi-brand-a-tertiary-rgb: 107 114 128;
+  --mi-brand-b-tertiary-rgb: 107 114 128;
+
+  --mi-brand-a-secondary-ambient-rgb: 107 114 128;
+  --mi-brand-b-secondary-ambient-rgb: 107 114 128;
+  --mi-brand-a-tertiary-ambient-rgb: 107 114 128;
+  --mi-brand-b-tertiary-ambient-rgb: 107 114 128;
+
+  --mi-winner-primary-rgb: 148 163 184;
+  --mi-winner-secondary-rgb: 148 163 184;
+  --mi-winner-tertiary-rgb: 148 163 184;
+  --mi-winner-ambient-rgb: 148 163 184;
+  --mi-winner-tertiary-ambient-rgb: 148 163 184;
+
+  --mi-loser-primary-rgb: 107 114 128;
+  --mi-loser-secondary-rgb: 107 114 128;
+  --mi-loser-tertiary-rgb: 107 114 128;
+  --mi-loser-ambient-rgb: 107 114 128;
+  --mi-loser-tertiary-ambient-rgb: 107 114 128;
  
   /* ====== BRAND BLUE SYSTEM (UI atmosphere + structure only) ====== */
   --mi-brand-blue-500: #175FC3; /* canonical brand blue from MIX logo */
@@ -7185,21 +7247,82 @@ button,
   justify-content: center;
   flex-direction: column;
   align-self: stretch;
+  position: relative;
+  min-width: 0;
+  padding: 10px 14px 8px 0;
+
+  background:
+    radial-gradient(
+      120% 135% at 0% 4%,
+      rgb(var(--mi-owner-rgb, 148 163 184) / 0.10),
+      transparent 34%
+    ),
+    radial-gradient(
+      105% 125% at 12% 12%,
+      rgb(var(--mi-owner-tertiary-rgb, 148 163 184) / 0.08),
+      transparent 26%
+    );
+
+  border-radius: 14px;
+}
+
+#verdictShell .mi-scorebug-top{
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
 }
 
 #verdictShell .mi-scorebug-kicker{
-  font-size: 11px;
-  letter-spacing: 0.28em;
+  align-self: stretch;
+  margin-top: 8px;
+  display: flex;
+  width: 104px;
+  position: relative;
+
+  font-size: 22px;
+  letter-spacing: 0.24em;
   text-transform: uppercase;
-  color: rgba(226,232,240,0.82);
+  color: rgb(var(--mi-owner-secondary-rgb, 226 232 240) / 0.74);
+
+  text-shadow:
+    0 0 10px rgb(var(--mi-owner-tertiary-rgb, 148 163 184) / 0.10),
+    0 2px 8px rgba(0,0,0,0.26);
+}
+
+/* subtle divider line inside rail */
+#verdictShell .mi-scorebug-kicker::after{
+  content:"";
+  position:absolute;
+  top: 6px;
+  right: 0;
+  bottom: 6px;
+  width: 2px;
+
+  background: linear-gradient(
+    to bottom,
+    rgb(var(--mi-owner-secondary-rgb, 148 163 184) / 0.72),
+    rgb(var(--mi-owner-tertiary-rgb, 148 163 184) / 0.54),
+    rgb(var(--mi-owner-rgb, 148 163 184) / 0.28)
+  );
+
+  box-shadow:
+    0 0 10px rgb(var(--mi-owner-tertiary-rgb, 148 163 184) / 0.16),
+    0 0 18px rgb(var(--mi-owner-rgb, 148 163 184) / 0.08);
 }
 
 #verdictShell .mi-scorebug-line{
-  font-size: 32px;
-  line-height: 1.06;
-  font-weight: 880;
+  font-size: 26px;
+  line-height: 1.08;
+  font-weight: 860;
   color: rgba(248,250,252,0.97);
   text-wrap: balance;
+  max-width: 62ch;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 160px;
+  min-width: 0;
 }
 
 /* ================================
@@ -8184,8 +8307,12 @@ button,
   line-height: 1.06;
   font-weight: 880;
   letter-spacing: -0.02em;
-  color: rgba(249,246,238,0.9);
+  color: rgba(249,246,238,0.94);
   text-wrap: balance;
+
+  text-shadow:
+    0 0 14px rgb(var(--mi-owner-tertiary-rgb, 148 163 184) / 0.10),
+    0 3px 14px rgba(0,0,0,0.34);
 }
 
 /* Subdeck (Sentence 2) */
@@ -8195,8 +8322,12 @@ button,
   margin-top: 16px;
   font-weight: 560;
   letter-spacing: -0.005em;
-  color: rgba(249,246,238,0.9);
-  max-width: 62ch; /* keeps long second sentences from feeling like a wall */
+  color: rgba(241,245,249,0.88);
+  max-width: 62ch;
+
+  text-shadow:
+    0 0 10px rgb(var(--mi-owner-tertiary-rgb, 148 163 184) / 0.06),
+    0 2px 10px rgba(0,0,0,0.24);
 }
 
 /* Optional “breath mark” divider between headline + subdeck */
@@ -8204,10 +8335,23 @@ button,
   display: block;
   height: 1px;
   width: 100%;
-  opacity: 0.85;
+  opacity: 0.92;
+
+  background:
+    linear-gradient(
+      90deg,
+      rgba(255,255,255,0.00),
+      rgb(var(--mi-owner-secondary-rgb, 148 163 184) / 0.34) 22%,
+      rgb(var(--mi-owner-tertiary-rgb, 148 163 184) / 0.30) 50%,
+      rgb(var(--mi-owner-secondary-rgb, 148 163 184) / 0.20) 78%,
+      rgba(255,255,255,0.00)
+    );
+
+  box-shadow:
+    0 0 10px rgb(var(--mi-owner-tertiary-rgb, 148 163 184) / 0.08);
 }
 
-/* Team-name anchoring (Concept 3) */
+/* Team-name anchoring */
 #verdictShell .mi-team{
   position: relative;
   display: inline-block;
@@ -8215,6 +8359,18 @@ button,
   border-radius: 6px;
   color: rgba(248,250,252,0.98);
   white-space: nowrap;
+
+  text-shadow:
+    0 0 10px rgb(var(--mi-owner-tertiary-rgb, 148 163 184) / 0.10),
+    0 2px 8px rgba(0,0,0,0.22);
+}
+
+#verdictShell .mi-team.mi-team--a{
+  color: rgb(var(--team-a-primary-rgb, 248 250 252) / 0.98);
+}
+
+#verdictShell .mi-team.mi-team--b{
+  color: rgb(var(--team-b-primary-rgb, 241 245 249) / 0.92);
 }
 
 #verdictShell .mi-team::after{
@@ -8225,18 +8381,33 @@ button,
   bottom: 0.06em;
   height: 2px;
   border-radius: 999px;
-
-  opacity: 0.55;
   transform: translateY(0);
 }
 
-/* Slightly different texture for the “other” team to reduce sameness
-   (still neutral — does NOT imply winner/loser) */
-#verdictShell .mi-team.mi-team--b{
-  color: rgba(241,245,249,0.92);
+#verdictShell .mi-team.mi-team--a::after{
+  background:
+    linear-gradient(
+      90deg,
+      rgb(var(--team-a-secondary-rgb, 148 163 184) / 0.76),
+      rgb(var(--team-a-tertiary-rgb, 148 163 184) / 0.92),
+      rgb(var(--team-a-primary-rgb, 148 163 184) / 0.82)
+    );
+  opacity: 0.72;
+  box-shadow:
+    0 0 8px rgb(var(--team-a-tertiary-rgb, 148 163 184) / 0.18);
 }
+
 #verdictShell .mi-team.mi-team--b::after{
-  opacity: 0.40;
+  background:
+    linear-gradient(
+      90deg,
+      rgb(var(--team-b-secondary-rgb, 148 163 184) / 0.60),
+      rgb(var(--team-b-tertiary-rgb, 148 163 184) / 0.82),
+      rgb(var(--team-b-primary-rgb, 148 163 184) / 0.70)
+    );
+  opacity: 0.56;
+  box-shadow:
+    0 0 8px rgb(var(--team-b-tertiary-rgb, 148 163 184) / 0.14);
 }
 
 /* =========================================================
@@ -16412,7 +16583,6 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
 
 /* =========================================================
    VERDICT SCOREBUG — FINAL REPAIR PASS
-   Paste at absolute bottom of styles2.css
    ========================================================= */
 
 #miVerdictMetricsTile .flip-tile-inner,
@@ -16432,6 +16602,29 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
   min-height: 0 !important;
   height: 100% !important;
   padding: 16px 16px 14px !important;
+
+  background:
+    radial-gradient(
+      125% 135% at 14% 0%,
+      rgb(var(--team-a-tertiary-rgb, 107 114 128) / 0.08),
+      transparent 34%
+    ),
+    radial-gradient(
+      125% 135% at 86% 0%,
+      rgb(var(--team-b-tertiary-rgb, 107 114 128) / 0.08),
+      transparent 34%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(9, 14, 28, 0.78),
+      rgba(2, 6, 23, 0.88)
+    ) !important;
+
+  border: 1px solid rgba(148,163,184,0.16) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.04),
+    inset 0 0 0 1px rgba(255,255,255,0.02),
+    0 10px 22px rgba(0,0,0,0.24) !important;
 }
 
 /* Main internal scorebug grid */
@@ -16460,11 +16653,72 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
   padding: 14px 14px 12px !important;
   border-radius: 12px !important;
   border: 1px solid rgba(148,163,184,0.22) !important;
+
   background:
-    linear-gradient(180deg, rgba(15,23,42,0.48), rgba(2,6,23,0.68)) !important;
+    radial-gradient(
+      115% 130% at 50% 0%,
+      rgb(var(--team-tertiary-rgb, 107 114 128) / 0.08),
+      transparent 36%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(15,23,42,0.48),
+      rgba(2,6,23,0.68)
+    ) !important;
+
   box-shadow:
     inset 0 1px 0 rgba(255,255,255,0.03),
     0 6px 16px rgba(0,0,0,0.20) !important;
+}
+
+#miVerdictMetricsTile .mi-scorebug-team--a{
+  background:
+    radial-gradient(
+      115% 140% at 14% 0%,
+      rgb(var(--team-a-primary-rgb, 107 114 128) / 0.10),
+      transparent 38%
+    ),
+    radial-gradient(
+      105% 125% at 26% 12%,
+      rgb(var(--team-a-tertiary-rgb, 107 114 128) / 0.08),
+      transparent 30%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(15,23,42,0.48),
+      rgba(2,6,23,0.68)
+    ) !important;
+
+  border-color: rgb(var(--team-a-tertiary-rgb, 148 163 184) / 0.18) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.03),
+    0 6px 16px rgba(0,0,0,0.20),
+    0 0 18px rgb(var(--team-a-tertiary-rgb, 107 114 128) / 0.08) !important;
+}
+
+#miVerdictMetricsTile .mi-scorebug-team--b{
+  background:
+    radial-gradient(
+      115% 140% at 86% 0%,
+      rgb(var(--team-b-primary-rgb, 107 114 128) / 0.10),
+      transparent 38%
+    ),
+    radial-gradient(
+      105% 125% at 74% 12%,
+      rgb(var(--team-b-tertiary-rgb, 107 114 128) / 0.08),
+      transparent 30%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(15,23,42,0.48),
+      rgba(2,6,23,0.68)
+    ) !important;
+
+  border-color: rgb(var(--team-b-tertiary-rgb, 148 163 184) / 0.18) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.03),
+    0 6px 16px rgba(0,0,0,0.20),
+    0 0 18px rgb(var(--team-b-tertiary-rgb, 107 114 128) / 0.08) !important;
 }
 
 #miVerdictMetricsTile .mi-scorebug-team-lines{
@@ -16481,12 +16735,32 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
   gap: 5px !important;
   padding: 8px 10px 9px !important;
   border-radius: 10px !important;
+
   background:
-    linear-gradient(180deg, rgba(15,23,42,0.56), rgba(2,6,23,0.72)) !important;
+    radial-gradient(
+      120% 135% at 50% 0%,
+      rgb(var(--team-tertiary-rgb, 107 114 128) / 0.05),
+      transparent 42%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(15,23,42,0.56),
+      rgba(2,6,23,0.72)
+    ) !important;
+
   border: 1px solid rgba(148,163,184,0.14) !important;
+
   box-shadow:
     inset 0 1px 0 rgba(255,255,255,0.03),
     0 4px 12px rgba(0,0,0,0.18) !important;
+}
+
+#miVerdictMetricsTile .mi-scorebug-team--a .mi-scorebug-team-line--metric{
+  border-color: rgb(var(--team-a-tertiary-rgb, 148 163 184) / 0.14) !important;
+}
+
+#miVerdictMetricsTile .mi-scorebug-team--b .mi-scorebug-team-line--metric{
+  border-color: rgb(var(--team-b-tertiary-rgb, 148 163 184) / 0.14) !important;
 }
 
 #miVerdictMetricsTile .mi-scorebug-mini-label{
@@ -16507,25 +16781,116 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
   min-width: 0 !important;
 }
 
-#miVerdictMetricsTile .mi-scorebug-mini-value{
-  min-width: 52px !important;
-  text-align: right !important;
+#miVerdictMetricsTile .mi-scorebug-mini-bar{
+  position: relative !important;
+  width: 100% !important;
+  height: 10px !important;
+  border-radius: 999px !important;
+  overflow: hidden !important;
+
+  background:
+    linear-gradient(180deg, rgba(2,6,23,0.98), rgba(15,23,42,0.92)) !important;
+
+  border: 1px solid rgba(148,163,184,0.16) !important;
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.04),
+    inset 0 0 0 1px rgba(255,255,255,0.02),
+    0 4px 10px rgba(0,0,0,0.22) !important;
+}
+
+#miVerdictMetricsTile .mi-scorebug-team--a .mi-scorebug-mini-bar{
+  border-color: rgb(var(--team-a-tertiary-rgb, 148 163 184) / 0.16) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.04),
+    inset 0 0 0 1px rgba(255,255,255,0.02),
+    0 0 10px rgb(var(--team-a-tertiary-rgb, 107 114 128) / 0.08),
+    0 4px 10px rgba(0,0,0,0.22) !important;
+}
+
+#miVerdictMetricsTile .mi-scorebug-team--b .mi-scorebug-mini-bar{
+  border-color: rgb(var(--team-b-tertiary-rgb, 148 163 184) / 0.16) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.04),
+    inset 0 0 0 1px rgba(255,255,255,0.02),
+    0 0 10px rgb(var(--team-b-tertiary-rgb, 107 114 128) / 0.08),
+    0 4px 10px rgba(0,0,0,0.22) !important;
+}
+
+#miVerdictMetricsTile .mi-scorebug-mini-bar::after{
+  content: "" !important;
+  position: absolute !important;
+  inset: 0 !important;
+  pointer-events: none !important;
+  z-index: 4 !important;
+
+  background-image: repeating-linear-gradient(
+    to right,
+    transparent 0,
+    transparent calc(10% - 1px),
+    rgba(255,255,255,0.05) calc(10% - 1px),
+    rgba(255,255,255,0.05) 10%
+  ) !important;
+
+  opacity: 0.28 !important;
+}
+
+#miVerdictMetricsTile .mi-scorebug-mini-center{
+  position: absolute !important;
+  top: -2px !important;
+  bottom: -2px !important;
+  left: 50% !important;
+  width: 1px !important;
+  transform: translateX(-50%) !important;
+  background: rgba(255,255,255,0.18) !important;
+  box-shadow: 0 0 6px rgba(255,255,255,0.08) !important;
+  z-index: 3 !important;
+}
+
+#verdictShell #miVerdictMetricsTile .mi-scorebug-mini-metric > .mi-scorebug-mini-value{
+  order: 2 !important;
+}
+
+#verdictShell #miVerdictMetricsTile .mi-scorebug-mini-bar{
+  display: block !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  height: 14px !important;
+  margin: 0 !important;
+  align-self: stretch !important;
+  justify-self: stretch !important;
+}
+
+#verdictShell #miVerdictMetricsTile .mi-scorebug-mini-value{
+  display: block !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding-top: 1px !important;
+
+  text-align: center !important;
   font-size: 13px !important;
   font-weight: 950 !important;
   line-height: 1 !important;
   letter-spacing: 0 !important;
+  white-space: nowrap !important;
   font-variant-numeric: tabular-nums !important;
 }
 
-/* Madness Delta row — single clean outlined strip */
-#miVerdictMetricsTile .mi-scorebug-gap{
-  grid-area: gap !important;
-  grid-column: 1 / -1 !important;
+/* Prevent inherited shrink constraints */
+#verdictShell #miVerdictMetricsTile .mi-scorebug-mini-metric > *{
+  min-width: 0 !important;
+}
 
-  display: grid !important;
-  grid-template-columns: 1fr auto !important;
+/* ===== Row 2: Madness Delta strip ===== */
+#verdictShell #miVerdictMetricsTile .mi-scorebug-gap{
+  display: flex !important;
+  flex-direction: row !important;
   align-items: center !important;
-  gap: 12px !important;
+  justify-content: center !important;
+  gap: 10px !important;
 
   width: 100% !important;
   min-width: 0 !important;
@@ -16534,41 +16899,58 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
   margin: 0 !important;
   padding: 10px 14px !important;
 
-  border: 1px solid rgba(148,163,184,0.20) !important;
   border-radius: 12px !important;
+  border: 1px solid rgba(148,163,184,0.20) !important;
+
   background:
-    linear-gradient(180deg, rgba(4,8,18,0.82), rgba(2,6,23,0.92)) !important;
+    radial-gradient(
+      120% 130% at 50% 0%,
+      rgb(var(--mi-winner-tertiary-rgb, 148 163 184) / 0.10),
+      transparent 44%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(4,8,18,0.82),
+      rgba(2,6,23,0.92)
+    ) !important;
+
   box-shadow:
     inset 0 1px 0 rgba(255,255,255,0.04),
+    0 0 18px rgb(var(--mi-winner-tertiary-rgb, 148 163 184) / 0.08),
     0 6px 14px rgba(0,0,0,0.20) !important;
+
+  text-align: center !important;
 }
 
-#miVerdictMetricsTile .mi-scorebug-gap-label{
+#verdictShell #miVerdictMetricsTile .mi-scorebug-gap-label{
   display: inline-flex !important;
   align-items: center !important;
-  gap: 10px !important;
-  min-width: 0 !important;
-  white-space: nowrap !important;
+  justify-content: center !important;
+  gap: 8px !important;
 
-  font-size: 13px !important;
-  font-weight: 850 !important;
-  letter-spacing: 0.06em !important;
-  text-transform: uppercase !important;
+  width: auto !important;
+  min-width: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+
+  white-space: nowrap !important;
   line-height: 1 !important;
-  color: rgba(226,232,240,0.90) !important;
 }
 
-#miVerdictMetricsTile .mi-scorebug-gap-value{
-  justify-self: end !important;
-  text-align: right !important;
-  white-space: nowrap !important;
+#verdictShell #miVerdictMetricsTile .mi-scorebug-gap-value{
+  display: inline-block !important;
+  width: auto !important;
   min-width: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+
+  text-align: center !important;
+  white-space: nowrap !important;
 
   font-size: 22px !important;
   font-weight: 950 !important;
   line-height: 1 !important;
-  letter-spacing: -0.01em !important;
-  font-variant-numeric: tabular-nums !important;
+  letter-spacing: -0.02em !important;
 }
 
 #miVerdictMetricsTile .mi-scorebug-gap-label .mi-delta-mark{
@@ -17637,12 +18019,26 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
 
 #verdictShell #miVerdictMetricsTile #miScorebugTeamA{
   color: var(--mi-brand-a, var(--syn-role-a)) !important;
-  border-bottom-color: color-mix(in srgb, var(--mi-brand-a, var(--syn-role-a)) 45%, rgba(148,163,184,0.35)) !important;
+  border-bottom-color: color-mix(
+    in srgb,
+    var(--mi-brand-a-tertiary, var(--mi-brand-a, var(--syn-role-a))) 52%,
+    rgba(148,163,184,0.32)
+  ) !important;
+  text-shadow:
+    0 0 12px rgb(var(--team-a-tertiary-rgb, 107 114 128) / 0.14),
+    0 2px 8px rgba(0,0,0,0.26) !important;
 }
 
 #verdictShell #miVerdictMetricsTile #miScorebugTeamB{
   color: var(--mi-brand-b, var(--syn-role-b)) !important;
-  border-bottom-color: color-mix(in srgb, var(--mi-brand-b, var(--syn-role-b)) 45%, rgba(148,163,184,0.35)) !important;
+  border-bottom-color: color-mix(
+    in srgb,
+    var(--mi-brand-b-tertiary, var(--mi-brand-b, var(--syn-role-b))) 52%,
+    rgba(148,163,184,0.32)
+  ) !important;
+  text-shadow:
+    0 0 12px rgb(var(--team-b-tertiary-rgb, 107 114 128) / 0.14),
+    0 2px 8px rgba(0,0,0,0.26) !important;
 }
 
 #summarySection .summary-synthesis-table .syn-team-a{
@@ -17853,10 +18249,12 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
   width: 6px;
   background: linear-gradient(
     to bottom,
-    var(--team-primary),
-    color-mix(in srgb, var(--team-secondary) 99%, var(--team-primary) 1%)
+    color-mix(in srgb, var(--team-primary) 78%, var(--team-secondary) 22%),
+    color-mix(in srgb, var(--team-secondary) 58%, var(--team-tertiary) 42%),
+    color-mix(in srgb, var(--team-tertiary) 65%, var(--team-primary) 35%)
   );
-  box-shadow: 0 0 28px color-mix(in srgb, var(--team-primary) 42%, transparent);
+  box-shadow:
+    0 0 28px color-mix(in srgb, var(--team-primary) 58%, var(--team-tertiary) 42%);
 }
 
 .mi-team-brand--scorebug::after {
@@ -17958,7 +18356,7 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
 }
 
 /* =========================================================
-   TEAM HEADER BRANDING — extend scorebug treatment to
+   TEAM HEADER BRANDING — tertiary-compatible extension for
    .mi-team-brand--card and score synthesis headers
    ========================================================= */
 
@@ -17966,8 +18364,15 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
 .mi-team-brand--summary {
   --team-primary: #7c8aa5;
   --team-secondary: #dbe4f0;
+  --team-tertiary: #9fb0c9;
+
   --team-primary-rgb: 124 138 165;
+  --team-secondary-rgb: 219 228 240;
+  --team-tertiary-rgb: 159 176 201;
+
   --team-secondary-ambient-rgb: 198 210 226;
+  --team-tertiary-ambient-rgb: 176 191 214;
+
   --team-glow-mid-rgb: 156 172 195;
 
   position: relative;
@@ -17992,8 +18397,13 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
     ),
     radial-gradient(
       105% 130% at 100% 18%,
-      rgb(var(--team-secondary-ambient-rgb) / 0.16) 0%,
+      rgb(var(--team-secondary-ambient-rgb) / 0.13) 0%,
       transparent 58%
+    ),
+    radial-gradient(
+      110% 135% at 78% 100%,
+      rgb(var(--team-tertiary-rgb) / 0.12) 0%,
+      transparent 56%
     ),
     linear-gradient(180deg, rgba(10, 18, 38, 0.84), rgba(4, 10, 24, 0.88));
 
@@ -18002,23 +18412,49 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
     inset 0 1px 0 rgba(255,255,255,0.05),
     0 10px 26px rgba(0,0,0,0.28),
     0 0 18px rgb(var(--team-primary-rgb) / 0.10),
-    0 0 28px rgb(var(--team-secondary-ambient-rgb) / 0.08);
+    0 0 22px rgb(var(--team-tertiary-rgb) / 0.08),
+    0 0 28px rgb(var(--team-secondary-ambient-rgb) / 0.06);
 }
 
-.mi-team-brand--card::before {
+.mi-team-brand--card::before,
+.mi-team-brand--summary::before {
   content: "";
   position: absolute;
-  inset: 0 auto 0 0;
-  width: 4px;
+  left: 4px;
+  right: 90px;
+  top: 6px;
+  bottom: 6px;
+  width: 1px;
+  padding-right: 6px !important;
   z-index: 0;
   background: linear-gradient(
     to bottom,
     var(--team-primary),
-    color-mix(in srgb, var(--team-secondary) 60%, var(--team-primary) 40%)
+    color-mix(in srgb, var(--team-tertiary) 58%, var(--team-primary) 42%),
+    color-mix(in srgb, var(--team-secondary) 60%, var(--team-tertiary) 40%)
   );
   box-shadow:
     0 0 10px color-mix(in srgb, var(--team-primary) 38%, transparent),
-    0 0 16px color-mix(in srgb, var(--team-secondary) 24%, transparent);
+    0 0 14px color-mix(in srgb, var(--team-tertiary) 26%, transparent),
+    0 0 18px color-mix(in srgb, var(--team-secondary) 18%, transparent);
+}
+
+.mi-team-brand--card::after,
+.mi-team-brand--summary::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--team-tertiary) 12%, transparent),
+      transparent 34%,
+      transparent 66%,
+      color-mix(in srgb, var(--team-secondary) 10%, transparent)
+    );
+  opacity: 0.9;
 }
 
 .mi-team-brand--card .mi-team-brand-logo,
@@ -18033,7 +18469,8 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
   filter:
     drop-shadow(0 4px 10px rgba(0,0,0,0.32))
     drop-shadow(0 0 10px color-mix(in srgb, var(--team-primary) 24%, transparent))
-    drop-shadow(0 0 16px color-mix(in srgb, var(--team-secondary) 16%, transparent));
+    drop-shadow(0 0 12px color-mix(in srgb, var(--team-tertiary) 16%, transparent))
+    drop-shadow(0 0 16px color-mix(in srgb, var(--team-secondary) 12%, transparent));
 }
 
 .mi-team-brand--card .team-label-wrap {
@@ -18057,12 +18494,13 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
   overflow: hidden;
   text-overflow: ellipsis;
 
-  color: color-mix(in srgb, var(--team-primary) 72%, #ffffff 28%);
+  color: color-mix(in srgb, var(--team-primary) 68%, #ffffff 32%);
   text-shadow:
     0 0 10px color-mix(in srgb, var(--team-primary) 16%, transparent),
-    0 0 14px color-mix(in srgb, var(--team-secondary) 10%, transparent);
+    0 0 12px color-mix(in srgb, var(--team-tertiary) 10%, transparent),
+    0 0 14px color-mix(in srgb, var(--team-secondary) 8%, transparent);
 
-  border-bottom: 1px solid color-mix(in srgb, var(--team-secondary) 30%, rgba(148,163,184,0.22));
+  border-bottom: 1px solid color-mix(in srgb, var(--team-tertiary) 22%, rgba(148,163,184,0.22));
 }
 
 .mi-team-brand--card .mi-team-brand-name::after,
@@ -18070,21 +18508,26 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
   content: "";
   position: absolute;
   left: 0;
+  bottom: -1px;
+  height: 2px;
   width: min(46%, 170px);
   border-radius: 999px;
   background: linear-gradient(
     90deg,
     var(--team-primary),
-    color-mix(in srgb, var(--team-secondary) 66%, var(--team-primary) 34%),
+    color-mix(in srgb, var(--team-tertiary) 60%, var(--team-primary) 40%),
+    color-mix(in srgb, var(--team-secondary) 60%, var(--team-tertiary) 40%),
     transparent
   );
   box-shadow:
     0 0 10px color-mix(in srgb, var(--team-primary) 20%, transparent),
-    0 0 14px color-mix(in srgb, var(--team-secondary) 12%, transparent);
+    0 0 12px color-mix(in srgb, var(--team-tertiary) 14%, transparent),
+    0 0 14px color-mix(in srgb, var(--team-secondary) 10%, transparent);
 }
 
 /* =========================================================
-   TEAM CARD HEADERS — override role-based fills with team fills
+   TEAM CARD HEADERS — override role-based fills with
+   team primary + tertiary + secondary fills
    ========================================================= */
 
 #cindCard .team-card-header,
@@ -18092,7 +18535,7 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
   border: 1px solid color-mix(in srgb, var(--team-primary, #175FC3) 28%, rgba(255,255,255,0.08));
   box-shadow:
     inset 0 1px 0 rgba(255,255,255,0.04),
-    0 0 0 1px color-mix(in srgb, var(--team-primary, #175FC3) 12%, transparent);
+    0 0 0 1px color-mix(in srgb, var(--team-tertiary, var(--team-primary, #175FC3)) 12%, transparent);
 }
 
 #cindCard .team-card-header::before,
@@ -18103,16 +18546,22 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
       color-mix(in srgb, var(--team-primary, #175FC3) 28%, transparent),
       transparent 48%
     ),
+    radial-gradient(
+      circle at 78% 40%,
+      color-mix(in srgb, var(--team-tertiary, #dbe4f0) 14%, transparent),
+      transparent 46%
+    ),
     linear-gradient(
       90deg,
-      color-mix(in srgb, var(--team-secondary, #dbe4f0) 14%, rgba(15,23,42,0.92)),
+      color-mix(in srgb, var(--team-secondary, #dbe4f0) 12%, rgba(15,23,42,0.92)),
+      color-mix(in srgb, var(--team-tertiary, #dbe4f0) 10%, rgba(15,23,42,0.94)) 44%,
       rgba(15,23,42,0.96) 72%
     ) !important;
 }
 
 /* =========================================================
    WHOLE CARD BORDER ACCENTS — team color driven
-   Overrides role-accent shell chrome
+   tertiary-compatible shell chrome
    ========================================================= */
 
 #cindCard,
@@ -18120,8 +18569,9 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
   border-color: color-mix(in srgb, var(--team-primary, #175FC3) 34%, rgba(148,163,184,0.18)) !important;
   box-shadow:
     0 0 0 1px color-mix(in srgb, var(--team-primary, #175FC3) 24%, transparent) inset,
-    0 0 0 2px color-mix(in srgb, var(--team-secondary, #dbe4f0) 10%, transparent) inset,
+    0 0 0 2px color-mix(in srgb, var(--team-tertiary, var(--team-secondary, #dbe4f0)) 10%, transparent) inset,
     0 18px 42px rgba(0,0,0,0.42),
+    0 0 16px color-mix(in srgb, var(--team-tertiary, var(--team-primary, #175FC3)) 8%, transparent),
     0 0 24px color-mix(in srgb, var(--team-primary, #175FC3) 12%, transparent) !important;
 }
 
@@ -18130,7 +18580,8 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
   background: linear-gradient(
     90deg,
     transparent,
-    color-mix(in srgb, var(--team-primary, #175FC3) 72%, var(--team-secondary, #dbe4f0) 28%),
+    color-mix(in srgb, var(--team-primary, #175FC3) 56%, var(--team-tertiary, var(--team-secondary, #dbe4f0)) 44%),
+    color-mix(in srgb, var(--team-secondary, #dbe4f0) 56%, var(--team-tertiary, var(--team-primary, #175FC3)) 44%),
     transparent
   ) !important;
 }
@@ -18140,7 +18591,7 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
   border-color: color-mix(in srgb, var(--team-primary, #175FC3) 16%, rgba(255,255,255,0.05)) !important;
   box-shadow:
     inset 0 1px 0 rgba(255,255,255,0.08),
-    inset 0 0 0 1px color-mix(in srgb, var(--team-secondary, #dbe4f0) 8%, transparent) !important;
+    inset 0 0 0 1px color-mix(in srgb, var(--team-tertiary, var(--team-secondary, #dbe4f0)) 8%, transparent) !important;
 }
 
 /* =========================================================
@@ -18191,6 +18642,7 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
 .mi-team-brand--summary .mi-team-brand-logo {
   width: 34px;
   height: 34px;
+  padding-left: 16px;
 }
 
 .mi-team-brand--summary .mi-team-brand-name {
@@ -19918,6 +20370,9 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
 #summarySection .syn-center.mi-winner-a{
   --mi-owner-rgb: var(--team-a-primary-rgb, 148 163 184);
   --mi-owner-secondary-rgb: var(--team-a-secondary-rgb, 148 163 184);
+  --mi-owner-tertiary-rgb: var(--team-a-tertiary-rgb, 148 163 184);
+  --mi-owner-secondary-ambient-rgb: var(--team-a-secondary-ambient-rgb, 148 163 184);
+  --mi-owner-tertiary-ambient-rgb: var(--team-a-tertiary-ambient-rgb, 148 163 184);
   --mi-owner-edge-x: 10%;
   --mi-owner-hero-x: 18%;
 }
@@ -19926,6 +20381,9 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
 #summarySection .syn-center.mi-winner-b{
   --mi-owner-rgb: var(--team-b-primary-rgb, 148 163 184);
   --mi-owner-secondary-rgb: var(--team-b-secondary-rgb, 148 163 184);
+  --mi-owner-tertiary-rgb: var(--team-b-tertiary-rgb, 148 163 184);
+  --mi-owner-secondary-ambient-rgb: var(--team-b-secondary-ambient-rgb, 148 163 184);
+  --mi-owner-tertiary-ambient-rgb: var(--team-b-tertiary-ambient-rgb, 148 163 184);
   --mi-owner-edge-x: 90%;
   --mi-owner-hero-x: 82%;
 }
@@ -19933,11 +20391,18 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
 /* summary uses brand tokens, so remap there */
 #summarySection .syn-center.mi-winner-a{
   --mi-owner-rgb: var(--mi-brand-a-rgb, 148 163 184);
-  --mi-owner-secondary-rgb: var(--mi-brand-a-secondary-ambient-rgb, 148 163 184);
+  --mi-owner-secondary-rgb: var(--mi-brand-a-secondary-rgb, 148 163 184);
+  --mi-owner-tertiary-rgb: var(--mi-brand-a-tertiary-rgb, 148 163 184);
+  --mi-owner-secondary-ambient-rgb: var(--mi-brand-a-secondary-ambient-rgb, 148 163 184);
+  --mi-owner-tertiary-ambient-rgb: var(--mi-brand-a-tertiary-ambient-rgb, 148 163 184);
 }
+
 #summarySection .syn-center.mi-winner-b{
   --mi-owner-rgb: var(--mi-brand-b-rgb, 148 163 184);
-  --mi-owner-secondary-rgb: var(--mi-brand-b-secondary-ambient-rgb, 148 163 184);
+  --mi-owner-secondary-rgb: var(--mi-brand-b-secondary-rgb, 148 163 184);
+  --mi-owner-tertiary-rgb: var(--mi-brand-b-tertiary-rgb, 148 163 184);
+  --mi-owner-secondary-ambient-rgb: var(--mi-brand-b-secondary-ambient-rgb, 148 163 184);
+  --mi-owner-tertiary-ambient-rgb: var(--mi-brand-b-tertiary-ambient-rgb, 148 163 184);
 }
 
 /* -----------------------------------------
@@ -19951,25 +20416,87 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
   background:
     radial-gradient(
       140% 165% at var(--mi-owner-edge-x) -8%,
-      rgb(var(--mi-owner-rgb) / 0.30) 0%,
-      rgb(var(--mi-owner-rgb) / 0.16) 22%,
-      rgba(7, 10, 18, 0.00) 56%
+      rgb(var(--mi-owner-rgb) / 0.26) 0%,
+      rgb(var(--mi-owner-rgb) / 0.13) 22%,
+      rgba(7, 10, 18, 0.00) 54%
+    ),
+    radial-gradient(
+      120% 145% at var(--mi-owner-hero-x) 8%,
+      rgb(var(--mi-owner-tertiary-rgb) / 0.16) 0%,
+      rgb(var(--mi-owner-tertiary-rgb) / 0.08) 18%,
+      rgba(7, 10, 18, 0.00) 42%
     ),
     linear-gradient(
       90deg,
-      rgb(var(--mi-owner-rgb) / 0.13) 0%,
-      rgb(var(--mi-owner-rgb) / 0.06) 18%,
-      rgba(7, 10, 18, 0.00) 36%,
-      rgba(7, 10, 18, 0.00) 64%,
+      rgb(var(--mi-owner-rgb) / 0.11) 0%,
+      rgb(var(--mi-owner-secondary-rgb) / 0.07) 16%,
+      rgb(var(--mi-owner-tertiary-rgb) / 0.05) 28%,
+      rgba(7, 10, 18, 0.00) 42%,
+      rgba(7, 10, 18, 0.00) 58%,
+      rgb(var(--mi-owner-tertiary-rgb) / 0.03) 72%,
       rgb(var(--mi-owner-rgb) / 0.04) 100%
     ),
     rgba(7, 10, 18, 0.92);
 
+  border-color: rgb(var(--mi-owner-rgb) / 0.76);
+
   box-shadow:
-    0 0 0 1px rgb(var(--mi-owner-rgb) / 0.32),
-    0 0 0 3px rgb(var(--mi-owner-rgb) / 0.08),
-    0 26px 54px rgba(0,0,0,0.60),
-    0 0 46px rgb(var(--mi-owner-rgb) / 0.16);
+    0 0 0 1px rgb(var(--mi-owner-rgb) / 0.26),
+    0 0 0 3px rgb(var(--mi-owner-tertiary-rgb) / 0.06),
+    0 0 28px rgb(var(--mi-owner-tertiary-rgb) / 0.14),
+    0 24px 52px rgba(0,0,0,0.58);
+}
+
+/* Verdict shell winner badge */
+#verdictShell.mi-winner-a::before,
+#verdictShell.mi-winner-b::before{
+  opacity: 1;
+  color: rgba(248,250,252,0.94);
+
+  background:
+    linear-gradient(
+      180deg,
+      rgb(var(--mi-owner-rgb) / 0.22),
+      rgb(var(--mi-owner-secondary-rgb) / 0.16)
+    );
+
+  border: 1px solid rgb(var(--mi-owner-tertiary-rgb) / 0.24);
+
+  box-shadow:
+    0 10px 26px rgba(0,0,0,0.34),
+    0 0 0 1px rgb(var(--mi-owner-rgb) / 0.10),
+    0 0 18px rgb(var(--mi-owner-tertiary-rgb) / 0.12);
+
+  transform: translateY(0);
+}
+
+/* Vertical beacon / side ownership line */
+#verdictShell.mi-winner-a::after,
+#verdictShell.mi-winner-b::after{
+  opacity: 1;
+
+  background:
+    linear-gradient(
+      180deg,
+      rgb(var(--mi-owner-secondary-rgb) / 0.96),
+      rgb(var(--mi-owner-tertiary-rgb) / 0.88),
+      rgb(var(--mi-owner-rgb) / 0.92)
+    );
+
+  box-shadow:
+    0 0 0 1px rgb(255 255 255 / 0.05),
+    0 0 16px rgb(var(--mi-owner-tertiary-rgb) / 0.28),
+    0 0 32px rgb(var(--mi-owner-rgb) / 0.18);
+}
+
+#verdictShell.mi-winner-a::after{
+  left: 12px;
+  right: auto;
+}
+
+#verdictShell.mi-winner-b::after{
+  right: 12px;
+  left: auto;
 }
 
 /* keep directional bias correct for B */
@@ -20284,8 +20811,13 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
   background:
     radial-gradient(
       120% 120% at 50% 0%,
-      rgb(var(--mi-verdict-owner-rgb) / 0.16),
-      rgba(255,255,255,0.00) 54%
+      rgb(var(--mi-verdict-owner-rgb) / 0.14),
+      rgba(255,255,255,0.00) 46%
+    ),
+    radial-gradient(
+      125% 125% at 50% 10%,
+      rgb(var(--mi-verdict-owner-tertiary-rgb) / 0.12),
+      rgba(255,255,255,0.00) 58%
     ),
     linear-gradient(
       180deg,
@@ -20297,8 +20829,9 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
   border-color: rgba(255,255,255,0.92) !important;
   box-shadow:
     inset 0 0 0 1px rgba(0,0,0,0.65),
-    0 0 0 2px rgb(var(--mi-verdict-owner-rgb) / 0.24),
-    0 0 24px rgb(var(--mi-verdict-owner-rgb) / 0.16) !important;
+    0 0 0 2px rgb(var(--mi-verdict-owner-rgb) / 0.20),
+    0 0 14px rgb(var(--mi-verdict-owner-secondary-rgb) / 0.10),
+    0 0 24px rgb(var(--mi-verdict-owner-tertiary-rgb) / 0.14) !important;
 }
 
 /* =========================================================
@@ -20310,12 +20843,14 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
 #verdictShell.mi-winner-a{
   --mi-max-owner-rgb: var(--team-a-primary-rgb, 148 163 184);
   --mi-max-owner-secondary-rgb: var(--team-a-secondary-rgb, 255 255 255);
+  --mi-max-owner-tertiary-rgb: var(--team-a-tertiary-rgb, 148 163 184);
   --mi-max-owner-x: 14%;
 }
 
 #verdictShell.mi-winner-b{
   --mi-max-owner-rgb: var(--team-b-primary-rgb, 148 163 184);
   --mi-max-owner-secondary-rgb: var(--team-b-secondary-rgb, 255 255 255);
+  --mi-max-owner-tertiary-rgb: var(--team-b-tertiary-rgb, 148 163 184);
   --mi-max-owner-x: 86%;
 }
 
@@ -20645,8 +21180,8 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
 }
 
 /* =========================================================
-   SUMMARY SYNTHESIS — NUCLEAR OWNERSHIP PASS
-   Full paste-over replacement for the attached text block
+   SUMMARY SYNTHESIS — TERTIARY OWNERSHIP PASS
+   Full paste-over replacement
    ========================================================= */
 
 /* -----------------------------------------
@@ -20656,14 +21191,28 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
   --syn-a-rgb: var(--mi-brand-a-rgb, 148 163 184);
   --syn-b-rgb: var(--mi-brand-b-rgb, 148 163 184);
 
+  --syn-a-secondary-rgb: var(--mi-brand-a-secondary-rgb, var(--syn-a-rgb));
+  --syn-b-secondary-rgb: var(--mi-brand-b-secondary-rgb, var(--syn-b-rgb));
+
+  --syn-a-tertiary-rgb: var(--mi-brand-a-tertiary-rgb, var(--syn-a-secondary-rgb, var(--syn-a-rgb)));
+  --syn-b-tertiary-rgb: var(--mi-brand-b-tertiary-rgb, var(--syn-b-secondary-rgb, var(--syn-b-rgb)));
+
   --syn-a-ambient-rgb: var(--mi-brand-a-secondary-ambient-rgb, 220 230 240);
   --syn-b-ambient-rgb: var(--mi-brand-b-secondary-ambient-rgb, 220 230 240);
 
+  --syn-a-tertiary-ambient-rgb: var(--mi-brand-a-tertiary-ambient-rgb, var(--syn-a-tertiary-rgb));
+  --syn-b-tertiary-ambient-rgb: var(--mi-brand-b-tertiary-ambient-rgb, var(--syn-b-tertiary-rgb));
+
   --syn-a-wash:
     radial-gradient(
-      140% 165% at 6% 0%,
-      rgb(var(--syn-a-rgb) / 0.30),
-      transparent 56%
+      150% 180% at 6% 0%,
+      rgb(var(--syn-a-rgb) / 0.26),
+      transparent 54%
+    ),
+    radial-gradient(
+      120% 145% at 18% 10%,
+      rgb(var(--syn-a-tertiary-rgb) / 0.14),
+      transparent 42%
     ),
     linear-gradient(
       180deg,
@@ -20673,9 +21222,14 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
 
   --syn-b-wash:
     radial-gradient(
-      140% 165% at 94% 0%,
-      rgb(var(--syn-b-rgb) / 0.30),
-      transparent 56%
+      150% 180% at 94% 0%,
+      rgb(var(--syn-b-rgb) / 0.26),
+      transparent 54%
+    ),
+    radial-gradient(
+      120% 145% at 82% 10%,
+      rgb(var(--syn-b-tertiary-rgb) / 0.14),
+      transparent 42%
     ),
     linear-gradient(
       180deg,
@@ -20694,17 +21248,27 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
   isolation: isolate;
 }
 
-/* colgroup = subtle structural ownership only */
+/* colgroup = subtle ownership lanes with tertiary undertone */
 #summarySection .summary-synthesis-table colgroup col:nth-child(1),
 #summarySection .summary-synthesis-table colgroup col:nth-child(2),
 #summarySection .summary-synthesis-table colgroup col:nth-child(3){
-  background-color: rgb(var(--syn-a-rgb) / 0.05);
+  background:
+    linear-gradient(
+      180deg,
+      rgb(var(--syn-a-rgb) / 0.045),
+      rgb(var(--syn-a-tertiary-rgb) / 0.030)
+    );
 }
 
 #summarySection .summary-synthesis-table colgroup col:nth-child(5),
 #summarySection .summary-synthesis-table colgroup col:nth-child(6),
 #summarySection .summary-synthesis-table colgroup col:nth-child(7){
-  background-color: rgb(var(--syn-b-rgb) / 0.05);
+  background:
+    linear-gradient(
+      180deg,
+      rgb(var(--syn-b-rgb) / 0.045),
+      rgb(var(--syn-b-tertiary-rgb) / 0.030)
+    );
 }
 
 /* -----------------------------------------
@@ -20717,7 +21281,7 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
   background-image: var(--syn-a-wash) !important;
   box-shadow:
     inset 0 1px 0 rgba(255,255,255,0.02),
-    inset 0 0 0 1px rgb(var(--syn-a-rgb) / 0.05) !important;
+    inset 0 0 0 1px rgb(var(--syn-a-tertiary-rgb) / 0.07) !important;
 }
 
 #summarySection .summary-synthesis-table .syn-label-b,
@@ -20727,7 +21291,7 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
   background-image: var(--syn-b-wash) !important;
   box-shadow:
     inset 0 1px 0 rgba(255,255,255,0.02),
-    inset 0 0 0 1px rgb(var(--syn-b-rgb) / 0.05) !important;
+    inset 0 0 0 1px rgb(var(--syn-b-tertiary-rgb) / 0.07) !important;
 }
 
 /* stronger center separator walls */
@@ -20822,13 +21386,19 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
   background:
     radial-gradient(
       135% 170% at 6% 0%,
-      rgb(var(--syn-a-rgb) / 0.28),
+      rgb(var(--syn-a-rgb) / 0.24),
       transparent 58%
+    ),
+    radial-gradient(
+      110% 145% at 16% 10%,
+      rgb(var(--syn-a-tertiary-rgb) / 0.16),
+      transparent 40%
     ),
     linear-gradient(
       90deg,
       rgb(var(--syn-a-rgb) / 0.10) 0%,
-      rgba(255,255,255,0.00) 54%
+      rgb(var(--syn-a-tertiary-rgb) / 0.07) 34%,
+      rgba(255,255,255,0.00) 58%
     ),
     linear-gradient(
       180deg,
@@ -20840,7 +21410,7 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
   box-shadow:
     inset 0 -1px 0 rgba(0,0,0,0.34),
     inset 0 1px 0 rgba(255,255,255,0.04),
-    0 0 24px rgb(var(--syn-a-rgb) / 0.14) !important;
+    0 0 24px rgb(var(--syn-a-tertiary-rgb) / 0.12) !important;
 }
 
 #summarySection .summary-synthesis-table .syn-team-b{
@@ -20848,13 +21418,19 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
   background:
     radial-gradient(
       135% 170% at 94% 0%,
-      rgb(var(--syn-b-rgb) / 0.28),
+      rgb(var(--syn-b-rgb) / 0.24),
       transparent 58%
+    ),
+    radial-gradient(
+      110% 145% at 84% 10%,
+      rgb(var(--syn-b-tertiary-rgb) / 0.16),
+      transparent 40%
     ),
     linear-gradient(
       270deg,
       rgb(var(--syn-b-rgb) / 0.10) 0%,
-      rgba(255,255,255,0.00) 54%
+      rgb(var(--syn-b-tertiary-rgb) / 0.07) 34%,
+      rgba(255,255,255,0.00) 58%
     ),
     linear-gradient(
       180deg,
@@ -20866,7 +21442,7 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
   box-shadow:
     inset 0 -1px 0 rgba(0,0,0,0.34),
     inset 0 1px 0 rgba(255,255,255,0.04),
-    0 0 24px rgb(var(--syn-b-rgb) / 0.14) !important;
+    0 0 24px rgb(var(--syn-b-tertiary-rgb) / 0.12) !important;
 }
 
 /* subtle vertical team rails in headers */
@@ -20886,11 +21462,11 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
   background:
     linear-gradient(
       180deg,
-      rgb(var(--syn-a-ambient-rgb) / 0.98),
+      rgb(var(--syn-a-tertiary-ambient-rgb) / 0.98),
       rgb(var(--syn-a-rgb) / 0.88)
     ) !important;
   box-shadow:
-    0 0 10px rgb(var(--syn-a-rgb) / 0.38),
+    0 0 10px rgb(var(--syn-a-tertiary-rgb) / 0.34),
     0 0 20px rgb(var(--syn-a-rgb) / 0.20) !important;
 }
 
@@ -20899,11 +21475,11 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
   background:
     linear-gradient(
       180deg,
-      rgb(var(--syn-b-ambient-rgb) / 0.98),
+      rgb(var(--syn-b-tertiary-ambient-rgb) / 0.98),
       rgb(var(--syn-b-rgb) / 0.88)
     ) !important;
   box-shadow:
-    0 0 10px rgb(var(--syn-b-rgb) / 0.38),
+    0 0 10px rgb(var(--syn-b-tertiary-rgb) / 0.34),
     0 0 20px rgb(var(--syn-b-rgb) / 0.20) !important;
 }
 
@@ -20927,36 +21503,46 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
   background:
     radial-gradient(
       140% 150% at 8% 0%,
-      rgb(var(--syn-a-rgb) / 0.18),
+      rgb(var(--syn-a-rgb) / 0.16),
       transparent 58%
+    ),
+    radial-gradient(
+      120% 140% at 18% 12%,
+      rgb(var(--syn-a-tertiary-rgb) / 0.12),
+      transparent 42%
     ),
     linear-gradient(
       180deg,
-      rgb(var(--syn-a-rgb) / 0.12),
+      rgb(var(--syn-a-rgb) / 0.10),
       rgba(2,6,23,0.82)
     ) !important;
-  border-color: rgb(var(--syn-a-rgb) / 0.24) !important;
+  border-color: rgb(var(--syn-a-tertiary-rgb) / 0.22) !important;
   box-shadow:
     inset 0 1px 0 rgba(255,255,255,0.03),
-    0 0 0 1px rgb(var(--syn-a-rgb) / 0.08) !important;
+    0 0 0 1px rgb(var(--syn-a-tertiary-rgb) / 0.08) !important;
 }
 
 #summarySection .summary-synthesis-table tr > .syn-final:nth-child(5) .syn-final-inner{
   background:
     radial-gradient(
       140% 150% at 92% 0%,
-      rgb(var(--syn-b-rgb) / 0.18),
+      rgb(var(--syn-b-rgb) / 0.16),
       transparent 58%
+    ),
+    radial-gradient(
+      120% 140% at 82% 12%,
+      rgb(var(--syn-b-tertiary-rgb) / 0.12),
+      transparent 42%
     ),
     linear-gradient(
       180deg,
-      rgb(var(--syn-b-rgb) / 0.12),
+      rgb(var(--syn-b-rgb) / 0.10),
       rgba(2,6,23,0.82)
     ) !important;
-  border-color: rgb(var(--syn-b-rgb) / 0.24) !important;
+  border-color: rgb(var(--syn-b-tertiary-rgb) / 0.22) !important;
   box-shadow:
     inset 0 1px 0 rgba(255,255,255,0.03),
-    0 0 0 1px rgb(var(--syn-b-rgb) / 0.08) !important;
+    0 0 0 1px rgb(var(--syn-b-tertiary-rgb) / 0.08) !important;
 }
 
 /* -----------------------------------------
@@ -20979,21 +21565,26 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
   background:
     radial-gradient(
       140% 170% at 4% 0%,
-      rgb(var(--syn-a-rgb) / 0.22),
+      rgb(var(--syn-a-rgb) / 0.18),
       transparent 56%
+    ),
+    radial-gradient(
+      115% 145% at 16% 12%,
+      rgb(var(--syn-a-tertiary-rgb) / 0.16),
+      transparent 38%
     ),
     linear-gradient(
       90deg,
-      rgb(var(--syn-a-rgb) / 0.18) 0%,
-      rgb(var(--syn-a-rgb) / 0.06) 38%,
+      rgb(var(--syn-a-rgb) / 0.14) 0%,
+      rgb(var(--syn-a-tertiary-rgb) / 0.10) 34%,
       rgba(2,6,23,0.00) 62%
     ),
     rgba(3,8,20,0.82) !important;
 
   box-shadow:
-    inset 0 0 0 1px rgb(var(--syn-a-rgb) / 0.26),
+    inset 0 0 0 1px rgb(var(--syn-a-tertiary-rgb) / 0.24),
     0 0 0 1px rgba(255,255,255,0.14),
-    -20px 0 42px rgb(var(--syn-a-rgb) / 0.22),
+    -20px 0 42px rgb(var(--syn-a-tertiary-rgb) / 0.18),
     0 18px 40px rgba(0,0,0,0.44) !important;
 }
 
@@ -21005,15 +21596,18 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
   left: 8px;
   width: 7px;
   border-radius: 999px;
+
   background:
     linear-gradient(
       180deg,
-      rgb(var(--syn-a-ambient-rgb) / 0.98),
-      rgb(var(--syn-a-rgb) / 0.90)
+      rgb(var(--syn-a-secondary-rgb) / 1) 0%,
+      rgb(var(--syn-a-secondary-rgb) / 0.95) 45%,
+      rgb(var(--syn-a-rgb) / 0.85) 100%
     ) !important;
+
   box-shadow:
-    0 0 14px rgb(var(--syn-a-rgb) / 0.42),
-    0 0 28px rgb(var(--syn-a-rgb) / 0.24) !important;
+    0 0 16px rgb(var(--syn-a-secondary-rgb) / 0.40),
+    0 0 26px rgb(var(--syn-a-rgb) / 0.20) !important;
 }
 
 /* Team B winner center */
@@ -21022,21 +21616,26 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
   background:
     radial-gradient(
       140% 170% at 96% 0%,
-      rgb(var(--syn-b-rgb) / 0.22),
+      rgb(var(--syn-b-rgb) / 0.18),
       transparent 56%
+    ),
+    radial-gradient(
+      115% 145% at 84% 12%,
+      rgb(var(--syn-b-tertiary-rgb) / 0.16),
+      transparent 38%
     ),
     linear-gradient(
       270deg,
-      rgb(var(--syn-b-rgb) / 0.18) 0%,
-      rgb(var(--syn-b-rgb) / 0.06) 38%,
+      rgb(var(--syn-b-rgb) / 0.14) 0%,
+      rgb(var(--syn-b-tertiary-rgb) / 0.10) 34%,
       rgba(2,6,23,0.00) 62%
     ),
     rgba(3,8,20,0.82) !important;
 
   box-shadow:
-    inset 0 0 0 1px rgb(var(--syn-b-rgb) / 0.26),
+    inset 0 0 0 1px rgb(var(--syn-b-tertiary-rgb) / 0.24),
     0 0 0 1px rgba(255,255,255,0.14),
-    20px 0 42px rgb(var(--syn-b-rgb) / 0.22),
+    20px 0 42px rgb(var(--syn-b-tertiary-rgb) / 0.18),
     0 18px 40px rgba(0,0,0,0.44) !important;
 }
 
@@ -21051,17 +21650,18 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
   background:
     linear-gradient(
       180deg,
-      rgb(var(--syn-b-ambient-rgb) / 0.98),
-      rgb(var(--syn-b-rgb) / 0.90)
+      rgb(var(--syn-b-secondary-rgb) / 1) 0%,
+      rgb(var(--syn-b-secondary-rgb) / 0.95) 45%,
+      rgb(var(--syn-b-rgb) / 0.85) 100%
     ) !important;
   box-shadow:
-    0 0 14px rgb(var(--syn-b-rgb) / 0.42),
-    0 0 28px rgb(var(--syn-b-rgb) / 0.24) !important;
+    0 0 14px rgb(var(--syn-a-secondary-rgb) / 0.34),
+    0 0 28px rgb(var(--syn-a-rgb) / 0.24) !important;
 }
 
 /* -----------------------------------------
    7) Winner / loser side saturation logic
-   BODY rows only — headers stay vivid like verdictShell
+   BODY rows only — headers stay vivid
    ----------------------------------------- */
 
 /* ===== TEAM A WINS ===== */
@@ -21072,19 +21672,24 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
   background-image:
     radial-gradient(
       150% 180% at 6% 0%,
-      rgb(var(--syn-a-rgb) / 0.34),
+      rgb(var(--syn-a-rgb) / 0.28),
       transparent 58%
+    ),
+    radial-gradient(
+      120% 145% at 18% 10%,
+      rgb(var(--syn-a-tertiary-rgb) / 0.18),
+      transparent 40%
     ),
     linear-gradient(
       180deg,
-      rgb(var(--syn-a-rgb) / 0.18),
+      rgb(var(--syn-a-rgb) / 0.15),
       rgba(2,6,23,0.00) 66%
     ) !important;
   box-shadow:
-    inset 0 1px 0 rgb(var(--syn-a-ambient-rgb) / 0.10),
-    inset 0 0 0 1px rgb(var(--syn-a-rgb) / 0.08),
-    0 0 18px rgb(var(--syn-a-rgb) / 0.08) !important;
-  filter: saturate(1.24) brightness(1.04) !important;
+    inset 0 1px 0 rgb(var(--syn-a-tertiary-ambient-rgb) / 0.08),
+    inset 0 0 0 1px rgb(var(--syn-a-tertiary-rgb) / 0.09),
+    0 0 18px rgb(var(--syn-a-tertiary-rgb) / 0.08) !important;
+  filter: saturate(1.20) brightness(1.04) !important;
   opacity: 1 !important;
 }
 
@@ -21102,15 +21707,14 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
   opacity: 0.76 !important;
 }
 
-/* headers stay vivid; winner just gets stronger emphasis */
 #summarySection.mi-winner-a .summary-synthesis-table .syn-team-a{
   filter: none !important;
   opacity: 1 !important;
   box-shadow:
-    inset 0 1px 0 rgb(var(--syn-a-ambient-rgb) / 0.10),
-    0 0 0 1px rgb(var(--syn-a-rgb) / 0.16),
-    -14px 0 32px rgb(var(--syn-a-rgb) / 0.16),
-    0 0 28px rgb(var(--syn-a-rgb) / 0.18) !important;
+    inset 0 1px 0 rgb(var(--syn-a-tertiary-ambient-rgb) / 0.10),
+    0 0 0 1px rgb(var(--syn-a-tertiary-rgb) / 0.16),
+    -14px 0 32px rgb(var(--syn-a-tertiary-rgb) / 0.14),
+    0 0 28px rgb(var(--syn-a-rgb) / 0.16) !important;
 }
 
 #summarySection.mi-winner-a .summary-synthesis-table .syn-team-b{
@@ -21125,9 +21729,9 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
 #summarySection.mi-winner-a .summary-synthesis-table tbody tr > .syn-final:nth-child(3) .syn-final-inner{
   border-color: rgba(255,255,255,0.62) !important;
   box-shadow:
-    inset 0 1px 0 rgb(var(--syn-a-ambient-rgb) / 0.10),
-    0 0 0 1px rgb(var(--syn-a-rgb) / 0.18),
-    0 12px 24px rgb(var(--syn-a-rgb) / 0.16) !important;
+    inset 0 1px 0 rgb(var(--syn-a-tertiary-ambient-rgb) / 0.10),
+    0 0 0 1px rgb(var(--syn-a-tertiary-rgb) / 0.18),
+    0 12px 24px rgb(var(--syn-a-tertiary-rgb) / 0.14) !important;
 }
 
 #summarySection.mi-winner-a .summary-synthesis-table tbody tr > .syn-final:nth-child(5) .syn-final-inner{
@@ -21143,19 +21747,24 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
   background-image:
     radial-gradient(
       150% 180% at 94% 0%,
-      rgb(var(--syn-b-rgb) / 0.34),
+      rgb(var(--syn-b-rgb) / 0.28),
       transparent 58%
+    ),
+    radial-gradient(
+      120% 145% at 82% 10%,
+      rgb(var(--syn-b-tertiary-rgb) / 0.18),
+      transparent 40%
     ),
     linear-gradient(
       180deg,
-      rgb(var(--syn-b-rgb) / 0.18),
+      rgb(var(--syn-b-rgb) / 0.15),
       rgba(2,6,23,0.00) 66%
     ) !important;
   box-shadow:
-    inset 0 1px 0 rgb(var(--syn-b-ambient-rgb) / 0.10),
-    inset 0 0 0 1px rgb(var(--syn-b-rgb) / 0.08),
-    0 0 18px rgb(var(--syn-b-rgb) / 0.08) !important;
-  filter: saturate(1.24) brightness(1.04) !important;
+    inset 0 1px 0 rgb(var(--syn-b-tertiary-ambient-rgb) / 0.10),
+    inset 0 0 0 1px rgb(var(--syn-b-tertiary-rgb) / 0.09),
+    0 0 18px rgb(var(--syn-b-tertiary-rgb) / 0.08) !important;
+  filter: saturate(1.20) brightness(1.04) !important;
   opacity: 1 !important;
 }
 
@@ -21177,10 +21786,10 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
   filter: none !important;
   opacity: 1 !important;
   box-shadow:
-    inset 0 1px 0 rgb(var(--syn-b-ambient-rgb) / 0.10),
-    0 0 0 1px rgb(var(--syn-b-rgb) / 0.16),
-    14px 0 32px rgb(var(--syn-b-rgb) / 0.16),
-    0 0 28px rgb(var(--syn-b-rgb) / 0.18) !important;
+    inset 0 1px 0 rgb(var(--syn-b-tertiary-ambient-rgb) / 0.10),
+    0 0 0 1px rgb(var(--syn-b-tertiary-rgb) / 0.16),
+    14px 0 32px rgb(var(--syn-b-tertiary-rgb) / 0.14),
+    0 0 28px rgb(var(--syn-b-rgb) / 0.16) !important;
 }
 
 #summarySection.mi-winner-b .summary-synthesis-table .syn-team-a{
@@ -21195,9 +21804,9 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
 #summarySection.mi-winner-b .summary-synthesis-table tbody tr > .syn-final:nth-child(5) .syn-final-inner{
   border-color: rgba(255,255,255,0.62) !important;
   box-shadow:
-    inset 0 1px 0 rgb(var(--syn-b-ambient-rgb) / 0.10),
-    0 0 0 1px rgb(var(--syn-b-rgb) / 0.18),
-    0 12px 24px rgb(var(--syn-b-rgb) / 0.16) !important;
+    inset 0 1px 0 rgb(var(--syn-b-tertiary-ambient-rgb) / 0.10),
+    0 0 0 1px rgb(var(--syn-b-tertiary-rgb) / 0.18),
+    0 12px 24px rgb(var(--syn-b-tertiary-rgb) / 0.14) !important;
 }
 
 #summarySection.mi-winner-b .summary-synthesis-table tbody tr > .syn-final:nth-child(3) .syn-final-inner{
@@ -22214,4 +22823,87 @@ section.profile-section.flip-tile .subtotal-row.profile-subtotal-row {
   box-shadow:
     0 8px 18px rgba(0,0,0,0.24),
     inset 0 1px 0 rgba(255,255,255,0.03);
+}
+
+/* =========================================================
+   TEAM CARD — MID-HEAVY BORDER STACK
+   Secondary = dominant outer frame
+   Tertiary  = visible separator with light fill
+   Primary   = strong inner branded accent
+   ========================================================= */
+
+#cindCard,
+#favCard{
+  --mi-card-radius: 26px;
+
+  /* thicker than production-light, thinner than nuclear */
+  --mi-border-outer: 7px;
+  --mi-border-middle: 4px;
+  --mi-border-inner: 5px;
+}
+
+/* ---------------------------------------------------------
+   OUTER SHELL — SECONDARY COLOR
+   --------------------------------------------------------- */
+
+#cindCard,
+#favCard{
+  border:
+    var(--mi-border-outer)
+    solid
+    var(--team-secondary, #ffffff) !important;
+
+  border-radius:
+    var(--mi-card-radius) !important;
+
+  box-shadow: none !important;
+  background-clip: padding-box !important;
+}
+
+/* ---------------------------------------------------------
+   MIDDLE FRAME — TERTIARY COLOR
+   Visible enough to separate layers, but still subordinate
+   --------------------------------------------------------- */
+
+#cindCard > .flip-inner,
+#favCard > .flip-inner{
+  border:
+    var(--mi-border-middle)
+    solid
+    rgb(var(--team-tertiary-rgb, 255 255 255) / 0.72) !important;
+
+  border-radius:
+    calc(
+      var(--mi-card-radius)
+      - var(--mi-border-outer)
+    ) !important;
+
+  /* enough fill to kill the dark seam */
+  background:
+    rgb(var(--team-tertiary-rgb, 255 255 255) / 0.18) !important;
+
+  box-shadow: none !important;
+  background-clip: padding-box !important;
+}
+
+/* ---------------------------------------------------------
+   INNER PRINTED FACE — PRIMARY COLOR
+   --------------------------------------------------------- */
+
+#cindCard > .flip-inner > .card-face.card-front,
+#favCard > .flip-inner > .card-face.card-front{
+  border:
+    var(--mi-border-inner)
+    solid
+    var(--team-primary, #ffffff) !important;
+
+  border-radius:
+    calc(
+      var(--mi-card-radius)
+      - var(--mi-border-outer)
+      - var(--mi-border-middle)
+    ) !important;
+
+  box-shadow: none !important;
+  background-clip: padding-box !important;
 }
