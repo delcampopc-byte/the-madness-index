@@ -23,6 +23,53 @@
   *::-webkit-scrollbar   { display: none !important; }
 }
 
+@media (max-width: 720px) {
+
+  /* ==========================================
+     KICKER SKIN — force reuse (does not rely on class being present)
+     ========================================== */
+
+  #matchupBar .matchup-controls-label,
+  #matchupBar .mi-log-label,
+  #interactionsSection .legend-header--interactions .int-console-pill.interactions-header-pill,
+  #cindCard #marksTileA .marks-header-text.matchup-kicker,
+  #cindCard #marksTileB .marks-header-text.matchup-kicker,
+  #favCard  #marksTileA .marks-header-text.matchup-kicker,
+  #favCard  #marksTileB .marks-header-text.matchup-kicker,
+  #cindCard .section-header .matchup-kicker,
+  #favCard  .section-header .matchup-kicker,
+  #matchupBar.is-editing .matchup-controls-label.matchup-kicker,
+  #summarySection .matchup-kicker.syn-kicker,
+  #summarySectionMobile .mi-sum-mob-title.matchup-kicker {
+    font-size: 10px !important;
+    letter-spacing: 0.08em !important;
+    text-transform: uppercase !important;
+    font-weight: 750 !important;
+    line-height: 1 !important;
+
+    color: rgba(249,246,238,0.9) !important;
+    background-color: rgba(3, 7, 18, 0.55) !important;
+    border: 1px solid rgba(148,163,184,0.18) !important;
+    border-radius: 12px !important;
+
+    padding: 6px 8px !important;
+    margin: 0 !important;
+    white-space: nowrap !important;
+
+    box-shadow:
+      0 10px 22px rgba(0,0,0,0.45),
+      inset 0 1px 0 rgba(255,255,255,0.06),
+      inset 0 0 0 1px rgba(255,255,255,0.03);
+    text-shadow: 0 1px 0 rgba(0,0,0,0.35);
+
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    pointer-events: none !important;
+    user-select: none !important;
+  }
+
 /* =============================================
    § HEADER — Mobile layout
    ============================================= */
@@ -671,12 +718,52 @@
 
   .mi-eff-header {
     padding: 6px 4px !important;
+    font-size: 12px !important;
+  }
+
+  .mi-eff-label {
+    font-size: 10px !important;
+  }
+
+  .mi-eff-value {
+    font-size: 12px !important;
+    font-weight: 750 !important;
+    align-items: center !important;
+    letter-spacing: 0.03em !important;
   }
 
   .mi-eff-module {
     padding: 4px !important;
   }
- 
+
+  .profile-support-row .context-tile.flip-tile .flip-tile-inner {
+    height: 75% !important;
+  }
+
+  #resumeTileA .tile-face.tile-back,
+  #resumeTileB .tile-face.tile-back,
+  .mi-metrics-back-text {
+    display: block !important;
+    font-size: 8px !important;
+    padding: 6px !important;
+  }
+  
+  #identityTileA .tile-face.tile-back .back-line,
+  #identityTileB .tile-face.tile-back .back-line,
+  #resumeTileA .tile-face.tile-back .back-line, 
+  #resumeTileB .tile-face.tile-back .back-line {
+    font-size: 8px !important;
+    padding: 0 !important;
+  }
+
+  .context-tile.flip-tile .tile-front {
+    height: 100% !important;
+  }
+
+  .context-tile.flip-tile .tile-back {
+    height: 75% !important;
+  }
+
   .mi-eff-module .mi-eff-header {
     margin-bottom: 0 !important;
   }
@@ -769,7 +856,7 @@
   #cindCard .profile-support-row,
   #favCard .profile-support-row {
     grid-template-columns: 1fr !important;
-    gap: 10px !important;
+    gap: 6px !important;
   }
 }
 
@@ -792,7 +879,7 @@
   #cindCard .mi-eff-value,
   #favCard .mi-eff-value {
     flex: 0 0 auto !important;
-    text-align: left !important;
+    text-align: center !important;
     margin: 0px;
   }
 
@@ -847,7 +934,7 @@
   #identityInlineA,
   #identityInlineB {
     width: 100% !important;
-    padding: 8px;
+    padding: 2px 8px;
   }
 
   #identityInlineA .identity-inline-kicker,
@@ -900,7 +987,7 @@
     width: 80% !important;
     max-width: 200px !important;
     flex: none !important;
-    margin: 0 auto !important;
+    margin: 2px auto !important;
   }
 }
 
@@ -954,23 +1041,14 @@
 
   #cindCard .subtotal-main,
   #favCard .subtotal-main {
-    background: linear-gradient(
-      135deg,
-      rgba(56, 189, 248, 0.12),
-      rgba(15, 23, 42, 0.85) 50%,
-      rgba(56, 189, 248, 0.08)
-    ) !important;
-
-    border: 1px solid rgba(56, 189, 248, 0.45) !important;
-    border-radius: 12px !important;
 
     box-shadow:
       0 0 0 1px rgba(56, 189, 248, 0.15),
       0 0 18px rgba(56, 189, 248, 0.18),
       inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
 
-    padding: 14px 16px !important;
-    margin: 8px 0 !important;
+    padding: 10px 12px !important;
+    margin: 2px 0 !important;
 
     letter-spacing: 0.04em !important;
   }
@@ -978,23 +1056,23 @@
   /* "Profile Subtotal" label */
   #cindCard .subtotal-main > span:first-child,
   #favCard .subtotal-main > span:first-child {
-    font-size: 11px !important;
-    font-weight: 800 !important;
-    letter-spacing: 0.18em !important;
-    text-transform: uppercase !important;
-    color: rgba(148, 163, 184, 0.75) !important;
+    font-size: 14px !important;
+    font-weight: 720 !important;
+    letter-spacing: 0.04em !important;
+    color: var(--mi-text-primary) !important;
   }
 
   /* The number itself */
   #cindCard .subtotal-main .subtotal-value,
   #favCard .subtotal-main .subtotal-value {
-    font-size: 20px !important;
-    font-weight: 900 !important;
+    font-size: 16px !important;
+    font-weight: 850 !important;
     letter-spacing: -0.02em !important;
     color: var(--mi-text-primary) !important;
-    text-shadow:
-      0 0 12px rgba(56, 189, 248, 0.55),
-      0 2px 4px rgba(0, 0, 0, 0.45) !important;
+  }
+
+  .subtotal-main {
+    gap: 8px !important;
   }
 }
 
@@ -1035,32 +1113,52 @@
     display: flex !important;
     flex-wrap: wrap !important;
     justify-content: center !important;
-    gap: 8px !important;
+    gap: 6px !important;
   }
 
   /* Both chip types: smaller and square */
   #cindCard .mark-chip,
   #favCard .mark-chip {
-    width: 80px !important;
-    min-width: 80px !important;
-    max-width: 80px !important;
-    min-height: 90px !important;
-    max-height: 90px !important;
-    font-size: 10px !important;
-    padding: 8px 6px !important;
+    width: 70px !important;
+    min-width: 70px !important;
+    max-width: 70px !important;
+    min-height: 80px !important;
+    max-height: 80px !important;
+    font-size: 8px !important;
+    padding: 6px 4px !important;
   }
 
   .team-card-marks .mark-title {
-    font-size: 8px;
+    font-size: 6.5px;
+    font-weight: 550 !important;
+    min-height: calc(0.04em* 2) !important;
   }
   
   .team-card-marks .mark-chip .mark-badge {
     height: 48px;
     width: 32px;
   }
+
+  .team-card-marks .mark-info {
+    margin-top: 4.5px !important;
+  }
  
   .team-card-marks .mark-icon-plate {
     padding: 2px;
+    column-gap: 2px;
+    display: block;
+  }
+
+  .mi-metrics-hint {
+    font-size: 8px !important;
+    color: var(--mi-text-muted) !important;
+    font-weight: 800 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.04em !important;
+  }
+
+  .context-tile .tile-face.tile-front {
+    row-gap: 2px !important;
   }
 }
 
@@ -1135,26 +1233,43 @@
     justify-content: center !important;
     position: absolute !important;
     top: 10px !important;
-    left: 0 !important;
+    left: 50% !important;
     right: 0 !important;
     height: 28px !important;
 
-    font-size: 11px !important;
-    font-weight: 800 !important;
-    letter-spacing: 0.14em !important;
-    text-transform: uppercase !important;
-    color: rgba(226, 232, 240, 0.75) !important;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-weight: 700;
+    line-height: 0.75;
 
-    background: rgba(56, 189, 248, 0.06) !important;
-    border-radius: 999px !important;
-    width: fit-content !important;
-    margin: 0 auto !important;
+    color: rgba(249,246,238,0.9);
+    background-color: rgba(3, 7, 18, 0.55);
+    border: 1px solid rgba(148,163,184,0.18);
+    border-radius: 12px;
+
     padding: 0 16px !important;
-
-    /* Override position:absolute width behavior */
-    left: 50% !important;
-    transform: translateX(-50%) !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    margin-top: 8px !important;
+    margin-bottom: 4px !important;
     white-space: nowrap !important;
+
+    transform: translateX(-50%) !important;
+
+    box-shadow:
+      0 10px 22px rgba(0,0,0,0.45),
+      inset 0 1px 0 rgba(255,255,255,0.06),
+      inset 0 0 0 1px rgba(255,255,255,0.03);
+    text-shadow: 0 1px 0 rgba(0,0,0,0.35);
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: fit-content !important;
+
+    pointer-events: none;
+    user-select: none;
   }
 
   /* Interaction table: horizontal scroll for narrow widths */
@@ -1294,6 +1409,7 @@
 
   #interactionsSection .volatility-tier-pill {
     font-size: 9px !important;
+    font-weight: 750 !important;
     min-width: 0 !important;
     width: 75px !important;
   }
@@ -1354,7 +1470,7 @@
     position: relative !important;
     overflow: hidden !important;
 
-    padding: 12px 12px 14px !important;
+    padding: 12px 12px 6px !important;
     border-radius: 18px !important;
     border: 1px solid rgba(148, 163, 184, 0.20) !important;
 
@@ -1506,8 +1622,12 @@
   #summarySectionMobile .mi-sum-mob-title {
     display: flex !important;
     justify-content: center !important;
+    text-align: center !important;
+    align-self: center !important;
+    align-items: center !important;
+    left: 78px !important;
 
-    width: 100% !important;
+    width: 50% !important;
     margin: 0 0 12px !important;
     padding: 9px 12px !important;
 
@@ -1597,11 +1717,11 @@
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
-    gap: 8px !important;
-
+    gap: 4px !important;
+    height: 100% !important;
     width: 100% !important;
     min-width: 0 !important;
-    padding: 10px 10px 9px !important;
+    padding: 6px 6px !important;
   }
 
   #summarySectionMobile .mi-team-brand--summary-mobile .mi-team-brand-logo {
@@ -1615,10 +1735,10 @@
     display: block !important;
     min-width: 0 !important;
 
-    font-size: 10px !important;
-    font-weight: 850 !important;
-    letter-spacing: 0.03em !important;
-    line-height: 1.1 !important;
+    font-size: 11px !important;
+    font-weight: 750 !important;
+    letter-spacing: 0.04em !important;
+    line-height: 1 !important;
 
     white-space: nowrap !important;
     overflow: hidden !important;
@@ -1645,22 +1765,22 @@
   }
 
   #summarySectionMobile .mi-sum-mob-col-spacer::before {
-    content: "VS" !important;
+    content: "vs" !important;
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
 
     width: 100% !important;
     height: 100% !important;
-    min-height: 42px !important;
+    min-height: 28px !important;
 
     border-radius: 999px !important;
     border: 1px solid rgba(148,163,184,0.14) !important;
     background: rgba(255,255,255,0.03) !important;
 
     font-size: 10px !important;
-    font-weight: 900 !important;
-    letter-spacing: 0.16em !important;
+    font-weight: 650 !important;
+    letter-spacing: 0.08em !important;
     color: rgba(148,163,184,0.70) !important;
   }
 
@@ -1692,15 +1812,15 @@
     font-weight: 600;
     text-align: center !important;
     color: var(--mi-text-primary) !important;
-    letter-spacing: 0.12em !important;
-    text-transform: uppercase !important;
-    line-height: 1.15 !important;
+    letter-spacing: 0.04em !important;
+    text-transform: none !important;
+    line-height: 1 !important;
     padding: 0 4px !important;
   }
 
   #summarySectionMobile .mi-sum-mob-val {
-    font-size: 13px !important;
-    font-weight: 800 !important;
+    font-size: 14px !important;
+    font-weight: 750 !important;
     font-variant-numeric: tabular-nums !important;
     white-space: nowrap !important;
     line-height: 1 !important;
@@ -1748,7 +1868,7 @@
     gap: 8px !important;
 
     padding: 10px !important;
-    margin-bottom: 12px !important;
+    margin-bottom: 2px !important;
 
     border-radius: 14px !important;
     border: 1px solid rgba(148,163,184,0.16) !important;
@@ -1781,10 +1901,11 @@
   }
 
   #summarySectionMobile .mi-sum-mob-final-label {
-    font-size: 9px !important;
-    text-transform: uppercase !important;
-    letter-spacing: 0.14em !important;
-    color: rgba(148,163,184,0.86) !important;
+    font-size: 11px !important;
+    font-weight: 750 !important;
+    text-transform: none !important;
+    letter-spacing: 0.04em !important;
+    color: var(--mi-text-primary) !important;
     line-height: 1 !important;
   }
 
@@ -1817,8 +1938,8 @@
   }
 
   #summarySectionMobile .mi-sum-mob-delta-col .mi-delta-mark {
-    width: 18px !important;
-    height: 18px !important;
+    width: 26px !important;
+    height: 26px !important;
     flex-shrink: 0 !important;
   }
 
@@ -2716,7 +2837,7 @@
   /* 3) FIX THE HEADER USING THE ACTUAL HTML STRUCTURE */
   #cindCard .team-card-header,
   #favCard .team-card-header {
-    padding: 8px 8px 6px !important;
+    padding: 4px 4px 2px !important;
     min-height: 0 !important;
     height: auto !important;
   }
@@ -3102,7 +3223,7 @@
   }
 
   #interactionsSection .interactions-grid {
-   row-gap: 12px !important
+   row-gap: 6px !important
   }
 
   #interactionsSection #interactionTotalsBar, #interactionsSection .interaction-totals-bar {
@@ -3934,7 +4055,7 @@
 @media (max-width: 720px) {
   #analysisShell{
     margin-top: 14px !important;
-    padding-top: 14px !important;
+    padding-top: 7px !important;
   }
 
   #analysisShell::before{
@@ -4394,5 +4515,300 @@
     font-weight: 700 !important;
     letter-spacing: 0.04em !important;
     border-radius: 999px !important;
+  }
+
+  .mi-marks-back-name {
+    font-size: 10px !important;
+    font-weight: 600 !important;
+    color: var(--mi-text-primary) !important;
+  }
+
+  .mi-marks-back-summary {
+    font-size: 8px !important;
+    font-weight: 550 !important;
+    color: var(--mi-text-primary) !important;
+  }
+
+  .mi-marks-back-row {
+    gap: 1px !important;
+  }
+
+  .mi-marks-back-divider {
+    margin-top: 2px !important;
+    margin-bottom: 4px !important;
+  }
+
+  .mi-marks-back-sev {
+    font-size: 7px !important;
+    font-weight: 800 !important;
+    margin-top: 1px !important;
+  }
+
+  .marks-header-text .matchup-kicker {
+    font-size: 11px !important;
+  }
+  
+  .mi-marks-back-desc {
+    font-size: 7.5px !important;
+    font-weight: 500 !important;
+    color: var(--mi-text-muted) !important;
+  }
+
+  #resumeTileA .context-label,
+  #resumeTileB .context-label {
+    font-size: 11px !important;
+    font-weight: 600 !important;
+  }
+
+  #resumeTileA .context-header,
+  #resumeTileB .context-header {
+    row-gap: 1px !important;
+    margin-top: 16px !important;
+  }
+
+  .context-tile {
+    width: 100% !important;
+    justify-content: center !important;
+    align-self: center !important;
+    text-align: center !important;
+    align-items: center !important;
+    height: 75% !important;
+  }
+
+  .profile-support-row .context-tier,
+  .profile-support-row .context-subrow,
+  .profile-support-row .context-note {
+    font-size: 7px !important;
+  }
+
+  .profile-support-row .context-score {
+    font-size: 13px !important;
+    font-weight: 650 !important;
+  }
+
+  .identity-inline-kicker {
+    text-transform: none !important;
+    letter-spacing: 0.04em !important;
+    font-size: 14px !important;
+    font-weight: 720 !important;
+  }
+
+  .identity-inline-badge {
+    font-size: 9px !important;
+    font-weight: 680 !important;
+    padding: 3px !important;
+  }
+
+  .identity-inline-label {
+    font-size: 12px !important;
+    font-weight: 690 !important;
+  }
+}
+
+/* =========================================
+   MOBILE — FORCE PROFILE SUPPORT ROW HORIZONTAL
+   ========================================= */
+@media (max-width: 720px) {
+
+  .profile-support-row {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+    grid-auto-flow: row !important;
+    align-items: stretch !important;
+    gap: 8px !important;
+    width: 100% !important;
+  }
+
+  .profile-support-row > .mi-eff-module {
+    grid-column: 1 !important;
+    grid-row: 1 !important;
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+  }
+
+  .profile-support-row > .context-tile {
+    grid-column: 2 !important;
+    grid-row: 1 !important;
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+  }
+
+  /* =========================================================
+   CONTEXT TILE — FULL TILE BORDER (STRUCTURAL FIX)
+   Purpose:
+   Ensure border wraps entire tile container,
+   not just the front/back face.
+   ========================================================= */
+
+  .context-tile.flip-tile .flip-tile-inner {
+    /* Ensure container defines the visual frame */
+    position: relative;
+    border-radius: 16px;
+    /* Move border here */
+    border: 1.5px solid rgba(239, 68, 68, 0.95);
+    /* Keep visual depth */
+    box-shadow:
+      0 8px 18px rgba(15, 23, 42, 0.45),
+      inset 0 0 0 1px rgba(255,255,255,0.05);
+    overflow: hidden;
+  }
+
+  #marksTileA .context-tile .inline-marks-tile.flip-tile,
+  #marksTileB .context-tile .inline-marks-tile.flip-tile {
+    width: 100% !important;
+  }
+
+  .team-card-marks .marks-header {
+    margin-top: 6px !important;
+  }
+
+  #interactionsSection .interaction-table.mi-interaction-table thead th {
+    padding: 6px !important;
+    font-weight: 650 !important;
+  }
+
+  #interactionsSection .interaction-table.mi-interaction-table .mi-int-label-main {
+    font-weight: 600 !important;
+    font-size: 9.5px !important;
+  }
+
+  #interactionsSection .interaction-table.mi-interaction-table .mi-int-bar-sub {
+    font-weight: 575 !important;
+    font-size: 9px !important;
+    color: var(--mi-text-muted) !important;
+  }
+
+  .interaction-table.mi-interaction-table .mi-int-intensity-pill {
+    padding: 6px !important;
+    font-weight: 675 !important;
+  }
+
+  #interactionsSection #interactionTotalsBar, #interactionsSection .interaction-totals-bar {
+    min-height: 32px !important;
+  }
+
+  #interactionsSection .interaction-totals-bar .totals-inline {
+    font-size: 12px !important;
+    font-weight: 700 !important;
+  }
+
+  #interactionsSection .volatility-gauge-score {
+    font-size: 30px !important;
+    font-weight: 750 !important;
+  }
+
+  #interactionsSection .vol-q-label,
+  #interactionsSection .vol-q-value {
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    color: var(--mi-text-primary) !important;
+    letter-spacing: 0.04em !important;
+    text-transform: none !important;
+  }
+
+  #interactionsSection .vol-q-driver,
+  #interactionsSection .vol-q-lean {
+    font-size: 11px !important;
+    font-weight: 575 !important;
+    color: var(--mi-text-muted) !important;
+    letter-spacing: 0.04em !important;
+    text-transform: none !important;
+  }
+ 
+  #interactionsSection .volatility-gauge-zones text {
+    font-size: 11px !important;
+    font-weight: 750 !important;
+    color: var(--mi-text-muted) !important;
+    letter-spacing: 0.04em !important;
+  }
+
+  #interactionsSection .volatility-gauge-label {
+    font-size: 12px !important;
+    font-weight: 775 !important;
+    color: var(--mi-text-primary) !important;
+    letter-spacing: 0.04em !important;
+  }
+
+  #interactionsSection .volatility-quarters {
+    row-gap: 6px !important;
+  }
+
+  #summarySectionMobile .mi-sum-mob-title.matchup-kicker {
+    margin-bottom: 6px !important;
+    display: block !important;
+    text-align: center !important;
+  }
+
+  #summarySectionMobile.mi-sum-mob-wrap {
+    padding-top: 6px !important;
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+  }
+
+  #interactionsSection.card.interactions-card{
+    border: 0.5px solid rgba(255,255,255,0.01);
+    border-radius: 24px;
+    overflow: hidden;
+  }
+
+  /* =========================================================
+   INTERACTIONS HEADER — DIVIDER LINES
+   Matches divider style used elsewhere in the UI
+   ========================================================= */
+
+  .legend-header.legend-header--interactions{
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden; /* ensures lines respect rounded containers */
+  }
+
+  /* LEFT DIVIDER */
+  .legend-header.legend-header--interactions::before{
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 10%;
+    transform: translateY(-50%);
+
+    width: 50%;
+    height: 2px;
+
+    background:
+      linear-gradient(
+        90deg,
+        rgba(148,163,184,0.00),
+        rgba(148,163,184,0.35),
+        rgba(148,163,184,0.00)
+      );
+
+    pointer-events: none;
+  }
+
+  /* RIGHT DIVIDER */
+  .legend-header.legend-header--interactions::after{
+    content: "";
+    position: absolute;
+    right: 0;
+    top: 10%;
+    transform: translateY(-50%);
+
+    width: 50%;
+    height: 2px;
+
+    background:
+      linear-gradient(
+        90deg,
+        rgba(148,163,184,0.00),
+        rgba(148,163,184,0.35),
+        rgba(148,163,184,0.00)
+      );
+
+    pointer-events: none;
   }
 }

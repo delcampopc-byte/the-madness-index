@@ -11653,6 +11653,23 @@ function miBuildSnapShareText(payload) {
 }
 
 function miBuildSnapFilename(payload) {
+  if (!payload) return 'MI-Snap.png';
+
+  const datasetYear =
+    payload?.matchup?.dataset?.year ||
+    payload?.matchup?.dataset?.season ||
+    '';
+
+  const seedA =
+    payload?.matchup?.teamA?.seed != null
+      ? `(${payload.matchup.teamA.seed})`
+      : '';
+
+  const seedB =
+    payload?.matchup?.teamB?.seed != null
+      ? `(${payload.matchup.teamB.seed})`
+      : '';
+
   const safeA = String(payload?.matchup?.teamA?.name || 'TeamA')
     .replace(/[^a-z0-9]+/gi, '_')
     .replace(/^_+|_+$/g, '');
@@ -11661,7 +11678,9 @@ function miBuildSnapFilename(payload) {
     .replace(/[^a-z0-9]+/gi, '_')
     .replace(/^_+|_+$/g, '');
 
-  return `MI-Snap-${safeA}_vs_${safeB}.png`;
+  const yearPrefix = datasetYear ? `${datasetYear}-` : '';
+
+  return `MI-Snap-${yearPrefix}${seedA}${safeA}_vs_${seedB}${safeB}.png`;
 }
 
 async function miLoadImageSafe(src) {
@@ -13205,7 +13224,7 @@ function miForceMobileScrollUnlock() {
 // Build Version — must match service-worker.js and index.html
 // =========================================================
 
-const MI_BUILD = '32';
+const MI_BUILD = '33';
 
 function bootMadnessIndex() {
   console.log("[MI] bootMadnessIndex fired");

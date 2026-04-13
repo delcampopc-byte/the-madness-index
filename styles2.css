@@ -3783,22 +3783,6 @@ section.profile-section.flip-tile{
   position: relative;
 }
 
-.profile-section::before {
-  content: "";
-  position: absolute;
-  top: -4px;
-  left: 0;
-  right: 0;
-  height: 4px;
-  border-radius: 12px 12px 0 0;
-  background: linear-gradient(
-    90deg,
-    var(--mi-brand-blue-500),
-    var(--mi-brand-blue-800)
-  );
-  opacity: 0.32; /* slightly clearer, still restrained */
-}
-
 .section-header {
   display: flex;
   justify-content: space-between;
@@ -22906,4 +22890,337 @@ section.profile-section.flip-tile .subtotal-row.profile-subtotal-row {
 
   box-shadow: none !important;
   background-clip: padding-box !important;
+}
+
+/* =========================================================
+   TEAM CARD — PREMIUM TRI-COLOR BLENDED FRAME SYSTEM
+   Purpose:
+   Create a broadcast-quality, layered frame that blends
+   secondary → tertiary → primary without harsh stripes.
+   ========================================================= */
+
+/* -----------------------------------------
+   SHARED GEOMETRY
+   ----------------------------------------- */
+
+#cindCard,
+#favCard{
+  /* keep radius math unified across all nested layers */
+  --mi-card-radius: 22px;
+
+  position: relative;
+  border-radius: var(--mi-card-radius);
+
+  /* Core surface remains intact */
+  overflow: visible;
+
+  /* OUTER FRAME — secondary-led */
+  border: 2.5px solid
+    rgb(var(--team-secondary-rgb) / 0.78);
+
+  /* subtle secondary dominance with tertiary lift */
+  box-shadow:
+
+    /* atmospheric outer presence */
+    0 0 0 1px
+      rgb(var(--team-secondary-rgb) / 0.28),
+
+    /* tertiary soft halo (never dominant) */
+    0 10px 26px
+      rgb(var(--team-tertiary-ambient-rgb) / 0.22),
+
+    /* base depth */
+    var(--mi-depth-1);
+}
+
+/* -----------------------------------------
+   OUTER ATMOSPHERIC BLEND
+   secondary dominant
+   tertiary supportive
+   ----------------------------------------- */
+
+#cindCard::before,
+#favCard::before{
+  content: "";
+  position: absolute;
+  inset: 0;
+
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 0;
+
+  background:
+
+    radial-gradient(
+      140% 120% at 50% -10%,
+      rgb(var(--team-secondary-ambient-rgb) / 0.16),
+      transparent 62%
+    ),
+
+    radial-gradient(
+      120% 140% at 100% 0%,
+      rgb(var(--team-tertiary-ambient-rgb) / 0.12),
+      transparent 68%
+    );
+
+  opacity: 0.95;
+}
+
+/* -----------------------------------------
+   MIDDLE LAYER — tertiary blending seam
+   ----------------------------------------- */
+
+#cindCard > .flip-inner,
+#favCard > .flip-inner{
+  position: relative;
+
+  border-radius:
+    calc(var(--mi-card-radius) - 2px);
+
+  background:
+
+    linear-gradient(
+      180deg,
+      rgb(var(--team-tertiary-rgb) / 0.10),
+      transparent 42%
+    ),
+
+    transparent;
+
+  box-shadow:
+
+    /* subtle tertiary separator ring */
+    inset 0 0 0 1px
+      rgb(var(--team-tertiary-rgb) / 0.32),
+
+    /* gentle tertiary ambient lift */
+    inset 0 12px 18px
+      rgb(var(--team-tertiary-ambient-rgb) / 0.10);
+}
+
+/* -----------------------------------------
+   INNER FACE — primary identity edge
+   ----------------------------------------- */
+
+#cindCard > .flip-inner > .card-face.card-front,
+#favCard > .flip-inner > .card-face.card-front{
+
+  border-radius:
+    calc(var(--mi-card-radius) - 4px);
+
+  position: relative;
+
+  box-shadow:
+
+    /* PRIMARY identity ring */
+    inset 0 0 0 2px
+      rgb(var(--team-primary-rgb) / 0.82),
+
+    /* subtle tertiary softener */
+    inset 0 0 0 3px
+      rgb(var(--team-tertiary-rgb) / 0.28),
+
+    /* internal lighting */
+    inset 0 18px 24px
+      rgb(var(--team-primary-rgb) / 0.06);
+}
+
+/* -----------------------------------------
+   PRIMARY EDGE SHEEN
+   ----------------------------------------- */
+
+#cindCard
+  > .flip-inner
+  > .card-face.card-front::after,
+
+#favCard
+  > .flip-inner
+  > .card-face.card-front::after{
+
+  content: "";
+  position: absolute;
+
+  inset: 0;
+
+  border-radius: inherit;
+  pointer-events: none;
+
+  background:
+
+    linear-gradient(
+      180deg,
+      rgb(var(--team-primary-rgb) / 0.12),
+      transparent 38%
+    );
+
+  opacity: 0.85;
+}
+
+/* -----------------------------------------
+   HOVER — restrained premium lift
+   ----------------------------------------- */
+
+#cindCard:hover,
+#favCard:hover{
+
+  transform: translateY(-1px);
+
+  box-shadow:
+
+    0 0 0 1px
+      rgb(var(--team-secondary-rgb) / 0.32),
+
+    0 14px 34px
+      rgb(var(--team-secondary-ambient-rgb) / 0.28),
+
+    var(--mi-depth-2);
+}
+
+/* =========================================================
+   TEAM CARD BACKDROP — EXTREME TRANSPARENCY TEST
+   Purpose:
+   Maximum visibility test for dark team primaries.
+   This is intentionally aggressive.
+   ========================================================= */
+
+/* -----------------------------------------
+   PRIMARY BACKDROP SURFACE
+   ----------------------------------------- */
+
+.analysis-shell,
+.context-panel,
+.card-backplate{
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(2, 6, 23, 0.16),
+      rgba(2, 6, 23, 0.10)
+    ) !important;
+
+  backdrop-filter: blur(4px) saturate(0.92) !important;
+  -webkit-backdrop-filter: blur(4px) saturate(0.92) !important;
+
+  box-shadow:
+    0 6px 18px rgba(0,0,0,0.16) !important,
+    inset 0 0 0 1px rgba(255,255,255,0.035) !important;
+}
+
+/* -----------------------------------------
+   INNER PANEL LAYER
+   ----------------------------------------- */
+
+.analysis-shell section,
+.context-panel section{
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(2, 6, 23, 0.08),
+      rgba(2, 6, 23, 0.04)
+    ) !important;
+
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,0.025) !important;
+}
+
+/* -----------------------------------------
+   AMBIENT GLOW CONTROL
+   Prevent color washout behind dark teams
+   ----------------------------------------- */
+
+.analysis-shell::before,
+.context-panel::before,
+.card-backplate::before{
+
+  opacity: 0.18 !important;
+  filter: blur(10px) saturate(0.85) !important;
+}
+
+/* -----------------------------------------
+   OPTIONAL — Slight lift for dark teams only
+   ----------------------------------------- */
+
+#cindCard,
+#favCard{
+  isolation: isolate;
+  z-index: 1;
+}
+
+/* -----------------------------------------
+   EXTREME WASH REDUCTION
+   Kill excess overlay density from pseudo layers
+   ----------------------------------------- */
+
+.analysis-shell::after,
+.context-panel::after,
+.card-backplate::after{
+  opacity: 0.14 !important;
+}
+
+/* -----------------------------------------
+   NUCLEAR TRANSPARENCY FOR ANY GENERIC
+   DARK PANEL DIRECTLY BEHIND TEAM CARDS
+   ----------------------------------------- */
+
+#cindCard::before,
+#favCard::before{
+  z-index: 0;
+}
+
+#cindCard,
+#favCard{
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.02),
+    var(--mi-depth-1) !important;
+}
+
+/* =========================================================
+   TEAM CARD — KILL GENERIC GRAY CARD FOUNDATION
+   Purpose:
+   Remove the shared .card / .card-face navy-gray material
+   from the two team cards so the frame reads as true team color.
+   ========================================================= */
+
+/* -----------------------------------------
+   OUTER TEAM CARD SHELL
+   neutralize generic .card material
+   ----------------------------------------- */
+
+
+
+/* -----------------------------------------
+   MIDDLE WRAPPER
+   keep it color-controlled only by your custom block
+   ----------------------------------------- */
+
+#cindCard > .flip-inner,
+#favCard > .flip-inner{
+  background-clip: padding-box !important;
+}
+
+/* -----------------------------------------
+   OPTIONAL:
+   if the BACK faces are also showing stray gray
+   during flips, neutralize them too
+   ----------------------------------------- */
+
+#cindCard > .flip-inner > .card-face,
+#favCard > .flip-inner > .card-face{
+  border-color: transparent !important;
+}
+
+/* -----------------------------------------
+   SAFETY:
+   stop the generic sheen from reading as gray film
+   ----------------------------------------- */
+
+#cindCard::after,
+#favCard::after{
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: none !important;
 }

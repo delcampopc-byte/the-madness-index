@@ -39,11 +39,11 @@
   "patch_notes": {
     "title": "Patch Notes",
     "hint": "Click for Patch Notes",
-    "badge": "Version 5.0 (Build 32)",
+    "badge": "Version 5.0 (Build 33)",
     "max_items": 10,
     "items": [
       {
-        "build": "Build 32",
+        "build": "Build 33",
         "date": "2026-04-10",
         "bullets": [
           "Added the 2021 Dataset and updated all other Datasets to the new canonical set of statistics.",
