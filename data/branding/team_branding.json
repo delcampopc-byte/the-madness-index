@@ -53,8 +53,8 @@
     "team": "Auburn",
     "aliases": ["Auburn", "Auburn Tigers"],
     "shortName": "Auburn",
-    "primary": "#0C2340",
-    "secondary": "#E87722",
+    "primary": "#E87722",
+    "secondary": "#0C2340",
     "tertiary": "#FFFFFF",
     "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2.png"
   },
@@ -1523,8 +1523,8 @@
     "team": "Howard",
     "aliases": ["Howard", "Howard Bisons"],
     "shortName": "Howard",
-    "primary": "#003A63",
-    "secondary": "#E51937",
+    "primary": "#E51937",
+    "secondary": "#003A63",
     "tertiary": "#6A808C",
     "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/47.png"
   },
@@ -1772,8 +1772,8 @@
     "team": "Montana State",
     "aliases": ["Montana State", "Montana State Bobcats"],
     "shortName": "Montana St.",
-    "primary": "#00205B",
-    "secondary": "#B9975B",
+    "primary": "#B9975B",
+    "secondary": "#00205B",
     "tertiary": "#FFFFFF",
     "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/147.png"
   },
