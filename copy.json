@@ -43,8 +43,8 @@
     "max_items": 10,
     "items": [
       {
-        "build": "Build 33",
-        "date": "2026-04-10",
+        "build": "Build 34",
+        "date": "2026-04-13",
         "bullets": [
           "Added the 2021 Dataset and updated all other Datasets to the new canonical set of statistics.",
           "The Glossary has been updated to remove legacy terms and definitions, and all new terms are now defined.",
@@ -856,14 +856,14 @@
 },
   "marks": {
     "summary_by_count": {
-      "0": "This team does not meet the criteria for any Profile Marks, meaning none of the specific structural vulnerabilities tracked by this system cross the field-normalized thresholds. This is not an endorsement of overall quality—only an indication that these particular diagnostic flags did not register at a meaningful level.",
-      "1": "This team meets the criteria for a single Profile Mark, indicating one identifiable structural tendency without broader systemic exposure. The profile remains relatively contained, with most performance variance explained elsewhere in the model.",
-      "2": "This team registers two Profile Marks, suggesting a small cluster of stylistic or structural tendencies that can influence performance under specific conditions. These marks add context without defining the team’s overall identity.",
-      "3": "This team qualifies for three Profile Marks, indicating multiple areas where structure or style can meaningfully shape outcomes. While not overwhelming, these factors introduce added volatility that may surface in certain matchups or game states.",
-      "4": "This team carries four Profile Marks, reflecting a layered diagnostic profile with several identifiable vulnerabilities or dependencies. Together, these marks suggest a team whose performance can fluctuate meaningfully based on how games are played.",
-      "5": "This team triggers five Profile Marks, signaling a dense structural profile with multiple interacting tendencies. At this level, style, rhythm, and matchup conditions play a larger role in determining stability and outcomes.",
-      "6": "This team registers six Profile Marks, indicating widespread structural exposure across several dimensions of play. Performance is more sensitive to disruption, making consistency harder to sustain in high-variance tournament environments.",
-      "7": "This team meets the criteria for all seven Profile Marks, reflecting a highly complex and fragile structural profile. With multiple dependencies and vulnerabilities present, outcomes are more likely to be driven by volatility, rhythm, and opponent pressure rather than baseline strength alone."
+      "0": "This team does not register any Profile Marks, meaning none of the system’s tracked structural weaknesses appear at a meaningful level.",
+      "1": "This team shows one identifiable structural weakness, but the broader profile remains relatively clean outside that area.",
+      "2": "This team carries two Profile Marks, pointing to a limited but noticeable set of structural weaknesses within the overall profile.",
+      "3": "This team shows three Profile Marks, indicating multiple structural weaknesses that can shape how reliable the profile looks under pressure.",
+      "4": "This team carries four Profile Marks, reflecting a more layered set of weaknesses that may affect stability across different conditions.",
+      "5": "This team shows five Profile Marks, suggesting a broad concentration of structural weaknesses within the profile.",
+      "6": "This team carries six Profile Marks, indicating that structural weaknesses are present across most of the diagnostic profile.",
+      "7": "This team registers all seven Profile Marks, meaning structural weaknesses appear across the full set of tracked diagnostic categories."
     },
     "descriptions": {
       "Offensive Rigidity": {
@@ -897,28 +897,28 @@
     },
     "back": {
       "Offensive Rigidity": {
-        "moderate": "This offense tends to rely heavily on a narrow set of actions or creators, making it more predictable across a full game.",
-        "severe": "This offense can stall entirely when its primary scoring option is disrupted, leaving limited secondary answers."
+        "moderate": "This offense relies on a narrow set of creators, making it easier to anticipate.",
+        "severe": "This offense can stall when its primary option is taken away."
       },
       "Unstable Perimeter": {
-        "moderate": "This team leans on three-point shooting for spacing and scoring, but results fluctuate noticeably game to game.",
-        "severe": "This team’s perimeter shooting introduces extreme volatility, creating sharp swings in offensive effectiveness."
+        "moderate": "This team depends on perimeter shooting that varies widely from game to game.",
+        "severe": "This team’s perimeter results swing sharply, driving extreme offensive volatility."
       },
       "Cold Arc Team": {
-        "moderate": "This team struggles to generate consistent value from beyond the arc, allowing defenses to compress the floor.",
-        "severe": "This team poses minimal perimeter shooting threat, enabling opponents to collapse defensively without punishment."
+        "moderate": "This team struggles to produce reliable value from three.",
+        "severe": "This team offers little perimeter threat, allowing defenses to collapse."
       },
       "Undisciplined Defense": {
-        "moderate": "This defense plays aggressively but often sacrifices positional discipline, leading to avoidable fouls.",
-        "severe": "This defense frequently overcommits, creating foul trouble and gifting opponents free points."
+        "moderate": "This defense plays aggressively but commits frequent fouls.",
+        "severe": "This defense overcommits and regularly sends opponents to the line."
       },
       "Soft Interior": {
-        "moderate": "This team lacks a reliable interior presence, reducing effectiveness around the rim on both ends.",
-        "severe": "This team struggles to protect the paint, offering little resistance against interior scoring."
+        "moderate": "This team lacks consistent strength around the rim.",
+        "severe": "This team provides minimal resistance to interior scoring."
       },
       "Perimeter Leakage": {
-        "moderate": "This defense allows opponents to generate clean perimeter looks, especially through ball movement.",
-        "severe": "This defense consistently yields high-quality perimeter opportunities, amplifying opponent shooting volume."
+        "moderate": "This defense allows too many clean perimeter looks.",
+        "severe": "This defense routinely gives up high-quality perimeter chances."
       },
       "Tempo Strain": {
         "moderate": "This team is less effective when forced outside its preferred pace, particularly against stylistic pressure.",
@@ -943,28 +943,22 @@
       "tile": "This tile summarizes how the team’s résumé reads against the tournament field once quality wins, bad-loss resistance, opponent mix, win percentage, and schedule strength are standardized together. That résumé index then determines the team’s résumé trust tier.",
       "tier_tile": {
         "Elite": [
-          "This résumé combines high-end win quality, meaningful quality-win volume, and strong resistance to damaging losses.",
-          "It reflects a profile that remains highly credible once schedule hardness and opponent mix are fully accounted for."
+          "This résumé combines high-end win quality, meaningful quality-win volume, and strong resistance to damaging losses. It reflects a profile that remains highly credible once schedule hardness and opponent mix are fully accounted for."
         ],
         "Strong": [
-          "This résumé shows durable quality through strong upper-quadrant performance and solid contextual support.",
-          "It reflects a profile whose results continue to hold up well after schedule strength and résumé depth are standardized."
+          "This résumé shows durable quality through strong upper-quadrant performance and solid contextual support. It reflects a profile whose results continue to hold up well after schedule strength and résumé depth are standardized."
         ],
         "Above Average": [
-          "This résumé carries legitimate strength through a healthy mix of quality wins and stable contextual support.",
-          "It reflects a profile that is supported more often than challenged once the full résumé environment is weighed."
+          "This résumé carries legitimate strength through a healthy mix of quality wins and stable contextual support. It reflects a profile that is supported more often than challenged once the full résumé environment is weighed."
         ],
         "Average": [
-          "This résumé lands near the middle of the field once quality, volume, schedule, and loss resistance are blended together.",
-          "It reflects a profile with neither especially strong validation nor especially strong résumé fragility."
+          "This résumé lands near the middle of the field once quality, volume, schedule, and loss resistance are blended together. It reflects a profile with neither especially strong validation nor especially strong résumé fragility."
         ],
         "Weak": [
-          "This résumé shows limited contextual strength once upper-end results, bad-loss resistance, and schedule quality are evaluated together.",
-          "It reflects a profile that does not gain much trust from its full résumé composition relative to the field."
+          "This résumé shows limited contextual strength once upper-end results, bad-loss resistance, and schedule quality are evaluated together. It reflects a profile that does not gain much trust from its full résumé composition relative to the field."
         ],
         "Fragile": [
-          "This résumé struggles to establish strong contextual credibility once quality-win signals and damaging-loss pressure are fully incorporated.",
-          "It reflects a profile whose résumé support weakens meaningfully when compared against the full tournament field."
+          "This résumé struggles to establish strong contextual credibility once quality-win signals and damaging-loss pressure are fully incorporated. It reflects a profile whose résumé support weakens meaningfully when compared against the full tournament field."
         ],
         "fallback": [
           "This résumé tier reflects how the team’s full Résumé Context Score compares with the rest of the tournament field."

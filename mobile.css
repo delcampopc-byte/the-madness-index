@@ -736,10 +736,6 @@
     padding: 4px !important;
   }
 
-  .profile-support-row .context-tile.flip-tile .flip-tile-inner {
-    height: 75% !important;
-  }
-
   #resumeTileA .tile-face.tile-back,
   #resumeTileB .tile-face.tile-back,
   .mi-metrics-back-text {
@@ -754,14 +750,6 @@
   #resumeTileB .tile-face.tile-back .back-line {
     font-size: 8px !important;
     padding: 0 !important;
-  }
-
-  .context-tile.flip-tile .tile-front {
-    height: 100% !important;
-  }
-
-  .context-tile.flip-tile .tile-back {
-    height: 75% !important;
   }
 
   .mi-eff-module .mi-eff-header {
@@ -917,7 +905,7 @@
   #favCard .profile-subtotal-row {
     display: flex !important;
     flex-direction: column !important;
-    gap: 10px !important;
+    gap: 4px !important;
     width: 100% !important;
   }
 
@@ -939,6 +927,7 @@
 
   #identityInlineA .identity-inline-kicker,
   #identityInlineB .identity-inline-kicker {
+     margin-top: 3px !important;
      margin-bottom: 3px;
      font-size: 13px;
      font-weight: 850;
@@ -1003,28 +992,9 @@
   #cindCard .profile-subtotal-row,
   #favCard .profile-subtotal-row {
     position: relative !important;
-    margin: 10px 0 !important;
-    padding: 8px 0 !important;
-  }
-
-  /* Bottom divider — same treatment */
-  #cindCard .profile-subtotal-row::after,
-  #favCard .profile-subtotal-row::after {
-    content: '' !important;
-    display: block !important;
-    position: absolute !important;
-    bottom: 0 !important;
-    left: -12px !important;
-    right: -12px !important;
-    height: 1px !important;
-    background: linear-gradient(
-      to right,
-      transparent,
-      rgba(148, 163, 184, 0.35) 20%,
-      rgba(56, 189, 248, 0.45) 50%,
-      rgba(148, 163, 184, 0.35) 80%,
-      transparent
-    ) !important;
+    margin: 4px 0 !important;
+    padding: 4px 0 !important;
+    margin-bottom: 1px !important;
   }
 }
 
@@ -1078,15 +1048,6 @@
 
 @media (max-width: 720px) {
 
-  #marksTileA .flip-tile-inner,
-  #marksTileB .flip-tile-inner {
-    height: auto !important;
-    min-height: 0 !important;
-  }
-}
-
-@media (max-width: 720px) {
-
   /* Let the marks section grow to fit its content */
   #cindCard .team-card-marks,
   #favCard .team-card-marks {
@@ -1094,17 +1055,9 @@
     min-height: 0 !important;
   }
 
-  #marksTileA,
-  #marksTileB {
-    height: auto !important;
+  #marksTileA .tile-face.tile-back,
+  #marksTileB .tile-face.tile-back {
     min-height: 0 !important;
-  }
-
-  #marksTileA .tile-face.tile-front,
-  #marksTileB .tile-face.tile-front {
-    height: auto !important;
-    min-height: 0 !important;
-    padding-bottom: 36px !important; /* room for flip hint */
   }
 
   /* Marks strip: wrap into a neat grid */
@@ -1113,25 +1066,26 @@
     display: flex !important;
     flex-wrap: wrap !important;
     justify-content: center !important;
-    gap: 6px !important;
+    column-gap: 4px !important;
   }
 
   /* Both chip types: smaller and square */
   #cindCard .mark-chip,
   #favCard .mark-chip {
-    width: 70px !important;
-    min-width: 70px !important;
+    width: 67px !important;
+    min-width: 40px !important;
     max-width: 70px !important;
     min-height: 80px !important;
-    max-height: 80px !important;
+    max-height: 90px !important;
     font-size: 8px !important;
     padding: 6px 4px !important;
   }
 
   .team-card-marks .mark-title {
-    font-size: 6.5px;
-    font-weight: 550 !important;
-    min-height: calc(0.04em* 2) !important;
+    font-size: 10px;
+    font-weight: 600 !important;
+    min-height: calc(0.04em * 2) !important;
+    padding-bottom: 8px !important;
   }
   
   .team-card-marks .mark-chip .mark-badge {
@@ -1808,14 +1762,14 @@
   }
 
   #summarySectionMobile .mi-sum-mob-label {
-    font-size: 10px !important;
+    font-size: 9px !important;
     font-weight: 600;
     text-align: center !important;
     color: var(--mi-text-primary) !important;
     letter-spacing: 0.04em !important;
     text-transform: none !important;
     line-height: 1 !important;
-    padding: 0 4px !important;
+    padding: 0 1px !important;
   }
 
   #summarySectionMobile .mi-sum-mob-val {
@@ -1944,7 +1898,7 @@
   }
 
   #summarySectionMobile .mi-sum-mob-delta-col .syn-delta-value {
-    font-size: 18px !important;
+    font-size: 16px !important;
     font-weight: 850 !important;
     font-variant-numeric: tabular-nums !important;
     color: rgba(241,245,249,0.98) !important;
@@ -4123,7 +4077,10 @@
   }
 
   .flip-tile .tile-face.tile-front .mi-flip-hint{
-    margin: auto !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    margin-top: 4px !important;
+    margin-bottom: 4px !important;
   }
 }
 
@@ -4519,18 +4476,19 @@
 
   .mi-marks-back-name {
     font-size: 10px !important;
-    font-weight: 600 !important;
+    font-weight: 500 !important;
     color: var(--mi-text-primary) !important;
   }
 
   .mi-marks-back-summary {
-    font-size: 8px !important;
+    font-size: 11px !important;
     font-weight: 550 !important;
     color: var(--mi-text-primary) !important;
   }
 
   .mi-marks-back-row {
     gap: 1px !important;
+    margin-top: 1px !important;
   }
 
   .mi-marks-back-divider {
@@ -4549,9 +4507,9 @@
   }
   
   .mi-marks-back-desc {
-    font-size: 7.5px !important;
+    font-size: 8px !important;
     font-weight: 500 !important;
-    color: var(--mi-text-muted) !important;
+    color: var(--mi-text-primary) !important;
   }
 
   #resumeTileA .context-label,
@@ -4572,7 +4530,6 @@
     align-self: center !important;
     text-align: center !important;
     align-items: center !important;
-    height: 75% !important;
   }
 
   .profile-support-row .context-tier,
@@ -4647,14 +4604,13 @@
   .context-tile.flip-tile .flip-tile-inner {
     /* Ensure container defines the visual frame */
     position: relative;
-    border-radius: 16px;
+    border-radius: 14px;
     /* Move border here */
     border: 1.5px solid rgba(239, 68, 68, 0.95);
     /* Keep visual depth */
     box-shadow:
       0 8px 18px rgba(15, 23, 42, 0.45),
       inset 0 0 0 1px rgba(255,255,255,0.05);
-    overflow: hidden;
   }
 
   #marksTileA .context-tile .inline-marks-tile.flip-tile,
@@ -4811,4 +4767,458 @@
 
     pointer-events: none;
   }
+
+  #interactionsSection .interactions-back-face .int-console-title {
+    font-size: 10px !important;
+    font-weight: 650 !important;
+    text-transform: none !important;
+    letter-spacing: 0.04em !important;
+    color: var(--mi-text-primary) !important;
+  }
+
+  #interactionsSection .interactions-back-face .int-console-text {
+    font-size: 9px !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.04em !important;
+    color: var(--mi-text-muted) !important;
+  }
+
+  #interactionsSection .interactions-back-face .int-edge-pill {
+    font-size: 9px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.04em !important;
+  }
+
+  #interactionsSection .interactions-back-face {
+    padding: 6px 6px !important;
+  }
+}
+
+@media (max-width: 720px) {
+
+  .profile-section.flip-tile .tile-face.tile-back {
+    padding: 6px 6px !important;
+  }
+
+  .core-back-main-label {
+    display: none !important;
+  }
+
+  .core-back-metric {
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.04em !important;
+    color: var(--mi-text-primary) !important;
+  }
+
+  .core-back-text {
+    font-size: 10px !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.04em !important;
+    color: var(--mi-text-muted) !important;
+  }
+
+  .core-back-item {
+    padding: 2px 4px 4px !important;
+  }
+
+  .core-back-header {
+    margin-bottom: 2px !important;
+  }
+
+  .core-back-tier {
+    font-size: 9px !important;
+    font-weight: 750 !important;
+  }
+
+  .core-back-eff-section {
+    padding-top: 6px !important;
+    margin-top: 6px !important;
+  }
+
+  .core-back-main-label, .core-back-eff-label {
+    margin-top: 4px !important;
+    text-transform: none !important;
+    letter-spacing: 0.04em !important;
+    color: var(--mi-text-primary);
+    padding-bottom: 4px !important;
+  }
+
+  .core-back-main-label::after, .core-back-eff-label::after {
+    display: none !important;
+  }
+
+  .back-helper {
+    display: none !important;
+  }
+
+  .inline-marks-tile .tile-front .marks-front {
+    width: 100% !important;
+  }
+
+  .team-card-marks .mark-icon-plate {
+    max-width: 55px !important;
+    min-width: 50px !important;
+    height: 50px !important;
+    padding: 2px 0 !important;
+  }
+
+  #cindCard .mark-chip,
+  #favCard .mark-chip {
+    padding: 2px !important;
+  }
+
+  .inline-marks-strip {
+    padding-top: 2px !important;
+  }
+}
+
+@media (max-width: 720px) {
+
+  #marksTileA .tile-face.tile-front,
+  #marksTileB .tile-face.tile-front {
+    padding-bottom: 6px !important;
+  }
+
+  #marksTileA .tile-face.tile-back,
+  #marksTileB .tile-face.tile-back {
+    min-height: 0 !important;
+  }
+
+  #backMarksTileA,
+  #backMarksTileB {
+    overflow: visible !important;
+  }
+
+  #inlineMarksA,
+  #inlineMarksB {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+    column-gap: 4px !important;
+  }
+}
+
+@media (max-width: 720px) {
+
+  #marksTileA.flipped .flip-tile-inner,
+  #marksTileB.flipped .flip-tile-inner {
+    height: auto !important;
+    max-height: none !important;
+  }
+
+  /* Remove the 200px back-face ceiling */
+  #marksTileA .tile-face.tile-back,
+  #marksTileB .tile-face.tile-back {
+    min-height: 0 !important;
+  }
+
+  .context-tile .tile-face.tile-front {
+    column-gap: 2px !important;
+  }
+
+  .team-card-marks .marks-header {
+    margin-bottom: 2px !important;
+  }
+
+  #backMarksTileA,
+  #backMarksTileB {
+    padding-right: 2px !important;
+  }
+}
+
+@media (max-width: 720px) {
+
+  /* =========================================================
+     PROFILE MARKS — MOBILE CONTENT-DRIVEN HEIGHT
+     Let whichever face is active determine tile height.
+     ========================================================= */
+
+  /* Outer marks section must be allowed to grow naturally */
+  #cindCard .team-card-marks,
+  #favCard .team-card-marks {
+    display: block !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  /* The marks tile itself should not impose its own ceiling */
+  #marksTileA,
+  #marksTileB {
+    display: block !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  /* Inner wrapper must grow to fit active face */
+  #marksTileA .flip-tile-inner,
+  #marksTileB .flip-tile-inner {
+    display: block !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  /* Both faces should size to content, not to a forced shell height */
+  #marksTileA .tile-face,
+  #marksTileB .tile-face,
+  #marksTileA .tile-face.tile-front,
+  #marksTileB .tile-face.tile-front,
+  #marksTileA .tile-face.tile-back,
+  #marksTileB .tile-face.tile-back {
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  /* Front face content should define front height cleanly */
+  #marksTileA .marks-front,
+  #marksTileB .marks-front {
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  /* Back face content should also define tile height cleanly */
+  #backMarksTileA,
+  #backMarksTileB {
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+    padding-right: 2px !important;
+  }
+
+  /* Keep front marks arranged neatly */
+  #inlineMarksA,
+  #inlineMarksB {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+    column-gap: 4px !important;
+    row-gap: 4px !important;
+    width: 100% !important;
+  }
+
+  /* Small front-face spacing only */
+  #marksTileA .tile-face.tile-front,
+  #marksTileB .tile-face.tile-front {
+    padding-bottom: 6px !important;
+  }
+
+  .team-card-marks .marks-header {
+    margin-bottom: 2px !important;
+  }
+}
+
+@media (max-width: 720px) {
+
+  /* =========================================================
+     PROFILE MARKS — MOBILE BACK-FACE TRUE CONTENT HEIGHT
+     Force the active back face to size from its own content.
+     ========================================================= */
+
+  /* The marks tile wrapper must not center or stretch hidden space */
+  #marksTileA,
+  #marksTileB,
+  #marksTileA .flip-tile-inner,
+  #marksTileB .flip-tile-inner {
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  /* Back face should behave like normal top-down content flow */
+  #marksTileA .tile-face.tile-back,
+  #marksTileB .tile-face.tile-back {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    justify-content: flex-start !important;
+
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  /* Back content wrappers must be real block containers */
+  #backMarksTileA,
+  #backMarksTileB,
+  #backMarksTileA .mi-marks-back-list,
+  #backMarksTileB .mi-marks-back-list,
+  #backMarksTileA .mi-marks-back-summary,
+  #backMarksTileB .mi-marks-back-summary {
+    display: block !important;
+    width: 100% !important;
+
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+}
+
+@media (max-width: 720px) {
+
+  /* =========================================================
+     PROFILE MARKS — MOBILE FLOW-BASED FACE SWITCH
+     Purpose:
+     On mobile, the marks tile should size from whichever face
+     is active. Disable the 3D stacked-face layout only for
+     these two marks tiles.
+     ========================================================= */
+
+  /* Outer wrappers must fully participate in normal flow */
+  #cindCard .team-card-marks,
+  #favCard .team-card-marks,
+  #marksTileA,
+  #marksTileB,
+  #marksTileA .flip-tile-inner,
+  #marksTileB .flip-tile-inner {
+    display: block !important;
+    position: relative !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+    transform: none !important;
+  }
+
+  /* Faces become normal block panels, not overlaid flip planes */
+  #marksTileA .tile-face,
+  #marksTileB .tile-face,
+  #marksTileA .tile-face.tile-front,
+  #marksTileB .tile-face.tile-front,
+  #marksTileA .tile-face.tile-back,
+  #marksTileB .tile-face.tile-back {
+    display: block !important;
+    position: relative !important;
+    inset: auto !important;
+    backface-visibility: visible !important;
+    -webkit-backface-visibility: visible !important;
+
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+    transform: none !important;
+  }
+
+  /* Only the active face should exist in layout */
+  #marksTileA:not(.flipped) .tile-face.tile-front,
+  #marksTileB:not(.flipped) .tile-face.tile-front {
+    display: block !important;
+  }
+
+  #marksTileA:not(.flipped) .tile-face.tile-back,
+  #marksTileB:not(.flipped) .tile-face.tile-back {
+    display: none !important;
+  }
+
+  #marksTileA.flipped .tile-face.tile-front,
+  #marksTileB.flipped .tile-face.tile-front {
+    display: none !important;
+  }
+
+  #marksTileA.flipped .tile-face.tile-back,
+  #marksTileB.flipped .tile-face.tile-back {
+    display: block !important;
+  }
+
+  /* Front content should size naturally */
+  #marksTileA .marks-front,
+  #marksTileB .marks-front,
+  #inlineMarksA,
+  #inlineMarksB {
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  /* Back content should size naturally */
+  #backMarksTileA,
+  #backMarksTileB,
+  #backMarksTileA .mi-marks-back-list,
+  #backMarksTileB .mi-marks-back-list,
+  #backMarksTileA .mi-marks-back-row,
+  #backMarksTileB .mi-marks-back-row,
+  #backMarksTileA .mi-marks-back-summary,
+  #backMarksTileB .mi-marks-back-summary {
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+    width: 100% !important;
+  }
+
+  /* Keep front marks neatly wrapped */
+  #inlineMarksA,
+  #inlineMarksB {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+    column-gap: 4px !important;
+    row-gap: 4px !important;
+  }
+
+  #marksTileA .tile-face.tile-front,
+  #marksTileB .tile-face.tile-front {
+    padding-bottom: 6px !important;
+  }
+  
+  .mi-marks-back-summary {
+    margin-bottom: 4px !important;
+    letter-spacing: 0.02em !important;
+  }
+ 
+  .back-line {
+    margin-top: 0 !important;
+  }
+
+  #marksTileA .tile-face.tile-back,
+  #marksTileB .tile-face.tile-back {
+    padding: 4px !important;
+  }
+
+  .mi-marks-back-divider {
+    display: none !important;
+  }
+
+  .mi-marks-back-list br {
+    display: none !important;
+  }
+}
+
+.mi-marks-back-summary{
+  position: relative;
+  padding-bottom: 2px !important;
+  margin-bottom: 0 !important;
+}
+
+.mi-marks-back-summary::after{
+  content: "";
+  display: block;
+  width: calc(100% - 8px);
+  height: 1px;
+  margin: 5px auto 0;
+  border-radius: 999px;
+  background: linear-gradient(
+    90deg,
+    rgba(255,255,255,0),
+    rgba(255,255,255,0.12) 20%,
+    rgba(255,255,255,0.30) 50%,
+    rgba(255,255,255,0.12) 80%,
+    rgba(255,255,255,0)
+  );
+  box-shadow: 0 0 8px rgba(255,255,255,0.10);
 }

@@ -4442,7 +4442,8 @@ section.profile-section.flip-tile{
   width: 100%;
   align-items: flex-start;
   justify-content: center;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
+  margin-top: 8px !important;
   display: flex;
   text-align: center;
   gap: 8px;
@@ -4476,7 +4477,7 @@ section.profile-section.flip-tile{
   justify-content: center;
   align-items: flex-start;
 
-  gap: 10px 10px;
+  gap: 6px 6px;
   overflow: visible;
 
   padding: 8px 0 6px;
@@ -10079,7 +10080,7 @@ button,
   flex: 1 1 auto;
   min-height: 0;
 
-  height: var(--marks-back-h);
+  height: auto !important;
   overflow: auto;
 
   /* keep scrollbar from kissing content */
@@ -10422,7 +10423,7 @@ body::before{
 .team-card-bottom .context-tile.flip-tile,
 .team-card-marks  .context-tile.flip-tile,
 .madness-tile.flip-tile{
-  padding: 7px 6px 6px;
+  padding: 2px;
   border-radius: 12px;
 
   background: rgba(0,0,0,0.18);
@@ -14964,7 +14965,7 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 100%;
+  width: auto !important;
 }
 
 .summary-synthesis-table.mi-summary-synthesis-table .syn-team{
@@ -15978,8 +15979,8 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
 
 #summarySection .summary-synthesis-table .syn-label-main{
   font-size: 13px;
-  font-weight: 800;
-  line-height: 1.12;
+  font-weight: 650;
+  line-height: 1.1;
 }
 
 /* Keep hints hidden like your current design */
@@ -18423,23 +18424,7 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
     0 0 18px color-mix(in srgb, var(--team-secondary) 18%, transparent);
 }
 
-.mi-team-brand--card::after,
-.mi-team-brand--summary::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  z-index: 0;
-  background:
-    linear-gradient(
-      135deg,
-      color-mix(in srgb, var(--team-tertiary) 12%, transparent),
-      transparent 34%,
-      transparent 66%,
-      color-mix(in srgb, var(--team-secondary) 10%, transparent)
-    );
-  opacity: 0.9;
-}
+
 
 .mi-team-brand--card .mi-team-brand-logo,
 .mi-team-brand--summary .mi-team-brand-logo {
@@ -18492,9 +18477,11 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
   content: "";
   position: absolute;
   left: 0;
-  bottom: -1px;
+  bottom: -100px;
   height: 2px;
   width: min(46%, 170px);
+  margin-top: 12px !important;
+  padding-top: 12px !important;
   border-radius: 999px;
   background: linear-gradient(
     90deg,
@@ -21881,7 +21868,7 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
 #summarySection #summaryTeamA,
 #summarySection.mi-winner-b #summaryTeamB,
 #summarySection #summaryTeamB{
-  font-size: 18px !important;
+  font-size: 24px !important;
   font-weight: 750 !important;
 }
 
@@ -22115,7 +22102,7 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
 #analysisShell{
   position: relative;
   margin-top: 20px;
-  padding-top: 18px;
+  padding-top: 1px;
 }
 
 /* Divider rail + soft fade so the team-card zone feels like a new section */
@@ -22722,6 +22709,30 @@ section.profile-section.flip-tile .subtotal-row.profile-subtotal-row {
   z-index: 5001 !important;
 }
 
+.mi-eff-module .mi-eff-value {
+  text-align: left !important;
+}
+
+.mi-eff-module .mi-eff-seg {
+  gap: 2px !important;
+}
+
+.mi-eff-meta {
+  max-width: 170px !important;
+}
+
+.flip-tile .tile-face.tile-front .mi-flip-hint {
+  margin-top: 0 !important;
+}
+
+.team-card-marks {
+  margin-top: 4px !important;
+}
+
+.team-card-marks .marks-header {
+  margin-top: 18px !important;
+}
+
 /* =========================================
    VERDICT INLINE ACTIONS — SIDE BY SIDE
    ========================================= */
@@ -23175,20 +23186,6 @@ section.profile-section.flip-tile .subtotal-row.profile-subtotal-row {
     var(--mi-depth-1) !important;
 }
 
-/* =========================================================
-   TEAM CARD — KILL GENERIC GRAY CARD FOUNDATION
-   Purpose:
-   Remove the shared .card / .card-face navy-gray material
-   from the two team cards so the frame reads as true team color.
-   ========================================================= */
-
-/* -----------------------------------------
-   OUTER TEAM CARD SHELL
-   neutralize generic .card material
-   ----------------------------------------- */
-
-
-
 /* -----------------------------------------
    MIDDLE WRAPPER
    keep it color-controlled only by your custom block
@@ -23223,4 +23220,127 @@ section.profile-section.flip-tile .subtotal-row.profile-subtotal-row {
   border-radius: inherit;
   pointer-events: none;
   background: none !important;
+}
+
+.team-card-header {
+  margin-bottom: 0 !important;
+}
+
+.profile-section {
+  padding-top: 2px !important;
+  margin: 0 !important;
+}
+
+#cindCard > .flip-inner,
+#favCard > .flip-inner {
+  background-color: rgba(4, 170, 109, 0.3); !important;
+}
+
+#interactionsSection .interaction-table.mi-interaction-table .mi-int-label-main {
+  font-weight: 600 !important;
+  font-size: 9.5px !important;
+}
+
+#interactionsSection .interaction-table.mi-interaction-table .mi-int-bar-sub {
+  font-weight: 575 !important;
+  font-size: 9px !important;
+  color: var(--mi-text-muted) !important;
+}
+
+.interaction-table.mi-interaction-table .mi-int-intensity-pill {
+  padding: 6px !important;
+  font-weight: 675 !important;
+}
+
+#interactionsSection #interactionTotalsBar, #interactionsSection .interaction-totals-bar {
+  min-height: 32px !important;
+}
+
+#interactionsSection .interaction-totals-bar .totals-inline {
+  font-size: 12px !important;
+  font-weight: 700 !important;
+}
+
+#interactionsSection .volatility-gauge-score {
+  font-size: 30px !important;
+  font-weight: 750 !important;
+}
+
+#interactionsSection .vol-q-label,
+#interactionsSection .vol-q-value {
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  color: var(--mi-text-primary) !important;
+  letter-spacing: 0.04em !important;
+  text-transform: none !important;
+}
+
+#interactionsSection .vol-q-driver,
+#interactionsSection .vol-q-lean {
+  font-size: 11px !important;
+  font-weight: 575 !important;
+  color: var(--mi-text-muted) !important;
+  letter-spacing: 0.04em !important;
+  text-transform: none !important;
+}
+ 
+#interactionsSection .volatility-gauge-zones text {
+  font-size: 11px !important;
+  font-weight: 750 !important;
+  color: var(--mi-text-muted) !important;
+  letter-spacing: 0.04em !important;
+}
+
+#interactionsSection .volatility-gauge-label {
+  font-size: 12px !important;
+  font-weight: 775 !important;
+  color: var(--mi-text-primary) !important;
+  letter-spacing: 0.04em !important;
+}
+
+#interactionsSection .volatility-quarters {
+  row-gap: 6px !important;
+}
+
+#interactionsSection .volatility-gauge-wrap {
+  row-gap: 2px !important;
+}
+
+#interactionsSection .volatility-threshold-text {
+  display: none !important;
+}
+
+#interactionsSection .volatility-panel {
+  row-gap: 2px !important;
+  padding: 8px !important;
+}
+
+#interactionsSection .interactions-back-face {
+  padding: 0 !important;
+}
+
+#interactionsSection .interactions-back-face .int-console-label {
+  margin-bottom: 10px !important;
+}
+
+#interactionsSection .interactions-left,
+#interactionsSection .interactions-right {
+  padding: 0 !important;
+}
+
+#interactionsSection .interactions-right.interactions-diagnostics-tile {
+  row-gap: 0 !important;
+  height: 100% !important;
+}
+
+#interactionsSection {
+  margin-bottom: 2px !important;
+}
+
+#summarySection.card.summary-card {
+  padding: 2px 4px !important;
+}
+
+#interactionsSection .interactions-right.interactions-diagnostics-tile {
+  display: block !important;
 }

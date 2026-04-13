@@ -5137,21 +5137,27 @@ function equalizeProfileMarksTiles() {
   const tileB = document.getElementById('marksTileB');
   if (!tileA || !tileB) return;
 
-  // Clear previous front height so measurement isn't poisoned.
   tileA.style.removeProperty('--marks-front-h');
   tileB.style.removeProperty('--marks-front-h');
+  tileA.style.removeProperty('--marks-back-h');
+  tileB.style.removeProperty('--marks-back-h');
 
-  const neededA = computeMarksTileNeededHeight(tileA);
-  const neededB = computeMarksTileNeededHeight(tileB);
+  const innerA = tileA.querySelector('.flip-tile-inner');
+  const width  = (innerA && innerA.clientWidth) ? innerA.clientWidth : tileA.clientWidth;
 
-  // Normalize both tiles to the taller FRONT.
-  const target = Math.max(neededA, neededB);
+  const hFrontA = measureFaceHeight(tileA.querySelector('.tile-face.tile-front'), width);
+  const hFrontB = measureFaceHeight(tileB.querySelector('.tile-face.tile-front'), width);
+  const hBackA  = measureFaceHeight(tileA.querySelector('.tile-face.tile-back'),  width);
+  const hBackB  = measureFaceHeight(tileB.querySelector('.tile-face.tile-back'),  width);
 
-  // Fallback min so 0-marks doesn't collapse too hard.
-  const finalH = Math.max(180, Math.round(target));
+  const finalFront = Math.max(180, Math.round(Math.max(hFrontA, hFrontB)) + 2);
+  // Back must be at least as tall as front, plus a small buffer
+  const finalBack  = Math.max(finalFront, Math.round(Math.max(hBackA, hBackB)) + 8);
 
-  tileA.style.setProperty('--marks-front-h', `${finalH}px`);
-  tileB.style.setProperty('--marks-front-h', `${finalH}px`);
+  tileA.style.setProperty('--marks-front-h', `${finalFront}px`);
+  tileB.style.setProperty('--marks-front-h', `${finalFront}px`);
+  tileA.style.setProperty('--marks-back-h',  `${finalBack}px`);
+  tileB.style.setProperty('--marks-back-h',  `${finalBack}px`);
 }
 
 // Keep it stable on resize
@@ -13224,7 +13230,7 @@ function miForceMobileScrollUnlock() {
 // Build Version — must match service-worker.js and index.html
 // =========================================================
 
-const MI_BUILD = '33';
+const MI_BUILD = '34';
 
 function bootMadnessIndex() {
   console.log("[MI] bootMadnessIndex fired");
