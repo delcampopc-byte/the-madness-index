@@ -1291,6 +1291,10 @@ function hardResetWorkflow(options = {}) {
     RESUME_CONTEXT_STATS_V2 = null;
   }
 
+  if (typeof RESUME_CONTEXT_STATS_LEGACY !== 'undefined') {
+    RESUME_CONTEXT_STATS_LEGACY = null;
+  }
+
   // -----------------------------
   // 2) Clear persisted workflow state
   // -----------------------------
@@ -2840,11 +2844,11 @@ function miClearVerdictCopyCache(){
 //   - Final Four (F4)
 //   - Championship (Champ)
 //
-// For *distinct* seeds, both "same region" and "different region" layouts
-// are possible across different years, so the possible rounds are:
-//   { intra-region round } ∪ { F4, Champ }.
-// For *equal* seeds (e.g., 1 vs 1), they can never share a region
-// (only one #1 per region), so only { F4, Champ } are possible.
+// IMPORTANT:
+// - If regions are present for both teams, region resolves whether the matchup
+//   is intra-region or cross-region.
+// - If regions are missing, we preserve the old seed-only behavior exactly.
+// - First Four handling is preserved for 11/11 and 16/16 play-in pairs.
 
 const R64_PAIRINGS = [
   [1, 16], [8, 9],
@@ -2870,6 +2874,34 @@ function getPodHalf(pod) {
   return null;
 }
 
+// Normalize region strings safely
+function normalizeBracketRegion(region) {
+  const raw = String(region || '').trim().toLowerCase();
+
+  if (raw === 'east') return 'East';
+  if (raw === 'west') return 'West';
+  if (raw === 'south') return 'South';
+  if (raw === 'midwest') return 'Midwest';
+
+  return '';
+}
+
+function hasKnownBracketRegion(region) {
+  return !!normalizeBracketRegion(region);
+}
+
+function areSameBracketRegion(regionA, regionB) {
+  const a = normalizeBracketRegion(regionA);
+  const b = normalizeBracketRegion(regionB);
+  return !!a && !!b && a === b;
+}
+
+function areDifferentKnownBracketRegions(regionA, regionB) {
+  const a = normalizeBracketRegion(regionA);
+  const b = normalizeBracketRegion(regionB);
+  return !!a && !!b && a !== b;
+}
+
 // Are these seeds a direct Round of 64 game?
 function isFirstRoundPair(seedA, seedB) {
   const a = Number(seedA);
@@ -2885,7 +2917,8 @@ function getIntraRegionRound(seedA, seedB) {
   const a = Number(seedA);
   const b = Number(seedB);
 
-  // Same seed cannot share a region (one slot per seed per region)
+  // Same seed cannot share a region (one slot per seed per region),
+  // except special First Four play-ins which are handled elsewhere.
   if (!Number.isFinite(a) || !Number.isFinite(b) || a === b) return null;
 
   const podA = getSeedPod(a);
@@ -2908,6 +2941,12 @@ function getIntraRegionRound(seedA, seedB) {
 // Global order for sorting rounds
 const ROUND_ORDER = ['R64', 'R32', 'S16', 'E8', 'First4', 'F4', 'Champ'];
 
+function sortRoundsCanonical(rounds) {
+  return Array.from(new Set(rounds)).sort((r1, r2) =>
+    ROUND_ORDER.indexOf(r1) - ROUND_ORDER.indexOf(r2)
+  );
+}
+
 function isFirstFourSeedPlayIn(seedA, seedB) {
   const a = Number(seedA);
   const b = Number(seedB);
@@ -2915,28 +2954,51 @@ function isFirstFourSeedPlayIn(seedA, seedB) {
   return a === b && (a === 11 || a === 16);
 }
 
-// All possible rounds this *pair of seeds* can meet in,
-// across all valid bracket layouts (same region vs different region).
-function getPossibleRoundsForSeeds(seedA, seedB) {
+// All possible rounds this pair can meet in.
+//
+// Behavior:
+// 1) If both regions are known:
+//    - same region    -> use intra-region seed structure
+//    - different      -> only F4 / Champ
+// 2) If either region is missing:
+//    - preserve the old seed-only behavior exactly
+function getPossibleRoundsForSeeds(seedA, seedB, regionA = '', regionB = '') {
   const a = Number(seedA);
   const b = Number(seedB);
   if (!Number.isFinite(a) || !Number.isFinite(b)) return [];
 
   const possible = new Set();
 
-  // Canonical First Four play-ins:
-  // two 11-seeds or two 16-seeds may meet in the First Four,
-  // and can also still legally meet cross-region in F4 / Champ.
+  // Preserve existing First Four handling
   if (isFirstFourSeedPlayIn(a, b)) {
     possible.add('First4');
     possible.add('F4');
     possible.add('Champ');
-
-    return Array.from(possible).sort((r1, r2) =>
-      ROUND_ORDER.indexOf(r1) - ROUND_ORDER.indexOf(r2)
-    );
+    return sortRoundsCanonical(possible);
   }
 
+  const sameKnownRegion = areSameBracketRegion(regionA, regionB);
+  const differentKnownRegions = areDifferentKnownBracketRegions(regionA, regionB);
+  const bothRegionsKnown = hasKnownBracketRegion(regionA) && hasKnownBracketRegion(regionB);
+
+  // Region-aware behavior when both sides have valid region metadata
+  if (bothRegionsKnown) {
+    if (sameKnownRegion) {
+      if (a !== b) {
+        const intra = getIntraRegionRound(a, b);
+        if (intra) possible.add(intra);
+      }
+      return sortRoundsCanonical(possible);
+    }
+
+    if (differentKnownRegions) {
+      possible.add('F4');
+      possible.add('Champ');
+      return sortRoundsCanonical(possible);
+    }
+  }
+
+  // Fallback: preserve the old seed-only behavior exactly
   if (a !== b) {
     const intra = getIntraRegionRound(a, b);
     if (intra) possible.add(intra);
@@ -2946,57 +3008,42 @@ function getPossibleRoundsForSeeds(seedA, seedB) {
   possible.add('F4');
   possible.add('Champ');
 
-  // Return sorted by natural tournament order
-  return Array.from(possible).sort((r1, r2) =>
-    ROUND_ORDER.indexOf(r1) - ROUND_ORDER.indexOf(r2)
-  );
+  return sortRoundsCanonical(possible);
 }
 
 // Convenience wrapper for checking a specific round
-function isRoundPossibleForSeeds(seedA, seedB, roundCode) {
-  const possible = getPossibleRoundsForSeeds(seedA, seedB);
+function isRoundPossibleForSeeds(seedA, seedB, roundCode, regionA = '', regionB = '') {
+  const possible = getPossibleRoundsForSeeds(seedA, seedB, regionA, regionB);
   return possible.includes(roundCode);
 }
 
 // Build a small descriptor we can attach to the matchup result
-function getSeedRoundMeta(seedA, seedB, roundCode) {
+function getSeedRoundMeta(seedA, seedB, roundCode, regionA = '', regionB = '') {
   const a = Number(seedA);
   const b = Number(seedB);
   if (!Number.isFinite(a) || !Number.isFinite(b)) return null;
 
-  const possible = getPossibleRoundsForSeeds(a, b);
+  const normRegionA = normalizeBracketRegion(regionA);
+  const normRegionB = normalizeBracketRegion(regionB);
+
+  const possible = getPossibleRoundsForSeeds(a, b, normRegionA, normRegionB);
   const isAllowed = possible.includes(roundCode);
-  const earliest = possible.length
-    ? possible[0]
-    : null;
+  const earliest = possible.length ? possible[0] : null;
+
+  let regionRelationship = 'unknown';
+  if (normRegionA && normRegionB) {
+    regionRelationship = normRegionA === normRegionB ? 'same' : 'different';
+  }
 
   return {
     seedA: a,
     seedB: b,
-    possible,    // e.g. ['First4','F4','Champ']
-    isAllowed,   // true if current round is compatible with these seeds
-    earliest,    // earliest possible round in standard bracket order
-  };
-}
-
-// Build a small descriptor we can attach to the matchup result
-function getSeedRoundMeta(seedA, seedB, roundCode) {
-  const a = Number(seedA);
-  const b = Number(seedB);
-  if (!Number.isFinite(a) || !Number.isFinite(b)) return null;
-
-  const possible = getPossibleRoundsForSeeds(a, b);
-  const isAllowed = possible.includes(roundCode);
-  const earliest = possible.length
-    ? possible[0]
-    : null;
-
-  return {
-    seedA: a,
-    seedB: b,
-    possible,    // e.g. ['R32','F4','Champ']
-    isAllowed,   // true if current round is compatible with these seeds
-    earliest,    // earliest possible round in standard bracket order
+    regionA: normRegionA,
+    regionB: normRegionB,
+    regionRelationship,
+    possible,
+    isAllowed,
+    earliest,
   };
 }
 
@@ -3023,6 +3070,7 @@ function miUpdateMatchupRoundPill(roundCode) {
 const ALIASES = {
   team: ['Team','TEAM','team','School','Team Name','TeamName','Team_Name','School Name','SchoolName','School_Name'],
   seed: ['Seed', 'seed'],
+  region: ['Region', 'region'],
   ts: ['TS', 'TS%', 'ts', 'TS_pct', 'True Shooting %'],
   efg: ['eFG', 'eFG%', 'efg'],
   tempo: ['Tempo', 'tempo', 'Pace'],
@@ -3290,11 +3338,11 @@ function _normHeader(h) {
     .trim();
 }
 
-// EXACT map for the official dataset headers (normalized via _normHeader)
 const HEADER_MAP = new Map([
   // identity
   ['team',                       'name'],
   ['seed',                       'seed'],
+  ['region',                     'region'],
 
   // core dataset columns still used
   ['true shooting pct',          'ts'],
@@ -3378,6 +3426,17 @@ const MI_IDENTITY_V38 = {
   kC: 0.90
 };
 
+function normalizeRegionValue(value) {
+  const raw = String(value || '').trim().toLowerCase();
+
+  if (raw === 'east') return 'East';
+  if (raw === 'west') return 'West';
+  if (raw === 'south') return 'South';
+  if (raw === 'midwest') return 'Midwest';
+
+  return '';
+}
+
 function buildTeamsFromCSV(headers, rows) {
   const H = makeHeaderIndex(headers);
 
@@ -3402,10 +3461,12 @@ function buildTeamsFromCSV(headers, rows) {
   for (const row of rows) {
     const rawName = getStr(row, 'name');
     const cleanName = miDecodeEntities(rawName).trim();
+    const region = normalizeRegionValue(getStr(row, 'region'));
 
     const team = {
       name:   cleanName,
       seed:   getNum(row, 'seed'),
+      region: region,
 
       ts:     getNum(row, 'ts'),
       efg:    getNum(row, 'efg'),
@@ -4290,6 +4351,124 @@ function prepareResumeContextStatsV2() {
   };
 }
 
+let RESUME_CONTEXT_STATS_LEGACY = null;
+
+function miStabilizeResumeZ(value, strength = 0.35) {
+  const z = Number(value);
+  if (!Number.isFinite(z)) return 0;
+  return z / (1 + (Math.abs(z) * strength));
+}
+
+function prepareResumeContextStatsLegacy() {
+  const teams = (TEAM_LIST || [])
+    .map(name => TEAMS[name])
+    .filter(Boolean);
+
+  if (!teams.length) {
+    RESUME_CONTEXT_STATS_LEGACY = null;
+    return;
+  }
+
+  const rawVals = [];
+
+  teams.forEach(team => {
+    const wp = Number.isFinite(team.wp) ? team.wp : null;
+    const P = Number.isFinite(team.P) ? team.P : null;
+
+    const zWp = _zFromStats(wp, FIELD_STATS.wp);
+    const zP = _zFromStats(P, FIELD_STATS.P);
+
+    const zWpStable = miStabilizeResumeZ(zWp, 0.35);
+    const zPStable = miStabilizeResumeZ(zP, 0.35);
+
+    const raw =
+      0.45 * zWpStable +
+      0.55 * zPStable;
+
+    team._resumeLegacyParts = {
+      wp,
+      P,
+      zWp,
+      zP,
+      zWpStable,
+      zPStable,
+      raw
+    };
+
+    rawVals.push(raw);
+  });
+
+  RESUME_CONTEXT_STATS_LEGACY = {
+    rawStats: _makeStats(rawVals)
+  };
+}
+
+function computeResumeContextForTeamLegacy(team, opts = MI_V2_DEFAULTS) {
+  const S = RESUME_CONTEXT_STATS_LEGACY;
+  const p = team?._resumeLegacyParts || null;
+
+  if (!team || !S || !p) {
+    team.resumeIndex = 0;
+    team.resumeTier = 'Average';
+    team.resumeRTier = 'Average';
+
+    team.resumeBaseTrust = 1.00;
+    team.resumeIntTrust = 1.00;
+    team.resumeConfidenceTrust = 1.00;
+
+    team.resumeR = 0;
+
+    team.resumeIndex_v2 = 0;
+    team.resumeTier_v2 = 'Average';
+    team.resumeBaseTrust_v2 = 1.00;
+    team.resumeIntTrust_v2 = 1.00;
+    team.resumeConfidenceTrust_v2 = 1.00;
+
+    team.resumeBreakdown = null;
+    team.resumeBreakdown_v2 = null;
+    team.resumeSystem = 'legacy';
+    return;
+  }
+
+  const R = _zFromStats(p.raw, S.rawStats);
+  const tier = getResumeTierFromIndexV2(R);
+
+  const baseTrust = opts.useResumeBaseTrust ? getResumeBaseTrustFactorV2(tier) : 1.00;
+  const intTrust  = opts.useResumeInteractionTrust ? getResumeInteractionFactorV2(tier) : 1.00;
+  const confTrust = opts.useResumeConfidenceTrust ? getResumeConfidenceFactorV2(tier) : 1.00;
+
+  team.resumeIndex = R;
+  team.resumeTier = tier;
+  team.resumeRTier = tier;
+
+  team.resumeBaseTrust = baseTrust;
+  team.resumeIntTrust = intTrust;
+  team.resumeConfidenceTrust = confTrust;
+
+  team.resumeR = R;
+
+  team.resumeIndex_v2 = R;
+  team.resumeTier_v2 = tier;
+  team.resumeBaseTrust_v2 = baseTrust;
+  team.resumeIntTrust_v2 = intTrust;
+  team.resumeConfidenceTrust_v2 = confTrust;
+
+  team.resumeBreakdown = {
+    system: 'legacy',
+    wp: p.wp,
+    P: p.P,
+    zWp: p.zWp,
+    zP: p.zP,
+    zWpStable: p.zWpStable,
+    zPStable: p.zPStable,
+    raw: p.raw,
+    finalResumeIndex: R
+  };
+
+  team.resumeBreakdown_v2 = { ...team.resumeBreakdown };
+  team.resumeSystem = 'legacy';
+}
+
 // ---------- Résumé Context Score (R) V2 ----------
 
 function computeResumeContextForTeam(team, opts = MI_V2_DEFAULTS) {
@@ -4314,6 +4493,7 @@ function computeResumeContextForTeam(team, opts = MI_V2_DEFAULTS) {
 
     team.resumeBreakdown = null;
     team.resumeBreakdown_v2 = null;
+    team.resumeSystem = 'quadrant';
     return;
   }
 
@@ -4343,6 +4523,7 @@ function computeResumeContextForTeam(team, opts = MI_V2_DEFAULTS) {
   team.resumeConfidenceTrust_v2 = confTrust;
 
   team.resumeBreakdown = {
+    system: 'quadrant',
     q1Stable: p.q1Stable,
     q2Stable: p.q2Stable,
     qwc: p.qwc,
@@ -4362,6 +4543,7 @@ function computeResumeContextForTeam(team, opts = MI_V2_DEFAULTS) {
   };
 
   team.resumeBreakdown_v2 = { ...team.resumeBreakdown };
+  team.resumeSystem = 'quadrant';
 }
 
 // ---------- Interaction Metrics (Directional, Continuous, Gated) ----------
@@ -4762,9 +4944,14 @@ function computeProfileMarks(team) {
 // Two-pass baseline orchestration
 // ------------------------------------------------------------
 function computeAllTeamLayers(opts = MI_V2_DEFAULTS) {
-  prepareResumeContextStatsV2();
-
+  const useLegacyResume = miDatasetUsesLegacyResume();
   const teams = Object.values(TEAMS || {});
+
+  if (useLegacyResume) {
+    prepareResumeContextStatsLegacy();
+  } else {
+    prepareResumeContextStatsV2();
+  }
 
   // PASS 1: résumé trust + raw baseline pieces
   teams.forEach(team => {
@@ -4772,7 +4959,12 @@ function computeAllTeamLayers(opts = MI_V2_DEFAULTS) {
       team.opp_ast_poss = team.oapp;
     }
 
-    computeResumeContextForTeam(team, opts);
+    if (useLegacyResume) {
+      computeResumeContextForTeamLegacy(team, opts);
+    } else {
+      computeResumeContextForTeam(team, opts);
+    }
+
     computeCoreForTeam(team, opts);
 
     team.raw_base = Number.isFinite(team.foundation) ? team.foundation : 0;
@@ -4843,14 +5035,21 @@ function computeStaticIdentities() {
   const n = teams.length;
   if (!n) return;
 
-  // 1) Make sure V2 baseline + résumé trust are populated
+  const useLegacyResume = miDatasetUsesLegacyResume();
+
+  // 1) Make sure baseline + résumé trust are populated
   const needsResumeRefresh = teams.some(team =>
     typeof team.resumeBaseTrust !== 'number' || !Number.isFinite(team.resumeBaseTrust)
   );
 
   if (needsResumeRefresh) {
-    prepareResumeContextStatsV2();
-    teams.forEach(team => computeResumeContextForTeam(team));
+    if (useLegacyResume) {
+      prepareResumeContextStatsLegacy();
+      teams.forEach(team => computeResumeContextForTeamLegacy(team));
+    } else {
+      prepareResumeContextStatsV2();
+      teams.forEach(team => computeResumeContextForTeam(team));
+    }
   }
 
   teams.forEach(team => {
@@ -5752,12 +5951,23 @@ function compareTeams(teamAName, teamBName, roleMode = 'auto', opts = MI_V2_DEFA
   if (a.opp_ast_poss == null && a.oapp != null) a.opp_ast_poss = a.oapp;
   if (b.opp_ast_poss == null && b.oapp != null) b.opp_ast_poss = b.oapp;
 
+  const useLegacyResume = miDatasetUsesLegacyResume();
+
   // Ensure full-field résumé stats exist
-  prepareResumeContextStatsV2();
+  if (useLegacyResume) {
+    prepareResumeContextStatsLegacy();
+  } else {
+    prepareResumeContextStatsV2();
+  }
 
   // Refresh selected teams
-  computeResumeContextForTeam(a, opts);
-  computeResumeContextForTeam(b, opts);
+  if (useLegacyResume) {
+    computeResumeContextForTeamLegacy(a, opts);
+    computeResumeContextForTeamLegacy(b, opts);
+  } else {
+    computeResumeContextForTeam(a, opts);
+    computeResumeContextForTeam(b, opts);
+  }
 
   // Canonical core pass now includes split breadth inside foundation
   computeCoreForTeam(a, opts);
@@ -5773,7 +5983,13 @@ function compareTeams(teamAName, teamBName, roleMode = 'auto', opts = MI_V2_DEFA
   const volatility = computeMatchupVolatility(a, b);  
 
   const activeRound = CURRENT_ROUND;
-  const seedMeta = getSeedRoundMeta(a.seed, b.seed, activeRound);
+  const seedMeta = getSeedRoundMeta(
+    a.seed,
+    b.seed,
+    activeRound,
+    a.region,
+    b.region
+  );
 
   const miA_raw = computeFinalMI(a, interactions.a, opts);
   const miB_raw = computeFinalMI(b, interactions.b, opts);
@@ -5914,7 +6130,7 @@ function compareTeams(teamAName, teamBName, roleMode = 'auto', opts = MI_V2_DEFA
   miRenderShelf();
   syncCoreTraitsProfileSectionHeights();
 
-  console.log('V2 RESULT', result);
+  console.log(`${useLegacyResume ? 'LEGACY' : 'QUADRANT'} RESULT`, result);
   return result;
 }
 
@@ -9329,7 +9545,12 @@ function enterMatchupQuickEdit() {
 
     let possibleRounds = null;
     if (hasBothSeeds) {
-      possibleRounds = getPossibleRoundsForSeeds(seedA, seedB);
+      possibleRounds = getPossibleRoundsForSeeds(
+        seedA,
+        seedB,
+        teamA?.region,
+        teamB?.region
+      );
     }
 
     for (const opt of rSelQ.options) {
@@ -11059,7 +11280,14 @@ function updateRoundOptionsForCurrentSeeds() {
   }
 
   const isFirst4Pair = isFirstFourSeedPlayIn(teamA.seed, teamB.seed);
-  const allowedRounds = new Set(getPossibleRoundsForSeeds(teamA.seed, teamB.seed));
+  const allowedRounds = new Set(
+    getPossibleRoundsForSeeds(
+      teamA.seed,
+      teamB.seed,
+      teamA.region,
+      teamB.region
+    )
+  );
 
   roundDropdown.querySelectorAll(".round-option").forEach(opt => {
     const code = opt.getAttribute("data-round");
@@ -11363,6 +11591,29 @@ function miGetCurrentDatasetMeta() {
     season,
     filename
   };
+}
+
+function miGetResumeSystemForSeason(season) {
+  const yr = Number(season);
+
+  if (!Number.isFinite(yr)) {
+    return 'quadrant';
+  }
+
+  return yr <= 2019 ? 'legacy' : 'quadrant';
+}
+
+function miGetCurrentResumeSystem() {
+  const meta = miGetCurrentDatasetMeta();
+  return miGetResumeSystemForSeason(meta?.season);
+}
+
+function miDatasetUsesLegacyResume() {
+  return miGetCurrentResumeSystem() === 'legacy';
+}
+
+function miDatasetUsesQuadrantResume() {
+  return miGetCurrentResumeSystem() === 'quadrant';
 }
 
 function miGetRoundLabelSafe(roundCode) {
@@ -12287,7 +12538,13 @@ function setupEventListeners() {
 
       // 🔥 ONLY enforce legal rounds when Sandbox mode is OFF
       if (!SANDBOX_MODE) {
-        const allowedRounds = getPossibleRoundsForSeeds(teamA.seed, teamB.seed);
+        const allowedRounds = getPossibleRoundsForSeeds(
+          teamA.seed,
+          teamB.seed,
+          teamA.region,
+          teamB.region
+        );
+
         if (!allowedRounds.includes(CURRENT_ROUND)) {
           alert(
             `As seeds ${teamA.seed} and ${teamB.seed}, these teams can only meet in: ` +
@@ -13230,7 +13487,7 @@ function miForceMobileScrollUnlock() {
 // Build Version — must match service-worker.js and index.html
 // =========================================================
 
-const MI_BUILD = '34';
+const MI_BUILD = '35';
 
 function bootMadnessIndex() {
   console.log("[MI] bootMadnessIndex fired");

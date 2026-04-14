@@ -14628,7 +14628,7 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
 
 .mi-eff-module .mi-eff-seg{
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: max-content auto;
   align-items: center;
   gap: 10px;
   padding: 11px 0;
@@ -15606,8 +15606,6 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
 .mi-eff-value {
   display: block;
   text-align: center;
-
-  margin-top: 4px;
 }
 
 /* Emphasis row (Combined Margin) — keep centered */
@@ -22710,11 +22708,8 @@ section.profile-section.flip-tile .subtotal-row.profile-subtotal-row {
 }
 
 .mi-eff-module .mi-eff-value {
-  text-align: left !important;
-}
-
-.mi-eff-module .mi-eff-seg {
-  gap: 2px !important;
+  text-align: center !important;
+  letter-spacing: 0.04em !important;
 }
 
 .mi-eff-meta {
@@ -23113,8 +23108,8 @@ section.profile-section.flip-tile .subtotal-row.profile-subtotal-row {
   -webkit-backdrop-filter: blur(4px) saturate(0.92) !important;
 
   box-shadow:
-    0 6px 18px rgba(0,0,0,0.16) !important,
-    inset 0 0 0 1px rgba(255,255,255,0.035) !important;
+    0 6px 18px rgba(0,0,0,0.16) !important;
+    inset: 0 0 1px rgba(255,255,255,0.035) !important;
 }
 
 /* -----------------------------------------
@@ -23233,7 +23228,7 @@ section.profile-section.flip-tile .subtotal-row.profile-subtotal-row {
 
 #cindCard > .flip-inner,
 #favCard > .flip-inner {
-  background-color: rgba(4, 170, 109, 0.3); !important;
+  background-color: rgba(4, 170, 109, 0.3); 
 }
 
 #interactionsSection .interaction-table.mi-interaction-table .mi-int-label-main {
@@ -23343,4 +23338,9 @@ section.profile-section.flip-tile .subtotal-row.profile-subtotal-row {
 
 #interactionsSection .interactions-right.interactions-diagnostics-tile {
   display: block !important;
+}
+
+.context-tile .tile-face.tile-front{
+  height: auto;
+  min-height: unset;
 }

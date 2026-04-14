@@ -69,6 +69,7 @@
     pointer-events: none !important;
     user-select: none !important;
   }
+}
 
 /* =============================================
    § HEADER — Mobile layout
@@ -5197,28 +5198,28 @@
   .mi-marks-back-list br {
     display: none !important;
   }
-}
 
-.mi-marks-back-summary{
-  position: relative;
-  padding-bottom: 2px !important;
-  margin-bottom: 0 !important;
-}
+  .mi-marks-back-summary{
+    position: relative;
+    padding-bottom: 2px !important;
+    margin-bottom: 0 !important;
+  }
 
-.mi-marks-back-summary::after{
-  content: "";
-  display: block;
-  width: calc(100% - 8px);
-  height: 1px;
-  margin: 5px auto 0;
-  border-radius: 999px;
-  background: linear-gradient(
-    90deg,
-    rgba(255,255,255,0),
-    rgba(255,255,255,0.12) 20%,
-    rgba(255,255,255,0.30) 50%,
-    rgba(255,255,255,0.12) 80%,
-    rgba(255,255,255,0)
-  );
-  box-shadow: 0 0 8px rgba(255,255,255,0.10);
+  .mi-marks-back-summary::after{
+    content: "";
+    display: block;
+    width: calc(100% - 8px);
+    height: 1px;
+    margin: 5px auto 0;
+    border-radius: 999px;
+    background: linear-gradient(
+      90deg,
+      rgba(255,255,255,0),
+      rgba(255,255,255,0.12) 20%,
+      rgba(255,255,255,0.30) 50%,
+      rgba(255,255,255,0.12) 80%,
+      rgba(255,255,255,0)
+    );
+    box-shadow: 0 0 8px rgba(255,255,255,0.10);
+  }
 }
