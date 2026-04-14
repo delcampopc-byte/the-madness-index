@@ -321,7 +321,7 @@
 
   "northern-kentucky": {
     "team": "Northern Kentucky",
-    "aliases": ["Northern Kentucky", "Northern Kentucky Norse"],
+    "aliases": ["Northern Kentucky", "Northern Kentucky Norse", "N. Kentucky", "N. Kentucky Norse"],
     "shortName": "N. Kentucky",
     "primary": "#FFC72C",
     "secondary": "#FFFFFF",
@@ -1762,8 +1762,8 @@
     "team": "Middle Tennessee",
     "aliases": ["Middle Tennessee", "Middle Tennessee Blue Raiders", "Middle Tennessee State", "Middle Tennessee State Blue Raiders", "MTSU", "MTSU Blue Raiders"],
     "shortName": "MTSU",
-    "primary": "#000000",
-    "secondary": "#0066CC",
+    "primary": "#0066CC",
+    "secondary": "#000000",
     "tertiary": "#69B3E7",
     "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2393.png"
   },
@@ -1989,8 +1989,8 @@
 
   "stephen-austin": {
     "team": "Stephen F. Austin",
-    "aliases": ["Stephen F. Austin", "Stephen F. Austin Lumberjacks", "SFA", "SFA Lumberjacks"],
-    "shortName": "SFA",
+    "aliases": ["Stephen F. Austin", "SF Austin", "SF Austin Lumberjacks", "Stephen F. Austin Lumberjacks", "SFA", "SFA Lumberjacks"],
+    "shortName": "SF Austin",
     "primary": "#613393",
     "secondary": "#FFFFFF",
     "tertiary": "#613393",
@@ -2429,7 +2429,7 @@
 
   "saint-joseph": {
     "team": "St. Joseph's",
-    "aliases": ["St. Joseph", "St. Joseph's", "St. Joseph's Hawks", "St. Joseph Hawks"],
+    "aliases": ["St. Joseph", "Saint Joseph's", "Saint Joseph's Hawks", "St. Joseph's", "St. Joseph's Hawks", "St. Joseph Hawks"],
     "shortName": "St. Joseph's",
     "primary": "#9E1B32",
     "secondary": "#6C6F70",
@@ -2695,6 +2695,106 @@
     "secondary": "#0F0708",
     "tertiary": "#FFFFFF",
     "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/325.png"
+  },
+
+  "radford": {
+    "team": "Radford",
+    "aliases": ["Radford", "Radford Highlanders"],
+    "shortName": "Radford",
+    "primary": "#C2011B",
+    "secondary": "#D1D3D4",
+    "tertiary": "#003C71",
+    "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2519.png"
+  },
+
+  "rhode-island": {
+    "team": "Rhode Island",
+    "aliases": ["Rhode Island", "Rhode Island Rams"],
+    "shortName": "Rhode Island",
+    "primary": "#68ABE8",
+    "secondary": "#FFFFFF",
+    "tertiary": "#002147",
+    "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/227.png"
+  },
+
+  "umbc": {
+    "team": "UMBC",
+    "aliases": ["UMBC", "UMBC Retrievers"],
+    "shortName": "UMBC",
+    "primary": "#B18906",
+    "secondary": "#FFC20E",
+    "tertiary": "#ED1C24",
+    "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2378.png"
+  },
+
+  "green-bay": {
+    "team": "Green Bay",
+    "aliases": ["Green Bay", "Green Bay Phoenix"],
+    "shortName": "Green Bay",
+    "primary": "#006747",
+    "secondary": "#9D2235",
+    "tertiary": "#8A8D8F",
+    "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2739.png"
+  },
+
+  "cal-state-bakersfield": {
+    "team": "CSU Bakersfield",
+    "aliases": ["CSU Bakersfield", "CSU Bakersfield Roadrunners", "Cal State University Bakersfield", "Cal State University Bakersfield Roadrunners", "CSUB", "CSUB Roadrunners"],
+    "shortName": "CSU-B",
+    "primary": "#FFC72C",
+    "secondary": "#003594",
+    "tertiary": "#FFFFFF",
+    "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2934.png"
+  },
+
+  "holy-cross": {
+    "team": "Holy Cross",
+    "aliases": ["Holy Cross", "Holy Cross Crusaders"],
+    "shortName": "Holy Cross",
+    "primary": "#602D89",
+    "secondary": "#FFFFFF",
+    "tertiary": "#000000",
+    "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/107.png"
+  },
+
+  "hampton": {
+    "team": "Hampton",
+    "aliases": ["Hampton", "Hampton Pirates"],
+    "shortName": "Hampton",
+    "primary": "#FFFFFF",
+    "secondary": "#0060A9",
+    "tertiary": "#FFFFFF",
+    "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2261.png"
+  },
+
+  "little-rock": {
+    "team": "Little Rock",
+    "aliases": ["Little Rock", "Little Rock Trojans", "Arkansas Little Rock", "Arkansas Little Rock Trojans"],
+    "shortName": "Little Rock",
+    "primary": "#6E2639",
+    "secondary": "#A7A9AC",
+    "tertiary": "#000000",
+    "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2031.png"
+  },
+
+  "north-dakota": {
+    "team": "North Dakota",
+    "aliases": ["North Dakota", "North Dakota Fighting Hawks"],
+    "shortName": "North Dakota",
+    "primary": "#009A44",
+    "secondary": "#AAAEAD",
+    "tertiary": "#000000",
+    "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/155.png"
+  },
+
+  "eastern-tennessee": {
+    "team": "Eastern Tennessee State",
+    "aliases": ["ETSU", "ETSU Buccaneers", "Eastern Tennessee State", "Eastern Tennessee St.", "Eastern Tennessee State Buccaneers", "Eastern Tennessee St. Buccaneers"],
+    "shortName": "ETSU",
+    "primary": "#FFC72C",
+    "secondary": "#041E42",
+    "tertiary": "#FFFFFF",
+    "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2193.png"
   },
 
   "hartford": {
