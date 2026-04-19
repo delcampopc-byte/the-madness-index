@@ -1,0 +1,76 @@
+<svg class="mi-delta-mark mi-delta-mark--painted" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
+  <defs>
+    <!-- Base “metal” gradient (top-left highlight → bottom-right shade) -->
+    <linearGradient id="miDeltaMetal" x1="12" y1="10" x2="52" y2="56" gradientUnits="userSpaceOnUse">
+      <stop offset="0"   stop-color="currentColor" stop-opacity="0.98"/>
+      <stop offset="0.38" stop-color="currentColor" stop-opacity="0.86"/>
+      <stop offset="0.72" stop-color="currentColor" stop-opacity="0.70"/>
+      <stop offset="1"   stop-color="currentColor" stop-opacity="0.92"/>
+    </linearGradient>
+
+    <!-- Soft specular highlight band -->
+    <linearGradient id="miDeltaSpec" x1="16" y1="12" x2="44" y2="44" gradientUnits="userSpaceOnUse">
+      <stop offset="0"   stop-color="#ffffff" stop-opacity="0.22"/>
+      <stop offset="0.40" stop-color="#ffffff" stop-opacity="0.10"/>
+      <stop offset="1"   stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+
+    <!-- Slight edge darkening (adds depth) -->
+    <radialGradient id="miDeltaVignette" cx="26" cy="20" r="44" gradientUnits="userSpaceOnUse">
+      <stop offset="0"   stop-color="#000000" stop-opacity="0"/>
+      <stop offset="0.78" stop-color="#000000" stop-opacity="0.12"/>
+      <stop offset="1"   stop-color="#000000" stop-opacity="0.22"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Optional brackets: keep them, but make them quieter -->
+  <g fill="currentColor" opacity="0.40">
+    <path d="M10 20h8v4h-4v6h-4z"/>
+    <path d="M10 44h4v6h4v4h-8z"/>
+    <path d="M54 20h-8v4h4v6h4z"/>
+    <path d="M54 44h-4v6h-4v4h8z"/>
+  </g>
+
+  <!-- Delta ring (base) -->
+  <path fill="url(#miDeltaMetal)" fill-rule="evenodd" d="
+    M32 10
+    L50 52
+    H43.5
+    L32 25.5
+    L20.5 52
+    H14
+    Z
+
+    M32 29.2
+    L38.6 44.6
+    H25.4
+    Z
+  "/>
+
+  <!-- Edge depth pass -->
+  <path fill="url(#miDeltaVignette)" fill-rule="evenodd" d="
+    M32 10
+    L50 52
+    H43.5
+    L32 25.5
+    L20.5 52
+    H14
+    Z
+
+    M32 29.2
+    L38.6 44.6
+    H25.4
+    Z
+  "/>
+
+  <!-- Specular highlight overlay (soft, top-left) -->
+  <path fill="url(#miDeltaSpec)" opacity="0.95" d="
+    M32 12
+    L47 47
+    H42
+    L32 24
+    L22 47
+    H18
+    Z
+  "/>
+</svg>
