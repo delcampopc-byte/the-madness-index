@@ -11,12 +11,12 @@
   <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
 
   <!-- Core styles -->
-  <link rel="stylesheet" href="styles2.css?v=35" />
-  <link rel="stylesheet" href="mobile.css?v=35" />
+  <link rel="stylesheet" href="styles2.css?v=38" />
+  <link rel="stylesheet" href="mobile.css?v=38" />
   <link rel="icon" type="image/png" href="assets/img/logos/madness-index-app-logo.PNG" />
 
   <!-- PWA manifest -->
-  <link rel="manifest" href="manifest.json?v=35" />
+  <link rel="manifest" href="manifest.json?v=38" />
 </head>
 <body>
 
@@ -59,1487 +59,1509 @@
   </div>
 </div>
 <!-- =============================================================== -->
+<div id="preMatchup">
   <div class="app-shell pre-matchup">
-   <!-- ================= HEADER ================= -->
-<header class="app-header enhanced-header">
+    <!-- ================= HEADER ================= -->
+    <header class="app-header enhanced-header">
 
-  <div class="hero-logo-wrap">
-    <img
-      src="assets/img/logos/madness-index-home-logo.png"
-      alt="Madness Index Logo"
-      class="hero-logo"
-    />
-  </div>
-
-  <div class="hero-text-wrap">
-    <p class="hero-tagline" data-copy="hero.tagline"></p>
-    <p class="hero-subtitle">
-      <span data-copy="hero.subtitle"></span>
-      <span class="hero-sub-highlight" data-copy="hero.subtitle_highlight"></span>
-    </p>
-  </div>
-
-  <div class="version-notes-anchor">
-    <button
-      id="versionBadgeBtn"
-      class="version-badge version-badge-btn"
-      type="button"
-      aria-haspopup="dialog"
-      aria-expanded="false"
-    >
-      <span class="vb-line1">
-        <span id="versionBadgeText">Version 1.0 (Build 4.0)</span>
-        <span class="vb-new" aria-hidden="true">NEW</span>
-      </span>
-      <span class="vb-hint">Click for Patch Notes</span>
-    </button>
-
-    <div
-      id="versionNotes"
-      class="version-notes"
-      role="dialog"
-      aria-hidden="true"
-      aria-label="Patch notes"
-    >
-      <div
-        class="version-notes-title"
-        data-copy="patch_notes.title"
-      >
-        Patch Notes
+      <div class="hero-logo-wrap">
+        <img
+          src="assets/img/logos/madness-index-home-logo.png"
+          alt="Madness Index Logo"
+          class="hero-logo"
+        />
       </div>
 
-      <!-- JS will render patch notes into this list -->
-      <ul
-        id="versionNotesList"
-        class="version-notes-list"
-      ></ul>
-    </div>
-  </div>
+      <div class="hero-text-wrap">
+        <p class="hero-tagline" data-copy="hero.tagline"></p>
+        <p class="hero-subtitle">
+          <span data-copy="hero.subtitle"></span>
+          <span class="hero-sub-highlight" data-copy="hero.subtitle_highlight"></span>
+        </p>
+      </div>
 
-</header>
+      <div class="version-notes-anchor">
+        <button
+          id="versionBadgeBtn"
+          class="version-badge version-badge-btn"
+          type="button"
+          aria-haspopup="dialog"
+          aria-expanded="false"
+        >
+          <span class="vb-line1">
+            <span id="versionBadgeText">Version 1.0 (Build 4.0)</span>
+            <span class="vb-new" aria-hidden="true">NEW</span>
+          </span>
+          <span class="vb-hint">Click for Patch Notes</span>
+        </button>
 
-<!-- PRE-MATCHUP PROGRESS BAR (moved under hero) -->
+        <div
+          id="versionNotes"
+          class="version-notes"
+          role="dialog"
+          aria-hidden="true"
+          aria-label="Patch notes"
+        >
+          <div
+            class="version-notes-title"
+            data-copy="patch_notes.title"
+          >
+            Patch Notes
+          </div>
 
-<section id="preHubStatusWrap" class="pre-header-status">
-  <div class="pre-hub-status" id="preHubStatus" role="status" aria-live="polite">
-    <span class="pre-status-label" data-copy="prematch.progress.status_label"></span>
-    <span id="preStatusText" class="pre-status-text"></span>
-
-    <div class="pre-status-bar" aria-hidden="true">
-      <div id="preStatusFill" class="pre-status-fill"></div>
-    </div>
-  </div>
-</section>
-
-<!-- ========== PRE-MATCHUP 3-COLUMN SETUP ROW ========== -->
-<section id="preSetupRow" class="pre-setup-row top-bar">
-
-  <!-- COL 1: Start a Matchup (dynamic single-step) -->
-<section id="preMatchupHub" class="card pre-matchup-hub">
-  <div class="pre-hub-inner">
-
-    <div class="round-step-label" data-copy="controls.step0_label">Matchup Status</div>
-
-    <div class="pre-hub-steps pre-hub-status-grid">
-      <div class="pre-step pre-step--status" id="preStep1">
-        <div class="pre-step-num">1</div>
-        <div class="pre-step-copy">
-          <div class="pre-step-label" id="preStepLabel1" data-copy="prematch.progress.step1">Dataset</div>
-          <div class="pre-step-text" id="preStepText1">Not loaded</div>
+          <!-- JS will render patch notes into this list -->
+          <ul
+            id="versionNotesList"
+            class="version-notes-list"
+          ></ul>
         </div>
-        <div class="pre-step-status" id="preStepStatus1">Pending</div>
       </div>
 
-      <div class="pre-step pre-step--status" id="preStep2">
-        <div class="pre-step-num">2</div>
-        <div class="pre-step-copy">
-          <div class="pre-step-label" id="preStepLabel2" data-copy="prematch.progress.step2">Teams</div>
-          <div class="pre-step-text" id="preStepText2">Waiting for selections</div>
+    </header>
+
+    <!-- PRE-MATCHUP PROGRESS BAR (moved under hero) -->
+    <section id="preHubStatusWrap" class="pre-header-status">
+      <div class="pre-hub-status" id="preHubStatus" role="status" aria-live="polite">
+        <span class="pre-status-label" data-copy="prematch.progress.status_label"></span>
+        <span id="preStatusText" class="pre-status-text"></span>
+
+        <div class="pre-status-bar" aria-hidden="true">
+          <div id="preStatusFill" class="pre-status-fill"></div>
         </div>
-        <div class="pre-step-status" id="preStepStatus2">Locked</div>
       </div>
+    </section>
 
-      <div class="pre-step pre-step--status" id="preStep3">
-        <div class="pre-step-num">3</div>
-        <div class="pre-step-copy">
-          <div class="pre-step-label" id="preStepLabel3" data-copy="prematch.progress.step3">Round + Run</div>
-          <div class="pre-step-text" id="preStepText3">Round not selected</div>
+    <!-- ========== PRE-MATCHUP 3-COLUMN SETUP ROW ========== -->
+    <section id="preSetupRow" class="pre-setup-row top-bar">
+
+      <!-- COL 1: Start a Matchup (dynamic single-step) -->
+      <section id="preMatchupHub" class="card pre-matchup-hub">
+        <div class="pre-hub-inner">
+
+          <div class="round-step-label" data-copy="controls.step0_label">Matchup Status</div>
+
+          <div class="pre-hub-steps pre-hub-status-grid">
+            <div class="pre-step pre-step--status" id="preStep1">
+              <div class="pre-step-num">1</div>
+              <div class="pre-step-copy">
+                <div class="pre-step-label" id="preStepLabel1" data-copy="prematch.progress.step1">Dataset</div>
+                <div class="pre-step-text" id="preStepText1">Not loaded</div>
+              </div>
+              <div class="pre-step-status" id="preStepStatus1">Pending</div>
+            </div>
+
+            <div class="pre-step pre-step--status" id="preStep2">
+              <div class="pre-step-num">2</div>
+              <div class="pre-step-copy">
+                <div class="pre-step-label" id="preStepLabel2" data-copy="prematch.progress.step2">Teams</div>
+                <div class="pre-step-text" id="preStepText2">Waiting for selections</div>
+              </div>
+              <div class="pre-step-status" id="preStepStatus2">Locked</div>
+            </div>
+
+            <div class="pre-step pre-step--status" id="preStep3">
+              <div class="pre-step-num">3</div>
+              <div class="pre-step-copy">
+                <div class="pre-step-label" id="preStepLabel3" data-copy="prematch.progress.step3">Round + Run</div>
+                <div class="pre-step-text" id="preStepText3">Round not selected</div>
+              </div>
+              <div class="pre-step-status" id="preStepStatus3">Locked</div>
+            </div>
+          </div>
         </div>
-        <div class="pre-step-status" id="preStepStatus3">Locked</div>
-      </div>
-    </div>
-    </div>
-  </section>
+      </section>
 
-  <!-- COL 2: CSV / Dataset -->
-  <div class="card controls-card is-primary-entry" id="datasetCard">
-    <div class="round-step-label" data-copy="controls.step1_label">STEP 1: Load Tournament Data</div>
+      <!-- COL 2: CSV / Dataset -->
+      <div class="card controls-card is-primary-entry" id="datasetCard">
+        <div class="round-step-label" data-copy="controls.step1_label">STEP 1: Load Tournament Data</div>
 
-    <div class="controls-grid">
-      <div class="dataset-select-wrap">
-        <select id="datasetSelect">
-          <option value="" disabled selected data-copy="controls.dataset_placeholder">Select a dataset…</option>
+        <div class="controls-grid">
+          <div class="dataset-select-wrap">
+            <select id="datasetSelect">
+              <option value="" disabled selected data-copy="controls.dataset_placeholder">Select a dataset…</option>
 
-          <option value="data/csvs/mi_2026_official.csv" data-filename="MadnessIndex_2026_Official.csv">
-            2026 Official Tournament Field
-          </option>
+              <option value="data/csvs/mi_2026_official.csv" data-filename="MadnessIndex_2026_Official.csv">
+                2026 Official Tournament Field
+              </option>
 
-          <option value="data/csvs/mi_2025_official.csv" data-filename="MadnessIndex_2025_Official.csv">
-            2025 Official Tournament Field
-          </option>
+              <option value="data/csvs/mi_2025_official.csv" data-filename="MadnessIndex_2025_Official.csv">
+                2025 Official Tournament Field
+              </option>
 
-          <option value="data/csvs/mi_2024_official.csv" data-filename="MadnessIndex_2024_Official.csv">
-            2024 Official Tournament Field
-          </option>
+              <option value="data/csvs/mi_2024_official.csv" data-filename="MadnessIndex_2024_Official.csv">
+                2024 Official Tournament Field
+              </option>
 
-          <option value="data/csvs/mi_2023_official.csv" data-filename="MadnessIndex_2023_Official.csv">
-            2023 Official Tournament Field
-          </option>
+              <option value="data/csvs/mi_2023_official.csv" data-filename="MadnessIndex_2023_Official.csv">
+                2023 Official Tournament Field
+              </option>
 
-          <option value="data/csvs/mi_2022_official.csv" data-filename="MadnessIndex_2022_Official.csv">
-            2022 Official Tournament Field
-          </option>
+              <option value="data/csvs/mi_2022_official.csv" data-filename="MadnessIndex_2022_Official.csv">
+                2022 Official Tournament Field
+              </option>
 
-      <option value="data/csvs/mi_2021_official.csv" data-filename="MadnessIndex_2021_Official.csv">
-            2021 Official Tournament Field
-          </option>
+              <option value="data/csvs/mi_2021_official.csv" data-filename="MadnessIndex_2021_Official.csv">
+                2021 Official Tournament Field
+              </option>
 
-      <option value="data/csvs/mi_2019_official.csv" data-filename="MadnessIndex_2019_Official.csv">
-            2019 Official Tournament Field
-          </option>
-        </select>
-      </div>
+              <option value="data/csvs/mi_2019_official.csv" data-filename="MadnessIndex_2019_Official.csv">
+                2019 Official Tournament Field
+              </option>
 
-      <div class="or-divider" aria-hidden="true">
-        <span>OR</span>
-      </div>
+              <option value="data/csvs/mi_2018_official.csv" data-filename="MadnessIndex_2018_Official.csv">
+                2018 Official Tournament Field
+              </option>
 
-      <label for="csvFile" class="file-label file-label--manual">
-        <span data-copy="controls.csv_label_manual">Upload CSV manually</span>
-        <input type="file" id="csvFile" accept=".csv" />
-      </label>
-    </div>
+              <option value="data/csvs/mi_2017_official.csv" data-filename="MadnessIndex_2017_Official.csv">
+                2017 Official Tournament Field
+              </option>
 
-    <div id="status" class="status"></div>
-  </div>
-
-  <!-- COL 3: Team / Round / Run (3-row grid) -->
-  <div class="card controls-card matchup-setup-card" id="matchupSetupCard">
-
-    <div class="matchup-steps">
-      <!-- ROW 1 -->
-      <div class="matchup-step mc-row" id="mcRow1">
-        <div class="round-step-label step-label" data-copy="controls.step2_label">STEP 2: Select Teams</div>
-
-        <div class="control-row">
-          <div class="select-wrap home-team-select" id="teamASelectWrap">
-            <select id="teamA" data-dd-context="home">
-              <option value="" disabled selected>Select Team A</option>
+              <option value="data/csvs/mi_2016_official.csv" data-filename="MadnessIndex_2016_Official.csv">
+                2016 Official Tournament Field
+              </option>
             </select>
           </div>
 
-        <div class="select-wrap home-team-select" id="teamBSelectWrap">
-          <select id="teamB" data-dd-context="home">
-            <option value="" disabled selected>Select Team B</option>
-          </select>
-        </div>
-      </div>
-    </div>
-      <!-- ROW 2 -->
-      <div class="matchup-step mc-row" id="mcRow2">
-        <div class="round-step-label" data-copy="controls.step3_label">STEP 3: Select Round</div>
-
-        <div class="round-control-row">
-          <div class="round-selector-wrap" id="roundSelectorWrap">
-            <button id="roundSelectBtn" class="btn ghost round-btn">Select Round</button>
-            <div id="roundDropdown" class="round-dropdown hidden">
-              <div class="round-option" data-round="R64" data-copy="rounds.R64">Round of 64</div>
-              <div class="round-option" data-round="R32" data-copy="rounds.R32">Round of 32</div>
-              <div class="round-option" data-round="S16" data-copy="rounds.S16">Sweet Sixteen</div>
-              <div class="round-option" data-round="E8" data-copy="rounds.E8">Elite Eight</div>
-              <div class="round-option" data-round="First4" data-copy="rounds.First4">First Four</div>
-              <div class="round-option" data-round="F4" data-copy="rounds.F4">Final Four</div>
-              <div class="round-option" data-round="Champ" data-copy="rounds.Champ">Championship</div>
-            </div>
+          <div class="or-divider" aria-hidden="true">
+            <span>OR</span>
           </div>
 
-          <label class="sandbox-toggle enhanced-sandbox" data-tooltip="Ignores bracket round constraints">
-            <input type="checkbox" id="sandboxModeToggle" />
-            <span>Sandbox</span>
+          <label for="csvFile" class="file-label file-label--manual">
+            <span data-copy="controls.csv_label_manual">Upload CSV manually</span>
+            <input type="file" id="csvFile" accept=".csv" />
           </label>
         </div>
+
+        <div id="status" class="status"></div>
       </div>
 
-      <!-- ROW 3 -->
-      <div class="matchup-step mc-row" id="mcRow3">
-        <div class="round-step-label" data-copy="controls.step4_label">STEP 4: Run the Matchup</div>
+      <!-- COL 3: Team / Round / Run (3-row grid) -->
+      <div class="card controls-card matchup-setup-card" id="matchupSetupCard">
 
-        <p id="roundHelp" class="helper-text" data-copy="controls.round_help"></p>
+        <div class="matchup-steps">
+          <!-- ROW 1 -->
+          <div class="matchup-step mc-row" id="mcRow1">
+            <div class="round-step-label step-label" data-copy="controls.step2_label">STEP 2: Select Teams</div>
 
-        <div class="matchup-actions-row">
-          <button id="compareBtn" class="btn primary compare-btn-disabled" disabled>
-            <span data-copy="controls.compare_btn">Compare Matchup</span>
-          </button>
+            <div class="control-row">
+              <div class="select-wrap home-team-select" id="teamASelectWrap">
+                <select id="teamA" data-dd-context="home">
+                  <option value="" disabled selected>Select Team A</option>
+                </select>
+              </div>
 
-          <!-- Clear Workflow State -->
-          <button
-            id="clearWorkflowStateBtn"
-            class="btn ghost clear-workflow-btn"
-            type="button"
-            aria-label="Reset workflow"
-            title="Reset all selections"
-          >
-            Reset Workflow
-          </button>
-
-        </div>
-      </div>
-
-    </div>
-  </div>
-</section>
-
-<section id="matchupBar" class="matchup-bar">
-  <section class="mi-matchup-backplate" aria-label="Recent matchups" hidden>
-    <div class="mi-log-label matchup-kicker">MATCHUP LOG</div>
-    <div id="miLogTop3" class="mi-log-top3"></div>
-    <button id="miLogMoreBtn" class="mi-log-more-btn" type="button"
-            aria-haspopup="true" aria-expanded="false"
-            aria-controls="miLogMorePanel" hidden>
-      More
-    </button>
-
-    <div id="miLogMorePanel" class="mi-log-more-panel" hidden>
-      <div id="miLogMoreList" class="mi-log-more-list"></div>
-    </div>
-  </section>
-
-  <div class="mi-matchup-dock card">
-    <div class="matchup-bar-main">
-      <div class="matchup-controls-label matchup-kicker">MATCHUP CONTROLS</div>
-
-      <!-- LEFT: CINDERELLA -->
-      <div class="matchup-bar-left">
-        <span id="matchupRoleA" class="matchup-bar-label">Cinderella</span>
-        <div class="matchup-bar-team">
-          <span id="matchupCinderName">Team A</span>
-          <span id="matchupCinderSeed" class="matchup-bar-seed"></span>
-        </div>
-        <div id="matchupQuickA" class="matchup-quick-slot" aria-hidden="true"></div>
-      </div>
-
-      <!-- CENTER -->
-<div class="matchup-bar-center">
-  <div class="matchup-bar-vs">vs</div>
-  <span id="matchupRoundPill" class="summary-round-pill matchup-bar-round">Round</span>
-  <button id="editMatchupBtn" class="matchup-bar-edit" type="button">Edit matchup ▾</button>
-
-  <div
-    id="matchupQuickDataset"
-    class="matchup-quick-slot matchup-quick-dataset"
-    aria-hidden="true"
-  ></div>
-
-  <div
-    id="matchupQuickRound"
-    class="matchup-quick-slot matchup-quick-round"
-    aria-hidden="true"
-  ></div>
-
-  <div class="matchup-quick-actions" aria-hidden="true">
-    <button id="matchupQuickRun" class="btn primary matchup-quick-run" type="button">Run</button>
-    <button id="matchupQuickCancel" class="btn ghost matchup-quick-cancel" type="button">Cancel</button>
-
-
-  </div>
-</div>
-
-      <!-- RIGHT: FAVORITE -->
-      <div class="matchup-bar-right">
-        <span id="matchupRoleB" class="matchup-bar-label">Favorite</span>
-        <div class="matchup-bar-team">
-          <span id="matchupFavoriteName">Team B</span>
-          <span id="matchupFavoriteSeed" class="matchup-bar-seed"></span>
-        </div>
-        <div id="matchupQuickB" class="matchup-quick-slot" aria-hidden="true"></div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ========== VERDICT (ALWAYS VISIBLE POST-MATCHUP) ========== -->
-<section id="verdictShell" class="card mi-verdict-shell hidden" aria-live="polite">
-  <div class="mi-verdict-shell-inner">
-
-    <div class="mi-verdict-grid">
-      <!-- LEFT (75%): Verdict proclamation -->
-      <div class="mi-verdict-main">
-        <div class="mi-scorebug-top">
-          <div class="mi-scorebug-kicker">
-            <img 
-              src="assets/img/logos/madness-index-vertical4.png" 
-              alt="The Madness Index"
-              class="mi-vert-logo"
-            />
+              <div class="select-wrap home-team-select" id="teamBSelectWrap">
+                <select id="teamB" data-dd-context="home">
+                  <option value="" disabled selected>Select Team B</option>
+                </select>
+              </div>
+            </div>
           </div>
 
-    <div class="mi-scorebug-line" id="miVerdictLine" data-copy="verdict.metrics.primary_text">—</div>
+          <!-- ROW 2 -->
+          <div class="matchup-step mc-row" id="mcRow2">
+            <div class="round-step-label" data-copy="controls.step3_label">STEP 3: Select Round</div>
 
-    <div
-      class="mi-verdict-inline-actions"
-      id="miVerdictInlineActions"
-      aria-label="Matchup result actions"
-      hidden
-    >
-      <button
-        id="shareMatchupBtn"
-        class="btn ghost mi-verdict-action-btn"
-        type="button"
-        disabled
-        aria-label="Share matchup result"
+            <div class="round-control-row">
+              <div class="round-selector-wrap" id="roundSelectorWrap">
+                <button id="roundSelectBtn" class="btn ghost round-btn">Select Round</button>
+                <div id="roundDropdown" class="round-dropdown hidden">
+                  <div class="round-option" data-round="R64" data-copy="rounds.R64">Round of 64</div>
+                  <div class="round-option" data-round="R32" data-copy="rounds.R32">Round of 32</div>
+                  <div class="round-option" data-round="S16" data-copy="rounds.S16">Sweet Sixteen</div>
+                  <div class="round-option" data-round="E8" data-copy="rounds.E8">Elite Eight</div>
+                  <div class="round-option" data-round="First4" data-copy="rounds.First4">First Four</div>
+                  <div class="round-option" data-round="F4" data-copy="rounds.F4">Final Four</div>
+                  <div class="round-option" data-round="Champ" data-copy="rounds.Champ">Championship</div>
+                </div>
+              </div>
+
+              <label class="sandbox-toggle enhanced-sandbox" data-tooltip="Ignores bracket round constraints">
+                <input type="checkbox" id="sandboxModeToggle" />
+                <span>Sandbox</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- ROW 3 -->
+          <div class="matchup-step mc-row" id="mcRow3">
+            <div class="round-step-label" data-copy="controls.step4_label">STEP 4: Run the Matchup</div>
+            <div class="matchup-actions-row">
+              <button id="compareBtn" class="btn primary compare-btn-disabled" disabled>
+                <span data-copy="controls.compare_btn">Compare Matchup</span>
+              </button>
+
+              <!-- Clear Workflow State -->
+              <button
+                id="clearWorkflowStateBtn"
+                class="btn ghost clear-workflow-btn"
+                type="button"
+                aria-label="Reset workflow"
+                title="Reset all selections"
+              >
+                Reset Workflow
+              </button>
+
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<div id="postMatchup" class="hidden">
+  <div id="postMatchupTop">
+    <section id="matchupBar" class="matchup-bar">
+      <section class="mi-matchup-backplate" aria-label="Recent matchups" hidden>
+       <div class="mi-log-head">
+         <button
+           id="miLogShelfToggle"
+           class="mi-log-label matchup-kicker mi-log-toggle"
+           type="button"
+           aria-expanded="false"
+           aria-controls="miLogShelfPanel"
+           data-tooltip="Click to Expand"
+         >
+           MATCHUP LOG
+         </button>
+        </div>
+
+      <div
+        id="miLogShelfPanel"
+        class="mi-log-shelf-panel"
+        hidden
       >
-        Share Matchup
-      </button>
+        <div id="miLogTop3" class="mi-log-top3"></div>
 
-      <button
-        id="saveMatchupImageBtn"
-        class="btn ghost mi-verdict-action-btn"
-        type="button"
-        disabled
-        aria-label="Save matchup image"
-      >
-        Save Image
-      </button>
-    </div>
-  </div>
-</div>
-
-      <!-- RIGHT (25%): Evidence rail -->
-      <aside class="mi-verdict-rail" aria-label="Evidence rail">
-        <!-- MI Flip Tile (front: numbers, back: meaning + action) -->
-<div class="flip-tile mi-scorebug-score mi-verdict-metrics-tile" id="miVerdictMetricsTile" aria-label="Madness Index metrics">
-  <div class="flip-tile-inner">
-
-    <!-- FRONT -->
-    <div class="tile-face tile-front">
-      <div class="mi-scorebug-grid">
-
-        <div class="mi-scorebug-team mi-scorebug-team--a">
-  <div class="mi-scorebug-team-head">
-  <div id="miScorebugBrandA" class="mi-team-brand mi-team-brand--scorebug">
-    <img id="miScorebugLogoA" class="mi-team-brand-logo" alt="" hidden>
-    <span id="miScorebugTeamA" class="mi-team-brand-name">Team A</span>
-  </div>
-</div>
-
-  <div class="mi-scorebug-team-lines">
-    <div class="mi-scorebug-team-line mi-scorebug-team-line--metric">
-      <div class="mi-scorebug-mini-label">Baseline MI</div>
-      <div class="mi-scorebug-mini-metric">
-        <div class="mi-scorebug-mini-bar" aria-hidden="true">
-          <span class="mi-scorebug-mini-center"></span>
-          <span id="miScorebugBaseBarAneg" class="mi-scorebug-mini-fill mi-scorebug-mini-fill-neg"></span>
-          <span id="miScorebugBaseBarApos" class="mi-scorebug-mini-fill mi-scorebug-mini-fill-pos"></span>
+        <div id="miLogMorePanel" class="mi-log-more-panel">
+          <div id="miLogMoreList" class="mi-log-more-list"></div>
         </div>
-        <span id="miScorebugBaseA" class="mi-scorebug-mini-value">—</span>
       </div>
-      <span id="miScorebugBaseSrA" class="sr-only"></span>
-    </div>
+    </section>
 
-    <div class="mi-scorebug-team-line mi-scorebug-team-line--metric">
-      <div class="mi-scorebug-mini-label">Matchup MI</div>
-      <div class="mi-scorebug-mini-metric">
-        <div class="mi-scorebug-mini-bar" aria-hidden="true">
-          <span class="mi-scorebug-mini-center"></span>
-          <span id="miScorebugMatchBarAneg" class="mi-scorebug-mini-fill mi-scorebug-mini-fill-neg"></span>
-          <span id="miScorebugMatchBarApos" class="mi-scorebug-mini-fill mi-scorebug-mini-fill-pos"></span>
+      <div class="mi-matchup-dock card">
+        <div class="matchup-bar-main">
+          <div class="matchup-controls-label matchup-kicker">MATCHUP CONTROLS</div>
+
+          <!-- LEFT: CINDERELLA -->
+          <div class="matchup-bar-left">
+            <span id="matchupRoleA" class="matchup-bar-label">Cinderella</span>
+            <div class="matchup-bar-team">
+              <span id="matchupCinderName">Team A</span>
+              <span id="matchupCinderSeed" class="matchup-bar-seed"></span>
+            </div>
+            <div id="matchupQuickA" class="matchup-quick-slot" aria-hidden="true"></div>
+          </div>
+
+          <!-- CENTER -->
+          <div class="matchup-bar-center">
+            <div class="matchup-bar-vs">vs</div>
+            <span id="matchupRoundPill" class="summary-round-pill matchup-bar-round">Round</span>
+            <button id="editMatchupBtn" class="matchup-bar-edit" type="button">Edit matchup ▾</button>
+
+            <div
+              id="matchupQuickDataset"
+              class="matchup-quick-slot matchup-quick-dataset"
+              aria-hidden="true"
+            ></div>
+
+            <div
+              id="matchupQuickRound"
+              class="matchup-quick-slot matchup-quick-round"
+              aria-hidden="true"
+            ></div>
+
+            <div class="matchup-quick-actions" aria-hidden="true">
+              <button id="matchupQuickRun" class="btn primary matchup-quick-run" type="button">Run</button>
+              <button id="matchupQuickCancel" class="btn ghost matchup-quick-cancel" type="button">Cancel</button>
+            </div>
+          </div>
+
+          <!-- RIGHT: FAVORITE -->
+          <div class="matchup-bar-right">
+            <span id="matchupRoleB" class="matchup-bar-label">Favorite</span>
+            <div class="matchup-bar-team">
+              <span id="matchupFavoriteName">Team B</span>
+              <span id="matchupFavoriteSeed" class="matchup-bar-seed"></span>
+            </div>
+            <div id="matchupQuickB" class="matchup-quick-slot" aria-hidden="true"></div>
+          </div>
         </div>
-        <span id="miScorebugMatchA" class="mi-scorebug-mini-value">—</span>
       </div>
-      <span id="miScorebugMatchSrA" class="sr-only"></span>
-    </div>
-  </div>
-</div>
+    </section>
 
-<div class="mi-scorebug-team mi-scorebug-team--b">
-<div class="mi-scorebug-team-head">
-  <div id="miScorebugBrandB" class="mi-team-brand mi-team-brand--scorebug">
-    <img id="miScorebugLogoB" class="mi-team-brand-logo" alt="" hidden>
-    <span id="miScorebugTeamB" class="mi-team-brand-name">Team B</span>
-  </div>
-</div>
+    <!-- ========== VERDICT (ALWAYS VISIBLE POST-MATCHUP) ========== -->
+    <section id="verdictShell" class="card mi-verdict-shell hidden" aria-live="polite">
+      <div class="mi-verdict-shell-inner">
 
-  <div class="mi-scorebug-team-lines">
-    <div class="mi-scorebug-team-line mi-scorebug-team-line--metric">
-      <div class="mi-scorebug-mini-label">Baseline MI</div>
-      <div class="mi-scorebug-mini-metric">
-        <div class="mi-scorebug-mini-bar" aria-hidden="true">
-          <span class="mi-scorebug-mini-center"></span>
-          <span id="miScorebugBaseBarBneg" class="mi-scorebug-mini-fill mi-scorebug-mini-fill-neg"></span>
-          <span id="miScorebugBaseBarBpos" class="mi-scorebug-mini-fill mi-scorebug-mini-fill-pos"></span>
+        <div class="mi-verdict-grid">
+          <!-- LEFT (75%): Verdict proclamation -->
+          <div class="mi-verdict-main">
+            <div class="mi-scorebug-top">
+              <div class="mi-scorebug-kicker">
+                <img 
+                  src="assets/img/logos/madness-index-vertical4.png" 
+                  alt="The Madness Index"
+                  class="mi-vert-logo"
+                />
+              </div>
+
+              <div class="mi-scorebug-line" id="miVerdictLine" data-copy="verdict.metrics.primary_text">—</div>
+
+              <div
+                class="mi-verdict-inline-actions"
+                id="miVerdictInlineActions"
+                aria-label="Matchup result actions"
+                hidden
+              >
+                <button
+                  id="shareMatchupBtn"
+                  class="btn ghost mi-verdict-action-btn"
+                  type="button"
+                  disabled
+                  aria-label="Share matchup result"
+                >
+                  Share Matchup
+                </button>
+
+                <button
+                  id="saveMatchupImageBtn"
+                  class="btn ghost mi-verdict-action-btn"
+                  type="button"
+                  disabled
+                  aria-label="Save matchup image"
+                >
+                  Save Image
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- RIGHT (25%): Evidence rail -->
+          <aside class="mi-verdict-rail" aria-label="Evidence rail">
+            <!-- MI Flip Tile (front: numbers, back: meaning + action) -->
+            <div class="flip-tile mi-scorebug-score mi-verdict-metrics-tile" id="miVerdictMetricsTile" aria-label="Madness Index metrics">
+              <div class="flip-tile-inner">
+
+                <!-- FRONT -->
+                <div class="tile-face tile-front">
+                  <div class="mi-scorebug-grid">
+
+                    <div class="mi-scorebug-team mi-scorebug-team--a">
+                      <div class="mi-scorebug-team-head">
+                        <div id="miScorebugBrandA" class="mi-team-brand mi-team-brand--scorebug">
+                          <img id="miScorebugLogoA" class="mi-team-brand-logo" alt="" hidden>
+                          <span id="miScorebugTeamA" class="mi-team-brand-name">Team A</span>
+                        </div>
+                      </div>
+
+                      <div class="mi-scorebug-team-lines">
+                        <div class="mi-scorebug-team-line mi-scorebug-team-line--metric">
+                          <div class="mi-scorebug-mini-label">Baseline MI</div>
+                          <div class="mi-scorebug-mini-metric">
+                            <div class="mi-scorebug-mini-bar" aria-hidden="true">
+                              <span class="mi-scorebug-mini-center"></span>
+                              <span id="miScorebugBaseBarAneg" class="mi-scorebug-mini-fill mi-scorebug-mini-fill-neg"></span>
+                              <span id="miScorebugBaseBarApos" class="mi-scorebug-mini-fill mi-scorebug-mini-fill-pos"></span>
+                            </div>
+                            <span id="miScorebugBaseA" class="mi-scorebug-mini-value">—</span>
+                          </div>
+                          <span id="miScorebugBaseSrA" class="sr-only"></span>
+                        </div>
+
+                        <div class="mi-scorebug-team-line mi-scorebug-team-line--metric">
+                          <div class="mi-scorebug-mini-label">Matchup MI</div>
+                          <div class="mi-scorebug-mini-metric">
+                            <div class="mi-scorebug-mini-bar" aria-hidden="true">
+                              <span class="mi-scorebug-mini-center"></span>
+                              <span id="miScorebugMatchBarAneg" class="mi-scorebug-mini-fill mi-scorebug-mini-fill-neg"></span>
+                              <span id="miScorebugMatchBarApos" class="mi-scorebug-mini-fill mi-scorebug-mini-fill-pos"></span>
+                            </div>
+                            <span id="miScorebugMatchA" class="mi-scorebug-mini-value">—</span>
+                          </div>
+                          <span id="miScorebugMatchSrA" class="sr-only"></span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="mi-scorebug-team mi-scorebug-team--b">
+                      <div class="mi-scorebug-team-head">
+                        <div id="miScorebugBrandB" class="mi-team-brand mi-team-brand--scorebug">
+                          <img id="miScorebugLogoB" class="mi-team-brand-logo" alt="" hidden>
+                          <span id="miScorebugTeamB" class="mi-team-brand-name">Team B</span>
+                        </div>
+                      </div>
+
+                      <div class="mi-scorebug-team-lines">
+                        <div class="mi-scorebug-team-line mi-scorebug-team-line--metric">
+                          <div class="mi-scorebug-mini-label">Baseline MI</div>
+                          <div class="mi-scorebug-mini-metric">
+                            <div class="mi-scorebug-mini-bar" aria-hidden="true">
+                              <span class="mi-scorebug-mini-center"></span>
+                              <span id="miScorebugBaseBarBneg" class="mi-scorebug-mini-fill mi-scorebug-mini-fill-neg"></span>
+                              <span id="miScorebugBaseBarBpos" class="mi-scorebug-mini-fill mi-scorebug-mini-fill-pos"></span>
+                            </div>
+                            <span id="miScorebugBaseB" class="mi-scorebug-mini-value">—</span>
+                          </div>
+                          <span id="miScorebugBaseSrB" class="sr-only"></span>
+                        </div>
+
+                        <div class="mi-scorebug-team-line mi-scorebug-team-line--metric">
+                          <div class="mi-scorebug-mini-label">Matchup MI</div>
+                          <div class="mi-scorebug-mini-metric">
+                            <div class="mi-scorebug-mini-bar" aria-hidden="true">
+                              <span class="mi-scorebug-mini-center"></span>
+                              <span id="miScorebugMatchBarBneg" class="mi-scorebug-mini-fill mi-scorebug-mini-fill-neg"></span>
+                              <span id="miScorebugMatchBarBpos" class="mi-scorebug-mini-fill mi-scorebug-mini-fill-pos"></span>
+                            </div>
+                            <span id="miScorebugMatchB" class="mi-scorebug-mini-value">—</span>
+                          </div>
+                          <span id="miScorebugMatchSrB" class="sr-only"></span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="mi-scorebug-gap">
+                      <span class="mi-scorebug-gap-label">
+                        <svg class="mi-delta-mark"
+                             viewBox="0 0 10.754103 9.3092775"
+                             preserveAspectRatio="xMidYMid meet"
+                             aria-hidden="true"
+                             focusable="false"
+                             title="Madness Delta">
+                          <use href="#mi-delta-symbol" x="0" y="0" width="100%" height="100%"></use>
+                        </svg>
+                      </span>
+
+                      <span id="miScorebugGapValue" class="mi-scorebug-gap-value">—</span>
+                    </div>
+                    <div class="mi-metrics-hint mi-flip-hint">Flip for context</div>
+                  </div>
+                </div>
+
+                <!-- BACK -->
+                <div class="tile-face tile-back">
+                  <div class="mi-metrics-back-text" data-copy="verdict.metrics.back_text"></div>
+                </div>
+
+              </div>
+            </div>
+          </aside>
         </div>
-        <span id="miScorebugBaseB" class="mi-scorebug-mini-value">—</span>
-      </div>
-      <span id="miScorebugBaseSrB" class="sr-only"></span>
-    </div>
 
-    <div class="mi-scorebug-team-line mi-scorebug-team-line--metric">
-      <div class="mi-scorebug-mini-label">Matchup MI</div>
-      <div class="mi-scorebug-mini-metric">
-        <div class="mi-scorebug-mini-bar" aria-hidden="true">
-          <span class="mi-scorebug-mini-center"></span>
-          <span id="miScorebugMatchBarBneg" class="mi-scorebug-mini-fill mi-scorebug-mini-fill-neg"></span>
-          <span id="miScorebugMatchBarBpos" class="mi-scorebug-mini-fill mi-scorebug-mini-fill-pos"></span>
-        </div>
-        <span id="miScorebugMatchB" class="mi-scorebug-mini-value">—</span>
-      </div>
-      <span id="miScorebugMatchSrB" class="sr-only"></span>
-    </div>
-  </div>
-</div>
-
-        <div class="mi-scorebug-gap">
-          <span class="mi-scorebug-gap-label">
-            <svg class="mi-delta-mark"
-                 viewBox="0 0 10.754103 9.3092775"
-                 preserveAspectRatio="xMidYMid meet"
-                 aria-hidden="true"
-                 focusable="false"
-                 title="Madness Delta">
-              <use href="#mi-delta-symbol" x="0" y="0" width="100%" height="100%"></use>
-            </svg>
-           </span>
-
-          <span id="miScorebugGapValue" class="mi-scorebug-gap-value">—</span>
-        </div>
-          <div class="mi-metrics-hint mi-flip-hint">Flip for context</div>
-      </div>
-    </div>
-
-    <!-- BACK -->
-    <div class="tile-face tile-back">
-      <div class="mi-metrics-back-text" data-copy="verdict.metrics.back_text"></div>
-    </div>
-
-  </div>
-</div>
-      </aside>
-    </div>
-
-    <!-- tiny footer (calibration / disclaimer) -->
-    <div class="mi-verdict-footer">
-     <span id="miVerdictDisclaimer"
-        class="mi-verdict-disclaimer"
-        data-copy="verdict.metrics.disclaimer_line"></span>
-    </div>
-
-    <div class="mi-verdict-actions mi-verdict-actions-rail">
-      <button id="miEvidenceToggle" class="mi-evidence-toggle" type="button" aria-expanded="false">
-        View Full Scorecard <span class="mi-chev" aria-hidden="true">▾</span>
-      </button>
-    </div>  
-  </div>
-</section>
-
-<!-- ========== ANALYSIS (HIDDEN UNTIL MATCHUP RUNS) ========== -->
-<div id="analysisShell" class="analysis-shell hidden">
-
-<!-- ================ CORE TRAITS & TEAM SCORECARDS ================ -->
-<main id="result" class="result-layout">
-
-  <!-- ============================================================= -->
-  <!-- ===================== CINDERELLA CARD ======================= -->
-  <!-- ============================================================= -->
-  <section id="cindCard" class="team-card card">
-    <div class="flip-inner">
-
-      <!-- ===================== FRONT FACE ====================== -->
-      <div class="card-face card-front">
-
-        <!-- Header -->
-<header class="team-card-header">
-  <div class="team-card-header-main">
-    <div class="team-card-brand-stack">
-  <span id="roleTagA" class="role-tag cind-tag">Cinderella</span>
-
-  <div id="teamABrand" class="mi-team-brand mi-team-brand--card">
-    <img id="teamALogo" class="mi-team-brand-logo" alt="" hidden>
-    <h2 id="teamATitle" class="mi-team-brand-name">Team A</h2>
-  </div>
-</div>  
-</div>
-
-  <div class="seed-label"><span id="teamASeed"></span></div>
-</header>
-        <!-- Core Traits Mini Flip Tile -->
-  <section class="profile-section flip-tile">
-  <div class="flip-tile-inner">
-
-    <!-- FRONT -->
-    <div class="tile-face tile-front">
-      <div class="section-header">
-        <div class="matchup-kicker">Core Traits Profile</div>
-      </div>
-
-<table id="cindProfileTableA" class="explain-table mi-core-table"></table>
-<template id="miCoreTableTemplate">
-  <thead>
-    <tr>
-      <th class="mi-core-col-battlefield">Battlefield</th>
-      <th class="mi-core-col-spread">Spread</th>
-      <th class="mi-core-col-standing">Standing</th>
-      <th class="mi-core-col-tier">Tier</th>
-      <th class="mi-core-col-impact">Impact</th>
-    </tr>
-  </thead>
-  <tbody></tbody>
-</template>
-
-<template id="miCoreSectionRowTemplate">
-  <tr class="mi-core-section-row">
-    <th class="mi-core-section-title" colspan="5"></th>
-  </tr>
-</template>
-
-<template id="miCoreMetricRowTemplate">
-  <tr class="mi-core-metric-row">
-    <td class="mi-core-battlefield"></td>
-
-    <td class="mi-core-spread">
-      <span class="mi-core-spread-pill"></span>
-    </td>
-
-    <td class="mi-core-standing-cell">
-      <div class="mi-standing-wrap">
-        <div class="mi-standing-bar" aria-hidden="true">
-          <span class="mi-standing-fill"></span>
-          <span class="mi-standing-median"></span>
+        <!-- tiny footer (calibration / disclaimer) -->
+        <div class="mi-verdict-footer">
+          <span id="miVerdictDisclaimer"
+            class="mi-verdict-disclaimer"
+            data-copy="verdict.metrics.disclaimer_line"></span>
         </div>
 
-        <span class="mi-standing-sr sr-only"></span>
+        <div class="mi-verdict-actions mi-verdict-actions-rail">
+          <button id="miEvidenceToggle" class="mi-evidence-toggle" type="button" aria-expanded="false">
+            View Full Scorecard <span class="mi-chev" aria-hidden="true">▾</span>
+          </button>
+        </div>  
       </div>
-    </td>
-
-    <td class="mi-core-tier"></td>
-
-    <td class="mi-core-impact">
-      <span class="mi-core-impact-value"></span>
-    </td>
-  </tr>
-</template>
-
-<div id="cindProfileExplainA" class="explain-panel"></div>
-      <div class="profile-support-row">
-        <div class="mi-eff-module" id="miEffModuleA" aria-label="Madness Index efficiency metrics">
-  <div class="mi-eff-header">MI Efficiency Metrics</div>
-
-  <div class="mi-eff-seg">
-    <div class="mi-eff-meta">
-      <span class="mi-eff-label">Offensive Signal</span>
-      <span class="mi-eff-helper">sum of offensive impacts</span>
-    </div>
-    <span id="miEffOffA" class="mi-eff-value">0.0</span>
+    </section>
   </div>
 
-  <div class="mi-eff-seg">
-    <div class="mi-eff-meta">
-      <span class="mi-eff-label">Defensive Signal</span>
-      <span class="mi-eff-helper">sum of defensive impacts</span>
-    </div>
-    <span id="miEffDefA" class="mi-eff-value">0.0</span>
-  </div>
+  <!-- ========== ANALYSIS (HIDDEN UNTIL MATCHUP RUNS) ========== -->
+  <div id="analysisShell" class="analysis-shell hidden">
 
-  <div class="mi-eff-seg is-emphasis">
-    <div class="mi-eff-meta">
-      <span class="mi-eff-label">Combined Margin</span>
-      <span class="mi-eff-helper">offense + defense</span>
-    </div>
-    <span id="miEffMarginA" class="mi-eff-value">0.0</span>
-  </div>
-</div>
+    <!-- ================ CORE TRAITS & TEAM SCORECARDS ================ -->
+    <main id="result" class="result-layout">
 
-        <div id="resumeTileA" class="context-tile context-neutral flip-tile profile-resume-tile">
+      <!-- ============================================================= -->
+      <!-- ===================== CINDERELLA CARD ======================= -->
+      <!-- ============================================================= -->
+      <section id="cindCard" class="team-card card">
+        <div class="flip-inner">
+
+          <!-- ===================== FRONT FACE ====================== -->
+          <div class="card-face card-front">
+
+            <!-- Header -->
+            <header class="team-card-header">
+              <div class="team-card-header-main">
+                <div class="team-card-brand-stack">
+                  <span id="roleTagA" class="role-tag cind-tag">Cinderella</span>
+
+                  <div id="teamABrand" class="mi-team-brand mi-team-brand--card">
+                    <img id="teamALogo" class="mi-team-brand-logo" alt="" hidden>
+                    <h2 id="teamATitle" class="mi-team-brand-name">Team A</h2>
+                  </div>
+                </div>  
+              </div>
+
+              <div class="seed-label"><span id="teamASeed"></span></div>
+            </header>
+
+            <!-- Core Traits Mini Flip Tile -->
+            <section class="profile-section flip-tile">
+              <div class="flip-tile-inner">
+
+                <!-- FRONT -->
+                <div class="tile-face tile-front">
+                  <div class="section-header">
+                    <div class="matchup-kicker">Core Traits Profile</div>
+                  </div>
+
+                  <table id="cindProfileTableA" class="explain-table mi-core-table"></table>
+                  <template id="miCoreTableTemplate">
+                    <thead>
+                      <tr>
+                        <th class="mi-core-col-battlefield">Battlefield</th>
+                        <th class="mi-core-col-spread">Spread</th>
+                        <th class="mi-core-col-standing">Standing</th>
+                        <th class="mi-core-col-tier">Tier</th>
+                        <th class="mi-core-col-impact">Impact</th>
+                      </tr>
+                    </thead>
+                    <tbody></tbody>
+                  </template>
+
+                  <template id="miCoreSectionRowTemplate">
+                    <tr class="mi-core-section-row">
+                      <th class="mi-core-section-title" colspan="5"></th>
+                    </tr>
+                  </template>
+
+                  <template id="miCoreMetricRowTemplate">
+                    <tr class="mi-core-metric-row">
+                      <td class="mi-core-battlefield"></td>
+
+                      <td class="mi-core-spread">
+                        <span class="mi-core-spread-pill"></span>
+                      </td>
+
+                      <td class="mi-core-standing-cell">
+                        <div class="mi-standing-wrap">
+                          <div class="mi-standing-bar" aria-hidden="true">
+                            <span class="mi-standing-fill"></span>
+                            <span class="mi-standing-median"></span>
+                          </div>
+
+                          <span class="mi-standing-sr sr-only"></span>
+                        </div>
+                      </td>
+
+                      <td class="mi-core-tier"></td>
+
+                      <td class="mi-core-impact">
+                        <span class="mi-core-impact-value"></span>
+                      </td>
+                    </tr>
+                  </template>
+
+                  <div id="cindProfileExplainA" class="explain-panel"></div>
+
+                  <div class="profile-support-row">
+                    <div class="mi-eff-module" id="miEffModuleA" aria-label="Madness Index efficiency metrics">
+                      <div class="mi-eff-header">MI Efficiency Metrics</div>
+
+                      <div class="mi-eff-seg">
+                        <div class="mi-eff-meta">
+                          <span class="mi-eff-label">Offensive Signal</span>
+                          <span class="mi-eff-helper">sum of offensive impacts</span>
+                        </div>
+                        <span id="miEffOffA" class="mi-eff-value">0.0</span>
+                      </div>
+
+                      <div class="mi-eff-seg">
+                        <div class="mi-eff-meta">
+                          <span class="mi-eff-label">Defensive Signal</span>
+                          <span class="mi-eff-helper">sum of defensive impacts</span>
+                        </div>
+                        <span id="miEffDefA" class="mi-eff-value">0.0</span>
+                      </div>
+
+                      <div class="mi-eff-seg is-emphasis">
+                        <div class="mi-eff-meta">
+                          <span class="mi-eff-label">Combined Margin</span>
+                          <span class="mi-eff-helper">offense + defense</span>
+                        </div>
+                        <span id="miEffMarginA" class="mi-eff-value">0.0</span>
+                      </div>
+                    </div>
+
+                    <div id="resumeTileA" class="context-tile context-neutral profile-resume-tile profile-static-tile">
+                      <div class="tile-face tile-front">
+                        <div class="context-header">
+                          <span class="context-label" data-copy="card.resume_label">Résumé Context</span>
+                          <span id="resumeAdjA" class="context-score">Average</span>
+                        </div>
+                        <div class="context-subrow">
+                          <span id="resumeTierA" class="context-tier">Base Trust ×1.00</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="subtotal-row profile-subtotal-row">
+                    <div class="subtotal-main">
+                      <span data-copy="card.profile_subtotal">Profile Subtotal</span>
+                      <span id="cindSubtotalA" class="subtotal-value">0.00</span>
+                    </div>
+
+                    <div id="identityInlineA" class="subtotal-identity identity-inline-neutral">
+                      <div class="identity-inline-kicker">Tournament Identity</div>
+
+                      <div class="identity-inline-main">
+                        <span id="identityScoreA" class="identity-inline-badge">—</span>
+
+                        <div class="identity-inline-meta">
+                          <span id="identityRoleA" class="identity-inline-label">Neutral</span>
+                          <span id="identityDetailA" class="identity-inline-detail">No active identity signal</span>
+                        </div>
+
+                        <div class="identity-meter">
+                          <div id="identityMeterFillA" class="identity-meter-fill"></div>
+                        </div>
+                      </div>
+
+                      <div class="seed-fit-inline seed-fit-inline-neutral" id="seedFitInlineA">
+                        <div class="seed-fit-inline-header">Seed Fit</div>
+                        <div class="seed-fit-inline-main">
+                          <span id="seedFitScoreA" class="seed-fit-inline-badge">—</span>
+                          <div class="seed-fit-inline-meta">
+                            <span id="seedFitLabelA" class="seed-fit-inline-label">Unavailable</span>
+                            <span id="seedFitDetailA" class="seed-fit-inline-detail">No seed-fit reading available</span>
+                          </div>
+                        </div>
+                        <div id="seedFitNarrativeA" class="seed-fit-inline-narrative"></div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <p id="backIdentityA" class="back-line hidden"></p>
+
+                  <div class="mi-metrics-hint mi-flip-hint">Flip for context</div>
+                </div>
+
+                <!-- BACK -->
+                <div class="tile-face tile-back">
+                  <div id="backCoreTileA" class="back-line core-back-container"></div>
+                  <p class="back-helper" data-copy="card.tile_back_helper_core">
+                    Tap again to return to the full Core Traits table.
+                  </p>
+                </div>
+
+              </div>
+            </section>
+
+            <!-- Profile Marks (full-width row) -->
+            <div class="team-card-marks">
+              <div id="marksTileA" class="context-tile context-neutral inline-marks-tile flip-tile">
+                <div class="flip-tile-inner">
+
+                  <!-- FRONT -->
+                  <div class="tile-face tile-front">
+                    <div class="marks-front">
+                      <div class="marks-front-header context-header marks-header">
+                        <div class="marks-header-text matchup-kicker">Profile Marks</div>
+                      </div>
+
+                      <div class="marks-front-body context-subrow">
+                        <div id="inlineMarksA" class="inline-marks-strip"></div>
+                      </div>
+                    </div>
+                    <div class="mi-metrics-hint mi-flip-hint">Flip for context</div>
+                  </div>
+
+                  <!-- BACK -->
+                  <div class="tile-face tile-back">
+                    <h4 data-copy="card.marks_tile_header">Explanation:</h4>
+                    <p id="backMarksTileA" class="back-line"></p>
+                    <p class="back-helper" data-copy="card.tile_back_helper_marks">
+                      Tap again to see the badges.
+                    </p>
+                  </div>
+
+                </div>
+              </div>
+            </div><!-- END card-front -->
+
+            <!-- ===================== BACK FACE ====================== -->
+
+          </div><!-- END flip-inner -->
+        </div>
+      </section>
+
+      <!-- ============================================================= -->
+      <!-- ======================= FAVORITE CARD ======================= -->
+      <!-- ============================================================= -->
+      <section id="favCard" class="team-card card">
+        <div class="flip-inner">
+
+          <!-- ===================== FRONT FACE ====================== -->
+          <div class="card-face card-front">
+
+            <!-- Header -->
+            <header class="team-card-header">
+              <div class="team-card-header-main">
+                <div class="team-card-brand-stack">
+                  <span id="roleTagB" class="role-tag fav-tag">Favorite</span>
+
+                  <div id="teamBBrand" class="mi-team-brand mi-team-brand--card">
+                    <img id="teamBLogo" class="mi-team-brand-logo" alt="" hidden>
+                    <h2 id="teamBTitle" class="mi-team-brand-name">Team B</h2>
+                  </div>
+                </div>
+              </div>
+
+              <div class="seed-label"><span id="teamBSeed"></span></div>
+            </header>        
+
+            <!-- Favorite Profile (Core Traits + Breadth) — MINI FLIP TILE -->
+            <section class="profile-section flip-tile">
+              <div class="flip-tile-inner">
+
+                <!-- FRONT -->
+                <div class="tile-face tile-front">
+                  <div class="section-header">
+                    <div class="matchup-kicker">Core Traits Profile</div>
+                  </div>
+
+                  <table id="favProfileTableB" class="explain-table mi-core-table"></table>
+
+                  <div id="favProfileExplainB" class="explain-panel"></div>
+
+                  <div class="profile-support-row">
+                    <div class="mi-eff-module" id="miEffModuleB" aria-label="Madness Index efficiency metrics">
+                      <div class="mi-eff-header">MI Efficiency Metrics</div>
+
+                      <div class="mi-eff-seg">
+                        <div class="mi-eff-meta">
+                          <span class="mi-eff-label">Offensive Signal</span>
+                          <span class="mi-eff-helper">sum of offensive impacts</span>
+                        </div>
+                        <span id="miEffOffB" class="mi-eff-value">0.0</span>
+                      </div>
+
+                      <div class="mi-eff-seg">
+                        <div class="mi-eff-meta">
+                          <span class="mi-eff-label">Defensive Signal</span>
+                          <span class="mi-eff-helper">sum of defensive impacts</span>
+                        </div>
+                        <span id="miEffDefB" class="mi-eff-value">0.0</span>
+                      </div>
+
+                      <div class="mi-eff-seg is-emphasis">
+                        <div class="mi-eff-meta">
+                          <span class="mi-eff-label">Combined Margin</span>
+                          <span class="mi-eff-helper">offense + defense</span>
+                        </div>
+                        <span id="miEffMarginB" class="mi-eff-value">0.0</span>
+                      </div>
+                    </div>
+
+                    <div id="resumeTileB" class="context-tile context-neutral profile-resume-tile profile-static-tile">
+                      <div class="tile-face tile-front">
+                        <div class="context-header">
+                          <span class="context-label" data-copy="card.resume_label">Résumé Context</span>
+                          <span id="resumeAdjB" class="context-score">Average</span>
+                        </div>
+                        <div class="context-subrow">
+                          <span id="resumeTierB" class="context-tier">Base Trust ×1.00</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="subtotal-row profile-subtotal-row">
+                    <div class="subtotal-main">
+                      <span data-copy="card.profile_subtotal">Profile Subtotal</span>
+                      <span id="favSubtotalB" class="subtotal-value">0.00</span>
+                    </div>
+
+                    <div id="identityInlineB" class="subtotal-identity identity-inline-neutral">
+                      <div class="identity-inline-kicker">Tournament Identity</div>
+
+                      <div class="identity-inline-main">
+                        <span id="identityScoreB" class="identity-inline-badge">—</span>
+
+                        <div class="identity-inline-meta">
+                          <span id="identityRoleB" class="identity-inline-label">Neutral</span>
+                          <span id="identityDetailB" class="identity-inline-detail">No active identity signal</span>
+                        </div>
+
+                        <div class="identity-meter">
+                          <div id="identityMeterFillB" class="identity-meter-fill"></div>
+                        </div>
+                      </div>
+
+                      <div class="seed-fit-inline seed-fit-inline-neutral" id="seedFitInlineB">
+                        <div class="seed-fit-inline-header">Seed Fit</div>
+                        <div class="seed-fit-inline-main">
+                          <span id="seedFitScoreB" class="seed-fit-inline-badge">—</span>
+                          <div class="seed-fit-inline-meta">
+                            <span id="seedFitLabelB" class="seed-fit-inline-label">Unavailable</span>
+                            <span id="seedFitDetailB" class="seed-fit-inline-detail">No seed-fit reading available</span>
+                          </div>
+                        </div>
+                        <div id="seedFitNarrativeB" class="seed-fit-inline-narrative"></div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <p id="backIdentityB" class="back-line hidden"></p>
+
+                  <div class="mi-metrics-hint mi-flip-hint">Flip for context</div>
+                </div>
+
+                <!-- BACK -->
+                <div class="tile-face tile-back">
+                  <div id="backCoreTileB" class="back-line core-back-container"></div>
+                  <p class="back-helper" data-copy="card.tile_back_helper_core">
+                    Tap again to return to the full Core Traits table.
+                  </p>
+                </div>
+
+              </div>
+            </section>
+
+            <!-- Full-width Profile Marks row under Identity + Résumé -->
+            <div class="team-card-marks">
+              <div id="marksTileB" class="context-tile context-neutral inline-marks-tile flip-tile">
+                <div class="flip-tile-inner">
+
+                  <!-- FRONT -->
+                  <div class="tile-face tile-front">
+                    <div class="marks-front">
+                      <div class="marks-front-header context-header marks-header">
+                        <div class="marks-header-text matchup-kicker">Profile Marks</div>
+                      </div>
+
+                      <div class="marks-front-body context-subrow">
+                        <div id="inlineMarksB" class="inline-marks-strip"></div>
+                      </div>
+                    </div>
+                    <div class="mi-metrics-hint mi-flip-hint">Flip for context</div>
+                  </div>
+
+                  <!-- BACK -->
+                  <div class="tile-face tile-back">
+                    <h4 data-copy="card.marks_tile_header">Explanation:</h4>
+                    <p id="backMarksTileB" class="back-line"></p>
+                    <p class="back-helper" data-copy="card.tile_back_helper_marks">
+                      Tap again to see the badges.
+                    </p>
+                  </div>
+
+                </div>
+              </div>
+            </div><!-- END card-front -->
+
+            <!-- ===================== BACK FACE ====================== -->
+          </div><!-- END flip-inner -->
+        </div>
+      </section>
+
+    </main>
+
+    <!-- ================ INTERACTION METRICS TABLE ================ -->
+    <section id="interactionsSection" class="card interactions-card">
+      <div class="legend-header legend-header--interactions">
+        <div class="interactions-head interactions-head--left">
+          <div class="int-console-pill interactions-header-pill matchup-kicker">INTERACTION CHANNELS</div>
+        </div>
+
+        <div class="interactions-head interactions-head--right">
+          <div class="int-console-pill interactions-header-pill matchup-kicker">MATCHUP VOLATILITY</div>
+        </div>
+      </div>
+
+      <div class="interactions-grid">
+        <!-- LEFT: METRICS TILE -->
+        <div class="interactions-left interactions-left-tile flip-tile" id="interactionsFlipTile">
           <div class="flip-tile-inner">
-            <div class="tile-face tile-front">
-              <div class="context-header">
-                <span class="context-label" data-copy="card.resume_label">Résumé Context</span>
-                <span id="resumeAdjA" class="context-score">Average</span>
+
+            <!-- FRONT -->
+            <div class="tile-face tile-front interactions-front-face">
+              <div class="interaction-table-wrap">
+                <table id="interactionsTable" class="interaction-table mi-interaction-table">
+                  <thead>
+                    <tr>
+                      <th class="mi-int-col-label">Interaction</th>
+                      <th class="mi-int-col-bar">Leverage</th>
+                      <th class="mi-int-col-intensity">Intensity</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+
+                <template id="miInteractionRowTemplate">
+                  <tr class="mi-int-row">
+                    <td class="mi-int-label-cell">
+                      <div class="mi-int-label-main"></div>
+                      <div class="mi-int-label-sub"></div>
+                    </td>
+
+                    <td class="mi-int-bar-cell">
+                      <div class="mi-int-bar-wrap">
+                        <div class="mi-int-bar" aria-hidden="true">
+                          <span class="mi-int-bar-center"></span>
+                          <span class="mi-int-bar-fill mi-int-bar-fill-a"></span>
+                          <span class="mi-int-bar-fill mi-int-bar-fill-b"></span>
+                        </div>
+                        <span class="mi-int-bar-sr sr-only"></span>
+                      </div>
+                    </td>
+
+                    <td class="mi-int-intensity-cell">
+                      <span class="mi-int-intensity-pill"></span>
+                    </td>
+                  </tr>
+                </template>
               </div>
-              <div class="context-subrow">
-                <span id="resumeTierA" class="context-tier">Base Trust ×1.00</span>
+
+              <div id="interactionTotalsBar" class="interaction-totals-bar"></div>
+
+              <div
+                class="mi-metrics-hint mi-flip-hint interactions-flip-hint"
+                data-copy="interactions.flip_tile.front_hint">
+                Flip for channel guide
               </div>
-              <div class="mi-metrics-hint mi-flip-hint">Flip for context</div>
             </div>
 
-            <div class="tile-face tile-back">
-              <h4 data-copy="card.resume_tile_header">Explanation:</h4>
-              <p id="backResumeTileA" class="back-line"></p>
-              <p class="back-helper" data-copy="card.tile_back_helper_resume">
-                Tap again to see the résumé tile.
+            <!-- BACK -->
+            <div class="tile-face tile-back interactions-back-face">
+              <div
+                id="interactionsNarrativeHost"
+                class="int-console-body interactions-narrative-host"
+                aria-live="polite">
+              </div>
+
+              <p
+                class="back-helper interactions-back-helper"
+                data-copy="interactions.flip_tile.back_helper">
+                Tap again to return to the interaction metrics.
               </p>
             </div>
           </div>
         </div>
-      </div>
 
-      <div class="subtotal-row profile-subtotal-row">
-        <div class="subtotal-main">
-          <span data-copy="card.profile_subtotal">Profile Subtotal</span>
-          <span id="cindSubtotalA" class="subtotal-value">0.00</span>
-        </div>
+        <!-- RIGHT: DIAGNOSTICS TILE -->
+        <div class="interactions-right interactions-diagnostics-tile">
 
-        <div id="identityInlineA" class="subtotal-identity identity-inline-neutral">
-  <div class="identity-inline-kicker">Tournament Identity</div>
-
-  <div class="identity-inline-main">
-
-    <span id="identityScoreA" class="identity-inline-badge">—</span>
-
-    <div class="identity-inline-meta">
-      <span id="identityRoleA" class="identity-inline-label">Neutral</span>
-      <span id="identityDetailA" class="identity-inline-detail">No active identity signal</span>
-    </div>
-
-    <!-- Credibility Meter -->
-    <div class="identity-meter">
-      <div id="identityMeterFillA" class="identity-meter-fill"></div>
-    </div>
-
-  </div>
-</div>
-</div>
-
-      <p id="backIdentityA" class="back-line hidden"></p>
-
-      <div class="mi-metrics-hint mi-flip-hint">Flip for context</div>
-    </div>
-
-    <!-- BACK -->
-    <div class="tile-face tile-back">
-      <div id="backCoreTileA" class="back-line core-back-container"></div>
-      <p class="back-helper" data-copy="card.tile_back_helper_core">
-        Tap again to return to the full Core Traits table.
-      </p>
-    </div>
-
-  </div>
-</section>
-
-        <!-- Profile Marks (full-width row) -->
-        <div class="team-card-marks">
-          <div id="marksTileA" class="context-tile context-neutral inline-marks-tile flip-tile">
-            <div class="flip-tile-inner">
-
-            <!-- FRONT -->
-            <div class="tile-face tile-front">
-             <div class="marks-front">
-              <div class="marks-front-header context-header marks-header">
-               <div class="marks-header-text matchup-kicker">Profile Marks</div>
-              </div>
-
-             <div class="marks-front-body context-subrow">
-              <div id="inlineMarksA" class="inline-marks-strip"></div>
-            </div>
-          </div>
-         <div class="mi-metrics-hint mi-flip-hint">Flip for context</div>
-         </div>
-
-              <!-- BACK -->
-              <div class="tile-face tile-back">
-                <h4 data-copy="card.marks_tile_header">Explanation:</h4>
-                <p id="backMarksTileA" class="back-line"></p>
-                <p class="back-helper" data-copy="card.tile_back_helper_marks">
-                  Tap again to see the badges.
-                </p>
-              </div>
-
-            </div>
-          </div>
-       </div><!-- END card-front -->
-
-      <!-- ===================== BACK FACE ====================== -->
-
-    </div><!-- END flip-inner -->
-  </section>
-
-  <!-- ============================================================= -->
-  <!-- ======================= FAVORITE CARD ======================= -->
-  <!-- ============================================================= -->
-  <section id="favCard" class="team-card card">
-    <div class="flip-inner">
-
-      <!-- ===================== FRONT FACE ====================== -->
-      <div class="card-face card-front">
-
-        <!-- Header -->
-<header class="team-card-header">
-  <div class="team-card-header-main">
-<div class="team-card-brand-stack">
-  <span id="roleTagB" class="role-tag fav-tag">Favorite</span>
-
-  <div id="teamBBrand" class="mi-team-brand mi-team-brand--card">
-    <img id="teamBLogo" class="mi-team-brand-logo" alt="" hidden>
-    <h2 id="teamBTitle" class="mi-team-brand-name">Team B</h2>
-  </div>
-</div>
-</div>
-
-  <div class="seed-label"><span id="teamBSeed"></span></div>
-</header>        
-
-<!-- Favorite Profile (Core Traits + Breadth) — MINI FLIP TILE -->
-        <section class="profile-section flip-tile">
-  <div class="flip-tile-inner">
-
-    <!-- FRONT -->
-    <div class="tile-face tile-front">
-      <div class="section-header">
-        <div class="matchup-kicker">Core Traits Profile</div>
-
-        <button
-          id="explainCindA"
-          class="link-btn explain-toggle"
-          data-target="#cindProfileExplainA"
-          data-copy="card.explain_btn">
-          Explain
-        </button>
-      </div>
-
-      <table id="favProfileTableB" class="explain-table mi-core-table"></table>
-      <div id="favProfileExplainB" class="explain-panel"></div>
-
-      <div class="profile-support-row">
-        <div class="mi-eff-module" id="miEffModuleB" aria-label="Madness Index efficiency metrics">
-  <div class="mi-eff-header">MI Efficiency Metrics</div>
-
-  <div class="mi-eff-seg">
-    <div class="mi-eff-meta">
-      <span class="mi-eff-label">Offensive Signal</span>
-      <span class="mi-eff-helper">sum of offensive impacts</span>
-    </div>
-    <span id="miEffOffB" class="mi-eff-value">0.0</span>
-  </div>
-
-  <div class="mi-eff-seg">
-    <div class="mi-eff-meta">
-      <span class="mi-eff-label">Defensive Signal</span>
-      <span class="mi-eff-helper">sum of defensive impacts</span>
-    </div>
-    <span id="miEffDefB" class="mi-eff-value">0.0</span>
-  </div>
-
-  <div class="mi-eff-seg is-emphasis">
-    <div class="mi-eff-meta">
-      <span class="mi-eff-label">Combined Margin</span>
-      <span class="mi-eff-helper">offense + defense</span>
-    </div>
-    <span id="miEffMarginB" class="mi-eff-value">0.0</span>
-  </div>
-</div>
-
-        <div id="resumeTileB" class="context-tile context-neutral flip-tile profile-resume-tile">
-          <div class="flip-tile-inner">
-            <div class="tile-face tile-front">
-              <div class="context-header">
-                <span class="context-label" data-copy="card.resume_label">Résumé Context</span>
-                <span id="resumeAdjB" class="context-score">Average</span>
-              </div>
-              <div class="context-subrow">
-                <span id="resumeTierB" class="context-tier">Base Trust ×1.00</span>
-              </div>
-              <div class="mi-metrics-hint mi-flip-hint">Flip for context</div>
+          <section class="volatility-panel" id="volatilityPanel" aria-label="Matchup volatility meter">
+            <div class="volatility-head">
+              <div id="volatilityTierPill" class="volatility-tier-pill is-stable">Stable</div>
             </div>
 
-            <div class="tile-face tile-back">
-              <h4 data-copy="card.resume_tile_header">Explanation:</h4>
-              <p id="backResumeTileB" class="back-line"></p>
-              <p class="back-helper" data-copy="card.tile_back_helper_resume">
-                Tap again to return to the résumé overview.
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
+            <div class="volatility-gauge-wrap">
+              <div class="volatility-gauge-shell" id="volatilityGauge">
+                <svg
+                  class="volatility-gauge-svg"
+                  viewBox="0 0 340 235"
+                  role="img"
+                  aria-label="Volatility meter gauge">
 
-      <div class="subtotal-row profile-subtotal-row">
-        <div class="subtotal-main">
-          <span data-copy="card.profile_subtotal">Profile Subtotal</span>
-          <span id="favSubtotalB" class="subtotal-value">0.00</span>
-        </div>
+                  <defs>
+                    <linearGradient id="volatilityArcGradient" x1="34" y1="170" x2="306" y2="170" gradientUnits="userSpaceOnUse">
+                      <stop offset="0%" stop-color="#38bdf8"></stop>
+                      <stop offset="45%" stop-color="#7dd3fc"></stop>
+                      <stop offset="62%" stop-color="#facc15"></stop>
+                      <stop offset="82%" stop-color="#fb923c"></stop>
+                      <stop offset="100%" stop-color="#ef4444"></stop>
+                    </linearGradient>
 
-        <div id="identityInlineB" class="subtotal-identity identity-inline-neutral">
-  <div class="identity-inline-kicker">Tournament Identity</div>
+                    <filter id="volatilityArcSoftGlow" x="-25%" y="-25%" width="150%" height="150%">
+                      <feGaussianBlur stdDeviation="2.5" result="blur"></feGaussianBlur>
+                      <feMerge>
+                        <feMergeNode in="blur"></feMergeNode>
+                        <feMergeNode in="SourceGraphic"></feMergeNode>
+                      </feMerge>
+                    </filter>
+                  </defs>
 
-  <div class="identity-inline-main">
+                  <!-- track -->
+                  <path
+                    id="volatilityGaugeTrack"
+                    class="volatility-gauge-track"
+                    d="M 34 170 A 136 136 0 0 1 306 170"
+                    pathLength="100">
+                  </path>
 
-    <span id="identityScoreB" class="identity-inline-badge">—</span>
+                  <!-- fill -->
+                  <path
+                    id="volatilityGaugeFill"
+                    class="volatility-gauge-fill"
+                    d="M 34 170 A 136 136 0 0 1 306 170"
+                    pathLength="100"
+                    stroke-dasharray="0 100">
+                  </path>
 
-    <div class="identity-inline-meta">
-      <span id="identityRoleB" class="identity-inline-label">Neutral</span>
-      <span id="identityDetailB" class="identity-inline-detail">No active identity signal</span>
-    </div>
+                  <!-- ticks -->
+                  <g id="volatilityGaugeTicks" class="volatility-gauge-ticks" aria-hidden="true"></g>
 
-    <!-- Credibility Meter -->
-    <div class="identity-meter">
-      <div id="identityMeterFillB" class="identity-meter-fill"></div>
-    </div>
+                  <!-- score -->
+                  <text
+                    id="volatilityScoreValue"
+                    class="volatility-gauge-score"
+                    x="170"
+                    y="126"
+                    text-anchor="middle">—</text>
 
-  </div>
-</div>
-</div>
+                  <text
+                    class="volatility-gauge-label"
+                    x="170"
+                    y="146"
+                    text-anchor="middle">VOLATILITY</text>
 
-      <p id="backIdentityB" class="back-line hidden"></p>
-
-      <div class="mi-metrics-hint mi-flip-hint">Flip for context</div>
-    </div>
-
-    <!-- BACK -->
-    <div class="tile-face tile-back">
-      <div id="backCoreTileB" class="back-line core-back-container"></div>
-      <p class="back-helper" data-copy="card.tile_back_helper_core">
-        Tap again to return to the full Core Traits table.
-      </p>
-    </div>
-
-  </div>
-</section>
-
-        <!-- Full-width Profile Marks row under Identity + Résumé -->
-        <div class="team-card-marks">
-          <div id="marksTileB" class="context-tile context-neutral inline-marks-tile flip-tile">
-            <div class="flip-tile-inner">
-
-            <!-- FRONT -->
-             <div class="tile-face tile-front">
-              <div class="marks-front">
-               <div class="marks-front-header context-header marks-header">
-                <div class="marks-header-text matchup-kicker">Profile Marks</div>
-               </div>
-
-             <div class="marks-front-body context-subrow">
-              <div id="inlineMarksB" class="inline-marks-strip"></div>
-             </div>
-           </div>
-         <div class="mi-metrics-hint mi-flip-hint">Flip for context</div>
-         </div>
-
-              <!-- BACK -->
-              <div class="tile-face tile-back">
-                <h4 data-copy="card.marks_tile_header">Explanation:</h4>
-                <p id="backMarksTileB" class="back-line"></p>
-                <p class="back-helper" data-copy="card.tile_back_helper_marks">
-                  Tap again to see the badges.
-                </p>
+                  <!-- zone labels -->
+                  <g class="volatility-gauge-zones" aria-hidden="true">
+                    <text x="72" y="196" text-anchor="middle">Stable</text>
+                    <text x="170" y="196" text-anchor="middle">Moderate</text>
+                    <text x="268" y="196" text-anchor="middle">Extreme</text>
+                  </g>
+                </svg>
               </div>
 
-            </div>
-          </div>
-      </div><!-- END card-front -->
+              <div
+                id="volatilitySummaryText"
+                class="volatility-summary-text"
+                data-copy="volatility.copy.environment.empty">
+                Run a matchup to populate the volatility environment.
+              </div>
 
-      <!-- ===================== BACK FACE ====================== -->
-    </div><!-- END flip-inner -->
-  </section>
-
-</main>
-
-<!-- ================ INTERACTION METRICS TABLE ================ -->
-<section id="interactionsSection" class="card interactions-card"><div class="legend-header legend-header--interactions">
-  <div class="interactions-head interactions-head--left">
-    <div class="int-console-pill interactions-header-pill matchup-kicker">INTERACTION CHANNELS</div>
-  </div>
-
-  <div class="interactions-head interactions-head--right">
-    <div class="int-console-pill interactions-header-pill matchup-kicker">MATCHUP VOLATILITY</div>
-  </div>
-</div>
-
-  <div class="interactions-grid">
-    <!-- LEFT: METRICS TILE -->
-    <div class="interactions-left interactions-left-tile flip-tile" id="interactionsFlipTile">
-  <div class="flip-tile-inner">
-
-    <!-- FRONT -->
-    <div class="tile-face tile-front interactions-front-face">
-      <div class="interaction-table-wrap">
-  <table id="interactionsTable" class="interaction-table mi-interaction-table">
-    <thead>
-      <tr>
-        <th class="mi-int-col-label">Interaction</th>
-        <th class="mi-int-col-bar">Leverage</th>
-        <th class="mi-int-col-intensity">Intensity</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
-
-  <template id="miInteractionRowTemplate">
-    <tr class="mi-int-row">
-      <td class="mi-int-label-cell">
-        <div class="mi-int-label-main"></div>
-        <div class="mi-int-label-sub"></div>
-      </td>
-
-      <td class="mi-int-bar-cell">
-        <div class="mi-int-bar-wrap">
-          <div class="mi-int-bar" aria-hidden="true">
-            <span class="mi-int-bar-center"></span>
-            <span class="mi-int-bar-fill mi-int-bar-fill-a"></span>
-            <span class="mi-int-bar-fill mi-int-bar-fill-b"></span>
-          </div>
-          <span class="mi-int-bar-sr sr-only"></span>
-        </div>
-      </td>
-
-      <td class="mi-int-intensity-cell">
-        <span class="mi-int-intensity-pill"></span>
-      </td>
-    </tr>
-  </template>
-</div>
-
-      <div id="interactionTotalsBar" class="interaction-totals-bar"></div>
-
-      <div
-        class="mi-metrics-hint mi-flip-hint interactions-flip-hint"
-        data-copy="interactions.flip_tile.front_hint">
-        Flip for channel guide
-      </div>
-    </div>
-
-    <!-- BACK -->
-    <div class="tile-face tile-back interactions-back-face">
-      <div
-        id="interactionsNarrativeHost"
-        class="int-console-body interactions-narrative-host"
-        aria-live="polite">
-      </div>
-
-      <p
-        class="back-helper interactions-back-helper"
-        data-copy="interactions.flip_tile.back_helper">
-        Tap again to return to the interaction metrics.
-      </p>
-     </div>
-  </div>
-</div>
-
-<!-- RIGHT: DIAGNOSTICS TILE -->
-<div class="interactions-right interactions-diagnostics-tile">
-
-<section class="volatility-panel" id="volatilityPanel" aria-label="Matchup volatility meter">
-  <div class="volatility-head">
-    <div id="volatilityTierPill" class="volatility-tier-pill is-stable">Stable</div>
-  </div>
-
-  <div class="volatility-gauge-wrap">
-    <div class="volatility-gauge-shell" id="volatilityGauge">
-      <svg
-        class="volatility-gauge-svg"
-        viewBox="0 0 340 235"
-        role="img"
-        aria-label="Volatility meter gauge">
-
-        <defs>
-          <linearGradient id="volatilityArcGradient" x1="34" y1="170" x2="306" y2="170" gradientUnits="userSpaceOnUse">
-            <stop offset="0%" stop-color="#38bdf8"></stop>
-            <stop offset="45%" stop-color="#7dd3fc"></stop>
-            <stop offset="62%" stop-color="#facc15"></stop>
-            <stop offset="82%" stop-color="#fb923c"></stop>
-            <stop offset="100%" stop-color="#ef4444"></stop>
-          </linearGradient>
-
-          <filter id="volatilityArcSoftGlow" x="-25%" y="-25%" width="150%" height="150%">
-            <feGaussianBlur stdDeviation="2.5" result="blur"></feGaussianBlur>
-            <feMerge>
-              <feMergeNode in="blur"></feMergeNode>
-              <feMergeNode in="SourceGraphic"></feMergeNode>
-            </feMerge>
-          </filter>
-        </defs>
-
-        <!-- track -->
-        <path
-          id="volatilityGaugeTrack"
-          class="volatility-gauge-track"
-          d="M 34 170 A 136 136 0 0 1 306 170"
-          pathLength="100">
-        </path>
-
-        <!-- fill -->
-        <path
-          id="volatilityGaugeFill"
-          class="volatility-gauge-fill"
-          d="M 34 170 A 136 136 0 0 1 306 170"
-          pathLength="100"
-          stroke-dasharray="0 100">
-        </path>
-
-        <!-- ticks -->
-        <g id="volatilityGaugeTicks" class="volatility-gauge-ticks" aria-hidden="true"></g>
-
-        <!-- score -->
-        <text
-          id="volatilityScoreValue"
-          class="volatility-gauge-score"
-          x="170"
-          y="126"
-          text-anchor="middle">—</text>
-
-        <text
-          class="volatility-gauge-label"
-          x="170"
-          y="146"
-          text-anchor="middle">VOLATILITY</text>
-
-        <!-- zone labels -->
-        <g class="volatility-gauge-zones" aria-hidden="true">
-          <text x="72" y="196" text-anchor="middle">Stable</text>
-          <text x="170" y="196" text-anchor="middle">Moderate</text>
-          <text x="268" y="196" text-anchor="middle">Extreme</text>
-        </g>
-      </svg>
-    </div>
-
-    <div
-      id="volatilitySummaryText"
-      class="volatility-summary-text"
-      data-copy="volatility.copy.environment.empty">
-      Run a matchup to populate the volatility environment.
-    </div>
-
-    <div
-      id="volatilityThresholdText"
-      class="volatility-threshold-text"
-      data-copy="volatility.copy.chaos_line.empty">
-      Run a matchup to reveal the chaos line.
-    </div>
-  </div>
-
-  <div class="volatility-quarters" id="volatilityQuarters">
-    <div class="vol-q-card">
-      <div class="vol-q-top">
-        <span class="vol-q-label">Tempo</span>
-        <span id="volQuarterTempoValue" class="vol-q-value">—</span>
-      </div>
-      <div class="vol-q-bar"><span id="volQuarterTempo" class="vol-q-fill"></span></div>
-      <div class="vol-q-meta">
-        <span id="volQuarterTempoDriver" class="vol-q-driver">Balanced</span>
-        <span id="volQuarterTempoLean" class="vol-q-lean">—</span>
-      </div>
-    </div>
-
-    <div class="vol-q-card">
-      <div class="vol-q-top">
-        <span class="vol-q-label">3PT Dependence</span>
-        <span id="volQuarterThreeValue" class="vol-q-value">—</span>
-      </div>
-      <div class="vol-q-bar"><span id="volQuarterThree" class="vol-q-fill"></span></div>
-      <div class="vol-q-meta">
-        <span id="volQuarterThreeDriver" class="vol-q-driver">Balanced</span>
-        <span id="volQuarterThreeLean" class="vol-q-lean">—</span>
-      </div>
-    </div>
-
-    <div class="vol-q-card">
-      <div class="vol-q-top">
-        <span class="vol-q-label">Effective Possession Ratio</span>
-        <span id="volQuarterEprValue" class="vol-q-value">—</span>
-      </div>
-      <div class="vol-q-bar"><span id="volQuarterEpr" class="vol-q-fill"></span></div>
-      <div class="vol-q-meta">
-        <span id="volQuarterEprDriver" class="vol-q-driver">Balanced</span>
-        <span id="volQuarterEprLean" class="vol-q-lean">—</span>
-      </div>
-    </div>
-
-    <div class="vol-q-card">
-      <div class="vol-q-top">
-        <span class="vol-q-label">Extra Scoring Chances / Game</span>
-        <span id="volQuarterScpgValue" class="vol-q-value">—</span>
-      </div>
-      <div class="vol-q-bar"><span id="volQuarterScpg" class="vol-q-fill"></span></div>
-      <div class="vol-q-meta">
-        <span id="volQuarterScpgDriver" class="vol-q-driver">Balanced</span>
-        <span id="volQuarterScpgLean" class="vol-q-lean">—</span>
-      </div>
-    </div>
-  </div>
-</section>
-</div>
-</section>
-
-<!-- ================ SCORE SYNTHESIS ================ -->
-<section id="summarySection" class="card summary-card">
-  <div id="summaryTable" class="summary-synthesis-wrap" role="group" aria-label="Score Synthesis">
-    <table class="summary-synthesis-table mi-summary-synthesis-table" aria-label="Score Synthesis table">
-
-      <colgroup>
-        <col><!-- 1: A label -->
-        <col><!-- 2: A contribution -->
-        <col><!-- 3: A final -->
-        <col><!-- 4: center -->
-        <col><!-- 5: B final -->
-        <col><!-- 6: B contribution -->
-        <col><!-- 7: B label -->
-      </colgroup>
-
-      <tbody>
-        <!-- ROW 1: Title -->
-        <tr>
-          <th class="syn-title" colspan="7">
-            <span class="matchup-kicker syn-kicker">Score Synthesis</span>
-          </th>
-        </tr>
-
-        <!-- ROW 2: Team Names + merged center -->
-        <tr>
-          <th class="syn-team syn-team-a" colspan="3">
-            <div class="mi-summary-team-head">
-              <div id="summaryBrandA" class="mi-team-brand mi-team-brand--summary">
-                <img id="summaryLogoA" class="mi-team-brand-logo" alt="" hidden>
-                <span id="summaryTeamA" class="mi-team-brand-name">Team A</span>
+              <div
+                id="volatilityThresholdText"
+                class="volatility-threshold-text"
+                data-copy="volatility.copy.chaos_line.empty">
+                Run a matchup to reveal the chaos line.
               </div>
             </div>
-          </th>
 
-          <td class="syn-center" rowspan="6">
-            <div class="syn-center-inner">
-              <div id="summarySynLean" class="syn-lean-line" data-copy="summary.synthesis.syn_lean"></div>
-
-              <div id="summaryVolatilityMini" class="syn-volatility-mini" aria-label="Volatility summary">
-                <div class="syn-volatility-top">
-                  <span class="syn-volatility-label">Volatility</span>
-                  <span id="summaryVolatilityScore" class="syn-volatility-score">—</span>
+            <div class="volatility-quarters" id="volatilityQuarters">
+              <div class="vol-q-card">
+                <div class="vol-q-top">
+                  <span class="vol-q-label">Tempo</span>
+                  <span id="volQuarterTempoValue" class="vol-q-value">—</span>
                 </div>
-
-                <div class="syn-volatility-bar">
-                  <span id="summaryVolatilityFill" class="syn-volatility-fill"></span>
-                </div>
-
-                <div class="syn-volatility-meta">
-                  <span id="summaryVolatilityBeneficiary" class="syn-volatility-beneficiary">Balanced</span>
+                <div class="vol-q-bar"><span id="volQuarterTempo" class="vol-q-fill"></span></div>
+                <div class="vol-q-meta">
+                  <span id="volQuarterTempoDriver" class="vol-q-driver">Balanced</span>
+                  <span id="volQuarterTempoLean" class="vol-q-lean">—</span>
                 </div>
               </div>
 
-              <div class="syn-delta" aria-label="Madness Delta">
-  <span class="syn-delta-label" aria-hidden="true">
-    <svg class="mi-delta-mark"
-         viewBox="0 0 10.754103 9.3092775"
-         preserveAspectRatio="xMidYMid meet"
-         focusable="false">
-      <use href="#mi-delta-symbol" x="0" y="0" width="100%" height="100%"></use>
-    </svg>
-  </span>
+              <div class="vol-q-card">
+                <div class="vol-q-top">
+                  <span class="vol-q-label">3PT Dependence</span>
+                  <span id="volQuarterThreeValue" class="vol-q-value">—</span>
+                </div>
+                <div class="vol-q-bar"><span id="volQuarterThree" class="vol-q-fill"></span></div>
+                <div class="vol-q-meta">
+                  <span id="volQuarterThreeDriver" class="vol-q-driver">Balanced</span>
+                  <span id="volQuarterThreeLean" class="vol-q-lean">—</span>
+                </div>
+              </div>
 
-  <span class="syn-delta-value" data-value="gap.sep">—</span>
-</div>
-            </div>
-          </td>
+              <div class="vol-q-card">
+                <div class="vol-q-top">
+                  <span class="vol-q-label">Effective Possession Ratio</span>
+                  <span id="volQuarterEprValue" class="vol-q-value">—</span>
+                </div>
+                <div class="vol-q-bar"><span id="volQuarterEpr" class="vol-q-fill"></span></div>
+                <div class="vol-q-meta">
+                  <span id="volQuarterEprDriver" class="vol-q-driver">Balanced</span>
+                  <span id="volQuarterEprLean" class="vol-q-lean">—</span>
+                </div>
+              </div>
 
-          <th class="syn-team syn-team-b" colspan="3">
-            <div class="mi-summary-team-head">
-              <div id="summaryBrandB" class="mi-team-brand mi-team-brand--summary">
-                <img id="summaryLogoB" class="mi-team-brand-logo" alt="" hidden>
-                <span id="summaryTeamB" class="mi-team-brand-name">Team B</span>
+              <div class="vol-q-card">
+                <div class="vol-q-top">
+                  <span class="vol-q-label">Extra Scoring Chances / Game</span>
+                  <span id="volQuarterScpgValue" class="vol-q-value">—</span>
+                </div>
+                <div class="vol-q-bar"><span id="volQuarterScpg" class="vol-q-fill"></span></div>
+                <div class="vol-q-meta">
+                  <span id="volQuarterScpgDriver" class="vol-q-driver">Balanced</span>
+                  <span id="volQuarterScpgLean" class="vol-q-lean">—</span>
+                </div>
               </div>
             </div>
-           </th>        
-        </tr>
+          </section>
+        </div>
+      </div>
+    </section>
 
-        <!-- Baseline MI -->
-        <tr>
-          <td class="syn-label syn-label-a">
-            <div class="syn-label-stack">
-              <div class="syn-label-main" data-copy="summary.score_build.baseline">Baseline MI</div>
-              <div class="syn-label-hint" data-copy="summary.score_build.baseline_hint">Post-calibration baseline score</div>
-            </div>
-          </td>
+    <!-- ================ SCORE SYNTHESIS ================ -->
+    <section id="summarySection" class="card summary-card">
+      <div id="summaryTable" class="summary-synthesis-wrap" role="group" aria-label="Score Synthesis">
+        <table class="summary-synthesis-table mi-summary-synthesis-table" aria-label="Score Synthesis table">
 
-          <td class="syn-val syn-val-a syn-contrib-cell">
-            <div class="mi-synth-inline-wrap">
-              <div class="mi-synth-inline-bar" aria-hidden="true">
-                <span class="mi-synth-inline-center"></span>
-                <span class="mi-synth-inline-fill mi-synth-inline-fill-neg" id="synBaseBarAneg"></span>
-                <span class="mi-synth-inline-fill mi-synth-inline-fill-pos" id="synBaseBarApos"></span>
-              </div>
-              <span class="mi-synth-inline-value" data-value="a.base">—</span>
-            </div>
-          </td>
+          <colgroup>
+            <col><!-- 1: A label -->
+            <col><!-- 2: A contribution -->
+            <col><!-- 3: A final -->
+            <col><!-- 4: center -->
+            <col><!-- 5: B final -->
+            <col><!-- 6: B contribution -->
+            <col><!-- 7: B label -->
+          </colgroup>
 
-          <td class="syn-final syn-final-a" rowspan="5">
-            <div class="syn-final-inner">
-              <div class="syn-final-label" data-copy="summary.score_build.final">Final Matchup MI</div>
-              <div class="syn-final-hint" data-copy="summary.score_build.final_hint">Baseline + matchup effects</div>
-              <div class="syn-final-value" data-value="a.final">—</div>
-            </div>
-          </td>
+          <tbody>
+            <!-- ROW 1: Title -->
+            <tr>
+              <th class="syn-title" colspan="7">
+                <span class="matchup-kicker syn-kicker">Score Synthesis</span>
+              </th>
+            </tr>
 
-          <td class="syn-final syn-final-b" rowspan="5">
-            <div class="syn-final-inner">
-              <div class="syn-final-label" data-copy="summary.score_build.final">Final Matchup MI</div>
-              <div class="syn-final-hint" data-copy="summary.score_build.final_hint">Baseline + matchup effects</div>
-              <div class="syn-final-value" data-value="b.final">—</div>
-            </div>
-          </td>
+            <!-- ROW 2: Team Names + merged center -->
+            <tr>
+              <th class="syn-team syn-team-a" colspan="3">
+                <div class="mi-summary-team-head">
+                  <div id="summaryBrandA" class="mi-team-brand mi-team-brand--summary">
+                    <img id="summaryLogoA" class="mi-team-brand-logo" alt="" hidden>
+                    <span id="summaryTeamA" class="mi-team-brand-name">Team A</span>
+                  </div>
+                </div>
+              </th>
 
-          <td class="syn-val syn-val-b syn-contrib-cell">
-            <div class="mi-synth-inline-wrap">
-              <div class="mi-synth-inline-bar" aria-hidden="true">
-                <span class="mi-synth-inline-center"></span>
-                <span class="mi-synth-inline-fill mi-synth-inline-fill-neg" id="synBaseBarBneg"></span>
-                <span class="mi-synth-inline-fill mi-synth-inline-fill-pos" id="synBaseBarBpos"></span>
-              </div>
-              <span class="mi-synth-inline-value" data-value="b.base">—</span>
-            </div>
-          </td>
+              <td class="syn-center" rowspan="6">
+                <div class="syn-center-inner">
+                  <div id="summarySynLean" class="syn-lean-line" data-copy="summary.synthesis.syn_lean"></div>
 
-          <td class="syn-label syn-label-b">
-            <div class="syn-label-stack">
-              <div class="syn-label-main" data-copy="summary.score_build.baseline">Baseline MI</div>
-              <div class="syn-label-hint" data-copy="summary.score_build.baseline_hint">Post-calibration baseline score</div>
-            </div>
-          </td>
-        </tr>
+                  <div id="summaryVolatilityMini" class="syn-volatility-mini" aria-label="Volatility summary">
+                    <div class="syn-volatility-top">
+                      <span class="syn-volatility-label">Volatility</span>
+                      <span id="summaryVolatilityScore" class="syn-volatility-score">—</span>
+                    </div>
 
-        <!-- Offensive Breadth -->
-        <tr>
-          <td class="syn-label syn-label-a">
-            <div class="syn-label-stack">
-              <div class="syn-label-main">Offensive Breadth</div>
-              <div class="syn-label-hint">Offensive structural balance</div>
-            </div>
-          </td>
+                    <div class="syn-volatility-bar">
+                      <span id="summaryVolatilityFill" class="syn-volatility-fill"></span>
+                    </div>
 
-          <td class="syn-val syn-val-a syn-contrib-cell">
-            <div class="mi-synth-inline-wrap">
-              <div class="mi-synth-inline-bar" aria-hidden="true">
-                <span class="mi-synth-inline-center"></span>
-                <span class="mi-synth-inline-fill mi-synth-inline-fill-neg" id="synOffBreadthBarAneg"></span>
-                <span class="mi-synth-inline-fill mi-synth-inline-fill-pos" id="synOffBreadthBarApos"></span>
-              </div>
-              <span class="mi-synth-inline-value" data-value="a.off_breadth">—</span>
-            </div>
-          </td>
+                    <div class="syn-volatility-meta">
+                      <span id="summaryVolatilityBeneficiary" class="syn-volatility-beneficiary">Balanced</span>
+                    </div>
+                  </div>
 
-          <td class="syn-val syn-val-b syn-contrib-cell">
-            <div class="mi-synth-inline-wrap">
-              <div class="mi-synth-inline-bar" aria-hidden="true">
-                <span class="mi-synth-inline-center"></span>
-                <span class="mi-synth-inline-fill mi-synth-inline-fill-neg" id="synOffBreadthBarBneg"></span>
-                <span class="mi-synth-inline-fill mi-synth-inline-fill-pos" id="synOffBreadthBarBpos"></span>
-              </div>
-              <span class="mi-synth-inline-value" data-value="b.off_breadth">—</span>
-            </div>
-          </td>
+                  <div class="syn-delta" aria-label="Madness Delta">
+                    <span class="syn-delta-label" aria-hidden="true">
+                      <svg class="mi-delta-mark"
+                           viewBox="0 0 10.754103 9.3092775"
+                           preserveAspectRatio="xMidYMid meet"
+                           focusable="false">
+                        <use href="#mi-delta-symbol" x="0" y="0" width="100%" height="100%"></use>
+                      </svg>
+                    </span>
 
-          <td class="syn-label syn-label-b">
-            <div class="syn-label-stack">
-              <div class="syn-label-main">Offensive Breadth</div>
-              <div class="syn-label-hint">Offensive structural balance</div>
-            </div>
-          </td>
-        </tr>
+                    <span class="syn-delta-value" data-value="gap.sep">—</span>
+                  </div>
+                </div>
+              </td>
 
-        <!-- Defensive Breadth -->
-        <tr>
-          <td class="syn-label syn-label-a">
-            <div class="syn-label-stack">
-              <div class="syn-label-main">Defensive Breadth</div>
-              <div class="syn-label-hint">Defensive structural balance</div>
-            </div>
-          </td>
+              <th class="syn-team syn-team-b" colspan="3">
+                <div class="mi-summary-team-head">
+                  <div id="summaryBrandB" class="mi-team-brand mi-team-brand--summary">
+                    <img id="summaryLogoB" class="mi-team-brand-logo" alt="" hidden>
+                    <span id="summaryTeamB" class="mi-team-brand-name">Team B</span>
+                  </div>
+                </div>
+              </th>        
+            </tr>
 
-          <td class="syn-val syn-val-a syn-contrib-cell">
-            <div class="mi-synth-inline-wrap">
-              <div class="mi-synth-inline-bar" aria-hidden="true">
-                <span class="mi-synth-inline-center"></span>
-                <span class="mi-synth-inline-fill mi-synth-inline-fill-neg" id="synDefBreadthBarAneg"></span>
-                <span class="mi-synth-inline-fill mi-synth-inline-fill-pos" id="synDefBreadthBarApos"></span>
-              </div>
-              <span class="mi-synth-inline-value" data-value="a.def_breadth">—</span>
-            </div>
-          </td>
+            <!-- Baseline MI -->
+            <tr>
+              <td class="syn-label syn-label-a">
+                <div class="syn-label-stack">
+                  <div class="syn-label-main" data-copy="summary.score_build.baseline">Baseline MI</div>
+                  <div class="syn-label-hint" data-copy="summary.score_build.baseline_hint">Post-calibration baseline score</div>
+                </div>
+              </td>
 
-          <td class="syn-val syn-val-b syn-contrib-cell">
-            <div class="mi-synth-inline-wrap">
-              <div class="mi-synth-inline-bar" aria-hidden="true">
-                <span class="mi-synth-inline-center"></span>
-                <span class="mi-synth-inline-fill mi-synth-inline-fill-neg" id="synDefBreadthBarBneg"></span>
-                <span class="mi-synth-inline-fill mi-synth-inline-fill-pos" id="synDefBreadthBarBpos"></span>
-              </div>
-              <span class="mi-synth-inline-value" data-value="b.def_breadth">—</span>
-            </div>
-          </td>
+              <td class="syn-val syn-val-a syn-contrib-cell">
+                <div class="mi-synth-inline-wrap">
+                  <div class="mi-synth-inline-bar" aria-hidden="true">
+                    <span class="mi-synth-inline-center"></span>
+                    <span class="mi-synth-inline-fill mi-synth-inline-fill-neg" id="synBaseBarAneg"></span>
+                    <span class="mi-synth-inline-fill mi-synth-inline-fill-pos" id="synBaseBarApos"></span>
+                  </div>
+                  <span class="mi-synth-inline-value" data-value="a.base">—</span>
+                </div>
+              </td>
 
-          <td class="syn-label syn-label-b">
-            <div class="syn-label-stack">
-              <div class="syn-label-main">Defensive Breadth</div>
-              <div class="syn-label-hint">Defensive structural balance</div>
-            </div>
-          </td>
-        </tr>
+              <td class="syn-final syn-final-a" rowspan="5">
+                <div class="syn-final-inner">
+                  <div class="syn-final-label" data-copy="summary.score_build.final">Final Matchup MI</div>
+                  <div class="syn-final-hint" data-copy="summary.score_build.final_hint">Baseline + matchup effects</div>
+                  <div class="syn-final-value" data-value="a.final">—</div>
+                </div>
+              </td>
 
-        <!-- Effective Matchup Adjustment -->
-        <tr>
-          <td class="syn-label syn-label-a">
-            <div class="syn-label-stack">
-              <div class="syn-label-main" data-copy="summary.score_build.effective_adj">Effective Matchup Adjustment</div>
-              <div class="syn-label-hint" data-copy="summary.score_build.effective_adj_hint">Applied matchup impact</div>
-            </div>
-          </td>
+              <td class="syn-final syn-final-b" rowspan="5">
+                <div class="syn-final-inner">
+                  <div class="syn-final-label" data-copy="summary.score_build.final">Final Matchup MI</div>
+                  <div class="syn-final-hint" data-copy="summary.score_build.final_hint">Baseline + matchup effects</div>
+                  <div class="syn-final-value" data-value="b.final">—</div>
+                </div>
+              </td>
 
-          <td class="syn-val syn-val-a syn-contrib-cell">
-            <div class="mi-synth-inline-wrap">
-              <div class="mi-synth-inline-bar" aria-hidden="true">
-                <span class="mi-synth-inline-center"></span>
-                <span class="mi-synth-inline-fill mi-synth-inline-fill-neg" id="synIntEffBarAneg"></span>
-                <span class="mi-synth-inline-fill mi-synth-inline-fill-pos" id="synIntEffBarApos"></span>
-              </div>
-              <span class="mi-synth-inline-value" data-value="a.int_eff">—</span>
-            </div>
-          </td>
+              <td class="syn-val syn-val-b syn-contrib-cell">
+                <div class="mi-synth-inline-wrap">
+                  <div class="mi-synth-inline-bar" aria-hidden="true">
+                    <span class="mi-synth-inline-center"></span>
+                    <span class="mi-synth-inline-fill mi-synth-inline-fill-neg" id="synBaseBarBneg"></span>
+                    <span class="mi-synth-inline-fill mi-synth-inline-fill-pos" id="synBaseBarBpos"></span>
+                  </div>
+                  <span class="mi-synth-inline-value" data-value="b.base">—</span>
+                </div>
+              </td>
 
-          <td class="syn-val syn-val-b syn-contrib-cell">
-            <div class="mi-synth-inline-wrap">
-              <div class="mi-synth-inline-bar" aria-hidden="true">
-                <span class="mi-synth-inline-center"></span>
-                <span class="mi-synth-inline-fill mi-synth-inline-fill-neg" id="synIntEffBarBneg"></span>
-                <span class="mi-synth-inline-fill mi-synth-inline-fill-pos" id="synIntEffBarBpos"></span>
-              </div>
-              <span class="mi-synth-inline-value" data-value="b.int_eff">—</span>
-            </div>
-          </td>
+              <td class="syn-label syn-label-b">
+                <div class="syn-label-stack">
+                  <div class="syn-label-main" data-copy="summary.score_build.baseline">Baseline MI</div>
+                  <div class="syn-label-hint" data-copy="summary.score_build.baseline_hint">Post-calibration baseline score</div>
+                </div>
+              </td>
+            </tr>
 
-          <td class="syn-label syn-label-b">
-            <div class="syn-label-stack">
-              <div class="syn-label-main" data-copy="summary.score_build.effective_adj">Effective Matchup Adjustment</div>
-              <div class="syn-label-hint" data-copy="summary.score_build.effective_adj_hint">Applied matchup impact</div>
-            </div>
-          </td>
-        </tr>
+            <!-- Offensive Breadth -->
+            <tr>
+              <td class="syn-label syn-label-a">
+                <div class="syn-label-stack">
+                  <div class="syn-label-main">Offensive Breadth</div>
+                  <div class="syn-label-hint">Offensive structural balance</div>
+                </div>
+              </td>
 
-        <!-- Resume Calibration -->
-        <tr>
-          <td class="syn-label syn-label-a">
-            <div class="syn-label-stack">
-              <div class="syn-label-main">Résumé Calibration</div>
-              <div class="syn-label-hint">Baseline pull toward field mean</div>
-            </div>
-          </td>
+              <td class="syn-val syn-val-a syn-contrib-cell">
+                <div class="mi-synth-inline-wrap">
+                  <div class="mi-synth-inline-bar" aria-hidden="true">
+                    <span class="mi-synth-inline-center"></span>
+                    <span class="mi-synth-inline-fill mi-synth-inline-fill-neg" id="synOffBreadthBarAneg"></span>
+                    <span class="mi-synth-inline-fill mi-synth-inline-fill-pos" id="synOffBreadthBarApos"></span>
+                  </div>
+                  <span class="mi-synth-inline-value" data-value="a.off_breadth">—</span>
+                </div>
+              </td>
 
-          <td class="syn-val syn-val-a syn-contrib-cell">
-            <div class="mi-synth-inline-wrap">
-              <div class="mi-synth-inline-bar" aria-hidden="true">
-                <span class="mi-synth-inline-center"></span>
-                <span class="mi-synth-inline-fill mi-synth-inline-fill-neg" id="synResumeBarAneg"></span>
-                <span class="mi-synth-inline-fill mi-synth-inline-fill-pos" id="synResumeBarApos"></span>
-              </div>
-              <span class="mi-synth-inline-value" data-value="a.resume_cal">—</span>
-            </div>
-          </td>
+              <td class="syn-val syn-val-b syn-contrib-cell">
+                <div class="mi-synth-inline-wrap">
+                  <div class="mi-synth-inline-bar" aria-hidden="true">
+                    <span class="mi-synth-inline-center"></span>
+                    <span class="mi-synth-inline-fill mi-synth-inline-fill-neg" id="synOffBreadthBarBneg"></span>
+                    <span class="mi-synth-inline-fill mi-synth-inline-fill-pos" id="synOffBreadthBarBpos"></span>
+                  </div>
+                  <span class="mi-synth-inline-value" data-value="b.off_breadth">—</span>
+                </div>
+              </td>
 
-          <td class="syn-val syn-val-b syn-contrib-cell">
-            <div class="mi-synth-inline-wrap">
-              <div class="mi-synth-inline-bar" aria-hidden="true">
-                <span class="mi-synth-inline-center"></span>
-                <span class="mi-synth-inline-fill mi-synth-inline-fill-neg" id="synResumeBarBneg"></span>
-                <span class="mi-synth-inline-fill mi-synth-inline-fill-pos" id="synResumeBarBpos"></span>
-              </div>
-              <span class="mi-synth-inline-value" data-value="b.resume_cal">—</span>
-            </div>
-          </td>
+              <td class="syn-label syn-label-b">
+                <div class="syn-label-stack">
+                  <div class="syn-label-main">Offensive Breadth</div>
+                  <div class="syn-label-hint">Offensive structural balance</div>
+                </div>
+              </td>
+            </tr>
 
-          <td class="syn-label syn-label-b">
-            <div class="syn-label-stack">
-              <div class="syn-label-main">Résumé Calibration</div>
-              <div class="syn-label-hint">Baseline pull toward field mean</div>
-            </div>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-</section>
+            <!-- Defensive Breadth -->
+            <tr>
+              <td class="syn-label syn-label-a">
+                <div class="syn-label-stack">
+                  <div class="syn-label-main">Defensive Breadth</div>
+                  <div class="syn-label-hint">Defensive structural balance</div>
+                </div>
+              </td>
 
-<!-- ================ SCORE SYNTHESIS (MOBILE ONLY) ================ -->
-<section id="summarySectionMobile" class="card summary-card mi-sum-mob-wrap" aria-label="Score Synthesis">
-  <div class="mi-sum-mob-title matchup-kicker">Score Synthesis</div>
-<div class="mi-sum-mob-header-row">
-  <div class="mi-sum-mob-team-slot mi-sum-mob-team-slot-a">
-    <div id="summaryMobileBrandA" class="mi-team-brand mi-team-brand--summary-mobile">
-      <img id="summaryMobileLogoA" class="mi-team-brand-logo" alt="" hidden>
-      <span
-        id="summaryMobileTeamA"
-        class="mi-team-brand-name mi-sum-mob-team-name mi-sum-mob-team-name-a"
-        data-sum-team="a"
-      >Team A</span>
-    </div>
-  </div>
+              <td class="syn-val syn-val-a syn-contrib-cell">
+                <div class="mi-synth-inline-wrap">
+                  <div class="mi-synth-inline-bar" aria-hidden="true">
+                    <span class="mi-synth-inline-center"></span>
+                    <span class="mi-synth-inline-fill mi-synth-inline-fill-neg" id="synDefBreadthBarAneg"></span>
+                    <span class="mi-synth-inline-fill mi-synth-inline-fill-pos" id="synDefBreadthBarApos"></span>
+                  </div>
+                  <span class="mi-synth-inline-value" data-value="a.def_breadth">—</span>
+                </div>
+              </td>
 
-  <div class="mi-sum-mob-col-spacer"></div>
+              <td class="syn-val syn-val-b syn-contrib-cell">
+                <div class="mi-synth-inline-wrap">
+                  <div class="mi-synth-inline-bar" aria-hidden="true">
+                    <span class="mi-synth-inline-center"></span>
+                    <span class="mi-synth-inline-fill mi-synth-inline-fill-neg" id="synDefBreadthBarBneg"></span>
+                    <span class="mi-synth-inline-fill mi-synth-inline-fill-pos" id="synDefBreadthBarBpos"></span>
+                  </div>
+                  <span class="mi-synth-inline-value" data-value="b.def_breadth">—</span>
+                </div>
+              </td>
 
-  <div class="mi-sum-mob-team-slot mi-sum-mob-team-slot-b">
-    <div id="summaryMobileBrandB" class="mi-team-brand mi-team-brand--summary-mobile">
-      <img id="summaryMobileLogoB" class="mi-team-brand-logo" alt="" hidden>
-      <span
-        id="summaryMobileTeamB"
-        class="mi-team-brand-name mi-sum-mob-team-name mi-sum-mob-team-name-b"
-        data-sum-team="b"
-      >Team B</span>
-    </div>
-  </div>
-</div>
-  <div class="mi-sum-mob-rows">
-    <div class="mi-sum-mob-row">
-      <span class="mi-sum-mob-val mi-sum-mob-val-a" data-value="a.base">—</span>
-      <span class="mi-sum-mob-label">Baseline MI</span>
-      <span class="mi-sum-mob-val mi-sum-mob-val-b" data-value="b.base">—</span>
-    </div>
-    <div class="mi-sum-mob-row">
-      <span class="mi-sum-mob-val mi-sum-mob-val-a" data-value="a.off_breadth">—</span>
-      <span class="mi-sum-mob-label">Offensive Breadth</span>
-      <span class="mi-sum-mob-val mi-sum-mob-val-b" data-value="b.off_breadth">—</span>
-    </div>
-    <div class="mi-sum-mob-row">
-      <span class="mi-sum-mob-val mi-sum-mob-val-a" data-value="a.def_breadth">—</span>
-      <span class="mi-sum-mob-label">Defensive Breadth</span>
-      <span class="mi-sum-mob-val mi-sum-mob-val-b" data-value="b.def_breadth">—</span>
-    </div>
-    <div class="mi-sum-mob-row">
-      <span class="mi-sum-mob-val mi-sum-mob-val-a" data-value="a.int_eff">—</span>
-      <span class="mi-sum-mob-label">Matchup Adjustment</span>
-      <span class="mi-sum-mob-val mi-sum-mob-val-b" data-value="b.int_eff">—</span>
-    </div>
-    <div class="mi-sum-mob-row">
-      <span class="mi-sum-mob-val mi-sum-mob-val-a" data-value="a.resume_cal">—</span>
-      <span class="mi-sum-mob-label">Résumé Calibration</span>
-      <span class="mi-sum-mob-val mi-sum-mob-val-b" data-value="b.resume_cal">—</span>
-    </div>
-  </div>
-  <div class="mi-sum-mob-finals">
-    <div class="mi-sum-mob-final mi-sum-mob-final-a">
-      <div class="mi-sum-mob-final-label">Final MI</div>
-      <div class="mi-sum-mob-final-val" data-value="a.final">—</div>
-    </div>
-    <div class="mi-sum-mob-delta-col">
-      <svg class="mi-delta-mark"
-           viewBox="0 0 10.754103 9.3092775"
-           preserveAspectRatio="xMidYMid meet"
-           focusable="false"
-           aria-hidden="true">
-        <use href="#mi-delta-symbol" x="0" y="0" width="100%" height="100%"></use>
-      </svg>
-      <span class="syn-delta-value" data-value="gap.sep">—</span>
-    </div>
-    <div class="mi-sum-mob-final mi-sum-mob-final-b">
-      <div class="mi-sum-mob-final-label">Final MI</div>
-      <div class="mi-sum-mob-final-val" data-value="b.final">—</div>
-    </div>
-  </div>
-</section>
-<!-- ================================================================ -->
+              <td class="syn-label syn-label-b">
+                <div class="syn-label-stack">
+                  <div class="syn-label-main">Defensive Breadth</div>
+                  <div class="syn-label-hint">Defensive structural balance</div>
+                </div>
+              </td>
+            </tr>
 
-</div><!-- end #analysisShell -->
+            <!-- Effective Matchup Adjustment -->
+            <tr>
+              <td class="syn-label syn-label-a">
+                <div class="syn-label-stack">
+                  <div class="syn-label-main" data-copy="summary.score_build.effective_adj">Effective Matchup Adjustment</div>
+                  <div class="syn-label-hint" data-copy="summary.score_build.effective_adj_hint">Applied matchup impact</div>
+                </div>
+              </td>
+
+              <td class="syn-val syn-val-a syn-contrib-cell">
+                <div class="mi-synth-inline-wrap">
+                  <div class="mi-synth-inline-bar" aria-hidden="true">
+                    <span class="mi-synth-inline-center"></span>
+                    <span class="mi-synth-inline-fill mi-synth-inline-fill-neg" id="synIntEffBarAneg"></span>
+                    <span class="mi-synth-inline-fill mi-synth-inline-fill-pos" id="synIntEffBarApos"></span>
+                  </div>
+                  <span class="mi-synth-inline-value" data-value="a.int_eff">—</span>
+                </div>
+              </td>
+
+              <td class="syn-val syn-val-b syn-contrib-cell">
+                <div class="mi-synth-inline-wrap">
+                  <div class="mi-synth-inline-bar" aria-hidden="true">
+                    <span class="mi-synth-inline-center"></span>
+                    <span class="mi-synth-inline-fill mi-synth-inline-fill-neg" id="synIntEffBarBneg"></span>
+                    <span class="mi-synth-inline-fill mi-synth-inline-fill-pos" id="synIntEffBarBpos"></span>
+                  </div>
+                  <span class="mi-synth-inline-value" data-value="b.int_eff">—</span>
+                </div>
+              </td>
+
+              <td class="syn-label syn-label-b">
+                <div class="syn-label-stack">
+                  <div class="syn-label-main" data-copy="summary.score_build.effective_adj">Effective Matchup Adjustment</div>
+                  <div class="syn-label-hint" data-copy="summary.score_build.effective_adj_hint">Applied matchup impact</div>
+                </div>
+              </td>
+            </tr>
+
+            <!-- Resume Calibration -->
+            <tr>
+              <td class="syn-label syn-label-a">
+                <div class="syn-label-stack">
+                  <div class="syn-label-main">Résumé Calibration</div>
+                  <div class="syn-label-hint">Baseline pull toward field mean</div>
+                </div>
+              </td>
+
+              <td class="syn-val syn-val-a syn-contrib-cell">
+                <div class="mi-synth-inline-wrap">
+                  <div class="mi-synth-inline-bar" aria-hidden="true">
+                    <span class="mi-synth-inline-center"></span>
+                    <span class="mi-synth-inline-fill mi-synth-inline-fill-neg" id="synResumeBarAneg"></span>
+                    <span class="mi-synth-inline-fill mi-synth-inline-fill-pos" id="synResumeBarApos"></span>
+                  </div>
+                  <span class="mi-synth-inline-value" data-value="a.resume_cal">—</span>
+                </div>
+              </td>
+
+              <td class="syn-val syn-val-b syn-contrib-cell">
+                <div class="mi-synth-inline-wrap">
+                  <div class="mi-synth-inline-bar" aria-hidden="true">
+                    <span class="mi-synth-inline-center"></span>
+                    <span class="mi-synth-inline-fill mi-synth-inline-fill-neg" id="synResumeBarBneg"></span>
+                    <span class="mi-synth-inline-fill mi-synth-inline-fill-pos" id="synResumeBarBpos"></span>
+                  </div>
+                  <span class="mi-synth-inline-value" data-value="b.resume_cal">—</span>
+                </div>
+              </td>
+
+              <td class="syn-label syn-label-b">
+                <div class="syn-label-stack">
+                  <div class="syn-label-main">Résumé Calibration</div>
+                  <div class="syn-label-hint">Baseline pull toward field mean</div>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ================ SCORE SYNTHESIS (MOBILE ONLY) ================ -->
+    <section id="summarySectionMobile" class="card summary-card mi-sum-mob-wrap" aria-label="Score Synthesis">
+      <div class="mi-sum-mob-title matchup-kicker">Score Synthesis</div>
+      <div class="mi-sum-mob-header-row">
+        <div class="mi-sum-mob-team-slot mi-sum-mob-team-slot-a">
+          <div id="summaryMobileBrandA" class="mi-team-brand mi-team-brand--summary-mobile">
+            <img id="summaryMobileLogoA" class="mi-team-brand-logo" alt="" hidden>
+            <span
+              id="summaryMobileTeamA"
+              class="mi-team-brand-name mi-sum-mob-team-name mi-sum-mob-team-name-a"
+              data-sum-team="a"
+            >Team A</span>
+          </div>
+        </div>
+
+        <div class="mi-sum-mob-col-spacer"></div>
+
+        <div class="mi-sum-mob-team-slot mi-sum-mob-team-slot-b">
+          <div id="summaryMobileBrandB" class="mi-team-brand mi-team-brand--summary-mobile">
+            <img id="summaryMobileLogoB" class="mi-team-brand-logo" alt="" hidden>
+            <span
+              id="summaryMobileTeamB"
+              class="mi-team-brand-name mi-sum-mob-team-name mi-sum-mob-team-name-b"
+              data-sum-team="b"
+            >Team B</span>
+          </div>
+        </div>
+      </div>
+      <div class="mi-sum-mob-rows">
+        <div class="mi-sum-mob-row">
+          <span class="mi-sum-mob-val mi-sum-mob-val-a" data-value="a.base">—</span>
+          <span class="mi-sum-mob-label">Baseline MI</span>
+          <span class="mi-sum-mob-val mi-sum-mob-val-b" data-value="b.base">—</span>
+        </div>
+        <div class="mi-sum-mob-row">
+          <span class="mi-sum-mob-val mi-sum-mob-val-a" data-value="a.off_breadth">—</span>
+          <span class="mi-sum-mob-label">Offensive Breadth</span>
+          <span class="mi-sum-mob-val mi-sum-mob-val-b" data-value="b.off_breadth">—</span>
+        </div>
+        <div class="mi-sum-mob-row">
+          <span class="mi-sum-mob-val mi-sum-mob-val-a" data-value="a.def_breadth">—</span>
+          <span class="mi-sum-mob-label">Defensive Breadth</span>
+          <span class="mi-sum-mob-val mi-sum-mob-val-b" data-value="b.def_breadth">—</span>
+        </div>
+        <div class="mi-sum-mob-row">
+          <span class="mi-sum-mob-val mi-sum-mob-val-a" data-value="a.int_eff">—</span>
+          <span class="mi-sum-mob-label">Matchup Adjustment</span>
+          <span class="mi-sum-mob-val mi-sum-mob-val-b" data-value="b.int_eff">—</span>
+        </div>
+        <div class="mi-sum-mob-row">
+          <span class="mi-sum-mob-val mi-sum-mob-val-a" data-value="a.resume_cal">—</span>
+          <span class="mi-sum-mob-label">Résumé Calibration</span>
+          <span class="mi-sum-mob-val mi-sum-mob-val-b" data-value="b.resume_cal">—</span>
+        </div>
+      </div>
+      <div class="mi-sum-mob-finals">
+        <div class="mi-sum-mob-final mi-sum-mob-final-a">
+          <div class="mi-sum-mob-final-label">Final MI</div>
+          <div class="mi-sum-mob-final-val" data-value="a.final">—</div>
+        </div>
+        <div class="mi-sum-mob-delta-col">
+          <svg class="mi-delta-mark"
+               viewBox="0 0 10.754103 9.3092775"
+               preserveAspectRatio="xMidYMid meet"
+               focusable="false"
+               aria-hidden="true">
+            <use href="#mi-delta-symbol" x="0" y="0" width="100%" height="100%"></use>
+          </svg>
+          <span class="syn-delta-value" data-value="gap.sep">—</span>
+        </div>
+        <div class="mi-sum-mob-final mi-sum-mob-final-b">
+          <div class="mi-sum-mob-final-label">Final MI</div>
+          <div class="mi-sum-mob-final-val" data-value="b.final">—</div>
+        </div>
+      </div>
+    </section>
+    <!-- ================================================================ -->
+
+  </div><!-- end #analysisShell -->
+</div><!-- end #postMatchup -->
 
     <!-- ================ DEBUG PANEL ================ -->
     <section id="debugPanel" class="card debug-card hidden">
@@ -1565,7 +1587,7 @@
 
   </div><!-- end .app-shell -->
 
-  <script src="madness_index.js?v=35"></script>
+  <script src="madness_index.js?v=38"></script>
 
 <script>
 (function () {
@@ -1574,6 +1596,24 @@
   var shellEl = document.querySelector(".app-shell");
 
   if (!entryEl) return;
+
+  function clearAllScrollLocks() {
+    document.documentElement.classList.remove("mi-verdict-scroll-lock");
+    document.body.classList.remove("mi-verdict-scroll-lock");
+    document.body.classList.remove("mi-entry-lock");
+
+    document.documentElement.style.overflow = "";
+    document.documentElement.style.overflowY = "";
+    document.documentElement.style.overflowX = "";
+    document.documentElement.style.touchAction = "";
+    document.documentElement.style.overscrollBehaviorY = "";
+
+    document.body.style.overflow = "";
+    document.body.style.overflowY = "";
+    document.body.style.overflowX = "";
+    document.body.style.touchAction = "";
+    document.body.style.overscrollBehaviorY = "";
+  }
 
   function shutdownInstallUi() {
     if (typeof window.miSetInstallUiActive === "function") {
@@ -1599,15 +1639,21 @@
     }
   }
 
-  // If session already has flag → hide immediately and keep install inert
-  if (sessionStorage.getItem(ENTRY_KEY)) {
+  function hideEntryImmediately() {
     entryEl.classList.add("is-hidden");
     entryEl.setAttribute("aria-hidden", "true");
     shutdownInstallUi();
+    clearAllScrollLocks();
+  }
+
+  // If session already has flag → hide immediately and hard-clear any lock state
+  if (sessionStorage.getItem(ENTRY_KEY)) {
+    hideEntryImmediately();
     return;
   }
 
   // First visit this session
+  clearAllScrollLocks();
   document.body.classList.add("mi-entry-lock");
   entryEl.setAttribute("aria-hidden", "false");
   startupInstallUi();
@@ -1619,9 +1665,15 @@
     shutdownInstallUi();
 
     entryEl.classList.add("is-hidden");
-
-    document.body.classList.remove("mi-entry-lock");
     entryEl.setAttribute("aria-hidden", "true");
+
+    clearAllScrollLocks();
+
+    // Optional: fade in the main shell smoothly
+    if (shellEl) {
+      shellEl.classList.add("mi-home-visible");
+      shellEl.classList.remove("mi-home-hidden");
+    }
 
     // Optional: remove element after animation finishes
     setTimeout(function () {
@@ -1644,6 +1696,13 @@
       }
     }
   });
+
+  // Final safety pass after the current call stack / paint
+  setTimeout(function () {
+    if (sessionStorage.getItem(ENTRY_KEY)) {
+      hideEntryImmediately();
+    }
+  }, 0);
 })();
 </script>
 

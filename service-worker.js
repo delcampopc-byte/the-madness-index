@@ -1,17 +1,21 @@
-const MI_BUILD = '35';
+const MI_BUILD = '38';
 const MI_CACHE_NAME = `mi-cache-${MI_BUILD}`;
 
 const MI_ASSETS = [
   './',
   './index.html',
-  './styles2.css?v=35',
-  './mobile.css?v=35',
-  './madness_index.js?v=35',
-  './copy.json?v=35',
-  './manifest.json?v=35',
+  './styles2.css?v=38',
+  './mobile.css?v=38',
+  './madness_index.js?v=38',
+  './copy.json?v=38',
+  './manifest.json?v=38',
+  './data/branding/team_branding.json?v=38',
   './assets/img/logos/madness-index-home-logo.png',
   './assets/img/logos/mi-app-icon-192.png',
   './assets/img/logos/mi-app-icon-512.png',
+  './data/csvs/mi_2016_official.csv',
+  './data/csvs/mi_2017_official.csv',
+  './data/csvs/mi_2018_official.csv',
   './data/csvs/mi_2019_official.csv',
   './data/csvs/mi_2021_official.csv',
   './data/csvs/mi_2022_official.csv',
@@ -22,10 +26,22 @@ const MI_ASSETS = [
 ];
 
 self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(MI_CACHE_NAME).then((cache) => cache.addAll(MI_ASSETS))
-  );
-  self.skipWaiting();
+  event.waitUntil((async () => {
+    const cache = await caches.open(MI_CACHE_NAME);
+    const results = await Promise.allSettled(
+      MI_ASSETS.map(async (asset) => {
+        const req = new Request(asset, { cache: 'reload' });
+        const res = await fetch(req);
+        if (!res.ok) throw new Error(`${asset} -> ${res.status}`);
+        await cache.put(req, res.clone());
+      })
+    );
+    const failures = results.filter(r => r.status === 'rejected');
+    if (failures.length) {
+      console.warn('[MI SW] Precache failures:', failures.map(f => f.reason));
+    }
+    self.skipWaiting(); // ← MOVE IT HERE, inside the waitUntil
+  })());
 });
 
 self.addEventListener('activate', (event) => {
@@ -33,14 +49,11 @@ self.addEventListener('activate', (event) => {
     caches.keys().then((keys) =>
       Promise.all(
         keys.map((key) => {
-          if (key !== MI_CACHE_NAME) {
-            return caches.delete(key);
-          }
+          if (key !== MI_CACHE_NAME) return caches.delete(key);
         })
       )
-    )
+    ).then(() => self.clients.claim()) // ← MOVE claim() here, AFTER cache cleanup
   );
-  self.clients.claim();
 });
 
 self.addEventListener('fetch', (event) => {

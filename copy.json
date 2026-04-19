@@ -39,17 +39,16 @@
   "patch_notes": {
     "title": "Patch Notes",
     "hint": "Click for Patch Notes",
-    "badge": "Version 5.0 (Build 35)",
+    "badge": "Version 5.1 (Build 38)",
     "max_items": 10,
     "items": [
       {
-        "build": "Build 35",
-        "date": "2026-04-14",
+        "build": "Build 38",
+        "date": "2026-04-19",
         "bullets": [
-          "Added the 2019 and 2021 Datasets.",
-          "The Glossary has been updated to remove legacy terms and definitions, and all new terms are now defined.",
-          "The Madness Index should now be fully compatible on all mobile devices. iPhone users can now add The Madness Index to their homescreen.",
-          "Team branding has been fully incorporated throughout the app, including all team logos and color schemes."
+          "Added 2016, 2017, 2018, and 2019 datasets.",
+          "Significantly improved mobile functionality.",
+          "Seed Fit has been added as a new metric, designed to identify teams that profile either above or below their assigned seed."
         ]
       }
     ]
@@ -411,6 +410,16 @@
       "neutral": "CIS: {{cis}} • FAS: {{fas}}"
     }
   },
+  "seed_fit_ui": {
+    "narrative": {
+      "strong": "This team profiles well above its assigned seed.",
+      "above": "This team profiles as a higher seed than the one assigned.",
+      "typical": "This team's profile aligns with its assigned seed.",
+      "below": "This team profiles as a lower seed than the one assigned.",
+      "weak": "This team significantly underperforms its assigned seed expectation.",
+      "unavailable": "No seed-fit interpretation is available."
+    }
+  },
   "formula_explain": {
     "template": "Team Total ({{total}}) = Core Traits ({{core}}) + Breadth Bonus ({{breadth}}) + Résumé Context ({{resume}}) + Matchup Interactions ({{interactions}})."
   }, 
@@ -529,7 +538,7 @@
     "role_auto": "Auto (by seed)",
     "role_Afav": "Force Team A Favorite",
     "role_Bfav": "Force Team B Favorite",
-    "compare_btn": "Compare Matchup",
+    "compare_btn": "Compare Teams",
     "swap_btn": "Swap Teams",
     "round_help": "",
     "debug_btn": "Toggle Debug View"
@@ -2050,7 +2059,7 @@
   },
   "footer": {
     "note": "All logic is deterministic and based solely on the uploaded season stats.",
-    "contact_label": "Questions, observations, or feedback:   ",
+    "contact_label": "Questions or feedback:   ",
     "contact_email": "themadnessindex@gmail.com"
   }
 }

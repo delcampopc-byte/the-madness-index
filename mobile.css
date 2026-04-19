@@ -13,7 +13,7 @@
 /* Honor iPhone notch / home-bar safe areas */
 @supports (padding: env(safe-area-inset-bottom)) {
   body {
-    padding-bottom: max(4px, env(safe-area-inset-bottom));
+    padding-bottom: max(32px, env(safe-area-inset-bottom));
   }
 }
 
@@ -107,7 +107,18 @@
   }
 
   .hero-tagline {
-    letter-spacing: 0.08px;
+    letter-spacing: 0.08em;
+    max-height: 28px !important;
+    font-size: 16px !important;
+    letter-spacing: 0.06em !important;
+  }
+
+  .version-badge-btn .vb-hint {
+    margin: 0 !important;
+    font-size: 7px !important;
+    color: var(--mi-text-muted) !important;
+    letter-spacing: 0.04em !important;
+    font-weight: 550 !important;
   }
 
   .app-shell.pre-matchup .hero-logo {
@@ -159,6 +170,7 @@
     flex-direction: column;
     align-items: stretch;
     gap: 10px;
+    margin-bottom: 8px !important;
   }
 
   /* Round button + sandbox toggle: stack cleanly */
@@ -211,6 +223,7 @@
     justify-content: center !important;
     gap: 10px !important;
     width: 100% !important;
+    margin-bottom: 8px !important;
   }
 
   #preSetupRow .select-wrap {
@@ -242,9 +255,22 @@
     min-height: 44px !important;
   }
 
+  #matchupSetupCard label, 
+  #matchupSetupCard .helper-text,
+  #matchupSetupCard .sandbox-toggle span {
+    font-size: 10px !important;
+    letter-spacing: 0.04em !important;
+  }
+
+  #matchupSetupCard button.btn {
+   font-size: 29px !important;
+   color: #F4F8FF !important;
+   font-weight: 7000 !important;
+  }
+
   #preSetupRow .sandbox-toggle.enhanced-sandbox {
     flex: 1 1 0 !important;
-    min-height: 44px !important;
+    min-height: 0 !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
@@ -268,7 +294,8 @@
 
   #preSetupRow #compareBtn {
     width: 100% !important;
-    max-width: 340px !important;
+    max-width: 200px !important;
+    max-height: 24px !important;
   }
 
   /* ── Helper text under Step 3 ── */
@@ -361,14 +388,30 @@
 
   /* ── Version badge: stay readable at phone density ──────────────────  */
   .version-badge-btn {
-    font-size: 10px !important;
-    padding: 6px 10px !important;
-    min-height: 36px !important;
+    font-size: 7px !important;
+    padding: 2px 5px !important;
+    min-height: 32px !important;
+    height: auto !important;
+  }
+
+  .version-badge-btn .vb-new {
+    font-size: 8px !important;
+    letter-spacing: 0.03em !important;
+    font-weight: 600 !important;
+    padding: 1px 2px !important;
+  }
+
+  .hero-tagline::after {
+    display: none !important;
+  }
+
+  .version-badge-btn .vb-line1 {
+    column-gap: 2px !important;
   }
 
   /* ── Bottom breathing room above the glossary bottom bar ────────────  */
   .app-shell {
-    padding-bottom: 72px !important;
+    padding-bottom: calc(156px + env(safe-area-inset-bottom, 0px)) !important;
   }
 }
 
@@ -759,7 +802,7 @@
 
   .profile-support-row .context-tile .tile-face.tile-front,
   .profile-support-row .context-tile .tile-face.tile-back {
-    gap: 1px !important;
+    gap: 8px !important;
   }
 
   .mi-eff-module .mi-eff-seg {
@@ -773,7 +816,7 @@
   #favCard .explain-table th,
   #favCard .explain-table td {
     font-size: 8px !important;
-    padding: 8px 4px !important;
+    padding: 6px 2px !important;
     line-height: 1 !important;
     vertical-align: middle !important;
   }
@@ -783,7 +826,7 @@
   #cindCard .explain-table td:nth-child(2),
   #favCard .explain-table th:nth-child(2),
   #favCard .explain-table td:nth-child(2) {
-    display: none !important;
+    width: 16% !important;
   }
 
   /* Redistribute widths across the 4 remaining columns:
@@ -792,28 +835,28 @@
   #cindCard .explain-table td:nth-child(1),
   #favCard .explain-table th:nth-child(1),
   #favCard .explain-table td:nth-child(1) {
-    width: 32% !important;
+    width: 29% !important;
   }
 
   #cindCard .explain-table th:nth-child(3),
   #cindCard .explain-table td:nth-child(3),
   #favCard .explain-table th:nth-child(3),
   #favCard .explain-table td:nth-child(3) {
-    width: 20% !important;
+    width: 18% !important;
   }
 
   #cindCard .explain-table th:nth-child(4),
   #cindCard .explain-table td:nth-child(4),
   #favCard .explain-table th:nth-child(4),
   #favCard .explain-table td:nth-child(4) {
-    width: 30% !important;
+    width: 25% !important;
   }
 
   #cindCard .explain-table th:nth-child(5),
   #cindCard .explain-table td:nth-child(5),
   #favCard .explain-table th:nth-child(5),
   #favCard .explain-table td:nth-child(5) {
-    width: 20% !important;
+    width: 16% !important;
   }
 
   /* Section header rows span all visible columns */
@@ -1075,7 +1118,7 @@
   #favCard .mark-chip {
     width: 67px !important;
     min-width: 40px !important;
-    max-width: 70px !important;
+    max-width: 75px !important;
     min-height: 80px !important;
     max-height: 90px !important;
     font-size: 8px !important;
@@ -1083,10 +1126,10 @@
   }
 
   .team-card-marks .mark-title {
-    font-size: 10px;
-    font-weight: 600 !important;
+    font-size: 9px;
+    font-weight: 680 !important;
     min-height: calc(0.04em * 2) !important;
-    padding-bottom: 8px !important;
+    padding-bottom: 6px !important;
   }
   
   .team-card-marks .mark-chip .mark-badge {
@@ -1187,7 +1230,7 @@
     align-items: center !important;
     justify-content: center !important;
     position: absolute !important;
-    top: 10px !important;
+    top: 0 !important;
     left: 50% !important;
     right: 0 !important;
     height: 28px !important;
@@ -1204,13 +1247,13 @@
     border-radius: 12px;
 
     padding: 0 16px !important;
-    margin-left: auto !important;
     margin-right: auto !important;
     margin-top: 8px !important;
     margin-bottom: 4px !important;
     white-space: nowrap !important;
 
     transform: translateX(-50%) !important;
+    transform: translate(-50%, -50%);
 
     box-shadow:
       0 10px 22px rgba(0,0,0,0.45),
@@ -1360,6 +1403,7 @@
   #volatilityTierPill {
     position: relative;
     top: 34px;
+    left: 17px;  
   }
 
   #interactionsSection .volatility-tier-pill {
@@ -1423,7 +1467,6 @@
 
   #summarySectionMobile.mi-sum-mob-wrap {
     position: relative !important;
-    overflow: hidden !important;
 
     padding: 12px 12px 6px !important;
     border-radius: 18px !important;
@@ -1575,15 +1618,16 @@
 
   /* Title */
   #summarySectionMobile .mi-sum-mob-title {
-    display: flex !important;
+    display: inline-flex !important;
     justify-content: center !important;
     text-align: center !important;
     align-self: center !important;
     align-items: center !important;
-    left: 78px !important;
-
-    width: 50% !important;
-    margin: 0 0 12px !important;
+    left: auto !important;
+    right: auto !important;
+    width: fit-content!important;
+    max-width: calc(100% - 24px) !important;
+    margin: 0 auto 12px !important;
     padding: 9px 12px !important;
 
     font-size: 11px !important;
@@ -1612,7 +1656,7 @@
     display: grid !important;
     grid-template-columns: minmax(0, 1fr) 44px minmax(0, 1fr) !important;
     align-items: stretch !important;
-    gap: 8px !important;
+    gap: 16px !important;
 
     margin-bottom: 10px !important;
     padding-bottom: 10px !important;
@@ -1754,7 +1798,7 @@
     display: grid !important;
     grid-template-columns: minmax(0, 1fr) 104px minmax(0, 1fr) !important;
     align-items: center !important;
-    gap: 4px !important;
+    gap: 16px !important;
 
     min-height: 34px !important;
     padding: 7px 0 !important;
@@ -1820,7 +1864,7 @@
     display: grid !important;
     grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) !important;
     align-items: stretch !important;
-    gap: 8px !important;
+    gap: 32px !important;
 
     padding: 10px !important;
     margin-bottom: 2px !important;
@@ -1950,6 +1994,53 @@
     line-height: 1.35 !important;
     max-width: 34ch !important;
   }
+
+  #summarySectionMobile.mi-sum-mob-wrap {
+    position: relative !important;
+
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    margin-bottom: 1px !important;
+
+    padding: 12px 12px 6px !important;
+    border-radius: 18px !important;
+    border: 1px solid rgba(148, 163, 184, 0.20) !important;
+
+    background:
+      radial-gradient(
+        120% 160% at 0% 0%,
+        rgb(var(--mi-brand-a-rgb, 107 114 128) / 0.14),
+        transparent 42%
+      ),
+      radial-gradient(
+        110% 150% at 12% 8%,
+        rgb(var(--mi-brand-a-tertiary-rgb, 107 114 128) / 0.10),
+        transparent 34%
+      ),
+      radial-gradient(
+        120% 160% at 100% 0%,
+        rgb(var(--mi-brand-b-rgb, 107 114 128) / 0.14),
+        transparent 42%
+      ),
+      radial-gradient(
+        110% 150% at 88% 8%,
+        rgb(var(--mi-brand-b-tertiary-rgb, 107 114 128) / 0.10),
+        transparent 34%
+      ),
+      linear-gradient(
+        180deg,
+        rgba(8, 14, 28, 0.94) 0%,
+        rgba(3, 7, 18, 0.96) 100%
+      ) !important;
+
+    box-shadow:
+      0 18px 42px rgba(0,0,0,0.46),
+      inset 0 1px 0 rgba(255,255,255,0.05),
+      inset 0 0 0 1px rgba(255,255,255,0.03) !important;
+
+    isolation: isolate !important;
+  }
 }
 
 @media (max-width: 720px) {
@@ -2028,7 +2119,6 @@
   /* Panel: starts below the screen, slides up on open */
   .mi-glossary-panel {
     top: auto !important;
-    pointer-events: auto !important;
     position: absolute !important;
     left: 50% !important;
     right: auto !important;
@@ -2042,14 +2132,21 @@
     margin-right: 0 !important;
 
     transform: translateX(-50%) translateY(110%) !important;
-    opacity: 1 !important;
-    visibility: visible !important;
-    transition: transform 260ms cubic-bezier(.16, 1, .3, 1) !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+
+    transition:
+      transform 260ms cubic-bezier(.16, 1, .3, 1) !important;
   }
 
-  /* Open state: panel slides into view */
   .mi-glossary.mi-glossary--open .mi-glossary-panel {
     transform: translateX(-50%) translateY(0) !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+    transition:
+      transform 260ms cubic-bezier(.16, 1, .3, 1) !important;
   }
 
   /* Keep handle fully visible when panel is open
@@ -2344,15 +2441,29 @@
   }
 
   #verdictShell {
-    padding-top: 2px !important;
+    padding-top: 0 !important;
+    min-height: 0 !important;
+    max-height: 1070px !important;
+  }
+
+  #verdictShell.card.mi-verdict-shell {
+    min-height: 0 !important;
+    max-height: 1070px !important;
+  }
+
+  #matchupBar..matchup-bar:not(.is-editing) {
+    margin-top: 2px !important;
   }
 
   #verdictShell .mi-verdict-shell-inner{
-    padding: 1px !important;
+    padding: 0 !important;
+    min-height: 0 !important;
+    max-height: 1470px !important;
+    height: 100% !important;
   }
 
   #verdictShell .mi-verdict-grid{
-    padding: 3px !important;
+    padding: 0 !important;
     row-gap: 6px !important;
   }
 }
@@ -2515,11 +2626,11 @@
 @media (max-width: 600px) {
   .enhanced-header {
     padding: 6px 10px 6px !important;
-    gap: 2px !important;
+    gap: 0.5px !important;
   }
 
   .hero-logo {
-    max-height: 48px !important;
+    max-height: 40px !important;
   }
 
   .mi-matchup-dock {
@@ -2781,7 +2892,8 @@
   #favCard .card-face.card-front,
   #cindCard .tile-face.tile-front,
   #favCard .tile-face.tile-front {
-    padding: 2px !important;
+    padding: 1px !important;
+    margin: 2px !important;
   }
 
   #cindCard .profile-section.flip-tile,
@@ -3117,7 +3229,9 @@
   }
 
   #verdictShell .mi-verdict-disclaimer {
-    font-size: 7px !important;
+    font-size: 5px !important;
+    text-wrap-mode: pretty !important;
+    max-height: 20px; 
   }
 
   #verdictShell #miVerdictMetricsTile .mi-scorebug-team {
@@ -3151,18 +3265,157 @@
  
   .pre-hub-status {
     margin-top: 4px;
-    margin-bottom: 4px; 
+    margin-bottom: 0; 
     padding: 6px 10px;
+    column-gap: 6px !important;
+  }
+
+  .mi-dataset-dd-label {
+    font-size: 10px !important;
+    font-weight: 400 !important;
+    color: var(--mi-text-muted) !important;
+    letter-spacing: 0.04em !important;
+  }
+
+  .round-step-label.step-label {
+    margin-bottom: 4px !important;
+    font-size: 12px !important;
+    letter-spacing: 0.04em !important;
+    font-weight: 750 !important;
+    color: var(--mi-text-primary) !important;
+  }
+ 
+  #matchupSetupCard #teamASelectWrap.home-team-select .mi-team-dd-btn,
+  #matchupSetupCard #teamBSelectWrap.home-team-select .mi-team-dd-btn {
+    min-height: 0 !important;
+    max-height: 28px !important;
+    margin-bottom: 2px !important;
+  }
+
+  #matchupSetupCard #teamASelectWrap.home-team-select,
+  #matchupSetupCard #teamBSelectWrap.home-team-select {
+    min-height: 0 !important;
+    max-height: 32px !important;
+  }
+
+  #mcRow1.matchup-step.mc-row.is-primary-entry {
+    margin: 2px 4px !important;
+    padding: 4px !important;
+  }
+
+  #mcRow3.matchup-step.mc-row.is-primary-entry {
+    margin-bottom: 6px !important;
+  }
+
+  #mcRow3.matchup-step.mc-row.is-primary-entry .round-step-label {
+    margin-bottom: 0 !important;
+    margin-top: 0 !important;
+  }
+
+  #preSetupRow .round-control-row {
+    margin-top: 0 !important;
+    margin-bottom: 12px !important;
+    column-gap: 14px !important;
+  }
+
+  #mcRow3.matchup-step.mc-row {
+    padding: 10px 12px 2px !important;
+    margin-top: 1px !important;
+  }
+
+  #compareBtn.btn.primary.compare-btn-disabled {
+    min-height: 0 !important;
+    max-height: 60px !important;
+    margin-bottom: 24px !important;
+  }
+
+  #matchupSetupCard .sandbox-toggle {
+    min-height: 0 !important;
+    max-height: 24px !important;
+  }
+
+  #preSetupRow .sandbox-toggle.enhanced-sandbox {
+    max-height: 28px !important;
+
+    padding: 0 2px !important;
+    min-width: 0 !important;
+    max-width: 120px !important;
+  }
+
+  #roundSelectorWrap.round-selector-wrap {
+    min-width: 0 !important;
+    max-width: 144px !important;
+  }
+
+  .mi-team-dd-search {
+    font-size: 9px !important;
+    letter-spacing: 0.04em !important;
+    color: var(--mi-text-muted) !important;
+  }
+
+  #mcRow2.matchup-step.mc-row {
+    padding-bottom: 4px !important;
+  }
+
+  .mi-team-dd-item {
+    padding: 4px !important;
+    min-height: 0 !important;
+    max-height: 36px !important;
+    margin-bottom: 4px !important;
+    font-size: 8px !important;
+  }
+
+  .mi-team-dd .mi-team-dd-panel {
+    top: calc(100% - 125px) !important;
+    opacity: 1 !important;
+  }
+
+  .mi-label {
+    font-size: 8px !important;
+    height: auto !important;
+  }
+
+  .round-control-row {
+    margin-bottom: 12px !important;
+  }
+
+  #roundSelectBtn.btn.ghost.round-btn {
+    min-height: 0 !important;
+    max-height: 28px !important;
+    font-size: 10px !important;
+    font-weight: 400 !important;
+    color: var(--mi-text-muted) !important;
+    letter-spacing: 0.04em !important;
+  }
+
+  .round-step-label {
+    margin-bottom: 4px !important;
+    font-size: 12px !important;
+    letter-spacing: 0.04em !important;
+    font-weight: 750 !important;
+    color: var(--mi-text-primary) !important;
+  }
+
+  .mi-team-dd-btn {
+    min-height: 0 !important;
+    max-height: 16px !important;
+    letter-spacing: 0.04em !important;
+  }
+
+  #preMatchupHub.card.pre-matchup-hub {
+    padding-top: 1px !important;
   }
 
   .pre-status-label {
-    font-size: 10px;
+    font-size: 8px;
     font-weight: 550;
+    letter-spacing: 0.04em !important;
     color: var(--mi-text-primary);
   }
 
-  .app-shell .pre-matchup {
-    padding: 12px !important;
+  .app-shell.pre-matchup {
+    padding: 4px !important;
+    margin-top: 6px !important;
   }
 
   #datasetCard #status {
@@ -3211,7 +3464,8 @@
 @media (max-width: 720px) {
   /* Never hard-lock page scrolling on mobile */
   html.mi-verdict-scroll-lock,
-  body.mi-verdict-scroll-lock {
+  body.mi-verdict-scroll-lock,
+  body.mi-entry-lock {
     overflow-y: auto !important;
     overflow-x: hidden !important;
     min-height: auto !important;
@@ -3486,7 +3740,66 @@
   html,
   body {
     overflow-x: hidden !important;
+    overflow-y: visible !important;
     max-width: 100% !important;
+    height: auto !important;
+    min-height: 155svh !important;
+    max-height: 155svh !important;
+  }
+
+  /* Entry Screen — Mobile viewport fit (no scroll at 100%) */
+  #mi-entry-screen {
+    position: fixed;
+    inset: 0;
+    bottom: 18px !important;
+
+    display: flex;
+    flex-direction: column;
+
+    /* Anchor slightly higher instead of perfect center */
+    justify-content: center;
+    align-items: center;
+
+    /* Respect real mobile viewport height */
+    min-height: 1svh;
+    max-height: 100svh;
+
+    padding-top: 0;
+    padding-bottom: 14vh;
+
+    overflow: hidden;
+  }
+
+  .mi-entry-button {
+    font-size: 16px !important;
+    color: var(--mi-text-primary) !important;
+    font-weight: 750 !important;
+    letter-spacing: 0.06em !important;
+    padding: 4px 8px !important;
+    height: var(--mi-control-height) !important;
+    width: 200px !important;
+  }
+
+  .mi-entry-install-button {
+    font-size: 16px !important;
+    color: var(--mi-text-primary) !important;
+    font-weight: 750 !important;
+    letter-spacing: 0.06em !important;
+    padding: 4px 8px !important;
+    height: var(--mi-control-height) !important;
+    width: 155px !important;
+    max-width: 155px !important;
+  }
+
+  #miInstallBtn {
+    display: block !important;
+    font-size: 16px !important;
+    color: var(--mi-text-primary) !important;
+    font-weight: 750 !important;
+    letter-spacing: 0.06em !important;
+    padding: 4px 8px !important;
+    height: var(--mi-control-height) !important;
+    margin-top: 0 !important;
   }
 
   .app-shell {
@@ -3497,6 +3810,11 @@
   #matchupBar .mi-matchup-dock,
   #matchupBar .matchup-bar-main {
     overflow: visible !important;
+  }
+
+  .mi-entry-inner {
+    vertical-align: top !important;
+    row-gap: 18px !important;
   }
 
   #matchupBar::before,
@@ -3602,9 +3920,21 @@
     justify-content: center !important;
     align-items: center !important;
     width: 100% !important;
-    margin: 6px auto 0 !important;
+    margin: 0 auto 0 !important;
     overflow: visible !important;
     z-index: 10030 !important;
+  }
+
+  .mi-dataset-dd-trigger {
+    max-height: 32px !important;
+    min-height: 0 !important;
+  }
+
+  .app-shell.pre-matchup .card.controls-card {
+    padding-left: 9px !important;
+    padding-right: 9px !important;
+    padding-top: 1px !important;
+    padding-bottom: 7px !important;
   }
 
   .version-badge-btn {
@@ -3693,16 +4023,34 @@
   }
 
   #preMatchupHub .pre-hub-inner {
-    gap: 8px !important;
+    gap: 2px !important;
   }
 
   /* Header stays prominent, but tighter */
   #preMatchupHub .round-step-label {
-    margin: 0 0 4px 0 !important;
+    margin: 0 0 1px 0 !important;
     font-size: 11px !important;
     letter-spacing: 0.12em !important;
     line-height: 1.05 !important;
     text-align: center !important;
+  }
+
+  .mi-dataset-dd-panel.round-dropdown {
+    top: calc(100% - 100px) !important;
+    opacity: 1 !important;
+    height: auto !important;
+  }
+
+  .mi-dataset-dd-option.round-option {
+    font-size: 9px !important;
+    font-weight: 450 !important;
+    letter-spacing: 0.04em !important;
+    padding: 4px !important;
+    margin-bottom: 2px !important;
+    min-height: 0 !important;
+    max-height: 32px !important;
+    border: 1px solid !important;
+    border-color: var(--mi-border-subtle) !important;
   }
 
   /* Stack stays compact */
@@ -3807,11 +4155,14 @@
 @media (max-width: 420px) {
 
   #preMatchupHub {
-    padding: 8px 8px 7px !important;
+    padding: 8px 8px 4px !important;
   }
 
   #preMatchupHub .round-step-label {
     font-size: 10px !important;
+    font-weight: 700 !important;
+    color: var(--mi-text-primary) !important;
+    letter-spacing: 0.04em !important;
   }
 
   #preMatchupHub .pre-hub-steps {
@@ -3822,7 +4173,7 @@
     grid-template-columns: 20px minmax(0, 1fr) !important;
     column-gap: 8px !important;
     row-gap: 4px !important;
-    padding: 6px !important;
+    padding: 4px !important;
   }
 
   #preMatchupHub .pre-step-num {
@@ -3841,6 +4192,20 @@
   #preMatchupHub .pre-step-status {
     font-size: 8px !important;
     padding: 3px 7px !important;
+  }
+
+  #preMatchupHub .pre-step-label {
+    font-size: 8px !important;
+    font-weight: 650 !important;
+    color: var(--mi-text-muted) !important;
+    letter-spacing: 0.04em !important;
+  }
+  
+  #preMatchupHub .pre-step-text {
+    font-size: 7px !important;
+    font-weight: 600 !important;
+    color: var(--mi-text-faint) !important;
+    letter-spacing: 0.04em !important;
   }
 }
 
@@ -4112,9 +4477,25 @@
     display: grid !important;
   }
 
+  #datasetCard .round-step-label {
+    margin-bottom: 6px !important;
+    font-size: 12px !important;
+    letter-spacing: 0.04em !important;
+    font-weight: 750 !important;
+    color: var(--mi-text-primary) !important;
+  }
+
+  #datasetCard.card.controls-card.is-primary-entry {
+    margin-bottom: 4px !important;
+  }
+
   /* Optional: let the single visible row breathe slightly more */
   #preMatchupHub[data-mobile-step] .pre-step {
     margin: 0 !important;
+  }
+
+  .pre-setup-row .mc-row {
+    padding: 2px !important;
   }
 }
 
@@ -4122,7 +4503,7 @@
 @media (max-width: 720px) {
 
   #preSetupRow.pre-setup-row.top-bar {
-    row-gap: 8px !important;        /* was 18px */
+    row-gap: 4px !important;        /* was 18px */
   }
 }
 
@@ -4188,6 +4569,7 @@
     text-overflow: ellipsis !important;
     white-space: nowrap !important;
     text-align: center !important;
+    font-weight: 400 !important;
   }
 
   #matchupBar.is-editing #datasetQuickSelectWrap .mi-dataset-dd-panel,
@@ -4489,7 +4871,9 @@
 
   .mi-marks-back-row {
     gap: 1px !important;
-    margin-top: 1px !important;
+    margin-top: 6px !important;
+    row-gap: 4px !important;
+    padding-top: 6px !important;
   }
 
   .mi-marks-back-divider {
@@ -4508,21 +4892,21 @@
   }
   
   .mi-marks-back-desc {
-    font-size: 8px !important;
-    font-weight: 500 !important;
+    font-size: 10px !important;
+    font-weight: 600 !important;
     color: var(--mi-text-primary) !important;
   }
 
   #resumeTileA .context-label,
   #resumeTileB .context-label {
-    font-size: 11px !important;
-    font-weight: 600 !important;
+    font-size: 12px !important;
+    font-weight: 650 !important;
   }
 
   #resumeTileA .context-header,
   #resumeTileB .context-header {
-    row-gap: 1px !important;
-    margin-top: 16px !important;
+    row-gap: 6px !important;
+    margin-top: 2px!important;
   }
 
   .context-tile {
@@ -4590,6 +4974,8 @@
     grid-column: 2 !important;
     grid-row: 1 !important;
     width: auto !important;
+    height: 90% !important;
+    max-height: 100px !important;
     min-width: 0 !important;
     max-width: 100% !important;
     margin: 0 !important;
@@ -4696,6 +5082,8 @@
 
   #summarySectionMobile .mi-sum-mob-title.matchup-kicker {
     margin-bottom: 6px !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
     display: block !important;
     text-align: center !important;
   }
@@ -5221,5 +5609,484 @@
       rgba(255,255,255,0)
     );
     box-shadow: 0 0 8px rgba(255,255,255,0.10);
+  }
+}
+
+@media (max-width: 720px) {
+  #cindCard .profile-subtotal-row,
+  #favCard .profile-subtotal-row {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+    width: 100% !important;
+    margin: 6px 0 2px !important;
+    padding-bottom: 2px !important;
+    padding-top: 10px !important;
+  }
+
+  #cindCard .subtotal-main,
+  #favCard .subtotal-main {
+    position: relative !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+
+    width: 100% !important;
+    min-height: 70px !important;
+    padding: 6px 6px 4px !important;
+    margin: 0 !important;
+    text-align: center !important;
+
+    box-shadow:
+      0 0 0 1px rgba(56, 189, 248, 0.16),
+      0 0 18px rgba(56, 189, 248, 0.16),
+      inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
+  }
+
+  #cindCard .subtotal-main::before,
+  #favCard .subtotal-main::before {
+    inset: -6px !important;
+    border-radius: 20px !important;
+  }
+
+  #cindCard .subtotal-main .subtotal-label,
+  #favCard .subtotal-main .subtotal-label,
+  #cindCard .subtotal-main > span:first-child,
+  #favCard .subtotal-main > span:first-child {
+    font-size: 16px !important;
+    font-weight: 750 !important;
+    letter-spacing: 0.04em !important;
+    text-transform: none !important;
+    color: var(--mi-text-primary) !important;
+    line-height: 1 !important;
+  }
+
+  #cindCard .subtotal-main .subtotal-value,
+  #favCard .subtotal-main .subtotal-value {
+    font-size: clamp(24px, 7vw, 32px) !important;
+    line-height: 0.95 !important;
+    font-weight: 820 !important;
+    letter-spacing: 0.01em !important;
+    color: var(--mi-text-primary) !important;
+  }
+
+  #identityInlineA,
+  #identityInlineB {
+    width: 100% !important;
+    padding: 4px 8px !important;
+  }
+
+  .profile-static-tile{
+    display: block;
+  }
+
+  .profile-static-tile .tile-face.tile-front{
+    position: relative;
+    inset: auto;
+    height: 90%;
+    min-height: 100px;
+  }
+
+  .profile-static-tile .mi-flip-hint,
+  .profile-static-tile .tile-face.tile-back{
+    display: none !important;
+  }
+}
+
+@media (max-width: 920px){
+  .profile-subtotal-row{
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .subtotal-main{
+    align-items: center;
+    text-align: center;
+  }
+
+  .subtotal-identity{
+    justify-self: stretch;
+    padding-left: 12px;
+  }
+
+  .subtotal-identity::before{
+    display: none;
+  }
+}
+
+/* =========================================================
+   MOBILE — INTERACTIONS FACE VISIBILITY AUTHORITY
+   Do not change layout. Only control which face can be seen.
+   ========================================================= */
+@media (max-width: 720px) {
+
+  /* Default state: front face owns visibility */
+  #interactionsSection .interactions-left-tile.flip-tile:not(.flipped) .interactions-front-face {
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+    z-index: 2 !important;
+  }
+
+  #interactionsSection .interactions-left-tile.flip-tile:not(.flipped) .interactions-back-face {
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+    z-index: 1 !important;
+  }
+
+  /* Flipped state: back face owns visibility */
+  #interactionsSection .interactions-left-tile.flip-tile.flipped .interactions-front-face {
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+    z-index: 1 !important;
+  }
+
+  #interactionsSection .interactions-left-tile.flip-tile.flipped .interactions-back-face {
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+    z-index: 2 !important;
+  }
+
+  /* Prevent backface rendering glitches on iPhone/Safari */
+  #interactionsSection .interactions-front-face,
+  #interactionsSection .interactions-back-face {
+    -webkit-backface-visibility: hidden !important;
+    backface-visibility: hidden !important;
+  }
+
+  .seed-fit-inline {
+    margin-top: 2px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 4px !important;
+    justify-content: center !important;
+    text-align: center !important;
+  }
+
+  .seed-fit-inline-main {
+    display: block !important;
+  }
+
+  .seed-fit-inline-meta {
+    text-align: center !important;
+    justify-content: center !important;
+    margin: 3px 0 !important;
+  }
+ 
+  .seed-fit-inline-label {
+    margin: 3px 0 !important;
+  }
+
+  .seed-fit-inline-badge {
+    align-items: center !important;
+    box-sizing: border-box !important;
+    display: inline-flex !important;
+    flex-basis: auto !important;
+    flex-grow: 0 !important;
+    flex-shrink: 0 !important;
+    justify-content: center !important;
+    max-width: 78px !important;
+    height: 20px !important;
+    font-size: 9px !important;
+    font-weight: 680 !important;
+  }    
+
+  .seed-fit-inline-header {
+    font-size: 14px !important;
+    color: var(--mi-text-primary) !important;
+    letter-spacing: 0.04em !important;
+    margin: 3px 0 !important;
+    text-transform: none !important;
+    font-weight: 720 !important;
+  }
+
+  .inline-marks-strip {
+    padding-bottom: 2px !important;
+  }
+
+  .context-tile {
+    padding: 0 !important;
+  }
+
+  #cindCard .card-face.card-front,
+  #favCard .card-face.card-front,
+  #cindCard .tile-face.tile-front,
+  #favCard .tile-face.tile-front {
+    margin-bottom: 0 !important;
+  }
+
+  .profile-support-row .context-tier,
+  .profile-support-row .context-subrow,
+  .profile-support-row .context-note {
+    font-size: 8px !important;
+    letter-spacing: 0.04em !important;
+    font-weight: 650 !important;
+    color: var(--mi-text-muted) !important;
+  }
+
+  .profile-support-row .context-score {
+    font-size: 14px !important;
+    font-weight: 750 !important;
+    letter-spacing: 0.04em !important;
+  }
+}
+
+/* ============================================
+   MOBILE — FORCE PROFILE SUPPORT ROW HORIZONTAL
+   ============================================ */
+@media (max-width: 720px) {
+
+  .profile-support-row {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+    grid-auto-flow: row !important;
+    align-items: stretch !important;
+    gap: 6px !important;
+    width: 100% !important;
+  }
+
+  .profile-support-row > .mi-eff-module {
+    grid-column: 1 !important;
+    grid-row: 1 !important;
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+  }
+
+  .profile-support-row > .context-tile {
+    grid-column: 2 !important;
+    grid-row: 1 !important;
+    width: auto !important;
+    height: 100% !important;
+    min-height: 100px !important;
+    max-height: none !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+  }
+
+  .profile-support-row > .context-tile.profile-static-tile .tile-face.tile-front {
+    height: 100% !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+  }
+
+  .seed-fit-inline-label {
+    font-weight: 690 !important;
+    letter-spacing: 0.04em !important;
+    color: var(--mi-text-primary) !important;
+  }
+}
+
+/* =========================
+   Profile Marks — Empty State (Mobile)
+   ========================= */
+@media (max-width: 768px){
+
+  .pm-empty{
+    min-height: 72px;
+    padding: 6px 8px;
+  }
+
+  .pm-empty-inner{
+    gap: 4px;
+    max-width: 100%;
+  }
+
+  .pm-empty-icon{
+    width: 42px;
+    height: 42px;
+    opacity: 0.95;
+    filter: drop-shadow(0 0 4px rgba(34, 211, 238, 0.10));
+  }
+
+  .pm-empty-title{
+    font-size: 14px;
+    font-weight: 650;
+    letter-spacing: 0.015em;
+    line-height: 1.1;
+  }
+
+  .pm-empty-text{
+    font-size: 11px;
+    line-height: 1.2;
+  }
+
+  .pm-empty-tile{
+    border-color: rgba(34, 197, 94, 0.28);
+    background:
+      radial-gradient(
+        circle at center,
+        rgba(34, 197, 94, 0.065),
+        transparent 72%
+      );
+  }
+
+  .identity-inline-kicker,
+  .seed-fit-inline-header {
+     text-align: center !important;
+  }
+
+  .mi-eff-module .mi-eff-label {
+     font-size: 10px !important;
+     font-weight: 600 !important;
+  }
+
+  .mi-eff-module .mi-eff-value {
+     font-size: 12px !important;
+     font-weight: 900 !important;
+  }
+
+  #cindCard .mi-eff-seg.is-emphasis, 
+  #favCard .mi-eff-seg.is-emphasis {
+     column-gap: 1px !important;
+  }
+
+  .threshold-chip {
+     min-height: 14px !important;
+     min-width: 10px !important;
+     font-size: 7px !important;
+     font-weight: 600 !important;
+     color: var(--mi-text-muted) !important;
+     padding: 4px 4px !important;
+  }
+
+  .seed-fit-inline-narrative{
+    margin-top: 0 !important;
+    padding-top: 6px !important;
+    border-top: 1px solid rgba(148,163,184,0.10) !important;
+
+    font-size: 9px !important;
+    line-height: 1.22 !important;
+    font-weight: 560 !important;
+    letter-spacing: 0.01em !important;
+    text-align: center !important;
+    color: rgba(226,232,240,0.72) !important;
+  }
+}
+
+/* =========================================================
+   MOBILE — BOTTOM CTA ACCESS SAFETY
+   Small, targeted patch only.
+   ========================================================= */
+@media (max-width: 720px) {
+
+  /* Give the pre-matchup compare area real room above fixed bottom UI */
+  #preSetupRow .matchup-actions-row,
+  #preSetupRow #compareBtn {
+    margin-bottom: 6px !important;
+    margin-top: 4px !important;
+    scroll-margin-bottom: 160px !important;
+    color: #FDF9D8 !important;
+    font-size: 20px !important;
+    min-height: 0 !important;
+    max-height: 120px !important;
+  }
+
+  /* Same idea for post-matchup action surfaces near the bottom */
+  #matchupBar,
+  .mi-matchup-dock,
+  .mi-verdict-actions,
+  #summarySectionMobile {
+    scroll-margin-bottom: 0 !important;
+  }
+
+  /* Keep the collapsed glossary handle from visually eating the last row */
+  .mi-glossary {
+    z-index: 9999 !important;
+  }
+
+  .mi-glossary-handle {
+    min-height: 0 !important;
+    height: 32px !important;
+  }
+  
+  .app-shell {
+    height: 100% !important;
+    min-height: 100px !important;
+    max-height: 100px !important;
+  }
+
+  .app-shell .csv-loaded .has-matchup {
+    min-height: 1300px !important;
+  }
+
+  #analysisShell {
+    min-height: 2000px !important;
+  }
+
+  body {
+    min-height: 1000px !important;
+  }
+
+  .app-shell.pre-matchup {
+    height: auto !important; 
+    max-height: 10px !important;
+  }
+
+  .hero-tagline {
+    display: none !important;
+  }
+
+  #preHubStatus {
+    min-height: 0 !important;
+    max-height: 270px !important;
+  }
+  
+  #clearWorkflowStateBtn {
+    display: none !important;
+  }
+
+  #interactionsSection .interactions-flip-hint {
+    font-size: 10px !important;
+    color: var(--mi-text-muted); !important;
+    letter-spacing: 0.04em !important;
+    font-weight: 600 !important;
+    column-gap: 2px !important;
+  }
+
+  .flip-tile .tile-face.tile-front .mi-flip-hint {
+    font-size: 10px !important;
+    color: var(--mi-text-muted); !important;
+    letter-spacing: 0.04em !important;
+    font-weight: 600 !important;
+    column-gap: 2px !important;
+  }
+
+  #interactionsSection .interaction-totals-bar .totals-val {
+    font-size: 14px !important;
+  }
+
+  #teamA,
+  #teamB {
+    min-height: 0 !important;
+    max-height: 32px !important;
+    font-size: 10px !important;
+    font-weight: 400 !important;
+    letter-spacing: 0.04em !important;
+    color: var(--mi-text-muted) !important;
+  }
+
+  #postMatchup {
+    margin: auto;
+    padding: 2px !important;
+    width: 100% !important;
+  }
+
+  #appFooter.app-footer {
+    margin-top: 0 !important;
   }
 }

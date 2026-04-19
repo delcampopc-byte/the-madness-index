@@ -21,10 +21,13 @@ let MI_ROUND_NUDGE_SHOWN = false;
 let MI_ROUND_TOUCHED = false;
 
 let MI_TEAM_BRANDING = {};
+let MI_SEED_DISPLACEMENT_BENCHMARKS = null;
 
 async function loadTeamBranding() {
   try {
-    const res = await fetch('data/branding/team_branding.json');
+    const res = await fetch(`data/branding/team_branding.json?v=${MI_BUILD}`, {
+
+    });
 
     if (!res.ok) {
       throw new Error(`Branding load failed: ${res.status}`);
@@ -41,6 +44,97 @@ async function loadTeamBranding() {
     console.error('Failed to load team branding JSON:', err);
     MI_TEAM_BRANDING = {};
   }
+}
+
+async function loadSeedDisplacementBenchmarks() {
+  try {
+    const res = await fetch('data/metadata/seed_displacement_benchmarks.json', { cache: 'no-store' });
+
+    if (!res.ok) {
+      throw new Error(`Seed displacement benchmark load failed: ${res.status}`);
+    }
+
+    MI_SEED_DISPLACEMENT_BENCHMARKS = await res.json();
+
+    console.log(
+      '[MI] Seed displacement benchmarks loaded:',
+      Object.keys(MI_SEED_DISPLACEMENT_BENCHMARKS?.seeds || {}).length,
+      'seed buckets'
+    );
+  } catch (err) {
+    console.error('[MI] Failed to load seed displacement benchmarks JSON:', err);
+    MI_SEED_DISPLACEMENT_BENCHMARKS = null;
+  }
+}
+
+function zScore(val, mean, sd) {
+  if (val === null || val === undefined || sd === 0) return 0;
+  return (val - mean) / sd;
+}
+
+function getSeedDisplacementBenchmark(seed) {
+  const s = String(seed ?? '').trim();
+  if (!s || !MI_SEED_DISPLACEMENT_BENCHMARKS?.seeds) return null;
+  return MI_SEED_DISPLACEMENT_BENCHMARKS.seeds[s] || null;
+}
+
+function getSeedDisplacementTier(z) {
+  const val = Number(z);
+  if (!Number.isFinite(val)) return 'Unavailable';
+
+  if (val >= 1.00) return 'Strong Fit';
+  if (val >= 0.25) return 'Above Seed';
+  if (val > -0.25) return 'Typical';
+  if (val > -1.00) return 'Below Seed';
+  return 'Weak Fit';
+}
+
+function computeSeedDisplacementForTeam(team) {
+  if (!team) return null;
+
+  const miBase = Number(team.mi_base);
+  if (!Number.isFinite(miBase)) return null;
+
+  const benchmark = getSeedDisplacementBenchmark(team.seed);
+  if (!benchmark) return null;
+
+  const mean = Number(benchmark.mean);
+  const sd = Number(benchmark.sd);
+  const count = Number(benchmark.count);
+  const min = Number(benchmark.min);
+  const max = Number(benchmark.max);
+
+  if (!Number.isFinite(mean)) return null;
+
+  const displacementRaw = miBase - mean;
+  const displacementZ = (Number.isFinite(sd) && sd > 0)
+    ? zScore(miBase, mean, sd)
+    : 0;
+
+  const seedDisplacementData = {
+    system: MI_SEED_DISPLACEMENT_BENCHMARKS?.system || 'MI_SEED_DISPLACEMENT_V1',
+    version: MI_SEED_DISPLACEMENT_BENCHMARKS?.version || 1,
+    seed: Number(team.seed),
+    source_metric: MI_SEED_DISPLACEMENT_BENCHMARKS?.source_metric || 'mi_base',
+    window_mode: MI_SEED_DISPLACEMENT_BENCHMARKS?.window_mode || 'expanding',
+    start_year: MI_SEED_DISPLACEMENT_BENCHMARKS?.start_year || 2016,
+
+    mean,
+    sd,
+    count,
+    min,
+    max,
+
+    team_mi_base: miBase,
+    displacement_raw: displacementRaw,
+    displacement_z: displacementZ,
+    tier: getSeedDisplacementTier(displacementZ)
+  };
+
+  team.seedDisplacement = seedDisplacementData;
+  team.seed_displacement = seedDisplacementData;
+
+  return seedDisplacementData;
 }
 
 function normalizeTeamKey(name = '') {
@@ -5979,6 +6073,9 @@ function compareTeams(teamAName, teamBName, roleMode = 'auto', opts = MI_V2_DEFA
   const baseA = computeMIBase(a, opts, fieldMean);
   const baseB = computeMIBase(b, opts, fieldMean);
 
+  const seedDisplacementA = computeSeedDisplacementForTeam(a);
+  const seedDisplacementB = computeSeedDisplacementForTeam(b);
+
   const interactions = computeInteractions(a, b);
   const volatility = computeMatchupVolatility(a, b);  
 
@@ -6019,6 +6116,19 @@ function compareTeams(teamAName, teamBName, roleMode = 'auto', opts = MI_V2_DEFA
     base_diff,
     int_diff,
     final_delta,
+
+    seedDisplacementA,
+    seedDisplacementB,
+    seed_displacement: {
+      a: seedDisplacementA,
+      b: seedDisplacementB,
+      diff_raw:
+        (seedDisplacementA?.displacement_raw ?? 0) -
+        (seedDisplacementB?.displacement_raw ?? 0),
+      diff_z:
+        (seedDisplacementA?.displacement_z ?? 0) -
+        (seedDisplacementB?.displacement_z ?? 0)
+    },
 
     // Canonical Snap metrics source of truth
     snapMetrics: Object.freeze({
@@ -6127,7 +6237,6 @@ function compareTeams(teamAName, teamBName, roleMode = 'auto', opts = MI_V2_DEFA
 
   miSyncSnapButtons();
   miPushLogFromResult(result);
-  miRenderShelf();
   syncCoreTraitsProfileSectionHeights();
 
   console.log(`${useLegacyResume ? 'LEGACY' : 'QUADRANT'} RESULT`, result);
@@ -6881,11 +6990,13 @@ function getSummaryGapKey(diff) {
 }
 
 /* =========================================================
-   MATCHUP LOG (v4.2) — Option A Shelf
+   MATCHUP LOG (v4.3) — Collapsible Shelf
    - stores only 10 recent (localStorage)
-   - shelf hidden until introduced
-   - shows top 3 always; "More" reveals next 7
-   - aligned to new compareTeams() result shape
+   - shelf is structurally attached to #matchupBar
+   - shelf visibility is state-driven from post-matchup + log presence
+   - top 3 render in the main shelf panel; remaining entries render below
+   - aligned to current compareTeams() result shape
+   - no mutation observer (prevents render/class feedback loops)
    ========================================================= */
 
 const MI_LOG_STORAGE_KEY = "mi.v4_2.matchupLog";
@@ -6893,141 +7004,183 @@ const MI_LOG_MAX_ENTRIES = 10;
 const MI_LOG_INTRO_KEY = "MI_LOG_INTRODUCED_V1";
 const MI_LOG_LASTNEW_KEY = "MI_LOG_LASTNEW_ID_V1";
 
-function miLogIntroduced(){
-  try{ return localStorage.getItem(MI_LOG_INTRO_KEY) === "1"; }catch(e){ return false; }
-}
-
-function miSetLogIntroduced(){
-  try{ localStorage.setItem(MI_LOG_INTRO_KEY, "1"); }catch(e){}
-}
-
-function miSetLastNewId(id){
-  try{
-    // allow clearing the marker so the "new row" animation doesn't replay
-    if (id) localStorage.setItem(MI_LOG_LASTNEW_KEY, String(id));
-    else localStorage.removeItem(MI_LOG_LASTNEW_KEY);
-  }catch(e){}
-}
-
-function miGetLastNewId(){
-  try{ return localStorage.getItem(MI_LOG_LASTNEW_KEY) || ""; }catch(e){ return ""; }
-}
-
-function miSandboxOn(){
-  try{
-    if (typeof window !== "undefined" && typeof window.SANDBOX_MODE !== "undefined") return !!window.SANDBOX_MODE;
-  }catch(e){}
-  try{
-    if (typeof SANDBOX_MODE !== "undefined") return !!SANDBOX_MODE;
-  }catch(e){}
-  return false;
-}
-
-function miFormatMI(x){
-  return (typeof x === "number" && isFinite(x)) ? x.toFixed(3) : "—";
-}
-
-function miLeanTierFromDiff(diff){
-  const band = (typeof getLeanBand === "function") ? getLeanBand(diff) : "";
-  switch (band) {
-    case "Toss-Up":          return 1;
-    case "Very Slight Lean": return 1;
-    case "Lean":             return 2;
-    case "Strong Lean":      return 3;
-    case "Heavy Lean":       return 4;
-    default:                 return 1;
+function miLogIntroduced() {
+  try {
+    return localStorage.getItem(MI_LOG_INTRO_KEY) === "1";
+  } catch (e) {
+    return false;
   }
 }
 
-function miLoadLog(){
-  try{
+function miSetLogIntroduced() {
+  try {
+    localStorage.setItem(MI_LOG_INTRO_KEY, "1");
+  } catch (e) {}
+}
+
+function miSetLastNewId(id) {
+  try {
+    if (id) localStorage.setItem(MI_LOG_LASTNEW_KEY, String(id));
+    else localStorage.removeItem(MI_LOG_LASTNEW_KEY);
+  } catch (e) {}
+}
+
+function miGetLastNewId() {
+  try {
+    return localStorage.getItem(MI_LOG_LASTNEW_KEY) || "";
+  } catch (e) {
+    return "";
+  }
+}
+
+function miSandboxOn() {
+  try {
+    if (typeof window !== "undefined" && typeof window.SANDBOX_MODE !== "undefined") {
+      return !!window.SANDBOX_MODE;
+    }
+  } catch (e) {}
+
+  try {
+    if (typeof SANDBOX_MODE !== "undefined") {
+      return !!SANDBOX_MODE;
+    }
+  } catch (e) {}
+
+  return false;
+}
+
+function miFormatMI(x) {
+  return (typeof x === "number" && Number.isFinite(x)) ? x.toFixed(3) : "—";
+}
+
+function miLeanTierFromDiff(diff) {
+  const band = (typeof getLeanBand === "function") ? getLeanBand(diff) : "";
+
+  switch (band) {
+    case "Toss-Up":
+    case "Very Slight Lean":
+      return 1;
+    case "Lean":
+      return 2;
+    case "Strong Lean":
+      return 3;
+    case "Heavy Lean":
+      return 4;
+    default:
+      return 1;
+  }
+}
+
+function miLoadLog() {
+  try {
     const raw = localStorage.getItem(MI_LOG_STORAGE_KEY);
     if (!raw) return [];
 
     const parsed = JSON.parse(raw);
 
-    // Normal case: already an array
-    if (Array.isArray(parsed)) return parsed;
+    if (Array.isArray(parsed)) {
+      return parsed
+        .filter(Boolean)
+        .sort((a, b) => (b.ts || 0) - (a.ts || 0))
+        .slice(0, MI_LOG_MAX_ENTRIES);
+    }
 
-    // Migration: if a single entry object was stored
     if (parsed && typeof parsed === "object") {
       const vals = Object.values(parsed);
 
       if (vals.length && typeof vals[0] === "object") {
         return vals
           .filter(Boolean)
-          .sort((a,b) => (b.ts || 0) - (a.ts || 0));
+          .sort((a, b) => (b.ts || 0) - (a.ts || 0))
+          .slice(0, MI_LOG_MAX_ENTRIES);
       }
 
-      return [parsed];
+      return [parsed].filter(Boolean).slice(0, MI_LOG_MAX_ENTRIES);
     }
 
     return [];
-  }catch(e){
+  } catch (e) {
     return [];
   }
 }
 
-function miSaveLog(arr){
-  try{
-    const safe = Array.isArray(arr) ? arr : (arr ? [arr] : []);
-    localStorage.setItem(MI_LOG_STORAGE_KEY, JSON.stringify(safe));
-  }catch(e){}
+function miSaveLog(arr) {
+  try {
+    const safe = Array.isArray(arr) ? arr.filter(Boolean) : (arr ? [arr] : []);
+    localStorage.setItem(
+      MI_LOG_STORAGE_KEY,
+      JSON.stringify(safe.slice(0, MI_LOG_MAX_ENTRIES))
+    );
+  } catch (e) {}
 }
 
-function miBuildLogId(result){
+function miBuildLogId(result) {
   const roundCode = result?.activeRound || result?.round || "NOROUND";
   const mode = miSandboxOn() ? "SBX" : roundCode;
-  return `${Date.now()}__${mode}__${result.a?.name || "A"}__${result.b?.name || "B"}`;
+
+  return `${Date.now()}__${mode}__${result?.a?.name || "A"}__${result?.b?.name || "B"}`;
 }
 
-function miPushLogFromResult(result){
+function miPushLogFromResult(result) {
   if (!result || !result.a || !result.b) return;
 
   const sandbox = miSandboxOn();
   const round = sandbox ? null : (result.activeRound || result.round || null);
 
-  const miA = (typeof result.miA_raw === "number" && Number.isFinite(result.miA_raw))
-    ? result.miA_raw
-    : ((typeof result.miA === "number" && Number.isFinite(result.miA)) ? result.miA : null);
+  const miA =
+    (typeof result.miA_raw === "number" && Number.isFinite(result.miA_raw))
+      ? result.miA_raw
+      : ((typeof result.miA === "number" && Number.isFinite(result.miA)) ? result.miA : null);
 
-  const miB = (typeof result.miB_raw === "number" && Number.isFinite(result.miB_raw))
-    ? result.miB_raw
-    : ((typeof result.miB === "number" && Number.isFinite(result.miB)) ? result.miB : null);
+  const miB =
+    (typeof result.miB_raw === "number" && Number.isFinite(result.miB_raw))
+      ? result.miB_raw
+      : ((typeof result.miB === "number" && Number.isFinite(result.miB)) ? result.miB : null);
 
-  const diff = (typeof result.final_delta === "number" && Number.isFinite(result.final_delta))
-    ? result.final_delta
-    : ((typeof result.diff === "number" && Number.isFinite(result.diff))
-        ? result.diff
-        : ((Number.isFinite(miA) ? miA : 0) - (Number.isFinite(miB) ? miB : 0)));
+  const diff =
+    (typeof result.final_delta === "number" && Number.isFinite(result.final_delta))
+      ? result.final_delta
+      : (
+          (typeof result.diff === "number" && Number.isFinite(result.diff))
+            ? result.diff
+            : ((Number.isFinite(miA) ? miA : 0) - (Number.isFinite(miB) ? miB : 0))
+        );
 
   const entry = {
     id: miBuildLogId(result),
     ts: Date.now(),
-
     sandbox,
     round,
-
     teamA: result.a.name,
     teamB: result.b.name,
-
     miA,
     miB,
     diff,
-
     leanSide: diff > 0 ? "a" : (diff < 0 ? "b" : "push"),
     leanTier: miLeanTierFromDiff(diff)
   };
 
   const existing = miLoadLog();
   existing.unshift(entry);
-  miSaveLog(existing.slice(0, MI_LOG_MAX_ENTRIES));
+  miSaveLog(existing);
 
   miSetLastNewId(entry.id);
-  if (typeof miRenderShelf === "function") miRenderShelf();
+
+  if (typeof miRenderShelf === "function") {
+    miRenderShelf();
+  }
 }
 
-function miArrowsHTML(tier, side){
+function miEscapeHtml(value) {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+function miArrowsHTML(tier, side) {
   const t = Math.max(1, Math.min(4, Number(tier) || 1));
   const arrows = Array.from({ length: t })
     .map(() => `<span class="mi-log-arrow" aria-hidden="true"></span>`)
@@ -7038,204 +7191,267 @@ function miArrowsHTML(tier, side){
   return `<span class="mi-log-arrows"></span>`;
 }
 
-function miBuildRow(entry){
-  const tag = entry.sandbox ? "SBX" : (entry.round || "—");
+function miBuildRow(entry) {
+  const tag = entry?.sandbox ? "SBX" : (entry?.round || "—");
 
-  const leftSlot  = (entry.leanSide === "a")
-    ? miArrowsHTML(entry.leanTier, "a")
+  const teamA = miEscapeHtml(entry?.teamA || "Team A");
+  const teamB = miEscapeHtml(entry?.teamB || "Team B");
+
+  const leftSlot = (entry?.leanSide === "a")
+    ? miArrowsHTML(entry?.leanTier, "a")
     : `<span class="mi-log-arrows left"></span>`;
 
-  const rightSlot = (entry.leanSide === "b")
-    ? miArrowsHTML(entry.leanTier, "b")
+  const rightSlot = (entry?.leanSide === "b")
+    ? miArrowsHTML(entry?.leanTier, "b")
     : `<span class="mi-log-arrows right"></span>`;
 
   const el = document.createElement("div");
   el.className = "mi-log-row";
+  el.dataset.logId = entry?.id || "";
+
   el.innerHTML = `
-    <span class="mi-log-tag">${tag}</span>
-
-    <span class="mi-log-name a" title="${entry.teamA}">${entry.teamA}</span>
-    <span class="mi-log-mi a">${miFormatMI(entry.miA)}</span>
-
+    <span class="mi-log-tag">${miEscapeHtml(tag)}</span>
+    <span class="mi-log-name a" title="${teamA}">${teamA}</span>
+    <span class="mi-log-mi a">${miFormatMI(entry?.miA)}</span>
     ${leftSlot}
     <span class="mi-log-lean">LEAN</span>
     ${rightSlot}
-
-    <span class="mi-log-mi b">${miFormatMI(entry.miB)}</span>
-    <span class="mi-log-name b" title="${entry.teamB}">${entry.teamB}</span>
+    <span class="mi-log-mi b">${miFormatMI(entry?.miB)}</span>
+    <span class="mi-log-name b" title="${teamB}">${teamB}</span>
   `.trim();
 
   return el;
 }
 
-function miShelfPhaseOk(){
-  const shell = document.querySelector(".app-shell");
+function miShelfPhaseOk() {
+  const postMatchup = document.getElementById("postMatchup");
+  const postTop = document.getElementById("postMatchupTop");
   const bar = document.getElementById("matchupBar");
-  if (!shell || !bar) return false;
 
-  // must not be on landing / pre-matchup
-  if (shell.classList.contains("pre-matchup")) return false;
+  if (!postMatchup || !postTop || !bar) return false;
 
-  // must actually be in “has matchup” world
-  if (!shell.classList.contains("has-matchup")) return false;
+  const isInactive = (el) => {
+    if (!el) return true;
+    if (el.hidden) return true;
+    if (el.getAttribute("hidden") !== null) return true;
+    if (el.classList.contains("hidden")) return true;
+    if (el.getAttribute("aria-hidden") === "true") return true;
+    return false;
+  };
 
-  return true;
+  return !isInactive(postMatchup) && !isInactive(postTop) && !isInactive(bar);
 }
 
-function miRenderShelf(){
+function miGetShelfEls() {
   const plate = document.querySelector("#matchupBar .mi-matchup-backplate");
+  const shelfToggle = document.getElementById("miLogShelfToggle");
+  const shelfToggleText = document.querySelector("#miLogShelfToggle .mi-log-shelf-toggle-text");
+  const shelfPanel = document.getElementById("miLogShelfPanel");
   const top3 = document.getElementById("miLogTop3");
-  const moreBtn = document.getElementById("miLogMoreBtn");
   const morePanel = document.getElementById("miLogMorePanel");
   const moreList = document.getElementById("miLogMoreList");
   const bar = document.getElementById("matchupBar");
-  if (!plate || !top3 || !moreBtn || !morePanel || !moreList || !bar) return;
 
-  if (!miShelfPhaseOk()){
-    plate.hidden = true;
-    plate.classList.remove("is-open", "is-more-open", "is-intro");
-    morePanel.hidden = true;
-    moreBtn.hidden = true;
-    moreBtn.setAttribute("aria-expanded", "false");
-    if (bar.classList.contains("has-shelf")) bar.classList.remove("has-shelf");
-    return;
+  return {
+    plate,
+    shelfToggle,
+    shelfToggleText,
+    shelfPanel,
+    top3,
+    morePanel,
+    moreList,
+    bar
+  };
+}
+
+function miSetShelfOpenState(isOpen) {
+  const {
+    plate,
+    shelfToggle,
+    shelfToggleText,
+    shelfPanel
+  } = miGetShelfEls();
+
+  if (!plate || !shelfToggle || !shelfPanel) return;
+
+  const open = !!isOpen;
+
+  shelfPanel.hidden = !open;
+  shelfToggle.setAttribute("aria-expanded", open ? "true" : "false");
+  plate.classList.toggle("is-open", open);
+
+  if (shelfToggleText) {
+    shelfToggleText.textContent = open ? "Close Shelf" : "Open Shelf";
   }
+}
 
-  if (!bar.classList.contains("has-shelf")) bar.classList.add("has-shelf");
+function miHideShelf() {
+  const {
+    plate,
+    bar,
+    top3,
+    moreList,
+    morePanel
+  } = miGetShelfEls();
 
-  const entries = miLoadLog().slice(0, MI_LOG_MAX_ENTRIES);
-  if (entries.length < 1){
-    plate.hidden = true;
-    plate.classList.remove("is-open", "is-more-open", "is-intro");
-    morePanel.hidden = true;
-    moreBtn.hidden = true;
-    moreBtn.setAttribute("aria-expanded", "false");
-    return;
-  }
+  if (!plate || !bar) return;
 
-  const introduced = miLogIntroduced();
+  miSetShelfOpenState(false);
 
-  // Before introduction: do NOT show in normal has-matchup view.
-  // Only reveal the first time the bar enters edit mode.
-  if (!introduced && !bar.classList.contains("is-editing")){
-    plate.hidden = true;
-    plate.classList.remove("is-open", "is-more-open", "is-intro");
-    morePanel.hidden = true;
-    moreBtn.hidden = true;
-    moreBtn.setAttribute("aria-expanded", "false");
-    return;
-  }
+  plate.hidden = true;
+  plate.classList.remove("is-intro");
+  bar.classList.remove("has-shelf");
 
-  if (!introduced && bar.classList.contains("is-editing")){
-    miSetLogIntroduced();
-    plate.classList.add("is-intro");
-  } else {
-    plate.classList.remove("is-intro");
-  }
+  if (top3) top3.innerHTML = "";
+  if (moreList) moreList.innerHTML = "";
+  if (morePanel) morePanel.hidden = true;
+}
 
-  const topEntries = entries.slice(0, 3);
-  const topRender = topEntries.slice().reverse();
-  const moreEntries = entries.slice(3);
+function miRenderShelf() {
+  if (miRenderShelf.__busy) return;
+  miRenderShelf.__busy = true;
 
-  top3.innerHTML = "";
-  for (const e of topRender) top3.appendChild(miBuildRow(e));
+  try {
+    const {
+      plate,
+      shelfToggle,
+      top3,
+      morePanel,
+      moreList,
+      bar
+    } = miGetShelfEls();
 
-  const lastNewId = miGetLastNewId();
-  if (lastNewId && topEntries.length && topEntries[0].id === lastNewId){
-    const newestRow = top3.lastElementChild;
-    if (newestRow){
-      newestRow.classList.add("is-new");
-      miSetLastNewId("");
-      setTimeout(() => newestRow.classList.remove("is-new"), 2000);
+    if (!plate || !shelfToggle || !top3 || !morePanel || !moreList || !bar) return;
+
+    if (!miShelfPhaseOk()) {
+      miHideShelf();
+      return;
     }
+
+    const entries = miLoadLog();
+    if (!entries.length) {
+      miHideShelf();
+      return;
+    }
+
+    const introduced = miLogIntroduced();
+    const isEditing = bar.classList.contains("is-editing");
+
+    if (!introduced && !isEditing) {
+      miHideShelf();
+      return;
+    }
+
+    if (!introduced && isEditing) {
+      miSetLogIntroduced();
+      plate.classList.add("is-intro");
+    } else {
+      plate.classList.remove("is-intro");
+    }
+
+    const wasOpen = shelfToggle.getAttribute("aria-expanded") === "true";
+
+    bar.classList.add("has-shelf");
+    plate.hidden = false;
+
+    const topEntries = entries.slice(0, 3);
+    const topRender = topEntries.slice().reverse();
+    const moreEntries = entries.slice(3);
+
+    top3.innerHTML = "";
+    topRender.forEach((entry) => {
+      top3.appendChild(miBuildRow(entry));
+    });
+
+    const lastNewId = miGetLastNewId();
+    if (lastNewId && topEntries.length && topEntries[0].id === lastNewId) {
+      const newestRow = top3.lastElementChild;
+      if (newestRow) {
+        newestRow.classList.add("is-new");
+        miSetLastNewId("");
+        window.setTimeout(() => {
+          newestRow.classList.remove("is-new");
+        }, 2000);
+      }
+    }
+
+    moreList.innerHTML = "";
+    moreEntries.forEach((entry) => {
+      moreList.appendChild(miBuildRow(entry));
+    });
+
+    morePanel.hidden = moreEntries.length < 1;
+
+    miSetShelfOpenState(wasOpen);
+  } finally {
+    miRenderShelf.__busy = false;
   }
-
-  moreList.innerHTML = "";
-  for (const e of moreEntries) moreList.appendChild(miBuildRow(e));
-
-  if (moreEntries.length > 0){
-    moreBtn.hidden = false;
-  } else {
-    moreBtn.hidden = true;
-    morePanel.hidden = true;
-    moreBtn.setAttribute("aria-expanded", "false");
-  }
-
-  plate.hidden = false;
-  requestAnimationFrame(() => plate.classList.add("is-open"));
 }
 
-function miToggleMore(){
-  const moreBtn = document.getElementById("miLogMoreBtn");
-  const morePanel = document.getElementById("miLogMorePanel");
-  const plate = document.querySelector("#matchupBar .mi-matchup-backplate");
-  if (!moreBtn || !morePanel || !plate) return;
+function miOpenShelf() {
+  if (!miShelfPhaseOk()) return;
 
-  const willOpen = !!morePanel.hidden;
-  morePanel.hidden = !willOpen;
-  moreBtn.setAttribute("aria-expanded", willOpen ? "true" : "false");
+  const { plate } = miGetShelfEls();
+  if (!plate || plate.hidden) return;
 
-  if (willOpen) plate.classList.add("is-more-open");
-  else plate.classList.remove("is-more-open");
+  miSetShelfOpenState(true);
 }
 
-function miInitShelf(){
-  const plate = document.querySelector("#matchupBar .mi-matchup-backplate");
-  const moreBtn = document.getElementById("miLogMoreBtn");
-  if (!plate || !moreBtn) return;
+function miCloseShelf() {
+  const { plate } = miGetShelfEls();
+  if (!plate) return;
 
-  if (plate.dataset.bound === "1"){
+  miSetShelfOpenState(false);
+}
+
+function miToggleShelf() {
+  const { shelfToggle, plate } = miGetShelfEls();
+  if (!shelfToggle || !plate || plate.hidden) return;
+
+  const currentlyOpen = shelfToggle.getAttribute("aria-expanded") === "true";
+  miSetShelfOpenState(!currentlyOpen);
+}
+
+function miInitShelf() {
+  const { plate, shelfToggle } = miGetShelfEls();
+  if (!plate || !shelfToggle) return;
+
+  if (plate.dataset.bound === "1") {
     miRenderShelf();
     return;
   }
+
   plate.dataset.bound = "1";
 
-  moreBtn.addEventListener("click", (e) => {
+  shelfToggle.addEventListener("click", (e) => {
     e.preventDefault();
     e.stopPropagation();
-    miToggleMore();
+    miToggleShelf();
   });
 
   document.addEventListener("click", (e) => {
-    const panel = document.getElementById("miLogMorePanel");
-    const btn = document.getElementById("miLogMoreBtn");
-    if (!panel || !btn) return;
-    if (panel.hidden) return;
-    if (!plate.contains(e.target)){
-      panel.hidden = true;
-      btn.setAttribute("aria-expanded", "false");
-      plate.classList.remove("is-more-open");
+    const { plate: livePlate, shelfPanel } = miGetShelfEls();
+    if (!livePlate || !shelfPanel || shelfPanel.hidden) return;
+
+    if (!livePlate.contains(e.target)) {
+      miCloseShelf();
     }
   });
 
   document.addEventListener("keydown", (e) => {
     if (e.key !== "Escape") return;
-    const panel = document.getElementById("miLogMorePanel");
-    const btn = document.getElementById("miLogMoreBtn");
-    if (!panel || !btn) return;
-    if (!panel.hidden){
-      panel.hidden = true;
-      btn.setAttribute("aria-expanded", "false");
-      plate.classList.remove("is-more-open");
-    }
+
+    const { shelfPanel } = miGetShelfEls();
+    if (!shelfPanel || shelfPanel.hidden) return;
+
+    miCloseShelf();
   });
 
   miRenderShelf();
 }
 
-function miObserveShelfPhases(){
-  const shell = document.querySelector(".app-shell");
-  const bar = document.getElementById("matchupBar");
-  if (!shell || !bar) return;
-
-  const mo = new MutationObserver(() => miRenderShelf());
-  mo.observe(shell, { attributes: true, attributeFilter: ["class"] });
-  mo.observe(bar, { attributes: true, attributeFilter: ["class"] });
-}
-
 document.addEventListener("DOMContentLoaded", () => {
   miInitShelf();
-  miObserveShelfPhases();
   initVersionPatchNotes();
 });
 
@@ -8996,11 +9212,26 @@ function renderProfileMarks(team, containerId) {
       <div class="pm-empty" role="status" aria-live="polite">
         <div class="pm-empty-inner">
           <svg class="pm-empty-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <path d="M12 8v5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-            <path d="M12 16.5h.01" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
-            <path d="M10.3 3.9 2.6 19.2A2 2 0 0 0 4.4 22h15.2a2 2 0 0 0 1.8-2.8L13.7 3.9a2 2 0 0 0-3.4 0Z"
-                  stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" opacity="0.9"/>
-          </svg>
+  <!-- Checkbox -->
+  <rect 
+    x="3" 
+    y="3" 
+    width="18" 
+    height="18" 
+    rx="4"
+    stroke="currentColor"
+    stroke-width="2"
+  />
+  
+  <!-- Checkmark -->
+  <path
+    d="M7 12.5 L10.5 16 L17 9"
+    stroke="currentColor"
+    stroke-width="2.5"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+</svg>
 
           <div class="pm-empty-title">No Profile Marks Detected</div>
           <div class="pm-empty-text">
@@ -9109,9 +9340,18 @@ function miSyncGlossaryToMatchupState() {
   }
 }
 
-function detectMatchupVisible(){
-  const appShell = document.querySelector('.app-shell');
-  return !!(appShell && appShell.classList.contains('has-matchup'));
+function detectMatchupVisible() {
+  const postMatchup = document.getElementById('postMatchup');
+
+  if (!postMatchup) return false;
+
+  // Treat any of these as "not visible / not active"
+  if (postMatchup.hidden) return false;
+  if (postMatchup.getAttribute('hidden') !== null) return false;
+  if (postMatchup.classList.contains('hidden')) return false;
+  if (postMatchup.getAttribute('aria-hidden') === 'true') return false;
+
+  return true;
 }
 
 // ========== MATCHUP BAR TOGGLING ==========
@@ -9119,21 +9359,23 @@ function detectMatchupVisible(){
 function updateMatchupBarFromDOM() {
   const matchupBar = document.getElementById('matchupBar');
   const topBar = document.querySelector('.top-bar') || document.getElementById('preSetupRow');
-  const appShell = document.querySelector('.app-shell');
+  const preMatchup = document.getElementById('preMatchup');
+  const postMatchup = document.getElementById('postMatchup');
 
-  if (!matchupBar || !topBar || !appShell) return;
+  if (!matchupBar || !topBar || !preMatchup || !postMatchup) return;
 
-  // Show the matchup bar (your existing behavior may differ; keep this consistent with your app)
+  // Canonical shell transition:
+  // pre-matchup is fully retired once post-matchup becomes active
+  preMatchup.classList.add('hidden');
+  postMatchup.classList.remove('hidden');
+
+  // Show the matchup bar
   matchupBar.classList.remove('hidden');
 
-  // Canonical: entering matchup mode
-  appShell.classList.add('has-matchup');
-  appShell.classList.remove('pre-matchup');
-
-  const teamANameEl  = document.getElementById('teamATitle');
-  const teamBNameEl  = document.getElementById('teamBTitle');
-  const seedAEl      = document.getElementById('teamASeed');
-  const seedBEl      = document.getElementById('teamBSeed');
+  const teamANameEl = document.getElementById('teamATitle');
+  const teamBNameEl = document.getElementById('teamBTitle');
+  const seedAEl = document.getElementById('teamASeed');
+  const seedBEl = document.getElementById('teamBSeed');
 
   const cName = teamANameEl ? teamANameEl.textContent.trim() : 'Team A';
   const fName = teamBNameEl ? teamBNameEl.textContent.trim() : 'Team B';
@@ -9160,24 +9402,27 @@ function updateMatchupBarFromDOM() {
 
   showFooter();
 
-  // Sync glossary to true matchup state (will reveal affordance)
+  // Sync glossary to true matchup state
   miSyncGlossaryToMatchupState();
 }
 
 function hideMatchupBar() {
   const matchupBar = document.getElementById('matchupBar');
+  const postMatchup = document.getElementById('postMatchup');
+
+  // Safety: if post-matchup shell is not present, do nothing
+  if (!postMatchup) return;
+
+  // Hide the matchup bar only
   if (matchupBar) {
     matchupBar.classList.add('hidden');
+    matchupBar.classList.remove('visible');
   }
 
-  // Canonical app-mode reset
-  const appShell = document.querySelector('.app-shell');
-  if (appShell) {
-    appShell.classList.remove('has-matchup');
-    appShell.classList.add('pre-matchup');
-  }
+  // Post-matchup state remains active.
+  // We do NOT attempt to restore pre-matchup state.
 
-  // Sync glossary to true matchup state (will close + hide)
+  // Sync glossary to true matchup state (may close affordance if bar is hidden)
   miSyncGlossaryToMatchupState();
 }
 
@@ -10709,6 +10954,73 @@ function renderProfileSupportModules(side, team, result, resumeTrust) {
     const pct = Math.max(0, Math.min(100, Math.abs(score)));
     identityMeter.style.width = `${pct}%`;
   }
+
+  // =========================
+  // Seed Fit (inline under Tournament Identity)
+  // =========================
+  const seedFitWrap      = document.getElementById(`seedFitInline${suffix}`);
+  const seedFitScore     = document.getElementById(`seedFitScore${suffix}`);
+  const seedFitLabel     = document.getElementById(`seedFitLabel${suffix}`);
+  const seedFitDetail    = document.getElementById(`seedFitDetail${suffix}`);
+  const seedFitNarrative = document.getElementById(`seedFitNarrative${suffix}`);
+
+  if (seedFitWrap && seedFitScore && seedFitLabel && seedFitDetail) {
+    const seedFit = team.seedDisplacement || team.seed_displacement || computeSeedDisplacementForTeam(team);
+
+    seedFitWrap.classList.remove(
+      'seed-fit-inline-strong',
+      'seed-fit-inline-above',
+      'seed-fit-inline-typical',
+      'seed-fit-inline-below',
+      'seed-fit-inline-weak',
+      'seed-fit-inline-neutral'
+    );
+
+    const narrativeCopy = window.MI_COPY?.seed_fit_ui?.narrative || {};
+
+    const setNarrative = (key) => {
+      if (!seedFitNarrative) return;
+      seedFitNarrative.textContent =
+        narrativeCopy[key] ||
+        narrativeCopy.unavailable ||
+        '';
+    };
+
+    if (!seedFit || !Number.isFinite(Number(seedFit.displacement_z))) {
+      seedFitScore.textContent = '—';
+      seedFitLabel.textContent = 'Unavailable';
+      seedFitDetail.textContent = 'No seed-fit reading available';
+      seedFitWrap.classList.add('seed-fit-inline-neutral');
+      setNarrative('unavailable');
+    } else {
+      const z = Number(seedFit.displacement_z);
+      const tier = seedFit.tier || getSeedDisplacementTier(z);
+
+      seedFitScore.textContent = `${z >= 0 ? '+' : ''}${z.toFixed(2)}`;
+      seedFitLabel.textContent = tier;
+      seedFitDetail.textContent = 'Baseline MI vs. seed expectation';
+
+      if (tier === 'Strong Fit') {
+        seedFitWrap.classList.add('seed-fit-inline-strong');
+        setNarrative('strong');
+      } else if (tier === 'Above Seed') {
+        seedFitWrap.classList.add('seed-fit-inline-above');
+        setNarrative('above');
+      } else if (tier === 'Typical') {
+        seedFitWrap.classList.add('seed-fit-inline-typical');
+        setNarrative('typical');
+      } else if (tier === 'Below Seed') {
+        seedFitWrap.classList.add('seed-fit-inline-below');
+        setNarrative('below');
+      } else if (tier === 'Weak Fit') {
+        seedFitWrap.classList.add('seed-fit-inline-weak');
+        setNarrative('weak');
+      } else {
+        seedFitWrap.classList.add('seed-fit-inline-neutral');
+        setNarrative('unavailable');
+      }
+    }
+  }
 }
 
 function renderNeutralTable(team, mi, interactionsTotal, tableId, subtotalSpanId) {
@@ -11161,7 +11473,7 @@ function updatePreMatchupHubProgress() {
    FINAL SYSTEM READY STATE
    ========================================================= */
 
-  const compareBtn = document.getElementById('compareMatchupBtn');
+  const compareBtn = document.getElementById('compareBtn');
 
   const systemReady =
     csvLoaded &&
@@ -12937,13 +13249,9 @@ if (roundBtn && roundDropdown) {
       ordered.push(normalized);
     };
 
-    // 1) explicit order from copy.json, if present
     requestedOrder.forEach(pushLabel);
-
-    // 2) fallback canonical order
     FALLBACK_CATEGORY_ORDER.forEach(pushLabel);
 
-    // 3) anything present in entries but not covered above
     entries.forEach(entry => {
       const cat = normalizeCategoryLabel(entry && entry.category);
       if (cat) pushLabel(cat);
@@ -13271,13 +13579,18 @@ if (roundBtn && roundDropdown) {
     prepGlossaryTopArea();
   }
 
-  function detectMatchupVisible(){
-    const shell = document.getElementById("analysisShell");
-    if (shell && shell.classList.contains("analysis-visible")) return true;
-
-    if (document.body && document.body.classList.contains("analysis-visible")) return true;
-
+  function isStateHidden(el){
+    if (!el) return true;
+    if (el.hidden) return true;
+    if (el.getAttribute("hidden") !== null) return true;
+    if (el.classList.contains("hidden")) return true;
+    if (el.getAttribute("aria-hidden") === "true") return true;
     return false;
+  }
+
+  function detectMatchupVisible(){
+    const postMatchup = document.getElementById("postMatchup");
+    return !!postMatchup && !isStateHidden(postMatchup);
   }
 
   window.miInitGlossary = function(){
@@ -13303,6 +13616,10 @@ if (roundBtn && roundDropdown) {
   window.miRefreshGlossary = function(){
     renderGlossary();
     if (state.open) clampDrawerWidthToLeftLane();
+  };
+
+  window.miSyncGlossaryToMatchupState = function(){
+    window.miSetGlossaryAvailable(detectMatchupVisible());
   };
 })();
 
@@ -13487,7 +13804,7 @@ function miForceMobileScrollUnlock() {
 // Build Version — must match service-worker.js and index.html
 // =========================================================
 
-const MI_BUILD = '35';
+const MI_BUILD = '38';
 
 function bootMadnessIndex() {
   console.log("[MI] bootMadnessIndex fired");
@@ -13505,6 +13822,7 @@ function bootMadnessIndex() {
     }
 
     await loadTeamBranding();
+    await loadSeedDisplacementBenchmarks();
 
     setupEventListeners();
     loadCopyJSON();
