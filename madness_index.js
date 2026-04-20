@@ -986,42 +986,38 @@ function setEvidenceOpen(isOpen) {
 
   // Update label + chevron
   const chev = btn.querySelector('.mi-chev');
-  btn.childNodes[0].nodeValue = isOpen ? 'Hide Full Scorecard ' : 'View Full Scorecard ';
-  if (chev) chev.style.transform = isOpen ? 'rotate(180deg)' : 'rotate(0deg)';
+  btn.childNodes[0].nodeValue = isOpen
+    ? 'Hide Full Scorecard '
+    : 'View Full Scorecard ';
+  if (chev) chev.style.transform = isOpen
+    ? 'rotate(180deg)'
+    : 'rotate(0deg)';
 
   // Visual open/close
   if (isOpen) {
+
     shell.classList.remove('hidden');
+
     requestAnimationFrame(() => {
       shell.classList.add('analysis-visible');
 
-      // Mobile: after opening, scroll the scorecard into view so it feels immediate
-      if (window.matchMedia && window.matchMedia('(max-width: 720px)').matches) {
-        try {
-          shell.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        } catch (e) {
-          shell.scrollIntoView(true);
-        }
-      }
+      // IMPORTANT:
+      // No automatic scroll behavior here.
+      // Let the user's current scroll position remain unchanged.
     });
+
   } else {
 
     shell.classList.remove('analysis-visible');
+
     window.setTimeout(() => {
       shell.classList.add('hidden');
 
-      // Mobile: returning focus to verdict keeps the flow coherent
-      if (window.matchMedia && window.matchMedia('(max-width: 720px)').matches) {
-        const vs = document.getElementById('verdictShell');
-        if (vs) {
-          try {
-            vs.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          } catch (e) {
-            vs.scrollIntoView(true);
-          }
-        }
-      }
+      // IMPORTANT:
+      // Do not scroll back to verdict automatically.
+      // Closing the scorecard should not move the viewport.
     }, 280);
+
   }
 }
 
@@ -1031,7 +1027,8 @@ function initEvidenceToggleOnce() {
   btn.__miBound = true;
 
   btn.addEventListener('click', () => {
-    const expanded = btn.getAttribute('aria-expanded') === 'true';
+    const expanded =
+      btn.getAttribute('aria-expanded') === 'true';
     setEvidenceOpen(!expanded);
   });
 }
@@ -12894,9 +12891,6 @@ function setupEventListeners() {
 
       compareTeams(cinderellaName, favoriteName, roleMode);
 
-      // reveal analysis mode UI - LEGACY
-      resetPostMatchupDefaultView();
-
       const appShell = document.querySelector('.app-shell');
       if (appShell) appShell.classList.remove('pre-matchup');
     });
@@ -13804,7 +13798,7 @@ function miForceMobileScrollUnlock() {
 // Build Version — must match service-worker.js and index.html
 // =========================================================
 
-const MI_BUILD = '38';
+const MI_BUILD = '39';
 
 function bootMadnessIndex() {
   console.log("[MI] bootMadnessIndex fired");

@@ -13,7 +13,7 @@
 /* Honor iPhone notch / home-bar safe areas */
 @supports (padding: env(safe-area-inset-bottom)) {
   body {
-    padding-bottom: max(32px, env(safe-area-inset-bottom));
+    padding-bottom: max(2px, env(safe-area-inset-bottom));
   }
 }
 
@@ -69,6 +69,12 @@
     pointer-events: none !important;
     user-select: none !important;
   }
+
+  #mcRow3.matchup-step.mc-row.is-primary-entry {
+    min-height: 109 !important;
+    max-height: 110px !important;
+    height: 110px !important;
+  }
 }
 
 /* =============================================
@@ -95,7 +101,7 @@
   }
 
   .hero-logo {
-    max-height: 80px !important;
+    max-height: 64px !important;
     width: auto !important;
   }
 
@@ -683,7 +689,7 @@
     max-width: none !important;
     margin: 0 !important;
 
-    font-size: clamp(16px, 5vw, 22px) !important;
+    font-size: clamp(12px, 5vw, 18px) !important;
     line-height: 1.08 !important;
     font-weight: 860 !important;
     letter-spacing: -0.025em !important;
@@ -695,15 +701,19 @@
     display: block !important;
     width: 100% !important;
     max-width: none !important;
-    margin-bottom: clamp(4px, 0.6vw, 10px) !important;
+    margin-bottom: clamp(2px, 0.6vw, 8px) !important;
     margin-top: clamp(1px, 0.6vw, 2px) !important;
-    font-size: clamp(10px, 2.7vw, 12px) !important;
-    line-height: 1.34 !important;
-    font-weight: 540 !important;
+    font-size: clamp(8px, 2.7vw, 10px) !important;
+    line-height: 1.2 !important;
+    font-weight: 550 !important;
     letter-spacing: -0.005em !important;
     text-align: center !important;
-    color: rgba(226,232,240,0.76) !important;
+    color: var(--mi-text-primary) !important;
     text-wrap: pretty !important;
+  }
+
+  #verdictShell .mi-verdict-metrics-tile .tile-back {
+    padding-bottom: 0 !important;
   }
 
   /* No divider needed in the mobile stacked version */
@@ -726,7 +736,8 @@
   }
 
   #verdictShell #miVerdictMetricsTile .mi-scorebug-grid {
-    gap: 10px !important;
+    column-gap: 10px !important;
+    row-gap: 1px !important;
   }
 
   #verdictShell #miVerdictMetricsTile .mi-scorebug-team-lines {
@@ -734,7 +745,7 @@
   }
 
   #verdictShell .mi-verdict-shell-inner > .mi-verdict-actions.mi-verdict-actions-rail{
-    padding-top: 6px;
+    padding-top: 0;
     padding-bottom: 6px;
   }
 }
@@ -2439,27 +2450,34 @@
     text-overflow: ellipsis;
     border-bottom: 1px solid var(--line-color);
   }
+}
 
+@media (max-width: 720px) {
   #verdictShell {
     padding-top: 0 !important;
     min-height: 0 !important;
-    max-height: 1070px !important;
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
   }
 
   #verdictShell.card.mi-verdict-shell {
     min-height: 0 !important;
-    max-height: 1070px !important;
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
   }
 
-  #matchupBar..matchup-bar:not(.is-editing) {
+  #matchupBar.matchup-bar:not(.is-editing) {
     margin-top: 2px !important;
   }
 
   #verdictShell .mi-verdict-shell-inner{
     padding: 0 !important;
     min-height: 0 !important;
-    max-height: 1470px !important;
-    height: 100% !important;
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
   }
 
   #verdictShell .mi-verdict-grid{
@@ -2563,10 +2581,6 @@
     margin-bottom: 2px !important;
   }
 
-  .hero-logo {
-    max-height: 56px !important;
-  }
-
   .version-badge-btn {
     margin-top: 0 !important;
   }
@@ -2629,10 +2643,6 @@
     gap: 0.5px !important;
   }
 
-  .hero-logo {
-    max-height: 40px !important;
-  }
-
   .mi-matchup-dock {
     padding: 4px !important;
   }
@@ -2656,7 +2666,12 @@
   }
 
   .pre-setup-row {
-    margin: 0 !important;
+    margin-bottom: 12px !important;
+    padding-bottom: 12px !important;
+  }
+
+  .pre-setup-row #matchupSetupCard .matchup-steps {
+    margin-bottom: 12px !important;
   }
 }
 
@@ -3235,7 +3250,7 @@
   }
 
   #verdictShell #miVerdictMetricsTile .mi-scorebug-team {
-    padding: 6px !important;
+    padding: 0 !important;
   }
 
   #verdictShell .mi-metrics-back-text {
@@ -3288,8 +3303,9 @@
   #matchupSetupCard #teamASelectWrap.home-team-select .mi-team-dd-btn,
   #matchupSetupCard #teamBSelectWrap.home-team-select .mi-team-dd-btn {
     min-height: 0 !important;
-    max-height: 28px !important;
+    max-height: 36px !important;
     margin-bottom: 2px !important;
+    margin-top: 2px !important;
   }
 
   #matchupSetupCard #teamASelectWrap.home-team-select,
@@ -3299,12 +3315,13 @@
   }
 
   #mcRow1.matchup-step.mc-row.is-primary-entry {
-    margin: 2px 4px !important;
+    margin: 8px 4px !important;
     padding: 4px !important;
   }
 
   #mcRow3.matchup-step.mc-row.is-primary-entry {
     margin-bottom: 6px !important;
+    padding-bottom: 12px !important;
   }
 
   #mcRow3.matchup-step.mc-row.is-primary-entry .round-step-label {
@@ -3354,7 +3371,9 @@
   }
 
   #mcRow2.matchup-step.mc-row {
-    padding-bottom: 4px !important;
+    padding: 8px !important;
+    margin-bottom: 8px !important;
+    margin-top: 8px !important;
   }
 
   .mi-team-dd-item {
@@ -3545,11 +3564,15 @@
   #matchupBar:not(.is-editing) .matchup-bar-center .matchup-quick-actions {
     display: none !important;
   }
+  
+  #miVerdictMetricsTile .mi-scorebug-team {
+    row-gap: 1px !important;
+  }
 }
 
 @media (max-width: 600px) {
   #matchupBar:not(.is-editing) #editMatchupBtn {
-    min-height: 40px !important;
+    min-height: 28px !important;
   }
 }
 
@@ -3744,7 +3767,7 @@
     max-width: 100% !important;
     height: auto !important;
     min-height: 155svh !important;
-    max-height: 155svh !important;
+    max-height: 200svh !important;
   }
 
   /* Entry Screen — Mobile viewport fit (no scroll at 100%) */
@@ -3926,7 +3949,7 @@
   }
 
   .mi-dataset-dd-trigger {
-    max-height: 32px !important;
+    max-height: 40px !important;
     min-height: 0 !important;
   }
 
@@ -3999,8 +4022,10 @@
   }
 
   #verdictShell .mi-evidence-toggle {
-    font-size: 12px !important;
+    font-size: 16px !important;
     padding: 4px 2px !important;
+    letter-spacing: 0.04em !important;
+    color: var(--mi-text-primary) !important;
   }
 
   #verdictShell .mi-verdict-metrics-tile .tile-front {
@@ -4173,7 +4198,7 @@
     grid-template-columns: 20px minmax(0, 1fr) !important;
     column-gap: 8px !important;
     row-gap: 4px !important;
-    padding: 4px !important;
+    padding: 12px !important;
   }
 
   #preMatchupHub .pre-step-num {
@@ -4491,7 +4516,7 @@
 
   /* Optional: let the single visible row breathe slightly more */
   #preMatchupHub[data-mobile-step] .pre-step {
-    margin: 0 !important;
+    margin-bottom: 12px !important;
   }
 
   .pre-setup-row .mc-row {
@@ -4503,7 +4528,16 @@
 @media (max-width: 720px) {
 
   #preSetupRow.pre-setup-row.top-bar {
-    row-gap: 4px !important;        /* was 18px */
+    row-gap: 18px !important;        /* was 18px */
+  }
+
+  .pre-setup-row > .card {
+    min-height: 60px !important;
+  }
+
+  #preMatchupHub .round-step-label {
+    padding-top: 4px !important;
+    padding-bottom: 4px !important;
   }
 }
 
@@ -5987,8 +6021,8 @@
   /* Give the pre-matchup compare area real room above fixed bottom UI */
   #preSetupRow .matchup-actions-row,
   #preSetupRow #compareBtn {
-    margin-bottom: 6px !important;
-    margin-top: 4px !important;
+    margin-bottom: auto !important;
+    margin-top: auto !important;
     scroll-margin-bottom: 160px !important;
     color: #FDF9D8 !important;
     font-size: 20px !important;
@@ -6013,29 +6047,6 @@
     min-height: 0 !important;
     height: 32px !important;
   }
-  
-  .app-shell {
-    height: 100% !important;
-    min-height: 100px !important;
-    max-height: 100px !important;
-  }
-
-  .app-shell .csv-loaded .has-matchup {
-    min-height: 1300px !important;
-  }
-
-  #analysisShell {
-    min-height: 2000px !important;
-  }
-
-  body {
-    min-height: 1000px !important;
-  }
-
-  .app-shell.pre-matchup {
-    height: auto !important; 
-    max-height: 10px !important;
-  }
 
   .hero-tagline {
     display: none !important;
@@ -6052,7 +6063,7 @@
 
   #interactionsSection .interactions-flip-hint {
     font-size: 10px !important;
-    color: var(--mi-text-muted); !important;
+    color: var(--mi-text-muted) !important;
     letter-spacing: 0.04em !important;
     font-weight: 600 !important;
     column-gap: 2px !important;
@@ -6060,7 +6071,7 @@
 
   .flip-tile .tile-face.tile-front .mi-flip-hint {
     font-size: 10px !important;
-    color: var(--mi-text-muted); !important;
+    color: var(--mi-text-muted) !important;
     letter-spacing: 0.04em !important;
     font-weight: 600 !important;
     column-gap: 2px !important;
@@ -6088,5 +6099,68 @@
 
   #appFooter.app-footer {
     margin-top: 0 !important;
+  }
+
+  #preSetupRow.pre-setup-row > .card.controls-card {
+    min-height: 90px !important;
+  }
+
+  #matchupSetupCard .mc-row.is-primary-entry {
+    min-height: 90px !important;
+  }
+}
+
+/* =========================================================
+   MOBILE SCROLL — SINGLE CANONICAL BLOCK
+   Keep this LAST in mobile.css
+   ========================================================= */
+@media (max-width: 720px) {
+
+  html,
+  body {
+    height: auto !important;
+    min-height: 100% !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    overscroll-behavior-y: auto !important;
+  }
+
+  .app-shell,
+  .app-shell.pre-matchup,
+  .app-shell.has-matchup,
+  #preMatchup,
+  #postMatchup,
+  #analysisShell,
+  #summarySection,
+  #summarySectionMobile,
+  #verdictShell,
+  #verdictShell.card.mi-verdict-shell,
+  #verdictShell .mi-verdict-shell-inner {
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  /* Neutralize any mobile scroll-lock classes if present */
+  html.mi-verdict-scroll-lock,
+  body.mi-verdict-scroll-lock,
+  body.mi-entry-lock {
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    min-height: auto !important;
+    touch-action: auto !important;
+    overscroll-behavior-y: auto !important;
+  }
+
+  /* Keep the footer attached to real content */
+  #appFooter.app-footer {
+    margin-top: 8px !important;
+  }
+
+  #appFooter.app-footer::after {
+    content: "";
+    display: block;
+    height: 20px;
   }
 }

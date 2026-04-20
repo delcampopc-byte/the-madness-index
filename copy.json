@@ -39,11 +39,11 @@
   "patch_notes": {
     "title": "Patch Notes",
     "hint": "Click for Patch Notes",
-    "badge": "Version 5.1 (Build 38)",
+    "badge": "Version 5.1 (Build 39)",
     "max_items": 10,
     "items": [
       {
-        "build": "Build 38",
+        "build": "Build 39",
         "date": "2026-04-19",
         "bullets": [
           "Added 2016, 2017, 2018, and 2019 datasets.",
