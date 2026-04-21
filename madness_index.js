@@ -9473,7 +9473,7 @@ function ensureQuickEditSandboxToggle() {
     input.id = 'sandboxModeToggleQuick';
 
     const text = document.createElement('span');
-    text.textContent = 'Sandbox Mode';
+    text.textContent = 'Sandbox';
 
     wrap.appendChild(input);
     wrap.appendChild(text);
@@ -13683,7 +13683,7 @@ function miUpdateInstallUI() {
   // iPhone / iPad: show a real button that opens instructions
   if (miIsIosLike()) {
     installBtn.hidden = false;
-    installBtn.textContent = 'Add to Home Screen';
+    installBtn.textContent = 'Add to Homescreen';
     installBtn.setAttribute('aria-label', 'Show iPhone install instructions');
     return;
   }
@@ -13778,22 +13778,6 @@ function miInitInstallPromptUI() {
   miUpdateInstallUI();
 }
 
-function miForceMobileScrollUnlock() {
-  try {
-    document.documentElement.classList.remove('mi-verdict-scroll-lock');
-    document.body.classList.remove('mi-verdict-scroll-lock');
-    document.body.classList.remove('mi-entry-lock');
-
-    document.documentElement.style.overflowY = '';
-    document.documentElement.style.overflowX = '';
-    document.body.style.overflowY = '';
-    document.body.style.overflowX = '';
-    document.body.style.touchAction = '';
-  } catch (err) {
-    console.warn('[MI] Mobile scroll unlock failed:', err);
-  }
-}
-
 // =========================================================
 // Build Version — must match service-worker.js and index.html
 // =========================================================
@@ -13806,8 +13790,6 @@ function bootMadnessIndex() {
   let tries = 0;
   const tick = async () => {
     tries += 1;
-
-    miForceMobileScrollUnlock();
 
     const hub = document.getElementById('preMatchupHub');
     if (!hub && tries < 10) {

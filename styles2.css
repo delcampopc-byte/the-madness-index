@@ -24,6 +24,7 @@ html {
   overflow-x: hidden;
   overflow-y: auto;
   scrollbar-gutter: stable;
+  min-height: 100dvh;
 }
 
 body {
@@ -1630,7 +1631,7 @@ select:focus {
 #roundDropdown.round-dropdown{
   position: absolute;
   z-index: 9999;
-  top: calc(100% + 8px);
+  top: calc(100% - 36px);
   left: 0;
 
   width: 2px;
@@ -1651,6 +1652,7 @@ select:focus {
 
   /* mimic the "list area" pad + subtle inner tint */
   padding: 8px;
+  opacity: 1;
   background-clip: padding-box;
 }
 
@@ -9887,20 +9889,6 @@ button,
   font-weight: 800;
 }
 
-@media (max-width: 920px){
-  .profile-support-row{
-    grid-template-columns: 1fr;
-  }
-
-  .profile-subtotal-row{
-    grid-template-columns: 1fr;
-  }
-
-  .subtotal-identity{
-    justify-self: stretch;
-  }
-}
-
 /* v3.91 — remove residual slack under Total Interaction Leverage (left tile) */
 #interactionsSection .interactions-left,
 #interactionsSection .interactions-left-tile{
@@ -10296,11 +10284,6 @@ button,
   opacity: 1;
 }
 
-/* Prevent scroll while entry is visible */
-body.mi-entry-lock {
-  overflow: hidden;
-}
-
 .mi-entry-button {
   background: transparent;
   border: 1px solid rgba(217, 214, 207, 0.4);
@@ -10344,8 +10327,6 @@ body{
   position: relative;
   margin: 0;
 }
-
-
 
 /* Ensure your app sits above the room */
 .app-shell{
@@ -10709,17 +10690,12 @@ body{
    (fixes the giant empty blue blocks)
    ========================================================= */
 
-/* The row is flex; ensure children don't get stretched vertically */
-#matchupSetupCard #mcRow1 .control-row{
-  align-items: flex-start !important;
-}
-
 /* Force the two home wrappers to size to content (not 100%/stretch) */
 #matchupSetupCard #teamASelectWrap.home-team-select,
 #matchupSetupCard #teamBSelectWrap.home-team-select{
   height: auto !important;
   min-height: 0 !important;
-  align-self: flex-start !important;
+
 }
 
 /* Force the custom dropdown root to NOT inherit the 240px height */
@@ -10727,7 +10703,7 @@ body{
 #matchupSetupCard #teamBSelectWrap.home-team-select .mi-team-dd{
   height: auto !important;
   min-height: 0 !important;
-  align-self: flex-start !important;
+  align-self: center !important;
   flex: 0 0 auto !important;
 }
 
@@ -10736,8 +10712,10 @@ body{
 #matchupSetupCard #teamBSelectWrap.home-team-select .mi-team-dd-btn{
   height: 44px !important;
   min-height: 44px !important;
-  display: flex !important;
+  display: inline-flex !important;
   align-items: center !important;
+  justify-content: center; 
+  vertical-align: center;
 }
 
 /* --- Matchup setup: enforce 3 equal rows --- */
@@ -12046,22 +12024,6 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
   margin-right: 3px;
 }
 
-@media (max-width: 920px){
-  .profile-subtotal-row{
-    grid-template-columns: 1fr;
-    gap: 10px;
-  }
-
-  .subtotal-identity{
-    justify-self: stretch;
-    padding-left: 12px;
-  }
-
-  .subtotal-identity::before{
-    display: none;
-  }
-}
-
 /* ==========================================
    PROFILE SUBTOTAL + INLINE TOURNAMENT IDENTITY
    Softer, more unified version
@@ -12202,29 +12164,6 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
   flex-direction: column;
   justify-content: center;
   gap: 2px;
-}
-
-@media (max-width: 920px){
-  .profile-subtotal-row{
-    grid-template-columns: 1fr;
-    gap: 10px;
-  }
-
-  .subtotal-main{
-    justify-content: center;
-    text-align: center;
-  }
-
-  .subtotal-identity{
-    min-width: 0;
-    width: 100%;
-    padding-left: 0;
-    justify-self: stretch;
-  }
-
-  .subtotal-identity::before{
-    display: none;
-  }
 }
 
 /* Identity Credibility Meter */
@@ -12435,27 +12374,6 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
   max-height: 360px;
 }
 
-/* ---------- mobile ---------- */
-
-@media (max-width: 980px){
-  #interactionsSection .interactions-grid{
-    grid-template-columns: 1fr;
-  }
-
-  #interactionsSection .interactions-right.interactions-diagnostics-tile{
-    min-height: auto;
-  }
-
-  .volatility-score-row{
-    grid-template-columns: 1fr;
-    gap: 8px;
-  }
-
-  .volatility-quarters{
-    grid-template-columns: 1fr;
-  }
-}
-
 /* =========================================================
    v4.2 — MATCHUP DIAGNOSTICS / ARC VOLATILITY GAUGE
    ========================================================= */
@@ -12505,24 +12423,6 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
   flex: 1 1 auto;
   min-height: 0;
   overflow-y: auto;
-}
-
-@media (max-width: 980px){
-  #interactionsSection .interactions-grid{
-    grid-template-columns: 1fr !important;
-  }
-
-  #interactionsSection .interactions-right.interactions-diagnostics-tile{
-    min-height: auto;
-  }
-
-  .volatility-quarters{
-    grid-template-columns: 1fr;
-  }
-
-  .volatility-gauge{
-    --size: min(100%, 320px);
-  }
 }
 
 .syn-center-inner {
@@ -13450,15 +13350,6 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
   overflow-x: hidden !important;
 }
 
-/* responsive fallback */
-@media (max-width: 980px){
-  #interactionsSection .interactions-grid{
-    grid-template-columns: 1fr !important;
-    grid-template-rows: auto auto !important;
-    height: auto !important;
-  }
-}
-
 /* =========================================================
    CLEAN ANALYTICS VOLATILITY GAUGE — HARD OVERRIDE
    ========================================================= */
@@ -13750,21 +13641,6 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
 
 #interactionsSection .vol-q-lean{
   display: none;
-}
-
-@media (max-width: 980px){
-  #interactionsSection .volatility-gauge-shell{
-    width: min(100%, 310px) !important;
-  }
-
-  #interactionsSection .volatility-quarters{
-    grid-template-columns: 1fr !important;
-  }
-
-  #interactionsSection .volatility-summary-text,
-  #interactionsSection .volatility-threshold-text{
-    width: min(100%, 290px) !important;
-  }
 }
 
 /* Remove physical gauge pointers completely */
@@ -14078,37 +13954,6 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
     linear-gradient(180deg, rgba(12,18,36,0.94), rgba(8,13,27,0.98));
 }
 
-/* ---------- mobile tightening ---------- */
-
-@media (max-width: 720px){
-  .explain-table.mi-core-table thead th{
-    padding: 8px 6px;
-    font-size: 10px;
-    letter-spacing: 0.06em;
-  }
-
-  .explain-table.mi-core-table .mi-core-metric-row td{
-    padding: 9px 6px;
-  }
-
-  .explain-table.mi-core-table .mi-core-battlefield{
-    font-size: 11px;
-  }
-
-  .explain-table.mi-core-table .mi-core-tier{
-    font-size: 11px;
-  }
-
-  .explain-table.mi-core-table .mi-standing-bar{
-    height: 10px;
-  }
-
-  .explain-table.mi-core-table .mi-standing-median{
-    top: -1px;
-    bottom: -1px;
-  }
-}
-
 /* ==========================================================================
    INTERACTION METRICS TABLE — LEVERAGE BAR OVERRIDE
    Paste at very bottom of styles2.css
@@ -14406,57 +14251,9 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
   border: 0 !important;
 }
 
-/* ---------- mobile tightening ---------- */
-
-@media (max-width: 720px){
-  .interaction-table.mi-interaction-table thead th{
-    padding: 8px 6px;
-    font-size: 10px;
-    letter-spacing: 0.06em;
-  }
-
-  .interaction-table.mi-interaction-table .mi-int-row td{
-    padding: 9px 6px;
-  }
-
-  .interaction-table.mi-interaction-table .mi-int-label-main{
-    font-size: 11px;
-  }
-
-  .interaction-table.mi-interaction-table .mi-int-label-sub{
-    font-size: 9px;
-  }
-
-  .interaction-table.mi-interaction-table .mi-int-bar{
-    height: 12px;
-  }
-
-  .interaction-table.mi-interaction-table .mi-int-row.tier-high .mi-int-bar{
-    height: 14px;
-  }
-
-  .interaction-table.mi-interaction-table .mi-int-row.tier-mid .mi-int-bar{
-    height: 12px;
-  }
-
-  .interaction-table.mi-interaction-table .mi-int-row.tier-low .mi-int-bar{
-    height: 9px;
-  }
-
-  .interaction-table.mi-interaction-table .mi-int-intensity-pill{
-    min-width: 58px;
-    min-height: 25px;
-    font-size: 10px;
-    padding: 0 8px;
-  }
-}
-
 /* ==========================================================================
    INTERACTION TABLE — SPACE MAXIMIZATION PASS
-   Paste at VERY bottom of styles2.css
    ========================================================================== */
-
-/* ---------- overall container tightening ---------- */
 
 .interaction-table.mi-interaction-table{
   border-radius: 16px;
@@ -15375,148 +15172,6 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
   border: 0 !important;
 }
 
-/* ==========================================================================
-   RESPONSIVE
-   ========================================================================== */
-
-@media (max-width: 980px){
-  .mi-eff-module .mi-eff-label{
-    font-size: 11px;
-  }
-
-  .mi-eff-module .mi-eff-helper{
-    font-size: 9px;
-  }
-
-  .mi-eff-module .mi-eff-value{
-    font-size: 13px;
-  }
-
-  .mi-eff-module .mi-eff-seg.is-emphasis .mi-eff-value{
-    font-size: 15px;
-  }
-
-  .mi-verdict-metrics-tile .mi-scorebug-grid{
-    gap: 8px 10px;
-  }
-
-  .mi-verdict-metrics-tile .mi-scorebug-team-name{
-    font-size: 12px;
-  }
-
-  .mi-verdict-metrics-tile .mi-scorebug-mini-value{
-    min-width: 40px;
-    font-size: 11px;
-  }
-
-  .summary-synthesis-table.mi-summary-synthesis-table .syn-team span{
-    font-size: 13px;
-  }
-
-  .summary-synthesis-table.mi-summary-synthesis-table .syn-label-main{
-    font-size: 11px;
-  }
-
-  .summary-synthesis-table.mi-summary-synthesis-table .syn-label-hint{
-    font-size: 9px;
-  }
-
-  .summary-synthesis-table.mi-summary-synthesis-table .mi-synth-inline-bar{
-    height: 12px;
-  }
-
-  .summary-synthesis-table.mi-summary-synthesis-table .mi-synth-inline-value{
-    min-width: 40px;
-    font-size: 11px;
-  }
-
-  .summary-synthesis-table.mi-summary-synthesis-table .syn-final-value{
-    font-size: 17px;
-  }
-
-  .summary-synthesis-table.mi-summary-synthesis-table .syn-center{
-    min-width: 160px;
-  }
-}
-
-@media (max-width: 720px){
-  .mi-eff-module .mi-eff-seg{
-    gap: 8px;
-    padding: 10px 0;
-  }
-
-  .mi-eff-module .mi-eff-helper{
-    display: none;
-  }
-
-  .mi-verdict-metrics-tile .mi-scorebug-grid{
-    gap: 8px 10px;
-  }
-
-  .mi-verdict-metrics-tile .mi-scorebug-team-line--metric{
-    padding: 7px 8px 8px;
-  }
-
-  .mi-verdict-metrics-tile .mi-scorebug-mini-label{
-    font-size: 9px;
-  }
-
-  .mi-verdict-metrics-tile .mi-scorebug-mini-value{
-    min-width: 36px;
-    font-size: 10px;
-  }
-
-  .mi-verdict-metrics-tile .mi-scorebug-mini-bar{
-    height: 9px;
-  }
-
-  .mi-verdict-metrics-tile .mi-scorebug-gap-value{
-    font-size: 16px;
-  }
-
-  .summary-synthesis-table.mi-summary-synthesis-table .syn-team{
-    padding: 8px 8px 10px;
-  }
-
-  .summary-synthesis-table.mi-summary-synthesis-table .syn-label,
-  .summary-synthesis-table.mi-summary-synthesis-table .syn-contrib-cell,
-  .summary-synthesis-table.mi-summary-synthesis-table .syn-final,
-  .summary-synthesis-table.mi-summary-synthesis-table .syn-center{
-    padding: 8px 6px;
-  }
-
-  .summary-synthesis-table.mi-summary-synthesis-table .syn-label-main{
-    font-size: 10px;
-  }
-
-  .summary-synthesis-table.mi-summary-synthesis-table .syn-label-hint{
-    display: none;
-  }
-
-  .summary-synthesis-table.mi-summary-synthesis-table .mi-synth-inline-wrap{
-    grid-template-columns: minmax(0, 1fr);
-    gap: 5px;
-  }
-
-  .summary-synthesis-table.mi-summary-synthesis-table .mi-synth-inline-value{
-    min-width: 0;
-    text-align: center;
-    font-size: 10px;
-  }
-
-  .summary-synthesis-table.mi-summary-synthesis-table .syn-final-value{
-    font-size: 15px;
-  }
-
-  .summary-synthesis-table.mi-summary-synthesis-table .syn-delta-value{
-    font-size: 16px;
-  }
-
-  .summary-synthesis-table.mi-summary-synthesis-table .syn-center{
-    min-width: 140px;
-  }
-}
-
 /* VERDICT SCOREBUG SAFETY OVERRIDE */
 #miVerdictMetricsTile .tile-front{
   display: grid !important;
@@ -15798,35 +15453,6 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
   text-transform: uppercase !important;
 }
 
-/* 10) Slightly more equal shell on mid-size screens */
-@media (max-width: 1180px){
-  #verdictShell .mi-verdict-grid{
-    grid-template-columns: minmax(0, 1.04fr) minmax(360px, 0.96fr) !important;
-    gap: 18px !important;
-  }
-
-  #verdictShell .mi-scorebug-line{
-    max-width: 30ch !important;
-    font-size: 24px !important;
-  }
-}
-
-/* 11) Before mobile stack, protect the scorebug first */
-@media (max-width: 980px){
-  #verdictShell .mi-verdict-grid{
-    grid-template-columns: 1fr !important;
-    gap: 16px !important;
-  }
-
-  #verdictShell .mi-verdict-rail{
-    width: 100%;
-  }
-
-  #miVerdictMetricsTile .tile-front{
-    padding: 14px 14px 12px !important;
-  }
-}
-
 /* =========================================================
    SCORE SYNTHESIS — final spacing / bar visibility pass
    Paste at very bottom of styles2.css
@@ -16023,21 +15649,6 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
 
 #summarySection .summary-synthesis-table .syn-final-value{
   font-size: 19px;
-}
-
-/* Desktop-only: give the whole section a little more horizontal calm */
-@media (min-width: 1100px){
-  #summarySection.card.summary-card{
-    padding-left: 12px;
-    padding-right: 12px;
-  }
-
-  #summarySection .summary-synthesis-table{
-    --syn-w-label: 14%;
-    --syn-w-val: 13%;
-    --syn-w-final: 9%;
-    --syn-w-center: 18%;
-  }
 }
 
 /* =========================================================
@@ -16353,24 +15964,6 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
   opacity: 0.82;
 }
 
-/* =========================
-   MOBILE
-   ========================= */
-
-@media (max-width: 980px){
-  #interactionsSection .interactions-left-tile.flip-tile .tile-face.interactions-front-face{
-    padding: 10px 10px 9px !important;
-  }
-
-  #interactionsSection .interaction-table.mi-interaction-table .mi-int-row{
-    height: 52px !important;
-  }
-
-  #interactionsSection .interaction-totals-bar{
-    padding: 11px 12px !important;
-  }
-}
-
 /* ==========================================================================
    INTERACTIONS LEFT TILE — FINAL ALIGNMENT POLISH
    1) tighten flip hint alignment
@@ -16452,17 +16045,6 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
   top: -1px;
 }
 
-@media (max-width: 980px){
-  #interactionsSection .interaction-table.mi-interaction-table .mi-int-bar-sub{
-    margin-top: 5px !important;
-    font-size: 9px !important;
-  }
-
-  #interactionsSection .interactions-flip-hint{
-    padding-top: 3px !important;
-  }
-}
-
 /* ==========================================================================
    INTERACTION TOTALS BAR — INLINE TEAM/VALUE FORMAT
    Replaces title/favored split with centered:
@@ -16517,17 +16099,6 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
   opacity: 0.55 !important;
   font-weight: 700 !important;
   margin: 0 2px !important;
-}
-
-@media (max-width: 980px){
-  #interactionsSection .interaction-totals-bar .totals-inline{
-    gap: 6px !important;
-    font-size: 14px !important;
-  }
-
-  #interactionsSection .interaction-totals-bar .totals-val{
-    font-size: 14px !important;
-  }
 }
 
 /* =========================================================
@@ -17507,16 +17078,6 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
 
 #summarySectionMobile {
   display: none !important;
-}
-
-@media (max-width: 720px) {
-  #summarySection {
-    display: none !important;
-  }
-
-  #summarySectionMobile {
-    display: block !important;
-  }
 }
 
 /* =========================================================
@@ -22019,26 +21580,6 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
 
   text-shadow:
     0 1px 10px rgba(0,0,0,0.36);
-}
-
-@media (max-width: 768px){
-  #verdictShell.mi-winner-a #miVerdictMetricsTile .tile-back,
-  #verdictShell.mi-winner-b #miVerdictMetricsTile .tile-back{
-    background:
-      radial-gradient(
-        140% 128% at var(--mi-owner-hero-x, 50%) 0%,
-        rgb(var(--mi-owner-rgb, 148 163 184) / 0.20) 0%,
-        rgb(var(--mi-owner-rgb, 148 163 184) / 0.09) 30%,
-        rgba(255,255,255,0.00) 60%
-      ),
-      linear-gradient(
-        180deg,
-        rgb(var(--mi-owner-secondary-rgb, 148 163 184) / 0.09) 0%,
-        rgba(255,255,255,0.02) 20%,
-        rgba(255,255,255,0.00) 38%
-      ),
-      rgba(7, 10, 18, 0.92) !important;
-  }
 }
 
 /* Flip container border uses each card's team primary color */

@@ -61,63 +61,69 @@
 <!-- =============================================================== -->
 <div id="preMatchup">
   <div class="app-shell pre-matchup">
-    <!-- ================= HEADER ================= -->
-    <header class="app-header enhanced-header">
+    <!-- ================= HEADER ZONE ================= -->
+    <div class="header-zone-wrapper">
 
-      <div class="hero-logo-wrap">
-        <img
-          src="assets/img/logos/madness-index-home-logo.png"
-          alt="Madness Index Logo"
-          class="hero-logo"
-        />
+  <!-- ================= HEADER ================= -->
+  <header class="app-header enhanced-header">
+
+    <div class="hero-logo-wrap">
+      <img
+        src="assets/img/logos/madness-index-home-logo.png"
+        alt="Madness Index Logo"
+        class="hero-logo"
+      />
+    </div>
+
+    <div class="hero-text-wrap">
+      <p class="hero-tagline" data-copy="hero.tagline"></p>
+      <p class="hero-subtitle">
+        <span data-copy="hero.subtitle"></span>
+        <span class="hero-sub-highlight" data-copy="hero.subtitle_highlight"></span>
+      </p>
+    </div>
+
+  </header>
+
+  <!-- ================= VERSION NOTES (UTILITY OVERLAY) ================= -->
+  <div class="version-notes-anchor">
+    <button
+      id="versionBadgeBtn"
+      class="version-badge version-badge-btn"
+      type="button"
+      aria-haspopup="dialog"
+      aria-expanded="false"
+    >
+      <span class="vb-line1">
+        <span id="versionBadgeText">Version 1.0 (Build 4.0)</span>
+        <span class="vb-new" aria-hidden="true">NEW</span>
+      </span>
+      <span class="vb-hint">Click for Patch Notes</span>
+    </button>
+
+    <div
+      id="versionNotes"
+      class="version-notes"
+      role="dialog"
+      aria-hidden="true"
+      aria-label="Patch notes"
+    >
+      <div
+        class="version-notes-title"
+        data-copy="patch_notes.title"
+      >
+        Patch Notes
       </div>
 
-      <div class="hero-text-wrap">
-        <p class="hero-tagline" data-copy="hero.tagline"></p>
-        <p class="hero-subtitle">
-          <span data-copy="hero.subtitle"></span>
-          <span class="hero-sub-highlight" data-copy="hero.subtitle_highlight"></span>
-        </p>
-      </div>
+      <!-- JS will render patch notes into this list -->
+      <ul
+        id="versionNotesList"
+        class="version-notes-list"
+      ></ul>
+    </div>
+  </div>
 
-      <div class="version-notes-anchor">
-        <button
-          id="versionBadgeBtn"
-          class="version-badge version-badge-btn"
-          type="button"
-          aria-haspopup="dialog"
-          aria-expanded="false"
-        >
-          <span class="vb-line1">
-            <span id="versionBadgeText">Version 1.0 (Build 4.0)</span>
-            <span class="vb-new" aria-hidden="true">NEW</span>
-          </span>
-          <span class="vb-hint">Click for Patch Notes</span>
-        </button>
-
-        <div
-          id="versionNotes"
-          class="version-notes"
-          role="dialog"
-          aria-hidden="true"
-          aria-label="Patch notes"
-        >
-          <div
-            class="version-notes-title"
-            data-copy="patch_notes.title"
-          >
-            Patch Notes
-          </div>
-
-          <!-- JS will render patch notes into this list -->
-          <ul
-            id="versionNotesList"
-            class="version-notes-list"
-          ></ul>
-        </div>
-      </div>
-
-    </header>
+</div>
 
     <!-- PRE-MATCHUP PROGRESS BAR (moved under hero) -->
     <section id="preHubStatusWrap" class="pre-header-status">

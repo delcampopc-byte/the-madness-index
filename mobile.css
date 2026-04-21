@@ -75,6 +75,12 @@
     max-height: 110px !important;
     height: 110px !important;
   }
+
+  #preSetupRow.pre-setup-row .controls-card.is-primary-entry {
+    max-height: 75px !important;
+    min-height: 0 !important;
+    height: 100% !important;
+  }
 }
 
 /* =============================================
@@ -101,7 +107,7 @@
   }
 
   .hero-logo {
-    max-height: 64px !important;
+    max-height: 48px !important;
     width: auto !important;
   }
 
@@ -121,10 +127,10 @@
 
   .version-badge-btn .vb-hint {
     margin: 0 !important;
-    font-size: 7px !important;
+    font-size: 5.5px !important;
     color: var(--mi-text-muted) !important;
-    letter-spacing: 0.04em !important;
-    font-weight: 550 !important;
+    letter-spacing: 0.02em !important;
+    font-weight: 400 !important;
   }
 
   .app-shell.pre-matchup .hero-logo {
@@ -229,7 +235,7 @@
     justify-content: center !important;
     gap: 10px !important;
     width: 100% !important;
-    margin-bottom: 8px !important;
+    margin-bottom: 2px !important;
   }
 
   #preSetupRow .select-wrap {
@@ -394,10 +400,11 @@
 
   /* ── Version badge: stay readable at phone density ──────────────────  */
   .version-badge-btn {
-    font-size: 7px !important;
+    font-size: 6px !important;
     padding: 2px 5px !important;
     min-height: 32px !important;
     height: auto !important;
+    letter-spacing: 0.02em !important;
   }
 
   .version-badge-btn .vb-new {
@@ -1518,26 +1525,6 @@
     isolation: isolate !important;
   }
 
-  #summarySectionMobile.mi-sum-mob-wrap::before {
-    content: "" !important;
-    position: absolute !important;
-    inset: 0 !important;
-    pointer-events: none !important;
-
-    background:
-      linear-gradient(
-        90deg,
-        rgb(var(--mi-winner-primary-rgb, 148 163 184) / 0.08) 0%,
-        rgb(var(--mi-winner-tertiary-rgb, 148 163 184) / 0.05) 16%,
-        transparent 34%,
-        transparent 66%,
-        rgb(var(--mi-loser-tertiary-rgb, 107 114 128) / 0.025) 84%,
-        rgb(var(--mi-loser-primary-rgb, 107 114 128) / 0.04) 100%
-      );
-
-    opacity: 0.95 !important;
-    z-index: 0 !important;
-  }
 
   #summarySectionMobile > * {
     position: relative !important;
@@ -2012,7 +1999,7 @@
     display: flex !important;
     flex-direction: column !important;
     align-items: center !important;
-    margin-bottom: 1px !important;
+    margin-bottom: 60px !important;
 
     padding: 12px 12px 6px !important;
     border-radius: 18px !important;
@@ -2082,21 +2069,28 @@
   /* Container: pin to the bottom of the viewport */
   .mi-glossary {
     position: fixed !important;
-    inset: auto 0 0 0 !important;   /* top:auto right:0 bottom:0 left:0 */
-    width: 100% !important;
-    z-index: 9999 !important;
+    inset: auto !important;   /* top:auto right:0 bottom:0 left:0 */
+    width: auto !important;
+    z-index: auto !important;
     pointer-events: none;            /* children opt back in individually */
-    display: flex !important;
     flex-direction: column !important;
     align-items: center !important;
+    display: block !important;
   }
 
   /* Handle: full-width bottom tab */
   .mi-glossary-handle {
+    position: fixed !important;
+    left: 50% !important;
+    bottom: max(8px, env(safe-area-inset-bottom, 0px)) !important;
+    transform: translateX(-50%) !important;
+    z-index: 10040 !important;
+
     pointer-events: auto !important;
     width: min(320px, calc(100vw - 32px)) !important;
     max-width: min(320px, calc(100vw - 32px)) !important;
-    height: 48px !important;
+    height: 40px !important;
+    min-height: 40px !important;
     border-radius: 14px 14px 0 0 !important;
     justify-content: center !important;
 
@@ -2106,7 +2100,6 @@
     backdrop-filter: blur(14px) !important;
     -webkit-backdrop-filter: blur(14px) !important;
 
-    /* Remove the rightward-fade mask — looks wrong full-width */
     -webkit-mask-image: none !important;
     mask-image: none !important;
 
@@ -2156,8 +2149,11 @@
     opacity: 1 !important;
     visibility: visible !important;
     pointer-events: auto !important;
+
     transition:
-      transform 260ms cubic-bezier(.16, 1, .3, 1) !important;
+      transform 260ms cubic-bezier(.16, 1, .3, 1),
+      opacity 180ms ease,
+      visibility 0s linear 0s !important;
   }
 
   /* Keep handle fully visible when panel is open
@@ -2639,8 +2635,9 @@
 
 @media (max-width: 600px) {
   .enhanced-header {
-    padding: 6px 10px 6px !important;
+    padding: 1px 10px 1px !important;
     gap: 0.5px !important;
+    margin: 1px !important;
   }
 
   .mi-matchup-dock {
@@ -2666,12 +2663,12 @@
   }
 
   .pre-setup-row {
-    margin-bottom: 12px !important;
-    padding-bottom: 12px !important;
+    margin-bottom: 0 !important;
+    padding-bottom: 1px !important;
   }
 
   .pre-setup-row #matchupSetupCard .matchup-steps {
-    margin-bottom: 12px !important;
+    margin-bottom: 4px !important;
   }
 }
 
@@ -3303,7 +3300,7 @@
   #matchupSetupCard #teamASelectWrap.home-team-select .mi-team-dd-btn,
   #matchupSetupCard #teamBSelectWrap.home-team-select .mi-team-dd-btn {
     min-height: 0 !important;
-    max-height: 36px !important;
+    max-height: 32px !important;
     margin-bottom: 2px !important;
     margin-top: 2px !important;
   }
@@ -3315,13 +3312,13 @@
   }
 
   #mcRow1.matchup-step.mc-row.is-primary-entry {
-    margin: 8px 4px !important;
+    margin: 2px 8px !important;
     padding: 4px !important;
   }
 
   #mcRow3.matchup-step.mc-row.is-primary-entry {
-    margin-bottom: 6px !important;
-    padding-bottom: 12px !important;
+    margin-bottom: 2px !important;
+    padding-bottom: 0 !important;
   }
 
   #mcRow3.matchup-step.mc-row.is-primary-entry .round-step-label {
@@ -3372,7 +3369,7 @@
 
   #mcRow2.matchup-step.mc-row {
     padding: 8px !important;
-    margin-bottom: 8px !important;
+    margin-bottom: 2px !important;
     margin-top: 8px !important;
   }
 
@@ -3381,7 +3378,9 @@
     min-height: 0 !important;
     max-height: 36px !important;
     margin-bottom: 4px !important;
-    font-size: 8px !important;
+    font-size: 10px !important;
+    color: var(--mi-text-primary) !important;
+    letter-spacing: 0.04em !important;
   }
 
   .mi-team-dd .mi-team-dd-panel {
@@ -3433,8 +3432,7 @@
   }
 
   .app-shell.pre-matchup {
-    padding: 4px !important;
-    margin-top: 6px !important;
+    padding: 0 !important;
   }
 
   #datasetCard #status {
@@ -3481,16 +3479,6 @@
 }
 
 @media (max-width: 720px) {
-  /* Never hard-lock page scrolling on mobile */
-  html.mi-verdict-scroll-lock,
-  body.mi-verdict-scroll-lock,
-  body.mi-entry-lock {
-    overflow-y: auto !important;
-    overflow-x: hidden !important;
-    min-height: auto !important;
-    touch-action: auto !important;
-    overscroll-behavior-y: auto !important;
-  }
 
   /* Make sure the collapsed edit handle is actually tappable */
   #matchupBar,
@@ -3766,8 +3754,6 @@
     overflow-y: visible !important;
     max-width: 100% !important;
     height: auto !important;
-    min-height: 155svh !important;
-    max-height: 200svh !important;
   }
 
   /* Entry Screen — Mobile viewport fit (no scroll at 100%) */
@@ -3784,8 +3770,8 @@
     align-items: center;
 
     /* Respect real mobile viewport height */
-    min-height: 1svh;
-    max-height: 100svh;
+    min-height: 100dvh !important;
+    height: auto !important;
 
     padding-top: 0;
     padding-bottom: 14vh;
@@ -3836,8 +3822,10 @@
   }
 
   .mi-entry-inner {
-    vertical-align: top !important;
+    justify-content: flext-start;
     row-gap: 18px !important;
+    padding-bottom: 60px !important;
+    margin-bottom: 200px !important;
   }
 
   #matchupBar::before,
@@ -3949,8 +3937,11 @@
   }
 
   .mi-dataset-dd-trigger {
-    max-height: 40px !important;
+    max-height: 32px !important;
     min-height: 0 !important;
+    width: 50% !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
   }
 
   .app-shell.pre-matchup .card.controls-card {
@@ -4042,7 +4033,7 @@
 
   /* Outer shell: less padding, less visual weight */
   #preMatchupHub {
-    padding: 10px 10px 8px !important;
+    padding: 10px 10px 2px !important;
     border-radius: 16px !important;
     margin-top: 0 !important;
   }
@@ -4134,11 +4125,12 @@
   }
 
   #preMatchupHub .pre-step-label {
-    font-size: 10px !important;
+    font-size: 9px !important;
     line-height: 1 !important;
-    letter-spacing: 0.12em !important;
+    letter-spacing: 0.04em !important;
     text-transform: uppercase !important;
     text-align: left !important;
+    font-weight: 650 !important;
   }
 
   #preMatchupHub .pre-step-text {
@@ -4510,13 +4502,9 @@
     color: var(--mi-text-primary) !important;
   }
 
-  #datasetCard.card.controls-card.is-primary-entry {
-    margin-bottom: 4px !important;
-  }
-
   /* Optional: let the single visible row breathe slightly more */
   #preMatchupHub[data-mobile-step] .pre-step {
-    margin-bottom: 12px !important;
+    margin-bottom: 1px !important;
   }
 
   .pre-setup-row .mc-row {
@@ -4528,7 +4516,7 @@
 @media (max-width: 720px) {
 
   #preSetupRow.pre-setup-row.top-bar {
-    row-gap: 18px !important;        /* was 18px */
+    row-gap: 4px !important;        /* was 18px */
   }
 
   .pre-setup-row > .card {
@@ -6045,7 +6033,7 @@
 
   .mi-glossary-handle {
     min-height: 0 !important;
-    height: 32px !important;
+    height: 24px !important;
   }
 
   .hero-tagline {
@@ -6089,24 +6077,22 @@
     font-weight: 400 !important;
     letter-spacing: 0.04em !important;
     color: var(--mi-text-muted) !important;
+    text-align: center !important;
   }
 
   #postMatchup {
     margin: auto;
     padding: 2px !important;
     width: 100% !important;
+    max-height: 100dvh !important;
   }
 
   #appFooter.app-footer {
     margin-top: 0 !important;
   }
 
-  #preSetupRow.pre-setup-row > .card.controls-card {
-    min-height: 90px !important;
-  }
-
   #matchupSetupCard .mc-row.is-primary-entry {
-    min-height: 90px !important;
+    min-height: 75px !important;
   }
 }
 
@@ -6118,49 +6104,718 @@
 
   html,
   body {
-    height: auto !important;
-    min-height: 100% !important;
+    height: 100% !important;
+    min-height: 100dvh !important;
     overflow-x: hidden !important;
-    overflow-y: auto !important;
+    overflow-y: visible !important;
     overscroll-behavior-y: auto !important;
   }
 
   .app-shell,
   .app-shell.pre-matchup,
-  .app-shell.has-matchup,
   #preMatchup,
-  #postMatchup,
-  #analysisShell,
   #summarySection,
-  #summarySectionMobile,
-  #verdictShell,
-  #verdictShell.card.mi-verdict-shell,
-  #verdictShell .mi-verdict-shell-inner {
+  #analysisShell,
+  #summarySectionMobile {
     height: auto !important;
-    min-height: 0 !important;
+    min-height: none !important;
     max-height: none !important;
-    overflow: visible !important;
-  }
-
-  /* Neutralize any mobile scroll-lock classes if present */
-  html.mi-verdict-scroll-lock,
-  body.mi-verdict-scroll-lock,
-  body.mi-entry-lock {
-    overflow-y: auto !important;
+    overflow-y: visible !important;
     overflow-x: hidden !important;
-    min-height: auto !important;
-    touch-action: auto !important;
     overscroll-behavior-y: auto !important;
   }
 
   /* Keep the footer attached to real content */
   #appFooter.app-footer {
-    margin-top: 8px !important;
+    margin-top: -6px !important;
   }
 
   #appFooter.app-footer::after {
     content: "";
     display: block;
     height: 20px;
+  }
+
+  #preMatchup {
+    min-height: 100vh !important;
+    height: 100% !important;
+    overflow-y: auto;
+    padding: 2px;
+  }
+}
+
+@media (max-width: 720px) {
+
+  html,
+  body {
+    overflow-x: hidden! important;
+  }
+
+  .mi-team-dd-btn .mi-label {
+    font-size: 10px !important;
+    height: fit-content !important;
+    vertical-align: center;
+    justify-content: center;
+  }
+}
+
+/* =========================
+   HEADER ZONE / VERSION NOTES OVERLAY
+   Mobile-only utility overlay
+   ========================= */
+@media (max-width: 768px) {
+
+  .header-zone-wrapper {
+    position: relative;
+
+    /* critical change */
+    display: block;
+
+    width: 100%;
+    max-width: 100%;
+
+    /* remove grid sizing entirely */
+    grid-template-columns: none;
+    grid-template-rows: none;
+  }
+
+  .app-shell.pre-matchup .enhanced-header {
+    position: relative;
+    min-height: 0;
+    width: 100%;
+  }
+
+  .app-shell.pre-matchup .enhanced-header .hero-logo-wrap,
+  .app-shell.pre-matchup .enhanced-header .hero-text-wrap {
+    position: relative;
+    z-index: 1;
+  }
+
+  .app-shell.pre-matchup .header-zone-wrapper > .version-notes-anchor {
+    position: absolute !important;
+    top: 10px !important;
+    left: 10px !important;
+    right: auto !important;
+    bottom: auto !important;
+
+    z-index: 10030 !important;
+
+    display: block !important;
+    width: auto !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+
+    transform: none !important;
+    pointer-events: auto;
+  }
+
+  .app-shell.pre-matchup .version-badge,
+  .app-shell.pre-matchup .version-badge-btn {
+    display: inline-flex;
+    width: auto;
+    max-width: none;
+    margin: 0 !important;
+    transform: none !important;
+    align-self: flex-start;
+    justify-self: start;
+  }
+
+  .app-shell.pre-matchup .version-notes {
+    z-index: 10031;
+  }
+}
+
+/* ==========================================
+   MOBILE HEADER OVERLAY POLISH
+   - protect logo from overlay button
+   - make patch notes popover mobile-safe
+   ========================================== */
+@media (max-width: 768px) {
+
+  /* Give the header content a little protected room
+     so the overlay badge doesn't sit on top of the logo */
+  .app-shell.pre-matchup .header-zone-wrapper > .enhanced-header {
+    padding-left: 56px !important;
+  }
+
+  /* Keep the button compact in the top-left corner */
+  .app-shell.pre-matchup .header-zone-wrapper > .version-notes-anchor {
+    top: 12px !important;
+    left: 10px !important;
+    width: auto !important;
+    max-width: calc(100vw - 28px) !important;
+  }
+
+  .app-shell.pre-matchup .header-zone-wrapper > .version-notes-anchor .version-badge,
+  .app-shell.pre-matchup .header-zone-wrapper > .version-notes-anchor .version-badge-btn {
+    max-width: 168px !important;
+  }
+
+  /* Mobile popover: anchor directly under the badge,
+     keep it within viewport, and make it scroll internally if needed */
+  .app-shell.pre-matchup .header-zone-wrapper > .version-notes-anchor .version-notes {
+    position: absolute !important;
+    top: calc(100% + 10px) !important;
+    left: 0 !important;
+    right: auto !important;
+
+    width: min(320px, calc(100vw - 24px)) !important;
+    max-width: calc(100vw - 24px) !important;
+    max-height: 52vh !important;
+    overflow-y: auto !important;
+
+    margin: 0 !important;
+  }
+}
+
+/* ==========================================
+   END-OF-FILE OVERRIDE
+   MOBILE VERSION NOTES: FINAL POSITIONING FIX
+   ========================================== */
+@media (max-width: 768px) {
+
+  /* The shared header wrapper must be the positioning context */
+  .app-shell.pre-matchup .header-zone-wrapper {
+    position: relative !important;
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow: visible !important;
+    height: 100% !important;
+    max-height: 60px !important;
+  }
+
+  /* Keep the header centered and unaffected by the overlay utility */
+  .app-shell.pre-matchup .header-zone-wrapper > .enhanced-header {
+    position: relative !important;
+    z-index: 1 !important;
+    width: 100% !important;
+    margin: 2px !important;
+    padding-left: 10px !important;
+    padding-right: 10px !important;
+  }
+
+  /* Slight right nudge for the logo only */
+  .app-shell.pre-matchup .header-zone-wrapper > .enhanced-header .hero-logo-wrap {
+    display: flex !important;
+    justify-content: center !important;
+    width: 100% !important;
+    margin-left: 14px !important;
+  }
+
+  /* Anchor the button itself in the upper-left of the header zone */
+  .app-shell.pre-matchup .header-zone-wrapper > .version-notes-anchor {
+    position: absolute !important;
+    top: 8px !important;
+    left: 10px !important;
+    right: auto !important;
+    bottom: auto !important;
+
+    z-index: 10030 !important;
+
+    display: block !important;
+    width: auto !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+
+    overflow: visible !important;
+    transform: none !important;
+    pointer-events: auto !important;
+  }
+
+  /* Keep the trigger compact */
+  .app-shell.pre-matchup .header-zone-wrapper > .version-notes-anchor .version-badge,
+  .app-shell.pre-matchup .header-zone-wrapper > .version-notes-anchor .version-badge-btn {
+    display: inline-flex !important;
+    width: auto !important;
+    max-width: 100px !important;
+    margin: 0 !important;
+    transform: none !important;
+  }
+
+  /* FINAL PANEL FIX:
+     hard-reset every conflicting edge and anchor it directly below the button */
+  .app-shell.pre-matchup .header-zone-wrapper > .version-notes-anchor > #versionNotes,
+  .app-shell.pre-matchup .header-zone-wrapper > .version-notes-anchor > .version-notes,
+  .app-shell.pre-matchup #versionNotes.version-notes,
+  .app-shell.pre-matchup #versionNotes.version-notes.is-open {
+    position: absolute !important;
+    top: calc(100% + 8px) !important;
+    left: 0 !important;
+    right: auto !important;
+    bottom: auto !important;
+
+    width: min(320px, calc(100vw - 24px)) !important;
+    max-width: calc(100vw - 24px) !important;
+    min-width: 0 !important;
+    max-height: 52vh !important;
+
+    margin: 0 !important;
+    padding: 10px 12px !important;
+
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+
+    transform: none !important;
+    inset: auto auto auto auto !important;
+
+    z-index: 10031 !important;
+  }
+
+  /* Optional: tighten mobile typography a bit inside the panel */
+  .app-shell.pre-matchup #versionNotes .version-notes-title {
+    margin-bottom: 8px !important;
+  }
+
+  .app-shell.pre-matchup #versionNotes .version-notes-list {
+    margin: 0 !important;
+    padding-left: 18px !important;
+  }
+
+  .hero-text-wrap {
+    display: none;
+  }
+
+  .app-shell.pre-matchup .top-bar {
+    margin-top: 0 !important;
+  }
+
+  #matchupSetupCard #teamASelectWrap.home-team-select .mi-team-dd,
+  #matchupSetupCard #teamBSelectWrap.home-team-select .mi-team-dd{
+    min-height: 0 !important;
+  }
+}
+
+@media (max-width: 920px){
+  .profile-support-row{
+    grid-template-columns: 1fr;
+  }
+
+  .profile-subtotal-row{
+    grid-template-columns: 1fr;
+  }
+
+  .subtotal-identity{
+    justify-self: stretch;
+  }
+}
+
+@media (max-width: 920px){
+  .profile-subtotal-row{
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .subtotal-identity{
+    justify-self: stretch;
+    padding-left: 12px;
+  }
+
+  .subtotal-identity::before{
+    display: none;
+  }
+}
+
+@media (max-width: 920px){
+  .profile-subtotal-row{
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .subtotal-main{
+    justify-content: center;
+    text-align: center;
+  }
+
+  .subtotal-identity{
+    min-width: 0;
+    width: 100%;
+    padding-left: 0;
+    justify-self: stretch;
+  }
+
+  .subtotal-identity::before{
+    display: none;
+  }
+}
+
+@media (max-width: 980px){
+  #interactionsSection .interactions-grid{
+    grid-template-columns: 1fr;
+  }
+
+  #interactionsSection .interactions-right.interactions-diagnostics-tile{
+    min-height: auto;
+  }
+
+  .volatility-score-row{
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .volatility-quarters{
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 980px){
+  #interactionsSection .interactions-grid{
+    grid-template-columns: 1fr !important;
+  }
+
+  #interactionsSection .interactions-right.interactions-diagnostics-tile{
+    min-height: auto;
+  }
+
+  .volatility-quarters{
+    grid-template-columns: 1fr;
+  }
+
+  .volatility-gauge{
+    --size: min(100%, 320px);
+  }
+}
+
+/* responsive fallback */
+@media (max-width: 980px){
+  #interactionsSection .interactions-grid{
+    grid-template-columns: 1fr !important;
+    grid-template-rows: auto auto !important;
+    height: auto !important;
+  }
+}
+
+@media (max-width: 980px){
+  #interactionsSection .volatility-gauge-shell{
+    width: min(100%, 310px) !important;
+  }
+
+  #interactionsSection .volatility-quarters{
+    grid-template-columns: 1fr !important;
+  }
+
+  #interactionsSection .volatility-summary-text,
+  #interactionsSection .volatility-threshold-text{
+    width: min(100%, 290px) !important;
+  }
+}
+
+@media (max-width: 720px){
+  .explain-table.mi-core-table thead th{
+    padding: 8px 6px;
+    font-size: 10px;
+    letter-spacing: 0.06em;
+  }
+
+  .explain-table.mi-core-table .mi-core-metric-row td{
+    padding: 9px 6px;
+  }
+
+  .explain-table.mi-core-table .mi-core-battlefield{
+    font-size: 11px;
+  }
+
+  .explain-table.mi-core-table .mi-core-tier{
+    font-size: 11px;
+  }
+
+  .explain-table.mi-core-table .mi-standing-bar{
+    height: 10px;
+  }
+
+  .explain-table.mi-core-table .mi-standing-median{
+    top: -1px;
+    bottom: -1px;
+  }
+}
+
+@media (max-width: 720px){
+  .interaction-table.mi-interaction-table thead th{
+    padding: 8px 6px;
+    font-size: 10px;
+    letter-spacing: 0.06em;
+  }
+
+  .interaction-table.mi-interaction-table .mi-int-row td{
+    padding: 9px 6px;
+  }
+
+  .interaction-table.mi-interaction-table .mi-int-label-main{
+    font-size: 11px;
+  }
+
+  .interaction-table.mi-interaction-table .mi-int-label-sub{
+    font-size: 9px;
+  }
+
+  .interaction-table.mi-interaction-table .mi-int-bar{
+    height: 12px;
+  }
+
+  .interaction-table.mi-interaction-table .mi-int-row.tier-high .mi-int-bar{
+    height: 14px;
+  }
+
+  .interaction-table.mi-interaction-table .mi-int-row.tier-mid .mi-int-bar{
+    height: 12px;
+  }
+
+  .interaction-table.mi-interaction-table .mi-int-row.tier-low .mi-int-bar{
+    height: 9px;
+  }
+
+  .interaction-table.mi-interaction-table .mi-int-intensity-pill{
+    min-width: 58px;
+    min-height: 25px;
+    font-size: 10px;
+    padding: 0 8px;
+  }
+}
+
+@media (max-width: 980px){
+  .mi-eff-module .mi-eff-label{
+    font-size: 11px;
+  }
+
+  .mi-eff-module .mi-eff-helper{
+    font-size: 9px;
+  }
+
+  .mi-eff-module .mi-eff-value{
+    font-size: 13px;
+  }
+
+  .mi-eff-module .mi-eff-seg.is-emphasis .mi-eff-value{
+    font-size: 15px;
+  }
+
+  .mi-verdict-metrics-tile .mi-scorebug-grid{
+    gap: 8px 10px;
+  }
+
+  .mi-verdict-metrics-tile .mi-scorebug-team-name{
+    font-size: 12px;
+  }
+
+  .mi-verdict-metrics-tile .mi-scorebug-mini-value{
+    min-width: 40px;
+    font-size: 11px;
+  }
+
+  .summary-synthesis-table.mi-summary-synthesis-table .syn-team span{
+    font-size: 13px;
+  }
+
+  .summary-synthesis-table.mi-summary-synthesis-table .syn-label-main{
+    font-size: 11px;
+  }
+
+  .summary-synthesis-table.mi-summary-synthesis-table .syn-label-hint{
+    font-size: 9px;
+  }
+
+  .summary-synthesis-table.mi-summary-synthesis-table .mi-synth-inline-bar{
+    height: 12px;
+  }
+
+  .summary-synthesis-table.mi-summary-synthesis-table .mi-synth-inline-value{
+    min-width: 40px;
+    font-size: 11px;
+  }
+
+  .summary-synthesis-table.mi-summary-synthesis-table .syn-final-value{
+    font-size: 17px;
+  }
+
+  .summary-synthesis-table.mi-summary-synthesis-table .syn-center{
+    min-width: 160px;
+  }
+}
+
+@media (max-width: 720px){
+  .mi-eff-module .mi-eff-seg{
+    gap: 8px;
+    padding: 10px 0;
+  }
+
+  .mi-eff-module .mi-eff-helper{
+    display: none;
+  }
+
+  .mi-verdict-metrics-tile .mi-scorebug-grid{
+    gap: 8px 10px;
+  }
+
+  .mi-verdict-metrics-tile .mi-scorebug-team-line--metric{
+    padding: 7px 8px 8px;
+  }
+
+  .mi-verdict-metrics-tile .mi-scorebug-mini-label{
+    font-size: 9px;
+  }
+
+  .mi-verdict-metrics-tile .mi-scorebug-mini-value{
+    min-width: 36px;
+    font-size: 10px;
+  }
+
+  .mi-verdict-metrics-tile .mi-scorebug-mini-bar{
+    height: 9px;
+  }
+
+  .mi-verdict-metrics-tile .mi-scorebug-gap-value{
+    font-size: 16px;
+  }
+
+  .summary-synthesis-table.mi-summary-synthesis-table .syn-team{
+    padding: 8px 8px 10px;
+  }
+
+  .summary-synthesis-table.mi-summary-synthesis-table .syn-label,
+  .summary-synthesis-table.mi-summary-synthesis-table .syn-contrib-cell,
+  .summary-synthesis-table.mi-summary-synthesis-table .syn-final,
+  .summary-synthesis-table.mi-summary-synthesis-table .syn-center{
+    padding: 8px 6px;
+  }
+
+  .summary-synthesis-table.mi-summary-synthesis-table .syn-label-main{
+    font-size: 10px;
+  }
+
+  .summary-synthesis-table.mi-summary-synthesis-table .syn-label-hint{
+    display: none;
+  }
+
+  .summary-synthesis-table.mi-summary-synthesis-table .mi-synth-inline-wrap{
+    grid-template-columns: minmax(0, 1fr);
+    gap: 5px;
+  }
+
+  .summary-synthesis-table.mi-summary-synthesis-table .mi-synth-inline-value{
+    min-width: 0;
+    text-align: center;
+    font-size: 10px;
+  }
+
+  .summary-synthesis-table.mi-summary-synthesis-table .syn-final-value{
+    font-size: 15px;
+  }
+
+  .summary-synthesis-table.mi-summary-synthesis-table .syn-delta-value{
+    font-size: 16px;
+  }
+
+  .summary-synthesis-table.mi-summary-synthesis-table .syn-center{
+    min-width: 140px;
+  }
+}
+
+@media (max-width: 1180px){
+  #verdictShell .mi-verdict-grid{
+    grid-template-columns: minmax(0, 1.04fr) minmax(360px, 0.96fr) !important;
+    gap: 18px !important;
+  }
+
+  #verdictShell .mi-scorebug-line{
+    max-width: 30ch !important;
+    font-size: 24px !important;
+  }
+}
+
+/* 11) Before mobile stack, protect the scorebug first */
+@media (max-width: 980px){
+  #verdictShell .mi-verdict-grid{
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+  }
+
+  #verdictShell .mi-verdict-rail{
+    width: 100%;
+  }
+
+  #miVerdictMetricsTile .tile-front{
+    padding: 14px 14px 12px !important;
+  }
+}
+
+@media (min-width: 1100px){
+  #summarySection.card.summary-card{
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  #summarySection .summary-synthesis-table{
+    --syn-w-label: 14%;
+    --syn-w-val: 13%;
+    --syn-w-final: 9%;
+    --syn-w-center: 18%;
+  }
+}
+
+@media (max-width: 980px){
+  #interactionsSection .interactions-left-tile.flip-tile .tile-face.interactions-front-face{
+    padding: 10px 10px 9px !important;
+  }
+
+  #interactionsSection .interaction-table.mi-interaction-table .mi-int-row{
+    height: 52px !important;
+  }
+
+  #interactionsSection .interaction-totals-bar{
+    padding: 11px 12px !important;
+  }
+}
+
+@media (max-width: 980px){
+  #interactionsSection .interaction-table.mi-interaction-table .mi-int-bar-sub{
+    margin-top: 5px !important;
+    font-size: 9px !important;
+  }
+
+  #interactionsSection .interactions-flip-hint{
+    padding-top: 3px !important;
+  }
+}
+
+@media (max-width: 980px){
+  #interactionsSection .interaction-totals-bar .totals-inline{
+    gap: 6px !important;
+    font-size: 14px !important;
+  }
+
+  #interactionsSection .interaction-totals-bar .totals-val{
+    font-size: 14px !important;
+  }
+}
+
+@media (max-width: 720px) {
+  #summarySection {
+    display: none !important;
+  }
+
+  #summarySectionMobile {
+    display: block !important;
+  }
+}
+
+@media (max-width: 768px){
+  #verdictShell.mi-winner-a #miVerdictMetricsTile .tile-back,
+  #verdictShell.mi-winner-b #miVerdictMetricsTile .tile-back{
+    background:
+      radial-gradient(
+        140% 128% at var(--mi-owner-hero-x, 50%) 0%,
+        rgb(var(--mi-owner-rgb, 148 163 184) / 0.20) 0%,
+        rgb(var(--mi-owner-rgb, 148 163 184) / 0.09) 30%,
+        rgba(255,255,255,0.00) 60%
+      ),
+      linear-gradient(
+        180deg,
+        rgb(var(--mi-owner-secondary-rgb, 148 163 184) / 0.09) 0%,
+        rgba(255,255,255,0.02) 20%,
+        rgba(255,255,255,0.00) 38%
+      ),
+      rgba(7, 10, 18, 0.92) !important;
   }
 }
