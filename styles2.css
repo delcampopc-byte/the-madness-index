@@ -267,14 +267,6 @@ button,
   white-space: nowrap;
 }
 
-/* ========== APP SHELL ========== */
-
-.app-shell {
-  max-width: 1320px;
-  margin: 0 auto;
-  padding: 20px 16px 32px;
-}
-
 /* ===== Utility: Hidden ===== */
 .hidden {
   display: none !important;
@@ -356,7 +348,7 @@ body{
 
 /* =========================================================
    POST-MATCHUP: collapse the hero header tile (reduce redundancy)
-   Uses existing app-shell state class: .has-matchup
+   Uses existing state class: .has-matchup
    ========================================================= */
 
 .enhanced-header{
@@ -374,7 +366,7 @@ body{
   transform-origin: top;
 }
 
-.app-shell.has-matchup .enhanced-header{
+#postMatchup:not(.hidden) .enhanced-header{
   max-height: 0;
   opacity: 0;
   transform: translateY(-8px);
@@ -387,28 +379,28 @@ body{
 }
 
 /* Pre-matchup: compact hero to prioritize setup cockpit */
-.app-shell.pre-matchup .enhanced-header{
+#preMatchup .enhanced-header{
   padding: 6px 6px 6px;
   margin-bottom: 8px;
 }
 
-.app-shell.pre-matchup .hero-logo{
+#preMatchup .hero-logo{
   max-height: 84px;
 }
 
-.app-shell.pre-matchup .hero-title{
+#preMatchup .hero-title{
   font-size: 28px; /* was visually reading large */
 }
 
-.app-shell.pre-matchup .hero-logo{
+#preMatchup .hero-logo{
   max-height: 92px;
 }
 
-.app-shell.pre-matchup .hero-logo-wrap{
+#preMatchup .hero-logo-wrap{
   margin-bottom: 1px;
 }
 
-.app-shell.pre-matchup .hero-subtitle{
+#preMatchup .hero-subtitle{
   margin-top: 2px;
 }
 
@@ -606,7 +598,7 @@ body{
 }
 
 /* Hide it once matchup is active (since hub hides then anyway) */
-.app-shell.has-matchup #preHubStatusWrap { display: none; }
+#postMatchup:not(.hidden) #preHubStatusWrap { display: none; }
 
 .pre-matchup-hub {
   margin-top: 12px;
@@ -966,17 +958,16 @@ body{
 }
 
 /* Show preview only before matchup */
-.app-shell.has-matchup #preMatchupPreview { display: none; }
+#postMatchup:not(.hidden) #preMatchupPreview { display: none; }
 
 /* Show hub only before matchup */
-.app-shell.has-matchup #preMatchupHub { display: none; }
+#postMatchup:not(.hidden) #preMatchupHub { display: none; }
 
 /* Optional: tighten spacing when hub is visible */
-.app-shell:not(.has-matchup) .top-bar { margin-bottom: 10px; }
+#preMatchup:not(.has-matchup) .top-bar { margin-bottom: 10px; }
 
 /* Compact hero when matchup active */
-/* CURRENTLY COMMENTED OUT
-.app-shell.has-matchup .enhanced-header {
+#postMatchup:not(.hidden) .enhanced-header {
   padding-top: 28px;
   padding-bottom: 24px;
   margin-bottom: 14px;
@@ -989,23 +980,23 @@ body{
   box-shadow: 0 8px 20px rgba(15, 23, 42, 0.8), var(--mi-shadow-card-inset);
 }
 
-.app-shell.has-matchup .hero-logo-wrap {
+#postMatchup:not(.hidden) .hero-logo-wrap {
   grid-column: 1;
   justify-self: end;
   margin-bottom: 0;
 }
 
-.app-shell.has-matchup .hero-text-wrap {
+#postMatchup:not(.hidden) .hero-text-wrap {
   grid-column: 2;
   width: 100%;
   align-items: center;
 }
 
-.app-shell.has-matchup .hero-tagline,
-.app-shell.has-matchup .hero-subtitle { display: none; }
+#postMatchup:not(.hidden) .hero-tagline,
+#postMatchup:not(.hidden) .hero-subtitle { display: none; }
 
-.app-shell.has-matchup .hero-overline { margin-bottom: 4px; font-size: 10px; }
-.app-shell.has-matchup .hero-title    { font-size: 20px; }
+#postMatchup:not(.hidden) .hero-overline { margin-bottom: 4px; font-size: 10px; }
+#postMatchup:not(.hidden) .hero-title    { font-size: 20px; }
 */
 
 /* Optional HUD (if present in HTML) */
@@ -1021,7 +1012,7 @@ body{
   text-align: center;
 }
 
-.app-shell.has-matchup .hero-matchup-hud {
+#postMatchup:not(.hidden) .hero-matchup-hud {
   display: flex;
   flex-wrap: wrap;
 }
@@ -1119,14 +1110,14 @@ body{
    Everything is visible, but only CSV is interactive until loaded
 ========================================================= */
 
-.app-shell:not(.csv-loaded) #preSetupRow .controls-card:not(.is-primary-entry) {
+#preMatchup:not(.csv-loaded) #preSetupRow .controls-card:not(.is-primary-entry) {
   opacity: 0.45;
   filter: saturate(0.85);
   pointer-events: none;
 }
 
 /* Optional: make the primary entry feel "active" */
-.app-shell:not(.csv-loaded) .controls-card.is-primary-entry {
+#preMatchup:not(.csv-loaded) .controls-card.is-primary-entry {
   transform: none;
 }
 
@@ -1351,7 +1342,7 @@ body{
   opacity: 0;
 }
 
-.app-shell.csv-loaded .controls-card.is-primary-entry .status::before{
+#preMatchup.csv-loaded .controls-card.is-primary-entry .status::before{
   opacity: 1;
 }
 
@@ -1376,7 +1367,7 @@ body{
 }
 
 /* When CSV is loaded, make it feel “armed” (relies on your existing .csv-loaded shell class) */
-.app-shell.csv-loaded .controls-card.is-primary-entry .status{
+#preMatchup.csv-loaded .controls-card.is-primary-entry .status{
   border-color: rgba(34, 197, 94, 0.55);
   background: rgba(34, 197, 94, 0.10);
   box-shadow: 0 10px 18px rgba(0,0,0,0.35), 0 0 12px rgba(34, 197, 94, 0.10);
@@ -1391,7 +1382,7 @@ body{
   background: rgba(148, 163, 184, 0.8);
 }
 
-.app-shell.csv-loaded .controls-card.is-primary-entry .status::before{
+#preMatchup.csv-loaded .controls-card.is-primary-entry .status::before{
   background: rgba(34, 197, 94, 0.95);
   box-shadow: 0 0 10px rgba(34, 197, 94, 0.25);
 }
@@ -2211,12 +2202,12 @@ section#matchupBar.card.matchup-bar.visible:not(.is-editing){
 
 /* If your app adds .has-matchup after running, use that.
    If not, see the alternate selector below. */
-.app-shell.has-matchup #matchupBar:not(.is-editing) .matchup-quick-actions{
+#postMatchup:not(.hidden) #matchupBar:not(.is-editing) .matchup-quick-actions{
   display: none !important; /* hides Run entirely when it would do nothing */
 }
 
 /* Make Edit Matchup feel like the primary action in that state */
-.app-shell.has-matchup #matchupBar:not(.is-editing) .matchup-bar-edit{
+#postMatchup:not(.hidden) #matchupBar:not(.is-editing) .matchup-bar-edit{
   padding: 10px 16px;
   font-size: 14px;
   font-weight: 800;
@@ -2984,6 +2975,8 @@ section#matchupBar.card.matchup-bar.visible:not(.is-editing){
   position: relative;
   width: 100%;
   min-width: 0;
+  min-height: 0 !important;
+  max-height: 32px !important;
 }
 
 /* CRITICAL: force the panel to be out of layout flow so it can't add height */
@@ -3623,27 +3616,24 @@ section#matchupBar.card.matchup-bar.visible:not(.is-editing){
                0 0 14px rgba(var(--mi-role-neutral-mirror-rgb), 0.35);
 }
 
-/* Header behavior pre/post compare */
-.app-shell:not(.has-matchup) .team-card-header h2{ display:none; }
-
-.app-shell:not(.has-matchup) .team-card-header .team-role-pill,
-.app-shell:not(.has-matchup) .team-card-header .cind-tag,
-.app-shell:not(.has-matchup) .team-card-header .fav-tag,
-.app-shell:not(.has-matchup) .team-card-header .chalk-tag,
-.app-shell:not(.has-matchup) .team-card-header .chaos-tag,
-.app-shell:not(.has-matchup) .team-card-header .neutral-tag{
+#postMatchup:not(.hidden) .team-card-header .team-role-pill,
+#postMatchup:not(.hidden) .team-card-header .cind-tag,
+#postMatchup:not(.hidden) .team-card-header .fav-tag,
+#postMatchup:not(.hidden) .team-card-header .chalk-tag,
+#postMatchup:not(.hidden) .team-card-header .chaos-tag,
+#postMatchup:not(.hidden) .team-card-header .neutral-tag{
   letter-spacing: 0.26em;
   margin-top: 2px;
 }
 
-.app-shell.has-matchup .team-card-header h2{ display:block; }
+#postMatchup:not(.hidden) .team-card-header h2{ display:block; }
 
-.app-shell.has-matchup .team-card-header .team-role-pill,
-.app-shell.has-matchup .team-card-header .cind-tag,
-.app-shell.has-matchup .team-card-header .fav-tag,
-.app-shell.has-matchup .team-card-header .chalk-tag,
-.app-shell.has-matchup .team-card-header .chaos-tag,
-.app-shell.has-matchup .team-card-header .neutral-tag{
+#postMatchup:not(.hidden) .team-card-header .team-role-pill,
+#postMatchup:not(.hidden) .team-card-header .cind-tag,
+#postMatchup:not(.hidden) .team-card-header .fav-tag,
+#postMatchup:not(.hidden) .team-card-header .chalk-tag,
+#postMatchup:not(.hidden) .team-card-header .chaos-tag,
+#postMatchup:not(.hidden) .team-card-header .neutral-tag{
   letter-spacing: 0.22em;
   margin-top: 0;
 }
@@ -5075,7 +5065,7 @@ explain-table td:first-child{
 }
 
 /* When matchup is active: expand smoothly */
-.app-shell.has-matchup #glossarySection {
+#postMatchup:not(.hidden) #glossarySection {
   max-height: 2400px; /* big enough for your glossary content */
   opacity: 1;
   pointer-events: auto;
@@ -5089,7 +5079,7 @@ explain-table td:first-child{
    MI 3.4 — Pre-matchup density tightening (safe overrides)
    ========================================================= */
 
-.app-shell.pre-matchup{
+#preMatchup {
   /* global-ish density knobs for this state */
   --pm-gap: 6px;
   --pm-card-pad: 8px;
@@ -5097,70 +5087,108 @@ explain-table td:first-child{
   --pm-hero-pad: 9px;
 }
 
-/* tighten the big vertical stack */
-.app-shell.pre-matchup .top-bar,
-.app-shell.pre-matchup .pre-matchup-hub,
-.app-shell.pre-matchup .start-matchup{
-  margin-top: var(--pm-gap) !important;
+#preMatchup {
+  width: auto !important;
+  max-width: 1200px !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
 }
 
-/* reduce overall grid gaps */
-.app-shell.pre-matchup .top-bar{
-  gap: var(--pm-gap) !important;
+#preMatchup .mi-label {
+  font-size: 0.9rem;
+  font-weight: 400 !important;
 }
-.app-shell.pre-matchup .pre-matchup-hub{
-  gap: var(--pm-gap) !important;
+
+/* ===============================
+   Desktop — Version Notes anchor
+   Pin button to top-left of header zone
+   =============================== */
+
+#preMatchup .header-zone-wrapper {
+  position: relative; /* establishes positioning context */
+}
+
+/* Anchor container */
+#preMatchup .header-zone-wrapper > .version-notes-anchor {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+
+  z-index: 10030; /* just below panel */
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+
+  pointer-events: auto;
+}
+
+/* The button itself */
+#preMatchup .header-zone-wrapper
+  > .version-notes-anchor
+  > .version-badge-btn {
+  position: relative;
+  pointer-events: auto;
+}
+
+/* Desktop dropdown panel behavior */
+#preMatchup .header-zone-wrapper
+  > .version-notes-anchor
+  > #versionNotes,
+#preMatchup .header-zone-wrapper
+  > .version-notes-anchor
+  > .version-notes {
+  position: absolute;
+
+  top: calc(100% + 8px);
+  left: 0;
+
+  width: min(360px, calc(100vw - 48px));
+  max-height: 60vh;
+
+  overflow-y: auto;
+
+  z-index: 10031;
 }
 
 /* tighten card padding without changing style */
-.app-shell.pre-matchup .card{
+#preMatchup .card{
   padding: var(--pm-card-pad) !important;
 }
-.app-shell.pre-matchup .card.controls-card{
+
+#preMatchup .card.controls-card{
   padding: var(--pm-card-pad-lg) !important;
 }
 
 /* HERO: reduce height/air */
-.app-shell.pre-matchup .app-header.enhanced-header{
+#preMatchup .app-header.enhanced-header{
   min-height: 0 !important;
 }
 
-.app-shell.pre-matchup .hero-logo-wrap{
+#preMatchup .hero-logo-wrap{
   margin-bottom: 1px !important;
 }
-.app-shell.pre-matchup .hero-text-wrap{
+#preMatchup .hero-text-wrap{
   gap: 6px !important;
 }
-.app-shell.pre-matchup .hero-title{
+#preMatchup .hero-title{
   margin: 6px 0 6px !important;
 }
-.app-shell.pre-matchup .hero-tagline{
+#preMatchup .hero-tagline{
   margin: 0 0 1px !important;
 }
 
 /* STATUS BAR: tuck it closer */
-.app-shell.pre-matchup #status{
+#preMatchup #status{
   margin: 10px 0 12px !important;
 }
 
-/* “START A MATCHUP” briefing: reduce section padding + tile gaps */
-.app-shell.pre-matchup .start-matchup{
+/* Step panel: reduce internal spacing */
+#preMatchup .steps-panel,
+#preMatchup .matchup-controls{
   padding: 14px !important;
-}
-.app-shell.pre-matchup .start-matchup .briefing-grid,
-.app-shell.pre-matchup .start-matchup .briefing-row{
-  gap: 10px !important;
-}
-.app-shell.pre-matchup .start-matchup .briefing-card{
-  padding: 12px !important;
 }
 
-/* Step panel: reduce internal spacing */
-.app-shell.pre-matchup .steps-panel,
-.app-shell.pre-matchup .matchup-controls{
-  padding: 14px !important;
-}
-.app-shell.pre-matchup .steps-panel .step-block{
+#preMatchup .steps-panel .step-block{
   margin-bottom: 10px !important;
 }
 
@@ -5888,9 +5916,9 @@ button,
    POST-MATCHUP HEADER (CONDENSED MODE)
    ========================================= */
 
-.app-shell.has-matchup .hero-tagline,
-.app-shell.has-matchup .hero-overline,
-.app-shell.has-matchup .hero-subtitle {
+#postMatchup:not(.hidden) .hero-tagline,
+#postMatchup:not(.hidden) .hero-overline,
+#postMatchup:not(.hidden) .hero-subtitle {
   display: none;
 }
 
@@ -10328,19 +10356,6 @@ body{
   margin: 0;
 }
 
-/* Ensure your app sits above the room */
-.app-shell{
-  max-width: 1320px;
-  margin: 0 auto;
-  padding: 2px 16px 32px;
-
-  background: transparent !important;
-
-  position: relative;
-  z-index: 1;
-  min-height: 100vh;
-}
-
 /* ===== Primary Entry Card (CSV Upload) — Tier 2 with restrained brand emphasis ===== */
 .controls-card.is-primary-entry{
   display: flex;
@@ -10389,14 +10404,6 @@ body{
     rgba(15, 23, 42, 0.70);
 
   border: 1px solid var(--mi-brand-blue-a18);
-}
-
-/* ================================
-   CANVAS RULE — app containers should NOT repaint the room
-   ================================ */
-
-.app-shell{
-  background: transparent !important;
 }
 
 /* =========================================================
@@ -10510,12 +10517,12 @@ body{
 }
 
 /* When the steps tile is halo'd, keep the radius winning specificity */
-.app-shell.csv-loaded #matchupSetupCard{
+#preMatchup.csv-loaded #matchupSetupCard{
   border-radius: 18px !important;
 }
 
 /* Halo the Steps card AFTER CSV is loaded (override the csv-loaded reset) */
-.app-shell.csv-loaded #matchupSetupCard.is-primary-entry{
+#preMatchup.csv-loaded #matchupSetupCard.is-primary-entry{
   border: 1px solid rgba(56, 189, 248, 0.75) !important;
   box-shadow:
     0 0 0 1px rgba(56, 189, 248, 0.45),
@@ -10644,13 +10651,13 @@ body{
 }
 
 /* When CSV is loaded, make it feel “armed” */
-.app-shell.csv-loaded #datasetCard #status{
+#preMatchup.csv-loaded #datasetCard #status{
   border-color: rgba(34, 197, 94, 0.55);
   background: rgba(34, 197, 94, 0.10);
   box-shadow: 0 10px 18px rgba(0,0,0,0.35), 0 0 12px rgba(34, 197, 94, 0.10);
 }
 
-.app-shell.csv-loaded #datasetCard #status::before{
+#preMatchup.csv-loaded #datasetCard #status::before{
   background: rgba(34, 197, 94, 0.95);
   box-shadow: 0 0 10px rgba(34, 197, 94, 0.25);
 }

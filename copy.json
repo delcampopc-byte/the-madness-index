@@ -39,16 +39,16 @@
   "patch_notes": {
     "title": "Patch Notes",
     "hint": "Click for Patch Notes",
-    "badge": "Version 5.1 (Build 39)",
+    "badge": "Ver. 5.2 (Build 40)",
     "max_items": 10,
     "items": [
       {
-        "build": "Build 39",
-        "date": "2026-04-19",
+        "build": "Build 40",
+        "date": "2026-04-22",
         "bullets": [
           "Added 2016, 2017, 2018, and 2019 datasets.",
-          "Significantly improved mobile functionality.",
-          "Seed Fit has been added as a new metric, designed to identify teams that profile either above or below their assigned seed."
+          "Significantly improved mobile functionality and optimization.",
+          "Seed Fit has been added as a new metric."
         ]
       }
     ]

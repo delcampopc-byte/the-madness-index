@@ -11,12 +11,12 @@
   <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
 
   <!-- Core styles -->
-  <link rel="stylesheet" href="styles2.css?v=39" />
-  <link rel="stylesheet" href="mobile.css?v=39" />
+  <link rel="stylesheet" href="styles2.css?v=40" />
+  <link rel="stylesheet" href="mobile.css?v=40" />
   <link rel="icon" type="image/png" href="assets/img/logos/madness-index-app-logo.PNG" />
 
   <!-- PWA manifest -->
-  <link rel="manifest" href="manifest.json?v=39" />
+  <link rel="manifest" href="manifest.json?v=40" />
 </head>
 <body>
 
@@ -60,7 +60,7 @@
 </div>
 <!-- =============================================================== -->
 <div id="preMatchup">
-  <div class="app-shell pre-matchup">
+
     <!-- ================= HEADER ZONE ================= -->
     <div class="header-zone-wrapper">
 
@@ -314,7 +314,6 @@
         </div>
       </div>
     </section>
-  </div>
 </div>
 
 <div id="postMatchup" class="hidden">
@@ -1578,13 +1577,12 @@
     </div>
 </footer>
 
-<script src="madness_index.js?v=39"></script>
+<script src="madness_index.js?v=40"></script>
 
 <script>
 (function () {
   var ENTRY_KEY = "mi_entry_seen";
   var entryEl = document.getElementById("mi-entry-screen");
-  var shellEl = document.querySelector(".app-shell");
 
   if (!entryEl) return;
 
@@ -1660,12 +1658,6 @@
 
     clearAllScrollLocks();
 
-    // Optional: fade in the main shell smoothly
-    if (shellEl) {
-      shellEl.classList.add("mi-home-visible");
-      shellEl.classList.remove("mi-home-hidden");
-    }
-
     // Optional: remove element after animation finishes
     setTimeout(function () {
       if (entryEl && entryEl.parentNode) {
@@ -1726,12 +1718,12 @@
         >
           ×
         </button>
-       </div>
-     </header>
+      </div>
+    </header>
 
     <!-- One unified scroll area (avoid nested scroll traps) -->
     <div class="mi-glossary-body">
-     <div id="glossarySearchHost"></div>
+      <div id="glossarySearchHost"></div>
       <nav class="mi-glossary-toc" aria-label="Glossary table of contents" id="glossaryTOC">
       </nav>
     </div>

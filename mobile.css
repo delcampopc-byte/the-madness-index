@@ -71,15 +71,18 @@
   }
 
   #mcRow3.matchup-step.mc-row.is-primary-entry {
-    min-height: 109 !important;
-    max-height: 110px !important;
+    min-height: 110px !important;
+
     height: 110px !important;
   }
 
   #preSetupRow.pre-setup-row .controls-card.is-primary-entry {
-    max-height: 75px !important;
-    min-height: 0 !important;
+    max-height: 120px !important;
+    min-height: 120px !important;
     height: 100% !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    align-items: stretch !important;
   }
 }
 
@@ -106,11 +109,6 @@
     justify-content: center !important;
   }
 
-  .hero-logo {
-    max-height: 48px !important;
-    width: auto !important;
-  }
-
   /* Tagline + subtitle */
   .hero-text-wrap {
     position: static !important;
@@ -133,8 +131,11 @@
     font-weight: 400 !important;
   }
 
-  .app-shell.pre-matchup .hero-logo {
+  #preMatchup .hero-logo {
     padding: 3px;
+    max-height: 48px !important;
+    width: auto !important;
+    margin-left: 56px !important;
   }
 
   /* Version badge stays in flow, but must remain the positioning anchor */
@@ -231,11 +232,12 @@
   #preSetupRow .control-row {
     display: flex !important;
     flex-direction: row !important;
-    align-items: center !important;
+    align-items: stretch !important;
     justify-content: center !important;
     gap: 10px !important;
     width: 100% !important;
     margin-bottom: 2px !important;
+
   }
 
   #preSetupRow .select-wrap {
@@ -267,10 +269,12 @@
     min-height: 44px !important;
   }
 
-  #matchupSetupCard label, 
-  #matchupSetupCard .helper-text,
-  #matchupSetupCard .sandbox-toggle span {
-    font-size: 10px !important;
+  #preMatchup #matchupSetupCard label, 
+  #preMatchup #matchupSetupCard .helper-text,
+  #preMatchup #matchupSetupCard .sandbox-toggle span {
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    color: var(--mi-text-muted) !important;
     letter-spacing: 0.04em !important;
   }
 
@@ -298,8 +302,8 @@
   }
 
   /* ── Compare Matchup button: centered and full-width ── */
-  #preSetupRow .matchup-actions-row {
-    display: flex !important;
+  #preMatchup #preSetupRow .matchup-actions-row {
+    display: inline-flex !important;
     justify-content: center !important;
     width: 100% !important;
   }
@@ -420,11 +424,6 @@
 
   .version-badge-btn .vb-line1 {
     column-gap: 2px !important;
-  }
-
-  /* ── Bottom breathing room above the glossary bottom bar ────────────  */
-  .app-shell {
-    padding-bottom: calc(156px + env(safe-area-inset-bottom, 0px)) !important;
   }
 }
 
@@ -699,7 +698,7 @@
     font-size: clamp(12px, 5vw, 18px) !important;
     line-height: 1.08 !important;
     font-weight: 860 !important;
-    letter-spacing: -0.025em !important;
+    letter-spacing: -0.01em !important;
     text-align: center !important;
     text-wrap: balance !important;
   }
@@ -1864,7 +1863,7 @@
     align-items: stretch !important;
     gap: 32px !important;
 
-    padding: 10px !important;
+    padding: 6px !important;
     margin-bottom: 2px !important;
 
     border-radius: 14px !important;
@@ -1999,7 +1998,7 @@
     display: flex !important;
     flex-direction: column !important;
     align-items: center !important;
-    margin-bottom: 60px !important;
+    margin-bottom: 55px !important;
 
     padding: 12px 12px 6px !important;
     border-radius: 18px !important;
@@ -2068,8 +2067,8 @@
 
   /* Container: pin to the bottom of the viewport */
   .mi-glossary {
-    position: fixed !important;
-    inset: auto !important;   /* top:auto right:0 bottom:0 left:0 */
+    position: static !important;
+    inset: auto 0 0 0 !important;   /* top:auto right:0 bottom:0 left:0 */
     width: auto !important;
     z-index: auto !important;
     pointer-events: none;            /* children opt back in individually */
@@ -2078,70 +2077,18 @@
     display: block !important;
   }
 
-  /* Handle: full-width bottom tab */
-  .mi-glossary-handle {
-    position: fixed !important;
-    left: 50% !important;
-    bottom: max(8px, env(safe-area-inset-bottom, 0px)) !important;
-    transform: translateX(-50%) !important;
-    z-index: 10040 !important;
-
-    pointer-events: auto !important;
-    width: min(320px, calc(100vw - 32px)) !important;
-    max-width: min(320px, calc(100vw - 32px)) !important;
-    height: 40px !important;
-    min-height: 40px !important;
-    border-radius: 14px 14px 0 0 !important;
-    justify-content: center !important;
-
-    background: rgba(10, 16, 30, 0.95) !important;
-    border: 1px solid rgba(255,255,255,0.14) !important;
-    border-bottom: none !important;
-    backdrop-filter: blur(14px) !important;
-    -webkit-backdrop-filter: blur(14px) !important;
-
-    -webkit-mask-image: none !important;
-    mask-image: none !important;
-
-    transition: filter 160ms ease !important;
-  }
-
   /* No Y-lift on tap — that's a hover pattern only */
   .mi-glossary-handle:hover {
-    transform: none !important;
+    transform: translateX(-50%) !important;
     filter: brightness(1.08) !important;
   }
 
   .mi-glossary-handle-text {
     font-size: 11px !important;
-    letter-spacing: 0.18em !important;
+    letter-spacing: 0.04em !important;
     background: transparent !important;
     border: none !important;
     padding: 0 !important;
-  }
-
-  /* Panel: starts below the screen, slides up on open */
-  .mi-glossary-panel {
-    top: auto !important;
-    position: absolute !important;
-    left: 50% !important;
-    right: auto !important;
-    bottom: 48px !important; /* sits flush above the 48px handle */
-    width: min(320px, calc(100vw - 32px)) !important;
-    max-width: min(320px, calc(100vw - 32px)) !important;
-    max-height: min(65vh, calc(100dvh - 72px)) !important;
-    overflow-y: auto !important;
-    overflow-x: hidden !important;
-    border-radius: 16px 16px 0 0 !important;
-    margin-right: 0 !important;
-
-    transform: translateX(-50%) translateY(110%) !important;
-    opacity: 0 !important;
-    visibility: hidden !important;
-    pointer-events: none !important;
-
-    transition:
-      transform 260ms cubic-bezier(.16, 1, .3, 1) !important;
   }
 
   .mi-glossary.mi-glossary--open .mi-glossary-panel {
@@ -2163,36 +2110,32 @@
     filter: none !important;
   }
 
-  /* Scrim: dim the page behind the open panel */
   .mi-glossary.mi-glossary--open::before {
-    content: '' !important;
-    display: block !important;
+    content: "" !important;
     position: fixed !important;
-    inset: 0 0 48px 0 !important;   /* covers viewport; leaves handle row clear */
+    inset: 0 0 40px 0 !important;
     background: rgba(0, 0, 0, 0.50) !important;
-    z-index: -1 !important;
+    z-index: 10039 !important;
+    pointer-events: auto !important;
   }
 
   .mi-glossary-header {
     position: sticky !important;
     top: 0 !important;
-    z-index: 20 !important;
-
+    z-index: 2 !important;
     background: linear-gradient(
       180deg,
       rgba(10, 16, 30, 0.98) 0%,
       rgba(10, 16, 30, 0.96) 100%
     ) !important;
-
+    border-bottom: 1px solid rgba(255,255,255,0.10) !important;
     backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
-
-    border-bottom: 1px solid rgba(255,255,255,0.10) !important;
   }
 
   .mi-glossary-title {
     position: relative !important;
-    z-index: 21 !important;
+    z-index: 3 !important;
   }  
 
   /* Verdict scorebug team-name side accents */
@@ -2361,12 +2304,12 @@
     font-size: calc(15px * var(--mi-scale-scorecard)) !important;
   }
 
-  .app-shell.has-matchup .team-card-header .team-role-pill,
-  .app-shell.has-matchup .team-card-header .cind-tag,
-  .app-shell.has-matchup .team-card-header .fav-tag,
-  .app-shell.has-matchup .team-card-header .chalk-tag,
-  .app-shell.has-matchup .team-card-header .chaos-tag,
-  .app-shell.has-matchup .team-card-header .neutral-tag{
+  #postMatchup:not(.hidden) .team-card-header .team-role-pill,
+  #postMatchup:not(.hidden) .team-card-header .cind-tag,
+  #postMatchup:not(.hidden) .team-card-header .fav-tag,
+  #postMatchup:not(.hidden) .team-card-header .chalk-tag,
+  #postMatchup:not(.hidden) .team-card-header .chaos-tag,
+  #postMatchup:not(.hidden) .team-card-header .neutral-tag{
     letter-spacing: 0.08em !important;
     margin-top: 0;
   }
@@ -2389,7 +2332,7 @@
     flex-direction: column !important;
     align-items: center !important;
     justify-content: center !important;
-    gap: 8px !important;
+    gap: 4px !important;
     width: 100% !important;
     min-width: 0 !important;
   }
@@ -2418,7 +2361,7 @@
     width: auto !important;
     height: auto !important;
     max-width: 72px !important;
-    max-height: 42px !important;
+    max-height: 48px !important;
     margin: 0 auto !important;
     flex: 0 0 auto !important;
   }
@@ -2477,7 +2420,7 @@
   }
 
   #verdictShell .mi-verdict-grid{
-    padding: 0 !important;
+    padding: 0 10px !important;
     row-gap: 6px !important;
   }
 }
@@ -2564,11 +2507,6 @@
    § MOBILE TOP-OF-PAGE COMPACTION
    ============================================= */
 @media (max-width: 720px) {
-
-  /* Pull the entire page upward */
-  .app-shell {
-    padding-top: 6px !important;
-  }
 
   /* Reduce header dead space */
   .enhanced-header {
@@ -2659,7 +2597,7 @@
   }
 
   .matchup-bar {
-    margin: 2px !important;
+    margin: auto !important;
   }
 
   .pre-setup-row {
@@ -2668,7 +2606,7 @@
   }
 
   .pre-setup-row #matchupSetupCard .matchup-steps {
-    margin-bottom: 4px !important;
+    margin-bottom: 0 !important;
   }
 }
 
@@ -2681,8 +2619,10 @@
 
   /* Tight outer shell */
   .mi-matchup-dock {
-    padding: 4px !important;
-    margin-bottom: 4px !important;
+    padding: 0 !important;
+    margin-bottom: 0 !important;
+    width: 100% !important;
+    align-items: center;
   }
 
   /* Closed state: collapse the full grid into one compact row */
@@ -2756,14 +2696,16 @@
 @media (max-width: 600px) {
   #matchupBar:not(.is-editing) .matchup-bar-main {
     min-height: 36px !important;
-    padding: 3px !important;
+    padding: 0 !important;
   }
 
   #matchupBar:not(.is-editing) #editMatchupBtn {
-    min-height: 30px !important;
-    font-size: 10px !important;
-    letter-spacing: 0.14em !important;
+    min-height: 32px !important;
+    font-size: 12px !important;
+    letter-spacing: 0.04em !important;
     padding: 0 12px !important;
+    font-weight: 650 !important;
+    color: var(--mi-text-primary) !important;
   }
 
   #verdictShell {
@@ -3225,11 +3167,11 @@
   }
 
   .mi-verdict-shell {
-    margin-bottom: 10px !important;
+    margin-bottom: 0 !important;
   }
 
   #verdictShell #miVerdictMetricsTile .tile-face.tile-front{
-    padding: 4px !important;
+    padding: 0 !important;
   }
 
   #verdictShell #miVerdictMetricsTile .mi-scorebug-gap {
@@ -3260,6 +3202,16 @@
     justify-content: center;
   }
 
+  #verdictShell .mi-scorebug-score.mi-verdict-metrics-tile {
+    padding-left: auto !important;
+    padding-right: auto !important;
+  }
+
+  #verdictShell .mi-verdict-rail {
+    padding-left: auto !important;
+    padding-right: auto !important;
+  }
+
   #appFooter .footer-inner {
     padding: 1px !important;
   }
@@ -3283,8 +3235,8 @@
   }
 
   .mi-dataset-dd-label {
-    font-size: 10px !important;
-    font-weight: 400 !important;
+    font-size: 13px !important;
+    font-weight: 500 !important;
     color: var(--mi-text-muted) !important;
     letter-spacing: 0.04em !important;
   }
@@ -3312,8 +3264,8 @@
   }
 
   #mcRow1.matchup-step.mc-row.is-primary-entry {
-    margin: 2px 8px !important;
-    padding: 4px !important;
+    margin: 8px 0 !important;
+
   }
 
   #mcRow3.matchup-step.mc-row.is-primary-entry {
@@ -3322,8 +3274,12 @@
   }
 
   #mcRow3.matchup-step.mc-row.is-primary-entry .round-step-label {
+    margin-bottom: 6px !important;
+    margin-top: 6px !important;
+  }
+
+  #mcRow3.matchup-step.mc-row.is-primary-entry .matchup-actions-row {
     margin-bottom: 0 !important;
-    margin-top: 0 !important;
   }
 
   #preSetupRow .round-control-row {
@@ -3333,7 +3289,7 @@
   }
 
   #mcRow3.matchup-step.mc-row {
-    padding: 10px 12px 2px !important;
+
     margin-top: 1px !important;
   }
 
@@ -3368,9 +3324,8 @@
   }
 
   #mcRow2.matchup-step.mc-row {
-    padding: 8px !important;
-    margin-bottom: 2px !important;
-    margin-top: 8px !important;
+    margin-bottom: 6px !important;
+    margin-top: 6px !important;
   }
 
   .mi-team-dd-item {
@@ -3378,7 +3333,7 @@
     min-height: 0 !important;
     max-height: 36px !important;
     margin-bottom: 4px !important;
-    font-size: 10px !important;
+    font-size: 12px !important;
     color: var(--mi-text-primary) !important;
     letter-spacing: 0.04em !important;
   }
@@ -3416,7 +3371,7 @@
 
   .mi-team-dd-btn {
     min-height: 0 !important;
-    max-height: 16px !important;
+    max-height: 32px !important;
     letter-spacing: 0.04em !important;
   }
 
@@ -3431,7 +3386,7 @@
     color: var(--mi-text-primary);
   }
 
-  .app-shell.pre-matchup {
+  #preMatchup {
     padding: 0 !important;
   }
 
@@ -3536,7 +3491,7 @@
 
     width: 100% !important;
     min-height: 44px !important;
-    margin: 6px 0 0 !important;
+    margin: 0 !important;
 
     position: relative !important;
     z-index: 5 !important;
@@ -3560,7 +3515,9 @@
 
 @media (max-width: 600px) {
   #matchupBar:not(.is-editing) #editMatchupBtn {
-    min-height: 28px !important;
+    min-height: 0 !important;
+    max-height: 32px !important;
+    width: auto !important;
   }
 }
 
@@ -3585,7 +3542,7 @@
       "round sandbox"
       "actions actions" !important;
     gap: 8px !important;
-    padding: 7px !important;
+    padding: 1px 6px 6px !important;
     width: 100% !important;
     align-items: stretch !important;
   }
@@ -3649,7 +3606,8 @@
     width: 100% !important;
     max-width: 100% !important;
     min-width: 0 !important;
-    min-height: 44px !important;
+    min-height: 0 !important;
+    max-height: 32px !important;
     box-sizing: border-box !important;
     margin: 0 !important;
   }
@@ -3687,6 +3645,8 @@
     width: 100% !important;
     min-width: 0 !important;
     margin: 0 !important;
+    min-height: 0 !important;
+    max-height: 32px !important;
   }
 
   #matchupBar.is-editing #matchupQuickRound #roundQuickSelectWrap {
@@ -3697,7 +3657,8 @@
 
   #matchupBar.is-editing #matchupQuickRound #miSandboxQuickLabelBar {
     grid-column: 2 !important;
-    min-height: 44px !important;
+    min-height: 0 !important;
+    max-height: 32px !important;
     box-sizing: border-box !important;
   }
 
@@ -3705,7 +3666,8 @@
   #matchupBar.is-editing #matchupQuickRound .sandbox-toggle {
     width: 100% !important;
     min-width: 0 !important;
-    min-height: 44px !important;
+    min-height: 0 !important;
+    max-height: 32px !important;
     margin: 0 !important;
     box-sizing: border-box !important;
   }
@@ -3732,13 +3694,36 @@
     margin: 0 !important;
   }
 
-  #matchupBar.is-editing .matchup-quick-run,
+  #matchupBar.is-editing .matchup-quick-run {
+    width: 100% !important;
+    min-width: 0 !important;
+    min-height: 32px !important;
+    max-height: 32px !important;
+    box-sizing: border-box !important;
+    margin: 0 !important;
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    letter-spacing: 0.04em !important;
+    color: var(--mi-text-primary) !important;
+    height: fit-content !important;
+    vertical-align: center;
+    justify-content: center;
+  }
+
   #matchupBar.is-editing .matchup-quick-cancel {
     width: 100% !important;
     min-width: 0 !important;
-    min-height: 44px !important;
+    min-height: 32px !important;
+    max-height: 32px !important;
     box-sizing: border-box !important;
     margin: 0 !important;
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    letter-spacing: 0.04em !important;
+    color: var(--mi-text-muted) !important;
+    height: fit-content !important;
+    vertical-align: center;
+    justify-content: center;
   }
 }
 
@@ -3809,10 +3794,6 @@
     padding: 4px 8px !important;
     height: var(--mi-control-height) !important;
     margin-top: 0 !important;
-  }
-
-  .app-shell {
-    padding-bottom: 88px !important;
   }
 
   #matchupBar,
@@ -3900,8 +3881,39 @@
   }
 
   .mi-glossary-panel {
+    position: fixed !important;
+    left: 50% !important;
+    bottom: calc(40px + max(12px, env(safe-area-inset-bottom, 40px))) !important;
+    top: 30% !important;
+    transform: translateX(-50%) translateY(110%) !important;
+
+    width: min(320px, calc(100vw - 32px)) !important;
+    max-width: calc(100vw - 32px) !important;
+    max-height: min(65vh, calc(100dvh - 32px)) !important;
+    min-height: min(55vh, calc(100dvh - 32px)) !important;
+
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
     overscroll-behavior: contain !important;
     -webkit-overflow-scrolling: touch !important;
+
+    border-radius: 16px 16px 0 0 !important;
+
+    opacity: 1 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+    z-index: 10041 !important;
+
+    transition:
+      transform 260ms cubic-bezier(.16, 1, .3, 1),
+      opacity 180ms ease,
+      visibility 0s linear 180ms !important;
+    margin-right: 0 !important;
+  }
+
+  .mi-glossary-body {
+    padding-bottom: 2px !important;
+    height: auto !important;
   }
 }
 
@@ -3936,19 +3948,23 @@
     z-index: 10030 !important;
   }
 
-  .mi-dataset-dd-trigger {
+  #preMatchup .mi-dataset-dd-trigger {
     max-height: 32px !important;
     min-height: 0 !important;
-    width: 50% !important;
+    width: 90% !important;
     margin-left: auto !important;
     margin-right: auto !important;
   }
 
-  .app-shell.pre-matchup .card.controls-card {
-    padding-left: 9px !important;
-    padding-right: 9px !important;
-    padding-top: 1px !important;
-    padding-bottom: 7px !important;
+  #preMatchup #matchupSetupCard #roundSelectBtn,
+  #preMatchup #matchupSetupCard .sandbox-toggle {
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    color: var(--mi-text-muted) !important;
+  }
+
+  #preMatchup .card.controls-card {
+    padding: 0 !important;
   }
 
   .version-badge-btn {
@@ -4176,8 +4192,8 @@
   }
 
   #preMatchupHub .round-step-label {
-    font-size: 10px !important;
-    font-weight: 700 !important;
+    font-size: 13px !important;
+    font-weight: 650 !important;
     color: var(--mi-text-primary) !important;
     letter-spacing: 0.04em !important;
   }
@@ -4391,7 +4407,7 @@
    ========================================================= */
 @media (max-width: 720px) {
   #analysisShell{
-    margin-top: 14px !important;
+    margin-top: 6px !important;
     padding-top: 7px !important;
   }
 
@@ -4415,15 +4431,7 @@
   }
 
   #analysisShell::after{
-    left: 8px !important;
-    right: 8px !important;
-    height: 20px !important;
-    background: linear-gradient(
-      180deg,
-      rgba(255,255,255,0.025) 0%,
-      rgba(56,189,248,0.03) 18%,
-      rgba(2,6,23,0.00) 100%
-    ) !important;
+    display: none !important;
   }
 }
 
@@ -4496,7 +4504,15 @@
 
   #datasetCard .round-step-label {
     margin-bottom: 6px !important;
-    font-size: 12px !important;
+    font-size: 14px !important;
+    letter-spacing: 0.04em !important;
+    font-weight: 750 !important;
+    color: var(--mi-text-primary) !important;
+  }
+
+  #matchupSetupCard .round-step-label {
+    margin-bottom: 6px !important;
+    font-size: 14px !important;
     letter-spacing: 0.04em !important;
     font-weight: 750 !important;
     color: var(--mi-text-primary) !important;
@@ -4541,13 +4557,14 @@
     position: relative !important;
     overflow: visible !important;
     z-index: 10030 !important;
+    max-width: 400px !important;
   }
 
   #matchupBar.is-editing #datasetQuickSelectWrap,
   #matchupBar.is-editing #matchupQuickDataset .quick-dataset-select {
     width: 100% !important;
     min-width: 0 !important;
-    max-width: 100% !important;
+    max-width: 400px !important;
     margin: 0 !important;
     position: relative !important;
     overflow: visible !important;
@@ -4568,18 +4585,29 @@
     position: relative !important;
     overflow: visible !important;
     z-index: 10040 !important;
+    margin-left: auto;
+    margin-right: auto !important;
+  }
+
+  .sandbox-toggle {
+    font-size: 13px !important;
+    letter-spacing: 0.04em !important;
+    color: var(--mi-text-muted) !important;
+    font-weight: 500 !important;
   }
 
   #matchupBar.is-editing #datasetQuickSelectWrap .mi-dataset-dd-trigger,
   #matchupBar.is-editing #datasetSelectQuickUi .mi-dataset-dd-trigger {
-    display: flex !important;
+    display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
     width: 100% !important;
-    min-height: 44px !important;
+    min-height: 0 !important;
+    max-height: 32px !important;
     padding: 0 14px !important;
     box-sizing: border-box !important;
-    margin: 0 !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
     text-align: center !important;
   }
 
@@ -4922,13 +4950,15 @@
   #resumeTileA .context-label,
   #resumeTileB .context-label {
     font-size: 12px !important;
-    font-weight: 650 !important;
+    font-weight: 600 !important;
+    margin-right: 2px !important;
+    margin-left: 2px !important;
+    padding: 1px !important;
   }
 
   #resumeTileA .context-header,
   #resumeTileB .context-header {
     row-gap: 6px !important;
-    margin-top: 2px!important;
   }
 
   .context-tile {
@@ -6009,8 +6039,7 @@
   /* Give the pre-matchup compare area real room above fixed bottom UI */
   #preSetupRow .matchup-actions-row,
   #preSetupRow #compareBtn {
-    margin-bottom: auto !important;
-    margin-top: auto !important;
+    margin-top: 0 !important;
     scroll-margin-bottom: 160px !important;
     color: #FDF9D8 !important;
     font-size: 20px !important;
@@ -6032,8 +6061,32 @@
   }
 
   .mi-glossary-handle {
-    min-height: 0 !important;
-    height: 24px !important;
+    position: fixed !important;
+    left: 50% !important;
+    bottom: max(8px, env(safe-area-inset-bottom, 0px)) !important;
+    transform: translateX(-50%) !important;
+
+    width: min(320px, calc(100vw - 32px)) !important;
+    max-width: calc(100vw - 32px) !important;
+    height: 40px !important;
+    min-height: 40px !important;
+
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    border-radius: 14px 14px 0 0 !important;
+    background: rgba(10, 16, 30, 0.95) !important;
+    border: 1px solid rgba(255,255,255,0.14) !important;
+    border-bottom: none !important;
+
+    backdrop-filter: blur(14px) !important;
+    -webkit-backdrop-filter: blur(14px) !important;
+
+    pointer-events: auto !important;
+    z-index: 10040 !important;
+    transition: filter 160ms ease !important;
+    opacity: 1 !important;
   }
 
   .hero-tagline {
@@ -6080,13 +6133,6 @@
     text-align: center !important;
   }
 
-  #postMatchup {
-    margin: auto;
-    padding: 2px !important;
-    width: 100% !important;
-    max-height: 100dvh !important;
-  }
-
   #appFooter.app-footer {
     margin-top: 0 !important;
   }
@@ -6104,15 +6150,14 @@
 
   html,
   body {
-    height: 100% !important;
-    min-height: 100dvh !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: 100dvh !important;
     overflow-x: hidden !important;
     overflow-y: visible !important;
     overscroll-behavior-y: auto !important;
   }
 
-  .app-shell,
-  .app-shell.pre-matchup,
   #preMatchup,
   #summarySection,
   #analysisShell,
@@ -6127,20 +6172,15 @@
 
   /* Keep the footer attached to real content */
   #appFooter.app-footer {
-    margin-top: -6px !important;
-  }
-
-  #appFooter.app-footer::after {
-    content: "";
-    display: block;
-    height: 20px;
+    display: none !important;
   }
 
   #preMatchup {
-    min-height: 100vh !important;
+    min-height: 0 !important;
     height: 100% !important;
     overflow-y: auto;
-    padding: 2px;
+    overflow-x: hidden; 
+    padding: 4px !important;
   }
 }
 
@@ -6152,7 +6192,21 @@
   }
 
   .mi-team-dd-btn .mi-label {
-    font-size: 10px !important;
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    letter-spacing: 0.04em !important;
+    color: var(--mi-text-muted) !important;
+    height: fit-content !important;
+    vertical-align: center;
+    justify-content: center;
+  }
+
+  #matchupBar.is-editing .matchup-quick-slot select,
+  #matchupBar.is-editing .matchup-quick-slot .round-btn {
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    letter-spacing: 0.04em !important;
+    color: var(--mi-text-muted) !important;
     height: fit-content !important;
     vertical-align: center;
     justify-content: center;
@@ -6179,19 +6233,19 @@
     grid-template-rows: none;
   }
 
-  .app-shell.pre-matchup .enhanced-header {
+  #preMatchup .enhanced-header {
     position: relative;
     min-height: 0;
     width: 100%;
   }
 
-  .app-shell.pre-matchup .enhanced-header .hero-logo-wrap,
-  .app-shell.pre-matchup .enhanced-header .hero-text-wrap {
+  #preMatchup .enhanced-header .hero-logo-wrap,
+  #preMatchup .enhanced-header .hero-text-wrap {
     position: relative;
     z-index: 1;
   }
 
-  .app-shell.pre-matchup .header-zone-wrapper > .version-notes-anchor {
+  #preMatchup .header-zone-wrapper > .version-notes-anchor {
     position: absolute !important;
     top: 10px !important;
     left: 10px !important;
@@ -6210,8 +6264,8 @@
     pointer-events: auto;
   }
 
-  .app-shell.pre-matchup .version-badge,
-  .app-shell.pre-matchup .version-badge-btn {
+  #preMatchup .version-badge,
+  #preMatchup .version-badge-btn {
     display: inline-flex;
     width: auto;
     max-width: none;
@@ -6221,7 +6275,7 @@
     justify-self: start;
   }
 
-  .app-shell.pre-matchup .version-notes {
+  #preMatchup .version-notes {
     z-index: 10031;
   }
 }
@@ -6235,26 +6289,26 @@
 
   /* Give the header content a little protected room
      so the overlay badge doesn't sit on top of the logo */
-  .app-shell.pre-matchup .header-zone-wrapper > .enhanced-header {
+  #preMatchup .header-zone-wrapper > .enhanced-header {
     padding-left: 56px !important;
   }
 
   /* Keep the button compact in the top-left corner */
-  .app-shell.pre-matchup .header-zone-wrapper > .version-notes-anchor {
+  #preMatchup .header-zone-wrapper > .version-notes-anchor {
     top: 12px !important;
     left: 10px !important;
     width: auto !important;
     max-width: calc(100vw - 28px) !important;
   }
 
-  .app-shell.pre-matchup .header-zone-wrapper > .version-notes-anchor .version-badge,
-  .app-shell.pre-matchup .header-zone-wrapper > .version-notes-anchor .version-badge-btn {
+  #preMatchup .header-zone-wrapper > .version-notes-anchor .version-badge,
+  #preMatchup .header-zone-wrapper > .version-notes-anchor .version-badge-btn {
     max-width: 168px !important;
   }
 
   /* Mobile popover: anchor directly under the badge,
      keep it within viewport, and make it scroll internally if needed */
-  .app-shell.pre-matchup .header-zone-wrapper > .version-notes-anchor .version-notes {
+  #preMatchup .header-zone-wrapper > .version-notes-anchor .version-notes {
     position: absolute !important;
     top: calc(100% + 10px) !important;
     left: 0 !important;
@@ -6276,7 +6330,7 @@
 @media (max-width: 768px) {
 
   /* The shared header wrapper must be the positioning context */
-  .app-shell.pre-matchup .header-zone-wrapper {
+  #preMatchup .header-zone-wrapper {
     position: relative !important;
     display: block !important;
     width: 100% !important;
@@ -6284,28 +6338,33 @@
     overflow: visible !important;
     height: 100% !important;
     max-height: 60px !important;
+    padding: 1px !important;
+    padding-bottom: 0 !important;
   }
 
   /* Keep the header centered and unaffected by the overlay utility */
-  .app-shell.pre-matchup .header-zone-wrapper > .enhanced-header {
+  #preMatchup .header-zone-wrapper > .enhanced-header {
     position: relative !important;
     z-index: 1 !important;
     width: 100% !important;
+    max-width: 400px !important;
     margin: 2px !important;
     padding-left: 10px !important;
     padding-right: 10px !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
   }
 
   /* Slight right nudge for the logo only */
-  .app-shell.pre-matchup .header-zone-wrapper > .enhanced-header .hero-logo-wrap {
+  #preMatchup .header-zone-wrapper > .enhanced-header .hero-logo-wrap {
     display: flex !important;
     justify-content: center !important;
     width: 100% !important;
-    margin-left: 14px !important;
+    margin-left: 0 !important;
   }
 
   /* Anchor the button itself in the upper-left of the header zone */
-  .app-shell.pre-matchup .header-zone-wrapper > .version-notes-anchor {
+  #preMatchup .header-zone-wrapper > .version-notes-anchor {
     position: absolute !important;
     top: 8px !important;
     left: 10px !important;
@@ -6326,8 +6385,8 @@
   }
 
   /* Keep the trigger compact */
-  .app-shell.pre-matchup .header-zone-wrapper > .version-notes-anchor .version-badge,
-  .app-shell.pre-matchup .header-zone-wrapper > .version-notes-anchor .version-badge-btn {
+  #preMatchup .header-zone-wrapper > .version-notes-anchor .version-badge,
+  #preMatchup .header-zone-wrapper > .version-notes-anchor .version-badge-btn {
     display: inline-flex !important;
     width: auto !important;
     max-width: 100px !important;
@@ -6337,10 +6396,10 @@
 
   /* FINAL PANEL FIX:
      hard-reset every conflicting edge and anchor it directly below the button */
-  .app-shell.pre-matchup .header-zone-wrapper > .version-notes-anchor > #versionNotes,
-  .app-shell.pre-matchup .header-zone-wrapper > .version-notes-anchor > .version-notes,
-  .app-shell.pre-matchup #versionNotes.version-notes,
-  .app-shell.pre-matchup #versionNotes.version-notes.is-open {
+  #preMatchup .header-zone-wrapper > .version-notes-anchor > #versionNotes,
+  #preMatchup .header-zone-wrapper > .version-notes-anchor > .version-notes,
+  #preMatchup #versionNotes.version-notes,
+  #preMatchup #versionNotes.version-notes.is-open {
     position: absolute !important;
     top: calc(100% + 8px) !important;
     left: 0 !important;
@@ -6365,11 +6424,11 @@
   }
 
   /* Optional: tighten mobile typography a bit inside the panel */
-  .app-shell.pre-matchup #versionNotes .version-notes-title {
+  #preMatchup #versionNotes .version-notes-title {
     margin-bottom: 8px !important;
   }
 
-  .app-shell.pre-matchup #versionNotes .version-notes-list {
+  #preMatchup #versionNotes .version-notes-list {
     margin: 0 !important;
     padding-left: 18px !important;
   }
@@ -6378,7 +6437,7 @@
     display: none;
   }
 
-  .app-shell.pre-matchup .top-bar {
+  #preMatchup .top-bar {
     margin-top: 0 !important;
   }
 
@@ -6648,12 +6707,15 @@
     gap: 8px 10px;
   }
 
-  .mi-verdict-metrics-tile .mi-scorebug-team-line--metric{
-    padding: 7px 8px 8px;
+  #verdictShell #miVerdictMetricsTile .mi-scorebug-team-line--metric{
+    padding: 7px 6px 8px !important;
   }
 
-  .mi-verdict-metrics-tile .mi-scorebug-mini-label{
-    font-size: 9px;
+  #verdictShell #miVerdictMetricsTile .mi-scorebug-mini-label {
+    font-size: 11px !important;
+    font-weight: 650 !important;
+    letter-spacing: 0.04em !important;
+    color: var(--mi-text-primary) !important;
   }
 
   .mi-verdict-metrics-tile .mi-scorebug-mini-value{
@@ -6728,7 +6790,8 @@
 @media (max-width: 980px){
   #verdictShell .mi-verdict-grid{
     grid-template-columns: 1fr !important;
-    gap: 16px !important;
+    column-gap: 16px !important;
+    row-gap: 2px !important;
   }
 
   #verdictShell .mi-verdict-rail{
@@ -6817,5 +6880,77 @@
         rgba(255,255,255,0.00) 38%
       ),
       rgba(7, 10, 18, 0.92) !important;
+  }
+
+  #matchupBar.is-editing #matchupQuickA.matchup-quick-slot[aria-hidden="false"] .mi-team-dd,
+  #matchupBar.is-editing #matchupQuickB.matchup-quick-slot[aria-hidden="false"] .mi-team-dd{
+    position: relative;
+    width: 100%;
+    min-width: 0;
+    min-height: 0 !important;
+    height: 32px !important;
+  }
+
+  .mi-team-brand--scorebug {
+    padding: 4px 8px !important;
+  }
+
+  #verdictShell #miVerdictMetricsTile .mi-scorebug-team-line--metric {
+    padding-top: 4px !important;
+    padding-bottom: 4px !important;
+  }
+
+  #postMatchup {
+    height: auto !important;
+    overflow-y: visible !important;
+    overscroll-behavior-y: auto !important;
+    margin: auto;
+    padding: 2px !important;
+    width: 100% !important;
+    max-height: none !important;
+    min-height: 100dvh !important;
+  }
+
+  #postMatchupTop {
+    min-height: 0 !important;
+    height: 100% !important;
+
+    overflow-y: visible !important;
+    overscroll-behavior-y: auto !important;
+  }
+
+  #postMatchup #matchupBar.is-editing .matchup-controls-label,
+  #postMatchup .matchup-controls-label.matchup-kicker {
+    display: none !important;
+  }
+  
+  #preSetupRow.pre-setup-row > .card.controls-card,
+  #matchupSetupCard .mc-row.is-primary-entry,
+  #matchupSetupCard .mc-row {
+    min-height: 110px !important;
+    align-items: stretch !important;
+    align-self: stretch !important;
+    justify-content: center !important;
+  }
+
+  #preMatchup #compareBtn.btn.primary.compare-btn-enabled.is-ready {
+    margin-bottom: 0 !important;
+  }
+
+  .controls-card.is-primary-entry .controls-grid {
+    align-self: stretch !important;
+    align-items: stretch !important;
+    justify-content: center !important;
+    height: auto !important;
+  }
+
+  #preMatchup #preSetupRow .matchup-actions-row {
+    margin-bottom: 0 !important;
+    align-items: center !important;
+    align-self: stretch !important;
+  }
+
+  #preSetupRow #compareBtn.btn.primary.compare-btn-disabled {
+    margin-bottom: 0 !important;
   }
 }

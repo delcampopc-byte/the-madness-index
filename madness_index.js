@@ -969,66 +969,86 @@ function normalizePreMatchupCopy(data) {
   };
 }
 
-// ===============================
-// Verdict-first UI (Option A)
-// ===============================
 function setEvidenceOpen(isOpen) {
-  const shell  = document.getElementById('analysisShell');
-  const btn    = document.getElementById('miEvidenceToggle');
+  const analysisShell = document.getElementById('analysisShell');
   const verdict = document.getElementById('verdictShell');
-  if (!shell || !btn) return;
+  const firstCard = document.getElementById('cindCard');
+  const btn = document.getElementById('miEvidenceToggle');
 
-  // Track state for CSS (breadcrumbs vs open state)
-  if (verdict) verdict.classList.toggle('scorecard-open', !!isOpen);
+  if (!analysisShell || !verdict || !btn) return;
 
-  // Update ARIA
-  btn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
-
-  // Update label + chevron
   const chev = btn.querySelector('.mi-chev');
-  btn.childNodes[0].nodeValue = isOpen
-    ? 'Hide Full Scorecard '
-    : 'View Full Scorecard ';
-  if (chev) chev.style.transform = isOpen
-    ? 'rotate(180deg)'
-    : 'rotate(0deg)';
 
-  // Visual open/close
+  function updateUi(open) {
+    btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+
+    const labelNode = Array.from(btn.childNodes).find(
+      node => node.nodeType === Node.TEXT_NODE
+    );
+
+    if (labelNode) {
+      labelNode.nodeValue = open
+        ? 'Hide Full Scorecard '
+        : 'View Full Scorecard ';
+    }
+
+    if (chev) {
+      chev.style.transform = open ? 'rotate(180deg)' : 'rotate(0deg)';
+    }
+
+    verdict.classList.toggle('scorecard-open', open);
+  }
+
+  function scrollToScorecard() {
+    const target = firstCard || analysisShell;
+    if (!target) return;
+
+    const isMobile = window.matchMedia('(max-width: 720px)').matches;
+    const headroom = isMobile ? 96 : 32;
+
+    const rect = target.getBoundingClientRect();
+    const top = window.scrollY + rect.top - headroom;
+
+    window.scrollTo({
+      top: Math.max(0, top),
+      behavior: 'smooth'
+    });
+  }
+
+  updateUi(isOpen);
+
   if (isOpen) {
-
-    shell.classList.remove('hidden');
+    analysisShell.classList.remove('hidden');
 
     requestAnimationFrame(() => {
-      shell.classList.add('analysis-visible');
+      analysisShell.classList.add('analysis-visible');
 
-      // IMPORTANT:
-      // No automatic scroll behavior here.
-      // Let the user's current scroll position remain unchanged.
+      requestAnimationFrame(() => {
+        scrollToScorecard();
+        setTimeout(scrollToScorecard, 120);
+        setTimeout(scrollToScorecard, 280);
+      });
     });
 
-  } else {
-
-    shell.classList.remove('analysis-visible');
-
-    window.setTimeout(() => {
-      shell.classList.add('hidden');
-
-      // IMPORTANT:
-      // Do not scroll back to verdict automatically.
-      // Closing the scorecard should not move the viewport.
-    }, 280);
-
+    return;
   }
+
+  analysisShell.classList.remove('analysis-visible');
+
+  setTimeout(() => {
+    analysisShell.classList.add('hidden');
+    verdict.classList.remove('scorecard-open');
+  }, 280);
 }
 
 function initEvidenceToggleOnce() {
   const btn = document.getElementById('miEvidenceToggle');
   if (!btn || btn.__miBound) return;
+
   btn.__miBound = true;
 
   btn.addEventListener('click', () => {
-    const expanded =
-      btn.getAttribute('aria-expanded') === 'true';
+    const expanded = btn.getAttribute('aria-expanded') === 'true';
     setEvidenceOpen(!expanded);
   });
 }
@@ -1397,7 +1417,7 @@ function hardResetWorkflow(options = {}) {
   const datasetSelect = document.getElementById('datasetSelect');
   const datasetDownloadBtn = document.getElementById('datasetDownloadBtn');
   const statusEl = document.getElementById('status');
-  const appShell = document.querySelector('.app-shell');
+  const preMatchup = document.getElementById('preMatchup');
 
   if (datasetSelect && !preserveDatasetSelection && clearDatasetSelection) {
     datasetSelect.value = '';
@@ -1414,8 +1434,8 @@ function hardResetWorkflow(options = {}) {
     statusEl.textContent = statusText;
   }
 
-  if (appShell) {
-    appShell.classList.remove('csv-loaded');
+  if (preMatchup) {
+    preMatchup.classList.remove('csv-loaded');
   }
 
   // -----------------------------
@@ -9329,8 +9349,8 @@ function hideFooter() {
 }
 
 function miSyncGlossaryToMatchupState() {
-  const appShell = document.querySelector('.app-shell');
-  const hasMatchup = !!(appShell && appShell.classList.contains('has-matchup'));
+  const postMatchup = document.getElementById('postMatchup');
+  const hasMatchup = !!(postMatchup && !postMatchup.classList.contains('hidden'));
 
   if (window.miSetGlossaryAvailable) {
     window.miSetGlossaryAvailable(hasMatchup);
@@ -11683,7 +11703,7 @@ function syncNextHalo() {
 
 async function loadOfficialDatasetFromUrl(url, filename) {
   const statusEl = document.getElementById('status');
-  const appShell = document.querySelector('.app-shell');
+  const preMatchup = document.getElementById('preMatchup');
 
   try {
     if (statusEl) {
@@ -11706,12 +11726,12 @@ async function loadOfficialDatasetFromUrl(url, filename) {
     updatePreMatchupHubProgress();
     refreshCompareButtonState();
 
-    if (appShell) {
+    if (preMatchup) {
       const isLoaded = count > 0;
-      if (isLoaded) appShell.classList.add('csv-loaded');
-      else appShell.classList.remove('csv-loaded');
+      if (isLoaded) preMatchup.classList.add('csv-loaded');
+      else preMatchup.classList.remove('csv-loaded');
 
-      // ✅ move the “next action” halo to the Steps card after dataset loads
+      // move the “next action” halo to the Steps card after dataset loads
       syncNextHalo();
     }
 
@@ -11731,7 +11751,7 @@ async function loadOfficialDatasetFromUrl(url, filename) {
       statusEl.className = 'status error';
       statusEl.textContent = `Dataset load error: ${err.message}`;
     }
-    if (appShell) appShell.classList.remove('csv-loaded');
+    if (preMatchup) preMatchup.classList.remove('csv-loaded');
     syncNextHalo();
   }
 }
@@ -12750,8 +12770,11 @@ function setupEventListeners() {
     fileInput.addEventListener('change', (e) => {
       const file = e.target.files && e.target.files[0];
       if (!file) return;
+
       const reader = new FileReader();
       reader.onload = (ev) => {
+        const preMatchup = document.getElementById('preMatchup');
+
         try {
           const { headers, rows } = parseCSV(ev.target.result);
           RAW_ROWS = rows;
@@ -12765,15 +12788,14 @@ function setupEventListeners() {
           updatePreMatchupHubProgress();
           refreshCompareButtonState();
 
-          const appShell = document.querySelector('.app-shell');
-          if (appShell) {
+          if (preMatchup) {
             const isLoaded = count > 0;
 
-            if (isLoaded) appShell.classList.add('csv-loaded');
-            else appShell.classList.remove('csv-loaded');
+            if (isLoaded) preMatchup.classList.add('csv-loaded');
+            else preMatchup.classList.remove('csv-loaded');
+          }
 
-            syncNextHalo();
-          } 
+          syncNextHalo();
 
           if (statusEl) {
             if (count > 0) {
@@ -12786,12 +12808,20 @@ function setupEventListeners() {
           }
         } catch (err) {
           console.error('[MI] CSV parse error:', err);
+
+          if (preMatchup) {
+            preMatchup.classList.remove('csv-loaded');
+          }
+
+          syncNextHalo();
+
           if (statusEl) {
             statusEl.className = 'status error';
             statusEl.textContent = `CSV parse error: ${err.message}`;
           }
         }
       };
+
       reader.readAsText(file);
     });
   }
@@ -12802,9 +12832,8 @@ function setupEventListeners() {
 
   if (compareBtn) {
     setCompareButtonEnabled(false);
-    
-    compareBtn.addEventListener('click', () => {
 
+    compareBtn.addEventListener('click', () => {
       if (!RAW_ROWS || RAW_ROWS.length === 0) {
         alert('Please load tournament dataset first.');
         return;
@@ -12877,22 +12906,19 @@ function setupEventListeners() {
 
       if (Number.isFinite(seedA) && Number.isFinite(seedB) && seedA !== seedB) {
         if (seedA < seedB) {
-          favoriteName   = teamA.name;
+          favoriteName = teamA.name;
           cinderellaName = teamB.name;
         } else {
-          favoriteName   = teamB.name;
+          favoriteName = teamB.name;
           cinderellaName = teamA.name;
         }
       } else {
         // Same seed or weird data: fall back to dropdown order
         cinderellaName = teamA.name;
-        favoriteName   = teamB.name;
+        favoriteName = teamB.name;
       }
 
       compareTeams(cinderellaName, favoriteName, roleMode);
-
-      const appShell = document.querySelector('.app-shell');
-      if (appShell) appShell.classList.remove('pre-matchup');
     });
   }
 
@@ -12938,7 +12964,6 @@ function setupEventListeners() {
   const quickRun = document.getElementById('matchupQuickRun');
   if (quickRun) {
     quickRun.addEventListener('click', () => {
-
       if (__MI_DATASET_CHANGE_IN_FLIGHT) {
         alert('Dataset is still loading. Please wait a moment.');
         return;
@@ -12999,9 +13024,9 @@ function setupEventListeners() {
   }
 
   // ---- Badge Legend collapsible toggle ----
-  const badgeCard    = document.getElementById('badgeKeyCard');
+  const badgeCard = document.getElementById('badgeKeyCard');
   const badgeContent = document.getElementById('badgeKeyContent');
-  const badgeToggle  = document.getElementById('toggleBadgeKey');
+  const badgeToggle = document.getElementById('toggleBadgeKey');
 
   if (badgeCard && badgeContent && badgeToggle) {
     badgeToggle.addEventListener('click', () => {
@@ -13010,52 +13035,52 @@ function setupEventListeners() {
     });
   }
 
-// ===== ROUND SELECTOR =====
-const roundBtn = document.getElementById("roundSelectBtn");
-const roundDropdown = document.getElementById("roundDropdown");
+  // ===== ROUND SELECTOR =====
+  const roundBtn = document.getElementById('roundSelectBtn');
+  const roundDropdown = document.getElementById('roundDropdown');
 
-if (roundBtn && roundDropdown) {
-  // Initialize button label safely
-  roundBtn.textContent = CURRENT_ROUND
-    ? getRoundLabelFromCode(CURRENT_ROUND)
-    : (miGetCopy("controls.step2_label") ? "Select Round" : "Select Round");
+  if (roundBtn && roundDropdown) {
+    // Initialize button label safely
+    roundBtn.textContent = CURRENT_ROUND
+      ? getRoundLabelFromCode(CURRENT_ROUND)
+      : (miGetCopy('controls.step2_label') ? 'Select Round' : 'Select Round');
 
-  // Open/close dropdown
-  roundBtn.addEventListener("click", (e) => {
-    e.stopPropagation();
-    MI_ROUND_TOUCHED = true;
-    clearRoundNudge();
-    roundDropdown.classList.toggle("hidden");
-  });
-
-  // Handle selecting a round
-  roundDropdown.querySelectorAll(".round-option").forEach((opt) => {
-    opt.addEventListener("click", (e) => {
+    // Open/close dropdown
+    roundBtn.addEventListener('click', (e) => {
       e.stopPropagation();
-      const value = opt.getAttribute("data-round");
-      if (!value) return;
-
-      CURRENT_ROUND = value;
-      miUpdateMatchupRoundPill(CURRENT_ROUND);
-
       MI_ROUND_TOUCHED = true;
       clearRoundNudge();
-
-      roundBtn.textContent = opt.textContent;
-      roundDropdown.classList.add("hidden");
-
-      refreshCompareButtonState();
-      updatePreMatchupHubProgress();
-      persistWorkflowState();
+      roundDropdown.classList.toggle('hidden');
     });
-  });
 
-  // Close dropdown if clicking outside
-  document.addEventListener("click", (e) => {
-    if (!roundDropdown.contains(e.target) && e.target !== roundBtn) {
-      roundDropdown.classList.add("hidden");
-    }
-  });
+    // Handle selecting a round
+    roundDropdown.querySelectorAll('.round-option').forEach((opt) => {
+      opt.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const value = opt.getAttribute('data-round');
+        if (!value) return;
+
+        CURRENT_ROUND = value;
+        miUpdateMatchupRoundPill(CURRENT_ROUND);
+
+        MI_ROUND_TOUCHED = true;
+        clearRoundNudge();
+
+        roundBtn.textContent = opt.textContent;
+        roundDropdown.classList.add('hidden');
+
+        refreshCompareButtonState();
+        updatePreMatchupHubProgress();
+        persistWorkflowState();
+      });
+    });
+
+    // Close dropdown if clicking outside
+    document.addEventListener('click', (e) => {
+      if (!roundDropdown.contains(e.target) && e.target !== roundBtn) {
+        roundDropdown.classList.add('hidden');
+      }
+    });
 
     // v3.3: we no longer flip the entire team card.
     // Only the inner mini flip-tiles (Core, Résumé, Marks, Madness Index) are interactive.
@@ -13100,14 +13125,14 @@ if (roundBtn && roundDropdown) {
         if (tile.id === 'marksTileA' || tile.id === 'marksTileB') {
           requestAnimationFrame(() => {
             equalizeProfileMarksTiles();
-            });
-          }
-        });
+          });
+        }
       });
+    });
   }
 
-  const moreBtn  = document.getElementById('prematchMoreBtn');
-  const preview  = document.getElementById('preMatchupPreview');
+  const moreBtn = document.getElementById('prematchMoreBtn');
+  const preview = document.getElementById('preMatchupPreview');
 
   if (moreBtn && preview) {
     // Ensure closed on boot
@@ -13121,7 +13146,7 @@ if (roundBtn && roundDropdown) {
       preview.setAttribute('aria-hidden', open ? 'false' : 'true');
 
       // Keep your JSON-driven label swap (if you already implemented it)
-      const labelOpen   = miGetCopy('prematch.progress.more_hide') || 'Hide details';
+      const labelOpen = miGetCopy('prematch.progress.more_hide') || 'Hide details';
       const labelClosed = miGetCopy('prematch.progress.more_show') || 'What you’ll get (optional)';
       moreBtn.textContent = open ? labelOpen : labelClosed;
     });
@@ -13782,7 +13807,7 @@ function miInitInstallPromptUI() {
 // Build Version — must match service-worker.js and index.html
 // =========================================================
 
-const MI_BUILD = '39';
+const MI_BUILD = '40';
 
 function bootMadnessIndex() {
   console.log("[MI] bootMadnessIndex fired");
