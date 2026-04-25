@@ -133,9 +133,9 @@
     "team": "California",
     "aliases": ["California", "California Golden Bears"],
     "shortName": "Cal",
-    "primary": "#003262",
+    "primary": "#FDB515",
     "secondary": "#3B7EA1",
-    "tertiary": "#FDB515",
+    "tertiary": "#003262",
     "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/25.png"
   },
 
@@ -2234,7 +2234,7 @@
     "primary": "#4B2682",
     "secondary": "#A1A1A4",
     "tertiary": "#130C0E",
-    "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2687.png"
+    "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2692.png"
   },
 
   "western-carolina": {
@@ -2321,9 +2321,9 @@
     "team": "Xavier",
     "aliases": ["Xavier", "Xavier Muskateers"],
     "shortName": "Xavier",
-    "primary": "#0C2340",
+    "primary": "#0099CC",
     "secondary": "#9EA2A2",
-    "tertiary": "#0099CC",
+    "tertiary": "#0C2340",
     "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2752.png"
   },
 
