@@ -412,6 +412,9 @@
   }
 
   .version-badge-btn .vb-new {
+    position: absolute !important;
+    left: 36px;
+    top: 28px;
     font-size: 8px !important;
     letter-spacing: 0.03em !important;
     font-weight: 600 !important;
@@ -3758,20 +3761,23 @@
     min-height: 100dvh !important;
     height: auto !important;
 
-    padding-top: 0;
-    padding-bottom: 14vh;
+    padding-top: 14vh;
 
     overflow: hidden;
+  }
+
+  #mi-entry-screen .version-badge-btn {
+    display: none !important;
   }
 
   .mi-entry-button {
     font-size: 16px !important;
     color: var(--mi-text-primary) !important;
-    font-weight: 750 !important;
-    letter-spacing: 0.06em !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.04em !important;
     padding: 4px 8px !important;
     height: var(--mi-control-height) !important;
-    width: 200px !important;
+    width: 220px !important;
   }
 
   .mi-entry-install-button {
@@ -3781,19 +3787,20 @@
     letter-spacing: 0.06em !important;
     padding: 4px 8px !important;
     height: var(--mi-control-height) !important;
-    width: 155px !important;
-    max-width: 155px !important;
+
+    max-width: 220px !important;
   }
 
   #miInstallBtn {
-    display: block !important;
+    display: flex !important;
     font-size: 16px !important;
     color: var(--mi-text-primary) !important;
-    font-weight: 750 !important;
-    letter-spacing: 0.06em !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.04em !important;
     padding: 4px 8px !important;
     height: var(--mi-control-height) !important;
     margin-top: 0 !important;
+    min-width: 220px;
   }
 
   #matchupBar,
@@ -3806,7 +3813,7 @@
     justify-content: flext-start;
     row-gap: 18px !important;
     padding-bottom: 60px !important;
-    margin-bottom: 200px !important;
+    margin-bottom: 100px !important;
   }
 
   #matchupBar::before,
@@ -6952,5 +6959,23 @@
 
   #preSetupRow #compareBtn.btn.primary.compare-btn-disabled {
     margin-bottom: 0 !important;
+  }
+}
+
+@media (max-width: 720px) {
+  #mi-entry-screen {
+    background:
+      radial-gradient(
+        65% 50% at 50% 50%,
+        rgba(0,0,0,0.55) 0%,
+        rgba(0,0,0,0.40) 28%,
+        rgba(0,0,0,0.20) 52%,
+        rgba(0,0,0,0.00) 72%
+      ),
+      linear-gradient(
+        rgba(0,0,0,0.28),
+        rgba(0,0,0,0.28)
+      ),
+      url("assets/img/background/plain-background-1.png") center center / cover no-repeat !important;
   }
 }

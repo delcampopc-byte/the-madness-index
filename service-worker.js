@@ -1,15 +1,15 @@
-const MI_BUILD = '40';
+const MI_BUILD = '42';
 const MI_CACHE_NAME = `mi-cache-${MI_BUILD}`;
 
 const MI_ASSETS = [
   './',
   './index.html',
-  './styles2.css?v=40',
-  './mobile.css?v=40',
-  './madness_index.js?v=40',
-  './copy.json?v=40',
-  './manifest.json?v=40',
-  './data/branding/team_branding.json?v=40',
+  './styles2.css?v=42',
+  './mobile.css?v=42',
+  './madness_index.js?v=42',
+  './copy.json?v=42',
+  './manifest.json?v=42',
+  './data/branding/team_branding.json?v=42',
   './assets/img/logos/madness-index-home-logo.png',
   './assets/img/logos/mi-app-icon-192.png',
   './assets/img/logos/mi-app-icon-512.png',

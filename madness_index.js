@@ -13807,7 +13807,7 @@ function miInitInstallPromptUI() {
 // Build Version — must match service-worker.js and index.html
 // =========================================================
 
-const MI_BUILD = '40';
+const MI_BUILD = '42';
 
 function bootMadnessIndex() {
   console.log("[MI] bootMadnessIndex fired");

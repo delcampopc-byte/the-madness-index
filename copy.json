@@ -39,16 +39,15 @@
   "patch_notes": {
     "title": "Patch Notes",
     "hint": "Click for Patch Notes",
-    "badge": "Ver. 5.2 (Build 40)",
+    "badge": "Ver. 5.2 (Build 42)",
     "max_items": 10,
     "items": [
       {
-        "build": "Build 40",
-        "date": "2026-04-22",
+        "build": "Build 42",
+        "date": "2026-04-25",
         "bullets": [
-          "Added 2016, 2017, 2018, and 2019 datasets.",
-          "Significantly improved mobile functionality and optimization.",
-          "Seed Fit has been added as a new metric."
+          "Datasets 2016 - 2026 are live.",
+          "Mobile is now fully optimized. Strongly recommended adding to homescreen for better visibility."
         ]
       }
     ]
