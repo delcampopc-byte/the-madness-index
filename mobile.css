@@ -72,7 +72,6 @@
 
   #mcRow3.matchup-step.mc-row.is-primary-entry {
     min-height: 90px !important;
-
     height: 90px !important;
   }
 
@@ -236,8 +235,7 @@
     justify-content: center !important;
     gap: 10px !important;
     width: 100% !important;
-    margin-bottom: 2px !important;
-
+    margin-bottom: 0 !important;
   }
 
   #preSetupRow .select-wrap {
@@ -2004,6 +2002,8 @@
     flex-direction: column !important;
     align-items: center !important;
     margin-bottom: 55px !important;
+    margin-right: 4px !important;
+    margin-left: 4px !important;
 
     padding: 12px 12px 6px !important;
     border-radius: 18px !important;
@@ -3172,7 +3172,7 @@
   }
 
   .mi-verdict-shell {
-    margin-bottom: 12px !important;
+    margin-bottom: 0 !important;
   }
 
   #verdictShell #miVerdictMetricsTile .tile-face.tile-front{
@@ -3289,7 +3289,7 @@
 
   #preSetupRow .round-control-row {
     margin-top: 0 !important;
-    margin-bottom: 12px !important;
+    margin-bottom: 0!important;
     column-gap: 14px !important;
   }
 
@@ -4074,9 +4074,13 @@
   }
 
   .mi-dataset-dd-panel.round-dropdown {
-    top: calc(100% - 100px) !important;
+    top: calc(100% + 6px) !important;
+    left: 48px;
     opacity: 1 !important;
-    height: auto !important;
+    height: 100% !important;
+    min-height: 365px;
+    width: auto; 
+    max-width: 300px;
   }
 
   .mi-dataset-dd-option.round-option {
@@ -4085,10 +4089,14 @@
     letter-spacing: 0.04em !important;
     padding: 4px !important;
     margin-bottom: 2px !important;
+    margin-top: 2px !important;
     min-height: 0 !important;
     max-height: 32px !important;
     border: 1px solid !important;
     border-color: var(--mi-border-subtle) !important;
+    max-width: 200px;
+    margin-left: auto;
+    margin-right: auto;
   }
 
   /* Stack stays compact */
@@ -6933,8 +6941,9 @@
   }
 
   #postMatchupTop {
-    min-height: 100dvh !important;
-    height: 100% !important;
+    min-height: 90dvh !important;
+    height: auto !important;
+    max-height: 575px !important;
 
 
     overflow-y: visible !important;
@@ -6945,7 +6954,7 @@
   #postMatchup .matchup-controls-label.matchup-kicker {
     display: none !important;
   }
-  
+
   #preSetupRow.pre-setup-row > .card.controls-card,
   #matchupSetupCard .mc-row.is-primary-entry,
   #matchupSetupCard .mc-row {
@@ -6953,9 +6962,8 @@
     align-items: stretch !important;
     align-self: center !important;
     justify-content: center !important;
-    margin: 8px 0;
   }
-
+  
   #preMatchup #compareBtn.btn.primary.compare-btn-enabled.is-ready {
     margin-bottom: 0 !important;
   }
@@ -6994,9 +7002,844 @@
       ),
       url("assets/img/background/plain-background-1.png") center center / cover no-repeat !important;
   }
+}
 
-  #fieldLeadersShell,
+/* =============================================
+   § FIELD LEADERS — Mobile expandable module
+   Mobile-only stacked version of the desktop cards.
+   Each individual article keeps the desktop card structure;
+   the only mobile change is that all 6 cards stack vertically.
+   ============================================= */
+@media (max-width: 720px) {
+
+  /* ---------------------------------------------
+     Shell
+     --------------------------------------------- */
+
+  #preMatchup #fieldLeadersShell.mi-field-leaders {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+
+    margin: 6px auto 0 !important;
+    padding: 0 !important;
+
+    border: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+
+    overflow: visible !important;
+    clear: both !important;
+    position: relative !important;
+    z-index: 1 !important;
+    transform: none !important;
+  }
+
+  #preMatchup #fieldLeadersShell.mi-field-leaders[hidden] {
+    display: none !important;
+  }
+
+  /* When JS relocates the shell after #mcRow3 */
+  #preMatchup #matchupSetupCard .matchup-steps > #fieldLeadersShell.mi-field-leaders,
+  #preMatchup #matchupSetupCard #fieldLeadersShell.mi-field-leaders {
+    flex: 0 0 auto !important;
+    align-self: stretch !important;
+    width: 100% !important;
+    margin: 8px 0 0 !important;
+  }
+
+  /* ---------------------------------------------
+     Toggle button
+     --------------------------------------------- */
+
   #preMatchup .mi-field-leaders-toggle {
-    display: none;
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) auto !important;
+    align-items: center !important;
+    gap: 10px !important;
+
+    width: 100% !important;
+    min-width: 0 !important;
+    min-height: 48px !important;
+
+    margin: 0 !important;
+    padding: 8px 11px !important;
+
+    border-radius: 16px !important;
+    border: 1px solid rgba(56, 189, 248, 0.34) !important;
+
+    background:
+      radial-gradient(
+        120% 140% at 50% -35%,
+        rgba(56, 189, 248, 0.18),
+        transparent 64%
+      ),
+      linear-gradient(
+        180deg,
+        rgba(15, 23, 42, 0.88),
+        rgba(2, 6, 23, 0.94)
+      ) !important;
+
+    box-shadow:
+      0 12px 26px rgba(0, 0, 0, 0.40),
+      0 0 0 1px rgba(56, 189, 248, 0.10) inset,
+      inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
+
+    color: var(--mi-text-primary) !important;
+    text-align: left !important;
+    cursor: pointer !important;
+    overflow: hidden !important;
+  }
+
+  #preMatchup .mi-field-leaders-toggle:active {
+    transform: translateY(1px) !important;
+  }
+
+  #preMatchup .mi-field-leaders-toggle:focus-visible {
+    outline: none !important;
+    border-color: rgba(56, 189, 248, 0.58) !important;
+    box-shadow:
+      0 0 0 2px rgba(56, 189, 248, 0.20),
+      0 12px 26px rgba(0, 0, 0, 0.40),
+      inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
+  }
+
+  #preMatchup .mi-field-leaders-title-wrap {
+    min-width: 0 !important;
+
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    justify-content: center !important;
+    gap: 2px !important;
+
+    overflow: hidden !important;
+  }
+
+  #preMatchup .mi-field-leaders-kicker {
+    font-size: 9px !important;
+    line-height: 1 !important;
+    font-weight: 850 !important;
+    letter-spacing: 0.13em !important;
+    text-transform: uppercase !important;
+    color: rgba(148, 163, 184, 0.82) !important;
+
+    max-width: 100% !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+
+  #preMatchup .mi-field-leaders-title {
+    font-size: 14px !important;
+    line-height: 1.05 !important;
+    font-weight: 900 !important;
+    letter-spacing: 0.055em !important;
+    text-transform: uppercase !important;
+    color: rgba(241, 245, 249, 0.98) !important;
+
+    max-width: 100% !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+
+  #preMatchup .mi-field-leaders-subtitle {
+    font-size: 9.5px !important;
+    line-height: 1.1 !important;
+    font-weight: 650 !important;
+    color: rgba(148, 163, 184, 0.76) !important;
+
+    max-width: 100% !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+
+  #preMatchup .mi-field-leaders-toggle-meta {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 5px !important;
+
+    min-width: 58px !important;
+    height: 28px !important;
+    padding: 0 8px !important;
+
+    border-radius: 999px !important;
+    border: 1px solid rgba(148, 163, 184, 0.22) !important;
+    background: rgba(2, 6, 23, 0.48) !important;
+
+    color: rgba(226, 232, 240, 0.92) !important;
+    overflow: hidden !important;
+  }
+
+  #preMatchup .mi-field-leaders-toggle-text {
+    font-size: 10px !important;
+    line-height: 1 !important;
+    font-weight: 850 !important;
+    letter-spacing: 0.08em !important;
+    text-transform: uppercase !important;
+  }
+
+  #preMatchup .mi-field-leaders-chevron {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    font-size: 12px !important;
+    line-height: 1 !important;
+
+    transform: rotate(0deg) !important;
+    transform-origin: center !important;
+    transition: transform 180ms ease !important;
+  }
+
+  #preMatchup #fieldLeadersShell.is-open .mi-field-leaders-chevron {
+    transform: rotate(180deg) !important;
+  }
+
+  /* ---------------------------------------------
+     Collapsed / expanded grid
+     Mobile = 1 column, 6 stacked article cards.
+     --------------------------------------------- */
+
+  #preMatchup #fieldLeadersGrid.mi-field-leaders-grid {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    grid-auto-rows: auto !important;
+    gap: 10px !important;
+
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+
+    max-height: 0 !important;
+    opacity: 0 !important;
+
+    margin-top: 0 !important;
+    padding: 0 !important;
+
+    overflow: hidden !important;
+    pointer-events: none !important;
+
+    transition:
+      max-height 280ms ease,
+      opacity 180ms ease,
+      margin-top 220ms ease !important;
+  }
+
+  #preMatchup #fieldLeadersShell.is-open #fieldLeadersGrid.mi-field-leaders-grid {
+    max-height: 2200px !important;
+    opacity: 1 !important;
+
+    margin-top: 8px !important;
+    padding-bottom: 2px !important;
+
+    overflow: visible !important;
+    pointer-events: auto !important;
+  }
+
+  /* ---------------------------------------------
+     Individual article/card
+     Matches desktop internal structure.
+     --------------------------------------------- */
+
+  #preMatchup .mi-field-leader-card {
+    --leader-primary-rgb: var(--team-primary-rgb, 107 114 128);
+    --leader-secondary-rgb: var(--team-secondary-rgb, 107 114 128);
+    --leader-tertiary-rgb: var(--team-tertiary-rgb, 107 114 128);
+    --leader-ambient-rgb: var(--team-secondary-ambient-rgb, var(--team-secondary-rgb, 107 114 128));
+
+    position: relative !important;
+
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+
+    min-height: 100px !important;
+    height: 100px !important;
+    max-height: 100px !important;
+
+    display: grid !important;
+    grid-template-columns: 72px minmax(0, 1fr) auto !important;
+    grid-template-rows: 1fr auto !important;
+    grid-template-areas:
+      "identity head value"
+      ".        nav  ." !important;
+
+    column-gap: 8px !important;
+    row-gap: 6px !important;
+    align-items: center !important;
+
+    margin: 0 !important;
+    padding: 10px 12px 8px 10px !important;
+
+    border-radius: var(--field-leader-card-radius, 16px) !important;
+
+    background:
+      radial-gradient(
+        170px 90px at 8% 0%,
+        rgba(var(--leader-ambient-rgb), 0.20),
+        transparent 68%
+      ),
+      linear-gradient(
+        180deg,
+        rgba(15, 23, 42, 0.76),
+        rgba(2, 6, 23, 0.72)
+      ) !important;
+
+    border: 1px solid rgba(148, 163, 184, 0.16) !important;
+
+    box-shadow:
+      0 10px 20px rgba(0, 0, 0, 0.30),
+      inset 0 1px 0 rgba(255, 255, 255, 0.045) !important;
+
+    overflow: hidden !important;
+    touch-action: pan-y !important;
+  }
+
+  #preMatchup .mi-field-leader-card,
+  #preMatchup .mi-field-leader-card * {
+    box-sizing: border-box !important;
+  }
+
+  #preMatchup .mi-field-leader-card::before {
+    content: "" !important;
+    position: absolute !important;
+    inset: 0 auto 0 0 !important;
+
+    width: 3px !important;
+    border-radius: 999px !important;
+
+    background:
+      linear-gradient(
+        180deg,
+        rgba(var(--leader-primary-rgb), 0.95),
+        rgba(var(--leader-secondary-rgb), 0.72),
+        rgba(var(--leader-tertiary-rgb), 0.55)
+      ) !important;
+
+    box-shadow:
+      0 0 12px rgba(var(--leader-primary-rgb), 0.30),
+      0 0 22px rgba(var(--leader-secondary-rgb), 0.18) !important;
+
+    opacity: 0.92 !important;
+    pointer-events: none !important;
+  }
+
+  #preMatchup .mi-field-leader-card:hover {
+    border-color: rgba(var(--leader-primary-rgb), 0.36) !important;
+
+    background:
+      radial-gradient(
+        190px 100px at 8% 0%,
+        rgba(var(--leader-ambient-rgb), 0.26),
+        transparent 70%
+      ),
+      linear-gradient(
+        180deg,
+        rgba(15, 23, 42, 0.82),
+        rgba(2, 6, 23, 0.76)
+      ) !important;
+
+    transform: translateY(-1px) !important;
+    transition:
+      transform 160ms ease,
+      border-color 160ms ease,
+      background 160ms ease !important;
+  }
+
+  /* Preserve desktop display-contents layout */
+  #preMatchup .mi-field-leader-slides,
+  #preMatchup .mi-field-leader-slide,
+  #preMatchup .mi-field-leader-top,
+  #preMatchup .mi-field-leader-main {
+    display: contents !important;
+  }
+
+  #preMatchup .mi-field-leader-slide[hidden] {
+    display: none !important;
+  }
+
+  /* ---------------------------------------------
+     Left identity rail: logo + team name
+     --------------------------------------------- */
+
+  #preMatchup .mi-field-leader-logo-wrap {
+    grid-area: identity !important;
+    justify-self: center !important;
+    align-self: center !important;
+
+    width: 56px !important;
+    height: 56px !important;
+    min-width: 56px !important;
+    max-width: 56px !important;
+
+    margin: 0 0 22px 0 !important;
+    padding: 0 !important;
+
+    border-radius: 12px !important;
+
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    background:
+      radial-gradient(
+        circle at 50% 35%,
+        rgba(var(--leader-primary-rgb), 0.24),
+        rgba(2, 6, 23, 0.88) 70%
+      ) !important;
+
+    border: 1px solid rgba(var(--leader-primary-rgb), 0.34) !important;
+
+    box-shadow:
+      0 0 14px rgba(var(--leader-primary-rgb), 0.18),
+      inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
+
+    overflow: hidden !important;
+  }
+
+  #preMatchup .mi-field-leader-logo {
+    width: 40px !important;
+    height: 40px !important;
+    max-width: 40px !important;
+    max-height: 40px !important;
+
+    object-fit: contain !important;
+    display: block !important;
+  }
+
+  #preMatchup .mi-field-leader-logo[hidden] {
+    display: none !important;
+  }
+
+  #preMatchup .mi-field-leader-team {
+    grid-area: identity !important;
+    justify-self: center !important;
+    align-self: center !important;
+
+    width: 68px !important;
+    max-width: 68px !important;
+    margin: 46px 0 0 0 !important;
+
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    line-height: 1.22 !important;
+    letter-spacing: 0.04em !important;
+
+    color: var(--mi-text-primary) !important;
+
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    text-wrap: pretty !important;
+    text-align: center !important;
+
+    text-shadow:
+      0 1px 0 rgba(0, 0, 0, 0.45),
+      0 0 10px rgba(var(--leader-primary-rgb), 0.12) !important;
+  }
+
+  /* ---------------------------------------------
+     Center heading
+     --------------------------------------------- */
+
+  #preMatchup .mi-field-leader-heading {
+    grid-area: head !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    align-self: center !important;
+
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+
+    margin: 0 !important;
+    overflow: hidden !important;
+  }
+
+  #preMatchup .mi-field-leader-label {
+    font-size: 16px !important;
+    font-weight: 750 !important;
+    line-height: 1 !important;
+    letter-spacing: 0.01em !important;
+    text-transform: none !important;
+    text-align: center !important;
+
+    color: var(--mi-text-primary) !important;
+
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+
+  #preMatchup .mi-field-leader-note {
+    margin: 4px 0 0 0 !important;
+
+    font-size: 10px !important;
+    line-height: 1 !important;
+    color: var(--mi-text-muted) !important;
+    letter-spacing: 0.01em !important;
+    padding-bottom: 1px !important;
+
+    height: auto !important;
+    max-height: 22px !important;
+
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    text-align: center !important;
+    text-wrap: pretty !important;
+  }
+
+  /* ---------------------------------------------
+     Right value column
+     --------------------------------------------- */
+
+  #preMatchup .mi-field-leader-score-row {
+    grid-area: value !important;
+    justify-self: end !important;
+    align-self: center !important;
+
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-end !important;
+    justify-content: center !important;
+    gap: 4px !important;
+
+    min-width: 58px !important;
+    max-width: 96px !important;
+
+    margin: 0 !important;
+    overflow: hidden !important;
+  }
+
+  #preMatchup .mi-field-leader-value {
+    font-size: 20px !important;
+    font-weight: 750 !important;
+    line-height: 1 !important;
+    letter-spacing: 0.01em !important;
+    font-variant-numeric: tabular-nums !important;
+
+    color: var(--mi-text-primary) !important;
+
+    text-shadow:
+      0 0 12px rgba(var(--leader-primary-rgb), 0.22),
+      0 1px 0 rgba(0, 0, 0, 0.45) !important;
+
+    width: auto !important;
+    max-width: 100% !important;
+
+    display: inline-flex !important;
+    justify-content: flex-end !important;
+    align-items: center !important;
+    align-self: flex-end !important;
+
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+
+  #preMatchup .mi-field-leader-sub {
+    font-size: 10px !important;
+    font-weight: 700 !important;
+    line-height: 1 !important;
+    letter-spacing: 0.01em !important;
+    text-transform: none !important;
+    color: var(--mi-text-muted) !important;
+
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    max-width: 96px !important;
+  }
+
+  /* ---------------------------------------------
+     Carousel nav: arrows flanking dots
+     --------------------------------------------- */
+
+  #preMatchup .mi-field-leader-nav {
+    grid-area: nav !important;
+    justify-self: center !important;
+    align-self: center !important;
+
+    display: grid !important;
+    grid-template-columns: 18px auto 18px !important;
+    align-items: start !important;
+    justify-content: center !important;
+    column-gap: 7px !important;
+
+    width: auto !important;
+    height: auto !important;
+    max-height: 24px !important;
+
+    padding: 0 !important;
+    margin: 0 !important;
+
+    border: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+
+    z-index: 2 !important;
+    position: absolute !important;
+    top: -24px !important;
+  }
+
+  #preMatchup .mi-field-leader-card-nav {
+    width: auto !important;
+    height: auto !important;
+    max-height: 24px !important;
+    min-height: 0 !important;
+    min-width: 0 !important;
+
+    padding: 0 !important;
+    margin: 0 !important;
+
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    border-radius: 999px !important;
+    border: 1px solid rgba(var(--leader-primary-rgb), 0.30) !important;
+    background: rgba(2, 6, 23, 0.34) !important;
+
+    color: rgba(249, 246, 238, 0.82) !important;
+    font-size: 22px !important;
+    font-weight: 800 !important;
+    line-height: 0.75 !important;
+
+    cursor: pointer !important;
+    box-shadow: none !important;
+  }
+
+  #preMatchup .mi-field-leader-card-nav {
+    display: none !important;
+  }
+
+  #preMatchup .mi-field-leader-card-nav:hover {
+    border-color: rgba(var(--leader-primary-rgb), 0.58) !important;
+    background: rgba(var(--leader-primary-rgb), 0.14) !important;
+    color: rgba(249, 246, 238, 0.98) !important;
+  }
+
+  #preMatchup .mi-field-leader-card-nav:focus-visible {
+    outline: none !important;
+    box-shadow:
+      0 0 0 2px rgba(var(--leader-primary-rgb), 0.22),
+      0 0 12px rgba(var(--leader-primary-rgb), 0.18) !important;
+  }
+
+  #preMatchup .mi-field-leader-card-nav--prev {
+    grid-column: 1 !important;
+  }
+
+  #preMatchup .mi-field-leader-card-nav--next {
+    grid-column: 3 !important;
+  }
+
+  #preMatchup .mi-field-leader-rank-indicator {
+    grid-column: 2 !important;
+
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 5px !important;
+
+    min-width: 18px !important;
+
+    height: auto !important;
+  }
+
+  #preMatchup .mi-field-leader-dot {
+    width: 8px !important;
+    height: 8px !important;
+    min-width: 7px !important;
+    min-height: 7px !important;
+
+    padding: 0 !important;
+    margin: 0 !important;
+    border-radius: 999px !important;
+
+    background: rgba(148, 163, 184, 0.22) !important;
+    border: 1px solid rgba(249, 246, 238, 0.28) !important;
+
+    opacity: 0.47 !important;
+    font-size: 0 !important;
+    line-height: 0 !important;
+  }
+
+  #preMatchup .mi-field-leader-dot.is-active {
+    width: 10px !important;
+    height: 10px !important;
+    min-width: 10px !important;
+    min-height: 10px !important;
+
+    background: rgba(var(--leader-primary-rgb), 0.98) !important;
+    border-color: rgba(var(--leader-primary-rgb), 0.95) !important;
+
+    box-shadow:
+      0 0 8px rgba(var(--leader-primary-rgb), 0.52),
+      0 0 0 2px rgba(var(--leader-primary-rgb), 0.14) !important;
+
+    opacity: 1 !important;
+  }
+
+  /* Detail text exists in markup, but stays hidden to protect compact height */
+  #preMatchup .mi-field-leader-detail {
+    display: none !important;
+  }
+
+  /* Defensive compatibility with earlier class names */
+  #preMatchup .mi-field-leader-nav-btn {
+    width: auto !important;
+    height: auto !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    padding: 0 !important;
+  }
+
+  #preMatchup .mi-field-leader-dots {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 5px !important;
+  }
+
+  #versionBadgeText {
+    font-size: 8px !important;
+  }
+
+  #verdictShell .mi-evidence-toggle {
+    height: 36px !important;
+    min-height: 0 !important;
+  }
+
+  #miEvidenceToggle.mi-evidence-toggle {
+    max-height: 36px !important;
+  }
+}
+
+/* =============================================
+   § FIELD LEADERS — Extra-small mobile tightening
+   Same structure, slightly compressed.
+   ============================================= */
+@media (max-width: 420px) {
+
+  #preMatchup #fieldLeadersShell.mi-field-leaders {
+    margin-top: 2px !important;
+  }
+
+  #preMatchup .mi-field-leaders-toggle {
+    min-height: 46px !important;
+    padding: 7px 9px !important;
+    gap: 8px !important;
+  }
+
+  #preMatchup .mi-field-leaders-kicker {
+    font-size: 8.5px !important;
+    letter-spacing: 0.11em !important;
+  }
+
+  #preMatchup .mi-field-leaders-title {
+    font-size: 14px !important;
+    letter-spacing: 0.04em !important;
+    color: var(--mi-text-primary);
+    font-weight: 750 !important;
+  }
+
+  #preMatchup .mi-field-leaders-subtitle {
+    font-size: 9px !important;
+  }
+
+  #preMatchup .mi-field-leaders-toggle-meta {
+    min-width: 54px !important;
+    height: 26px !important;
+    padding: 0 7px !important;
+  }
+
+  #preMatchup .mi-field-leaders-toggle-text {
+    font-size: 9.5px !important;
+  }
+
+  #preMatchup .mi-field-leader-card {
+    grid-template-columns: 68px minmax(0, 1fr) auto !important;
+    min-height: 80px !important;
+    height: 80px !important;
+    max-height: 80px !important;
+    padding: 2px 6px !important;
+    column-gap: 7px !important;
+  }
+
+  #preMatchup .mi-field-leader-logo-wrap {
+    width: 52px !important;
+    height: 52px !important;
+    min-width: 52px !important;
+    max-width: 52px !important;
+    margin-bottom: 22px !important;
+  }
+
+  #preMatchup .mi-field-leader-logo {
+    width: 36px !important;
+    height: 36px !important;
+    max-width: 36px !important;
+    max-height: 36px !important;
+  }
+
+  #preMatchup .mi-field-leader-team {
+    width: 64px !important;
+    max-width: 64px !important;
+    font-size: 10px !important;
+    letter-spacing: 0.035em !important;
+  }
+
+  #preMatchup .mi-field-leader-label {
+    font-size: 14px !important;
+  }
+
+  #preMatchup .mi-field-leader-note {
+    font-size: 9.5px !important;
+  }
+
+  #preMatchup .mi-field-leader-score-row {
+    min-width: 52px !important;
+    max-width: 82px !important;
+  }
+
+  #preMatchup .mi-field-leader-value {
+    font-size: 18px !important;
+  }
+
+  #preMatchup .mi-field-leader-sub {
+    font-size: 9px !important;
+    max-width: 82px !important;
+  }
+
+  #preMatchup .mi-field-leader-nav {
+    top: -23px !important;
+    column-gap: 6px !important;
+  }
+
+  #preMatchup .mi-field-leader-card-nav {
+    font-size: 20px !important;
+  }
+
+  #preMatchup .mi-field-leader-dot {
+    width: 6px !important;
+    height: 6px !important;
+    min-width: 6px !important;
+    min-height: 6px !important;
+  }
+
+  #preMatchup .mi-field-leader-dot.is-active {
+    width: 10px !important;
+    height: 10px !important;
+    min-width: 10px !important;
+    min-height: 10px !important;
+    background: rgba(var(--leader-primary-rgb), 0.98) !important;
+    border-color: rgba(var(--leader-primary-rgb), 0.95) !important;
+    box-shadow:
+      0 0 8px rgba(var(--leader-primary-rgb), 0.52),
+      0 0 0 2px rgba(var(--leader-primary-rgb), 0.14) !important;
+    opacity: 1 !important;
   }
 }

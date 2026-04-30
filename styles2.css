@@ -256,7 +256,7 @@ button,
 
   font-family: inherit;
   font-size: 14px;
-  line-height: 1;
+  line-height: 1.22;
 
   padding: 8px 16px;
   min-height: 38px;
@@ -24458,7 +24458,7 @@ section.profile-section.flip-tile .subtotal-row.profile-subtotal-row {
   font-size: 20px;
   row-gap: 1px !important;
   column-gap: 10px !important;
-  min-height: 75px !important;
+  min-height: 0 !important;
   height: auto;
 }
 

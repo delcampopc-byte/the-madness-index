@@ -6588,6 +6588,9 @@ function miBindFieldLeaderCarouselControls(grid) {
 
   grid.__miFieldLeaderCarouselBound = true;
 
+  // ------------------------------------------------------------
+  // 1) Existing click navigation
+  // ------------------------------------------------------------
   grid.addEventListener('click', event => {
     const button = event.target.closest('[data-field-leader-action]');
     if (!button || !grid.contains(button)) return;
@@ -6608,6 +6611,104 @@ function miBindFieldLeaderCarouselControls(grid) {
 
     miSetActiveFieldLeaderSlide(card, nextIndex);
   });
+
+  // ------------------------------------------------------------
+  // 2) Mobile swipe navigation
+  //    - Horizontal swipe changes the top-3 leader within one card.
+  //    - Vertical scrolling still works normally.
+  //    - Desktop mouse behavior is untouched.
+  // ------------------------------------------------------------
+
+  const isMobileSwipeViewport = () => (
+    window.matchMedia &&
+    window.matchMedia('(max-width: 720px)').matches
+  );
+
+  const SWIPE_MIN_DISTANCE = 42;
+  const SWIPE_MAX_VERTICAL_DRIFT = 38;
+
+  let swipeState = null;
+
+  grid.addEventListener('touchstart', event => {
+    if (!isMobileSwipeViewport()) return;
+    if (!event.touches || event.touches.length !== 1) return;
+
+    const card = event.target.closest('.mi-field-leader-card');
+    if (!card || !grid.contains(card)) return;
+
+    const slides = Array.from(card.querySelectorAll('.mi-field-leader-slide'));
+    if (slides.length <= 1) return;
+
+    const touch = event.touches[0];
+
+    swipeState = {
+      card,
+      startX: touch.clientX,
+      startY: touch.clientY,
+      lastX: touch.clientX,
+      lastY: touch.clientY,
+      isHorizontal: false,
+      isVertical: false
+    };
+  }, { passive: true });
+
+  grid.addEventListener('touchmove', event => {
+    if (!swipeState || !event.touches || event.touches.length !== 1) return;
+
+    const touch = event.touches[0];
+    const dx = touch.clientX - swipeState.startX;
+    const dy = touch.clientY - swipeState.startY;
+
+    swipeState.lastX = touch.clientX;
+    swipeState.lastY = touch.clientY;
+
+    if (!swipeState.isHorizontal && !swipeState.isVertical) {
+      if (Math.abs(dx) > 12 || Math.abs(dy) > 12) {
+        swipeState.isHorizontal = Math.abs(dx) > Math.abs(dy) * 1.25;
+        swipeState.isVertical = Math.abs(dy) > Math.abs(dx);
+      }
+    }
+
+    // Once it is clearly horizontal, prevent the page from jittering sideways
+    // while still allowing normal vertical scrolls when the gesture is vertical.
+    if (swipeState.isHorizontal && event.cancelable) {
+      event.preventDefault();
+    }
+  }, { passive: false });
+
+  grid.addEventListener('touchend', () => {
+    if (!swipeState) return;
+
+    const card = swipeState.card;
+    const dx = swipeState.lastX - swipeState.startX;
+    const dy = swipeState.lastY - swipeState.startY;
+
+    swipeState = null;
+
+    if (!card) return;
+
+    const isSwipe =
+      Math.abs(dx) >= SWIPE_MIN_DISTANCE &&
+      Math.abs(dy) <= SWIPE_MAX_VERTICAL_DRIFT;
+
+    if (!isSwipe) return;
+
+    const slides = Array.from(card.querySelectorAll('.mi-field-leader-slide'));
+    if (slides.length <= 1) return;
+
+    const currentIndex = Number(card.dataset.fieldLeaderIndex || 0);
+
+    // Swipe left = next. Swipe right = previous.
+    const nextIndex = dx < 0
+      ? currentIndex + 1
+      : currentIndex - 1;
+
+    miSetActiveFieldLeaderSlide(card, nextIndex);
+  }, { passive: true });
+
+  grid.addEventListener('touchcancel', () => {
+    swipeState = null;
+  }, { passive: true });
 }
 
 function miSetFieldLeadersOpen(isOpen) {
@@ -6641,6 +6742,77 @@ function miInitFieldLeadersToggleOnce() {
   toggle.addEventListener('click', () => {
     const nextOpen = !shell.classList.contains('is-open');
     miSetFieldLeadersOpen(nextOpen);
+  });
+}
+
+// ------------------------------------------------------------
+// Field Leaders Mobile Placement
+// Moves the single canonical #fieldLeadersShell into the mobile
+// setup flow only on phones, directly after #mcRow3.
+// Restores it after #preSetupRow on desktop/tablet.
+// ------------------------------------------------------------
+
+const MI_FIELD_LEADERS_MOBILE_QUERY = '(max-width: 720px)';
+
+function miIsFieldLeadersMobileViewport() {
+  return !!(
+    window.matchMedia &&
+    window.matchMedia(MI_FIELD_LEADERS_MOBILE_QUERY).matches
+  );
+}
+
+function miPlaceFieldLeadersForViewport() {
+  const shell = document.getElementById('fieldLeadersShell');
+  const preSetupRow = document.getElementById('preSetupRow');
+  const mcRow3 = document.getElementById('mcRow3');
+
+  if (!shell || !preSetupRow || !mcRow3) return;
+
+  const isMobile = miIsFieldLeadersMobileViewport();
+
+  if (isMobile) {
+    // Mobile target:
+    // place Field Leaders directly after Step 4 / Compare row.
+    if (shell.previousElementSibling !== mcRow3) {
+      mcRow3.insertAdjacentElement('afterend', shell);
+    }
+
+    shell.dataset.fieldLeadersPlacement = 'mobile';
+    return;
+  }
+
+  // Desktop/tablet target:
+  // restore original desktop structure:
+  // #preSetupRow followed by #fieldLeadersShell.
+  if (shell.previousElementSibling !== preSetupRow) {
+    preSetupRow.insertAdjacentElement('afterend', shell);
+  }
+
+  shell.dataset.fieldLeadersPlacement = 'desktop';
+}
+
+function miInitFieldLeadersResponsivePlacementOnce() {
+  if (window.__miFieldLeadersResponsivePlacementBound) return;
+  window.__miFieldLeadersResponsivePlacementBound = true;
+
+  const sync = () => {
+    miPlaceFieldLeadersForViewport();
+  };
+
+  sync();
+
+  if (window.matchMedia) {
+    const mq = window.matchMedia(MI_FIELD_LEADERS_MOBILE_QUERY);
+
+    if (typeof mq.addEventListener === 'function') {
+      mq.addEventListener('change', sync);
+    } else if (typeof mq.addListener === 'function') {
+      mq.addListener(sync);
+    }
+  }
+
+  window.addEventListener('orientationchange', () => {
+    window.setTimeout(sync, 80);
   });
 }
 
@@ -6708,11 +6880,12 @@ function miRenderFieldLeaders() {
   shell.hidden = false;
   shell.classList.add('is-ready', 'is-rendered');
 
+  miInitFieldLeadersResponsivePlacementOnce();
+  miPlaceFieldLeadersForViewport();
+
   miInitFieldLeadersToggleOnce();
 
-  const isMobile =
-    window.matchMedia &&
-    window.matchMedia('(max-width: 720px)').matches;
+  const isMobile = miIsFieldLeadersMobileViewport();
 
   // Desktop/tablet: open by default.
   // Mobile: collapsed by default to protect vertical space.
@@ -14787,7 +14960,7 @@ function miInitInstallPromptUI() {
 // Build Version — must match service-worker.js and index.html
 // =========================================================
 
-const MI_BUILD = '43';
+const MI_BUILD = '44';
 
 function bootMadnessIndex() {
   console.log("[MI] bootMadnessIndex fired");
@@ -14806,6 +14979,10 @@ function bootMadnessIndex() {
     await loadSeedDisplacementBenchmarks();
 
     setupEventListeners();
+
+    miInitFieldLeadersResponsivePlacementOnce();
+    miPlaceFieldLeadersForViewport();
+
     loadCopyJSON();
 
     miSyncSnapButtons();
