@@ -1396,6 +1396,10 @@ function hardResetWorkflow(options = {}) {
   MI_ROUND_TOUCHED = false;
   MI_ROUND_NUDGE_SHOWN = false;
 
+  if (typeof miClearFieldLeaders === 'function') {
+    miClearFieldLeaders();
+  }
+
   try { window.LAST_RESULT = null; } catch (e) {}
 
   if (typeof RESUME_CONTEXT_STATS_V2 !== 'undefined') {
@@ -3643,6 +3647,11 @@ function buildTeamsFromCSV(headers, rows) {
   computeFieldStats(); // your existing function
   computeAllTeamLayers();
   computeStaticIdentities();
+
+  if (typeof miEnrichFieldLeaderMetricsForAllTeams === 'function') {
+    miEnrichFieldLeaderMetricsForAllTeams();
+  }
+
   populateTeamDropdowns(); // your existing function
 }
 
@@ -5092,6 +5101,12 @@ function computeAllTeamLayers(opts = MI_V2_DEFAULTS) {
   teams.forEach(team => {
     computeMIBase(team, opts, fieldMean);
   });
+
+  // Field Leaders only:
+  // dataset-level team volatility, available immediately after CSV load.
+  if (typeof computeAllTeamVolatilityProfiles === 'function') {
+    computeAllTeamVolatilityProfiles();
+  }
 }
 
 // ---------- CIS / FAS Static Identity Profiles (v4.0) ----------
@@ -5764,6 +5779,944 @@ function computeMatchupVolatility(a, b, opts = {}) {
       abs_z_scpg_gap: miAbsGap(miSafeZ(a, 'scpg'), miSafeZ(b, 'scpg'))
     }
   };
+}
+
+// ------------------------------------------------------------
+// Team Volatility Profile
+// Dataset-level derivative for Field Leaders only
+//
+// IMPORTANT:
+// - Single-team version of matchup volatility.
+// - Does NOT affect matchup volatility, interactions, MI, winner,
+//   confidence, or any scoring behavior.
+// - Intended consumer: pre-matchup Field Leaders "Most Volatile" tile.
+// ------------------------------------------------------------
+
+function miClampTeamVol(value, min, max) {
+  const n = Number(value);
+  if (!Number.isFinite(n)) return min;
+  return Math.max(min, Math.min(max, n));
+}
+
+function computeTeamThreePointPercentageModifier(team) {
+  const z3PP = miSafeZ(team, 'threepp');
+  const z3PR = miSafeZ(team, 'threepr');
+
+  // Same principle as matchup volatility:
+  // 3P% only matters when 3P volume is already elevated.
+  const modifier = z3PP * Math.max(0, z3PR);
+
+  // Keep accuracy as a small flavor modifier, not a quality takeover.
+  return miClampTeamVol(modifier, -0.35, 0.35);
+}
+
+function computeTeamTempoVolRaw(team) {
+  const zTempo = miSafeZ(team, 'tempo');
+
+  // Mirrors matchup formula's avg_z_tempo term.
+  // Opponent gap term is omitted because this is single-team.
+  return 0.55 * zTempo;
+}
+
+function computeTeamEPRVolRaw(team) {
+  const zEPR = miSafeZ(team, 'epr');
+  const inverseZEPR = -zEPR;
+
+  // Mirrors matchup formula's inverse_avg_z_epr term.
+  // Opponent gap term is omitted because this is single-team.
+  return 0.60 * inverseZEPR;
+}
+
+function computeTeamSCPGVolRaw(team) {
+  const zSCPG = miSafeZ(team, 'scpg');
+
+  // Mirrors matchup formula's avg_z_scpg term.
+  // Opponent gap term is omitted because this is single-team.
+  return 0.60 * zSCPG;
+}
+
+function computeTeamThreePointVolRaw(team) {
+  const z3PR = miSafeZ(team, 'threepr');
+  const zPctPts3 = miSafeZ(team, 'pct_pts_3');
+
+  const threePointPercentageModifier =
+    computeTeamThreePointPercentageModifier(team);
+
+  // Mirrors matchup formula:
+  // 0.45 avg_z_3pr
+  // 0.35 avg_z_pct_pts_3
+  // 0.15 abs_z_3pr_gap omitted because no opponent exists
+  // 0.05 3P% modifier retained
+  return (
+    0.45 * z3PR +
+    0.35 * zPctPts3 +
+    0.05 * threePointPercentageModifier
+  );
+}
+
+function getTeamVolatilityPrimaryDriver(quarters) {
+  if (!quarters) return null;
+
+  const rows = [
+    { key: 'tempo', label: 'Tempo', value: quarters.tempo?.norm },
+    { key: 'threePoint', label: '3P Volatility', value: quarters.threePoint?.norm },
+    { key: 'epr', label: 'Possession Stability', value: quarters.epr?.norm },
+    { key: 'scpg', label: 'Extra Chances', value: quarters.scpg?.norm }
+  ].filter(row => Number.isFinite(row.value));
+
+  if (!rows.length) return null;
+
+  rows.sort((a, b) => b.value - a.value);
+  return rows[0];
+}
+
+function computeTeamVolatilityProfile(team, opts = {}) {
+  const k = Number.isFinite(opts.k) ? opts.k : 1.0;
+
+  if (!team) {
+    return {
+      raw: 0,
+      score01: 0.5,
+      score100: 51,
+      tier: getVolatilityTier(51),
+      quarters: {
+        tempo: { raw: 0, norm: 0.5 },
+        threePoint: { raw: 0, norm: 0.5, modifier: 0 },
+        epr: { raw: 0, norm: 0.5 },
+        scpg: { raw: 0, norm: 0.5 }
+      },
+      drivers: {}
+    };
+  }
+
+  const tempoRaw = computeTeamTempoVolRaw(team);
+  const threeRaw = computeTeamThreePointVolRaw(team);
+  const eprRaw = computeTeamEPRVolRaw(team);
+  const scpgRaw = computeTeamSCPGVolRaw(team);
+
+  const tempoVol = miSigmoid(tempoRaw, k);
+  const threeVol = miSigmoid(threeRaw, k);
+  const eprVol = miSigmoid(eprRaw, k);
+  const scpgVol = miSigmoid(scpgRaw, k);
+
+  const volatility01 =
+    0.25 * tempoVol +
+    0.25 * threeVol +
+    0.25 * eprVol +
+    0.25 * scpgVol;
+
+  const volatility100 = Math.round(1 + 99 * volatility01);
+
+  const quarters = {
+    tempo: {
+      raw: tempoRaw,
+      norm: tempoVol
+    },
+    threePoint: {
+      raw: threeRaw,
+      norm: threeVol,
+      modifier: computeTeamThreePointPercentageModifier(team)
+    },
+    epr: {
+      raw: eprRaw,
+      norm: eprVol
+    },
+    scpg: {
+      raw: scpgRaw,
+      norm: scpgVol
+    }
+  };
+
+  const primaryDriver = getTeamVolatilityPrimaryDriver(quarters);
+
+  return {
+    raw: volatility01,
+    score01: volatility01,
+    score100: volatility100,
+    tier: getVolatilityTier(volatility100),
+
+    quarters,
+
+    drivers: {
+      z_tempo: miSafeZ(team, 'tempo'),
+
+      z_3pr: miSafeZ(team, 'threepr'),
+      z_pct_pts_3: miSafeZ(team, 'pct_pts_3'),
+      z_3pp: miSafeZ(team, 'threepp'),
+
+      z_epr: miSafeZ(team, 'epr'),
+      inverse_z_epr: -miSafeZ(team, 'epr'),
+
+      z_scpg: miSafeZ(team, 'scpg'),
+
+      primaryDriver
+    }
+  };
+}
+
+function computeAllTeamVolatilityProfiles(opts = {}) {
+  Object.values(TEAMS || {}).forEach(team => {
+    const result = computeTeamVolatilityProfile(team, opts);
+
+    // Canonical internal name for Field Leaders.
+    team.teamVolatility = result;
+  });
+}
+
+// ------------------------------------------------------------
+// Field Leaders Metric Enrichment
+// Dataset-level prep for the pre-matchup Field Leaders module.
+//
+// IMPORTANT:
+// - This is data/math only.
+// - No DOM rendering.
+// - No team branding/logo/color injection.
+// - No matchup scoring, interactions, winner logic, or confidence impact.
+// - Intended to run immediately after dataset load, once team baseline
+//   and static tournament identities are already computed.
+// ------------------------------------------------------------
+
+function miGetCanonicalDatasetTeams() {
+  const seen = new Set();
+
+  return (TEAM_LIST || [])
+    .map(name => TEAMS?.[name])
+    .filter(team => {
+      if (!team || !team.name) return false;
+
+      // Protect against duplicate object references from encoded-name aliases.
+      if (seen.has(team.name)) return false;
+      seen.add(team.name);
+
+      return true;
+    });
+}
+
+function computeSeedDisplacementForAllTeams() {
+  const teams = miGetCanonicalDatasetTeams();
+
+  let computed = 0;
+  let unavailable = 0;
+
+  teams.forEach(team => {
+    if (!team) return;
+
+    const result =
+      typeof computeSeedDisplacementForTeam === 'function'
+        ? computeSeedDisplacementForTeam(team)
+        : null;
+
+    if (result && Number.isFinite(Number(result.displacement_z))) {
+      computed += 1;
+    } else {
+      unavailable += 1;
+
+      // Keep the fields explicit so later render logic can safely test them.
+      team.seedDisplacement = null;
+      team.seed_displacement = null;
+    }
+  });
+
+  return {
+    total: teams.length,
+    computed,
+    unavailable
+  };
+}
+
+function computeTeamVolatilityProfilesForFieldLeaders() {
+  const teams = miGetCanonicalDatasetTeams();
+
+  let computed = 0;
+  let unavailable = 0;
+
+  teams.forEach(team => {
+    if (!team) return;
+
+    if (typeof computeTeamVolatilityProfile !== 'function') {
+      team.teamVolatility = null;
+      unavailable += 1;
+      return;
+    }
+
+    const result = computeTeamVolatilityProfile(team);
+
+    if (result && Number.isFinite(Number(result.score100))) {
+      team.teamVolatility = result;
+      computed += 1;
+    } else {
+      team.teamVolatility = null;
+      unavailable += 1;
+    }
+  });
+
+  return {
+    total: teams.length,
+    computed,
+    unavailable
+  };
+}
+
+function miEnrichFieldLeaderMetricsForAllTeams() {
+  const teams = miGetCanonicalDatasetTeams();
+
+  if (!teams.length) {
+    console.warn('[MI Field Leaders] No teams available for enrichment.');
+    return {
+      total: 0,
+      volatility: { total: 0, computed: 0, unavailable: 0 },
+      seedFit: { total: 0, computed: 0, unavailable: 0 }
+    };
+  }
+
+  // Team-level, matchup-independent volatility.
+  // Consumed only by the Field Leaders "Most Volatile" tile.
+  const volatilitySummary = computeTeamVolatilityProfilesForFieldLeaders();
+
+  // Seed Fit / seed displacement.
+  // Depends on team.mi_base, so this must run after computeAllTeamLayers().
+  const seedFitSummary = computeSeedDisplacementForAllTeams();
+
+  const summary = {
+    total: teams.length,
+    volatility: volatilitySummary,
+    seedFit: seedFitSummary
+  };
+
+  console.log('[MI Field Leaders] Dataset metrics enriched:', summary);
+
+  return summary;
+}
+
+// ------------------------------------------------------------
+// Field Leaders Selection
+// Pure data layer: selects the six leaders from the currently
+// loaded/enriched dataset.
+//
+// IMPORTANT:
+// - No DOM rendering.
+// - No branding/logo/color injection.
+// - No matchup scoring.
+// - Reads fields already prepared during dataset load.
+// ------------------------------------------------------------
+
+const MI_FIELD_LEADER_TOP_N = 3;
+
+const MI_FIELD_LEADER_DEFS = [
+  {
+    key: 'bestBaseline',
+    label: 'Best Baseline',
+    note: 'Highest pre-matchup identity score',
+    direction: 'max',
+    getValue: team => team?.mi_base
+  },
+  {
+    key: 'topCinderella',
+    label: 'Top Cinderella',
+    note: 'Best underdog identity score',
+    direction: 'max',
+    getValue: team => team?.cisStatic
+  },
+  {
+    key: 'topFavorite',
+    label: 'Top Favorite',
+    note: 'Best favorite identity score',
+    direction: 'max',
+    getValue: team => team?.fasStatic
+  },
+  {
+    key: 'mostVolatile',
+    label: 'Most Volatile',
+    note: 'Highest dataset-level chaos profile',
+    direction: 'max',
+    getValue: team => team?.teamVolatility?.score100
+  },
+  {
+    key: 'bestSeedFit',
+    label: 'Best Seed Fit',
+    note: 'Most above seed expectation',
+    direction: 'max',
+    getValue: team => team?.seedDisplacement?.displacement_z
+  },
+  {
+    key: 'worstSeedFit',
+    label: 'Worst Seed Fit',
+    note: 'Most below seed expectation',
+    direction: 'min',
+    getValue: team => team?.seedDisplacement?.displacement_z
+  }
+];
+
+function miGetFiniteFieldLeaderValue(def, team) {
+  if (!def || typeof def.getValue !== 'function' || !team) return null;
+
+  const value = Number(def.getValue(team));
+  return Number.isFinite(value) ? value : null;
+}
+
+function miPickFieldLeadersForDef(def, teams, limit = MI_FIELD_LEADER_TOP_N) {
+  if (!def || !Array.isArray(teams) || !teams.length) return [];
+
+  const candidates = teams
+    .map(team => {
+      const value = miGetFiniteFieldLeaderValue(def, team);
+      if (!Number.isFinite(value)) return null;
+
+      return {
+        key: def.key,
+        label: def.label,
+        note: def.note,
+        direction: def.direction,
+        team,
+        value
+      };
+    })
+    .filter(Boolean);
+
+  if (!candidates.length) return [];
+
+  candidates.sort((a, b) => {
+    if (def.direction === 'min') {
+      return a.value - b.value;
+    }
+
+    return b.value - a.value;
+  });
+
+  return candidates.slice(0, Math.max(1, Number(limit) || MI_FIELD_LEADER_TOP_N));
+}
+
+function miComputeFieldLeaders() {
+  const teams =
+    typeof miGetCanonicalDatasetTeams === 'function'
+      ? miGetCanonicalDatasetTeams()
+      : Object.values(TEAMS || {});
+
+  if (!teams.length) {
+    return [];
+  }
+
+  const leaderGroups = MI_FIELD_LEADER_DEFS
+    .map(def => {
+      const leaders = miPickFieldLeadersForDef(def, teams, MI_FIELD_LEADER_TOP_N);
+
+      if (!leaders.length) return null;
+
+      return {
+        key: def.key,
+        label: def.label,
+        note: def.note,
+        direction: def.direction,
+        leaders
+      };
+    })
+    .filter(Boolean);
+
+  console.log('[MI Field Leaders] Leader groups computed:', leaderGroups.map(group => ({
+    key: group.key,
+    leaders: group.leaders.map((row, index) => ({
+      rank: index + 1,
+      team: row.team?.name || '',
+      value: row.value
+    }))
+  })));
+
+  return leaderGroups;
+}
+
+// ------------------------------------------------------------
+// Field Leaders Reset / Clear
+// UI lifecycle helper for the pre-matchup Field Leaders module.
+//
+// Safe to call before the HTML exists.
+// Does not affect team data, matchup scoring, or metric computation.
+// ------------------------------------------------------------
+
+function miClearFieldLeaders() {
+  const shell = document.getElementById('fieldLeadersShell');
+  const grid = document.getElementById('fieldLeadersGrid');
+  const toggle = document.getElementById('fieldLeadersToggle');
+
+  if (grid) {
+    grid.innerHTML = '';
+  }
+
+  if (shell) {
+    shell.hidden = true;
+    shell.classList.remove('is-ready', 'is-open', 'is-rendered');
+  }
+
+  if (toggle) {
+    toggle.setAttribute('aria-expanded', 'false');
+  }
+}
+
+// ------------------------------------------------------------
+// Field Leaders View Models
+// Converts raw leader selections into display-ready objects.
+//
+// IMPORTANT:
+// - No DOM rendering.
+// - No direct logo injection.
+// - No direct CSS variable writes.
+// - Branding is normalized here so the future renderer can inherit
+//   the existing Madness Index team color/logo system cleanly.
+// ------------------------------------------------------------
+
+function miFormatSignedDecimal(value, digits = 1, suffix = '') {
+  const n = Number(value);
+  if (!Number.isFinite(n)) return '—';
+
+  const sign = n > 0 ? '+' : '';
+  return `${sign}${n.toFixed(digits)}${suffix}`;
+}
+
+function miFormatFieldLeaderValue(key, value, team = null) {
+  const n = Number(value);
+  if (!Number.isFinite(n)) return '—';
+
+  switch (key) {
+    case 'bestBaseline':
+      return typeof miFormatUiPointsFromMiSpace === 'function'
+        ? miFormatUiPointsFromMiSpace(n)
+        : miFormatSignedDecimal(n, 1);
+
+    case 'topCinderella':
+    case 'topFavorite':
+      return String(Math.round(n));
+
+    case 'mostVolatile':
+      return String(Math.round(n));
+
+    case 'bestSeedFit':
+    case 'worstSeedFit':
+      return miFormatSignedDecimal(n, 1, 'z');
+
+    default:
+      return miFormatSignedDecimal(n, 1);
+  }
+}
+
+function miGetFieldLeaderSubText(key, team = null) {
+  if (!team) return '';
+
+  switch (key) {
+    case 'bestBaseline':
+      return 'MI Base';
+
+    case 'topCinderella':
+      return 'CIS';
+
+    case 'topFavorite':
+      return 'FAS';
+
+    case 'mostVolatile':
+      return team.teamVolatility?.tier || 'Volatility';
+
+    case 'bestSeedFit':
+    case 'worstSeedFit':
+      return team.seedDisplacement?.tier || 'Seed Fit';
+
+    default:
+      return '';
+  }
+}
+
+function miGetFieldLeaderDetailText(key, team = null) {
+  if (!team) return '';
+
+  switch (key) {
+    case 'mostVolatile': {
+      const driver = team.teamVolatility?.drivers?.primaryDriver;
+      return driver?.label ? `Primary driver: ${driver.label}` : '';
+    }
+
+    case 'bestSeedFit':
+    case 'worstSeedFit': {
+      const seed = team.seedDisplacement?.seed ?? team.seed;
+      return seed ? `Seed ${seed}` : '';
+    }
+
+    case 'bestBaseline': {
+      const raw = Number(team.mi_base);
+      return Number.isFinite(raw) ? `Raw MI: ${raw.toFixed(3)}` : '';
+    }
+
+    case 'topCinderella': {
+      const raw = Number(team.cisStatic);
+      return Number.isFinite(raw) ? `CIS ${Math.round(raw)}` : '';
+    }
+
+    case 'topFavorite': {
+      const raw = Number(team.fasStatic);
+      return Number.isFinite(raw) ? `FAS ${Math.round(raw)}` : '';
+    }
+
+    default:
+      return '';
+  }
+}
+
+function miBuildFieldLeaderViewModel(leader, rank = 1) {
+  if (!leader || !leader.team) return null;
+
+  const team = leader.team;
+  const key = leader.key;
+  const value = Number(leader.value);
+
+  const brand =
+    typeof miNormalizeTeamBranding === 'function'
+      ? miNormalizeTeamBranding(team.name)
+      : (typeof getTeamBranding === 'function'
+          ? getTeamBranding(team.name)
+          : null);
+
+  const teamName =
+    brand?.team ||
+    team.name ||
+    'Unknown Team';
+
+  const teamShortName =
+    brand?.shortName ||
+    team.shortName ||
+    team.name ||
+    'Team';
+
+  return {
+    key,
+    rank,
+    label: leader.label || key,
+    note: leader.note || '',
+    direction: leader.direction || 'max',
+
+    team,
+    teamName,
+    teamShortName,
+
+    valueRaw: Number.isFinite(value) ? value : null,
+    valueText: miFormatFieldLeaderValue(key, value, team),
+    subText: miGetFieldLeaderSubText(key, team),
+    detailText: miGetFieldLeaderDetailText(key, team),
+
+    brand,
+    logo: brand?.logo || '',
+
+    seed: team.seed ?? null,
+    region: team.region || '',
+
+    metricKey: key
+  };
+}
+
+function miBuildFieldLeaderViewModels(leaderGroups = null) {
+  const source = Array.isArray(leaderGroups)
+    ? leaderGroups
+    : (typeof miComputeFieldLeaders === 'function'
+        ? miComputeFieldLeaders()
+        : []);
+
+  return source
+    .map(group => {
+      if (!group || !Array.isArray(group.leaders) || !group.leaders.length) {
+        return null;
+      }
+
+      const leaders = group.leaders
+        .map((leader, index) => miBuildFieldLeaderViewModel(leader, index + 1))
+        .filter(Boolean);
+
+      if (!leaders.length) return null;
+
+      return {
+        key: group.key,
+        label: group.label || leaders[0]?.label || group.key,
+        note: group.note || leaders[0]?.note || '',
+        direction: group.direction || leaders[0]?.direction || 'max',
+        leaders
+      };
+    })
+    .filter(Boolean);
+}
+
+// ------------------------------------------------------------
+// Field Leaders Rendering
+// Turns Field Leader view models into the pre-matchup UI.
+//
+// IMPORTANT:
+// - Renders only when a dataset is loaded.
+// - Uses existing branding/logo/color helpers.
+// - Does not affect matchup scoring, MI, interactions, or confidence.
+// - Lives inside #preMatchup and is cleared/hidden on reset or matchup run.
+// ------------------------------------------------------------
+
+function miFieldLeaderEscape(value) {
+  return String(value ?? '').replace(/[&<>"']/g, c => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;'
+  }[c]));
+}
+
+function miRenderFieldLeaderTile(groupVm) {
+  if (!groupVm || !Array.isArray(groupVm.leaders) || !groupVm.leaders.length) {
+    return '';
+  }
+
+  const first = groupVm.leaders[0];
+  const hasMultiple = groupVm.leaders.length > 1;
+
+  return `
+    <article
+      class="mi-field-leader-card mi-field-leader-card--carousel"
+      data-field-leader-key="${miFieldLeaderEscape(groupVm.key)}"
+      data-field-leader-index="0"
+      data-team-name="${miFieldLeaderEscape(first.teamName)}"
+    >
+      ${
+        hasMultiple
+          ? `
+            <div class="mi-field-leader-nav" aria-label="${miFieldLeaderEscape(groupVm.label)} leader navigation">
+              <button
+                class="mi-field-leader-card-nav mi-field-leader-card-nav--prev"
+                type="button"
+                data-field-leader-action="prev"
+                aria-label="Show previous ${miFieldLeaderEscape(groupVm.label)} leader"
+              >
+                ‹
+              </button>
+
+              <div class="mi-field-leader-rank-indicator" aria-hidden="true">
+                ${groupVm.leaders.map((_, index) => `
+                  <span
+                    class="mi-field-leader-dot${index === 0 ? ' is-active' : ''}"
+                    data-field-leader-dot="${index}"
+                  ></span>
+                `).join('')}
+              </div>
+
+              <button
+                class="mi-field-leader-card-nav mi-field-leader-card-nav--next"
+                type="button"
+                data-field-leader-action="next"
+                aria-label="Show next ${miFieldLeaderEscape(groupVm.label)} leader"
+              >
+                ›
+              </button>
+            </div>
+          `
+          : ''
+      }
+
+      <div class="mi-field-leader-slides">
+        ${groupVm.leaders.map((vm, index) => `
+          <div
+            class="mi-field-leader-slide${index === 0 ? ' is-active' : ''}"
+            data-field-leader-slide="${index}"
+            data-team-name="${miFieldLeaderEscape(vm.teamName)}"
+            ${index === 0 ? '' : 'hidden'}
+          >
+            <div class="mi-field-leader-top">
+              <div class="mi-field-leader-logo-wrap">
+                <img
+                  class="mi-field-leader-logo"
+                  alt=""
+                  hidden
+                />
+              </div>
+
+              <div class="mi-field-leader-heading">
+                <div class="mi-field-leader-label">${miFieldLeaderEscape(vm.label)}</div>
+                <div class="mi-field-leader-note">${miFieldLeaderEscape(vm.note)}</div>
+              </div>
+            </div>
+
+            <div class="mi-field-leader-main">
+              <div class="mi-field-leader-team">${miFieldLeaderEscape(vm.teamShortName || vm.teamName)}</div>
+
+              <div class="mi-field-leader-score-row">
+                <span class="mi-field-leader-value">${miFieldLeaderEscape(vm.valueText)}</span>
+                <span class="mi-field-leader-sub">${miFieldLeaderEscape(vm.subText)}</span>
+              </div>
+            </div>
+
+            ${
+              vm.detailText
+                ? `<div class="mi-field-leader-detail">${miFieldLeaderEscape(vm.detailText)}</div>`
+                : ''
+            }
+          </div>
+        `).join('')}
+      </div>
+
+    </article>
+  `;
+}
+
+function miSetActiveFieldLeaderSlide(card, nextIndex) {
+  if (!card) return;
+
+  const slides = Array.from(card.querySelectorAll('.mi-field-leader-slide'));
+  if (!slides.length) return;
+
+  const safeIndex = ((Number(nextIndex) || 0) + slides.length) % slides.length;
+
+  slides.forEach((slide, index) => {
+    const active = index === safeIndex;
+
+    slide.classList.toggle('is-active', active);
+    slide.hidden = !active;
+  });
+
+  card.dataset.fieldLeaderIndex = String(safeIndex);
+
+  const activeSlide = slides[safeIndex];
+  const activeTeamName = activeSlide?.dataset?.teamName || '';
+
+  if (activeTeamName) {
+    card.dataset.teamName = activeTeamName;
+  }
+
+  card.querySelectorAll('.mi-field-leader-dot').forEach((dot, index) => {
+    dot.classList.toggle('is-active', index === safeIndex);
+  });
+}
+
+function miBindFieldLeaderCarouselControls(grid) {
+  if (!grid || grid.__miFieldLeaderCarouselBound) return;
+
+  grid.__miFieldLeaderCarouselBound = true;
+
+  grid.addEventListener('click', event => {
+    const button = event.target.closest('[data-field-leader-action]');
+    if (!button || !grid.contains(button)) return;
+
+    const card = button.closest('.mi-field-leader-card');
+    if (!card) return;
+
+    const slides = Array.from(card.querySelectorAll('.mi-field-leader-slide'));
+    if (slides.length <= 1) return;
+
+    const currentIndex = Number(card.dataset.fieldLeaderIndex || 0);
+    const action = button.dataset.fieldLeaderAction;
+
+    const nextIndex =
+      action === 'prev'
+        ? currentIndex - 1
+        : currentIndex + 1;
+
+    miSetActiveFieldLeaderSlide(card, nextIndex);
+  });
+}
+
+function miSetFieldLeadersOpen(isOpen) {
+  const shell = document.getElementById('fieldLeadersShell');
+  const toggle = document.getElementById('fieldLeadersToggle');
+  const toggleText = toggle?.querySelector('.mi-field-leaders-toggle-text');
+
+  if (!shell) return;
+
+  const open = !!isOpen;
+
+  shell.classList.toggle('is-open', open);
+
+  if (toggle) {
+    toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+  }
+
+  if (toggleText) {
+    toggleText.textContent = open ? 'Hide' : 'View';
+  }
+}
+
+function miInitFieldLeadersToggleOnce() {
+  const shell = document.getElementById('fieldLeadersShell');
+  const toggle = document.getElementById('fieldLeadersToggle');
+
+  if (!shell || !toggle || toggle.__miFieldLeadersBound) return;
+
+  toggle.__miFieldLeadersBound = true;
+
+  toggle.addEventListener('click', () => {
+    const nextOpen = !shell.classList.contains('is-open');
+    miSetFieldLeadersOpen(nextOpen);
+  });
+}
+
+function miRenderFieldLeaders() {
+  const shell = document.getElementById('fieldLeadersShell');
+  const grid = document.getElementById('fieldLeadersGrid');
+
+  const title = document.querySelector('#fieldLeadersToggle .mi-field-leaders-title');
+  const meta = typeof miGetCurrentDatasetMeta === 'function'
+    ? miGetCurrentDatasetMeta()
+    : null;
+
+  if (title) {
+    title.textContent = meta?.season
+      ? `${meta.season} Field Leaders`
+      : 'Field Leaders';
+  }
+
+  if (!shell || !grid) return;
+
+  const hasDataset =
+    Array.isArray(TEAM_LIST) &&
+    TEAM_LIST.length > 0 &&
+    TEAMS &&
+    Object.keys(TEAMS).length > 0;
+
+  if (!hasDataset) {
+    miClearFieldLeaders();
+    return;
+  }
+
+  const viewModels =
+    typeof miBuildFieldLeaderViewModels === 'function'
+      ? miBuildFieldLeaderViewModels()
+      : [];
+
+  if (!viewModels.length) {
+    miClearFieldLeaders();
+    return;
+  }
+
+  grid.innerHTML = viewModels.map(miRenderFieldLeaderTile).join('');
+
+  viewModels.forEach(groupVm => {
+    const card = grid.querySelector(`[data-field-leader-key="${CSS.escape(groupVm.key)}"]`);
+    if (!card || !Array.isArray(groupVm.leaders)) return;
+
+    groupVm.leaders.forEach((vm, index) => {
+      const slide = card.querySelector(`[data-field-leader-slide="${index}"]`);
+      if (!slide) return;
+
+      if (index === 0 && vm.brand && typeof miApplyBrandVariables === 'function') {
+        miApplyBrandVariables(card, vm.brand);
+      }
+
+      const logo = slide.querySelector('.mi-field-leader-logo');
+      if (logo && vm.brand && typeof miApplyTeamLogo === 'function') {
+        miApplyTeamLogo(logo, vm.brand, vm.teamName || 'Team');
+      }
+    });
+  });
+
+  miBindFieldLeaderCarouselControls(grid);
+
+  shell.hidden = false;
+  shell.classList.add('is-ready', 'is-rendered');
+
+  miInitFieldLeadersToggleOnce();
+
+  const isMobile =
+    window.matchMedia &&
+    window.matchMedia('(max-width: 720px)').matches;
+
+  // Desktop/tablet: open by default.
+  // Mobile: collapsed by default to protect vertical space.
+  miSetFieldLeadersOpen(!isMobile);
 }
 
 function miClamp(n, min, max) {
@@ -9381,6 +10334,12 @@ function updateMatchupBarFromDOM() {
 
   if (!matchupBar || !topBar || !preMatchup || !postMatchup) return;
 
+  // Field Leaders belongs only to the pre-matchup dataset state.
+  // Once Compare runs and post-matchup becomes active, hide/clear it.
+  if (typeof miClearFieldLeaders === 'function') {
+    miClearFieldLeaders();
+  }
+
   // Canonical shell transition:
   // pre-matchup is fully retired once post-matchup becomes active
   preMatchup.classList.add('hidden');
@@ -11735,6 +12694,12 @@ async function loadOfficialDatasetFromUrl(url, filename) {
       syncNextHalo();
     }
 
+    if (count > 0 && typeof miRenderFieldLeaders === 'function') {
+      miRenderFieldLeaders();
+    } else if (typeof miClearFieldLeaders === 'function') {
+      miClearFieldLeaders();
+    }
+
     if (statusEl) {
       if (count > 0) {
         statusEl.className = 'status ok';
@@ -11752,6 +12717,11 @@ async function loadOfficialDatasetFromUrl(url, filename) {
       statusEl.textContent = `Dataset load error: ${err.message}`;
     }
     if (preMatchup) preMatchup.classList.remove('csv-loaded');
+
+    if (typeof miClearFieldLeaders === 'function') {
+      miClearFieldLeaders();
+    }
+
     syncNextHalo();
   }
 }
@@ -12797,6 +13767,12 @@ function setupEventListeners() {
 
           syncNextHalo();
 
+          if (count > 0 && typeof miRenderFieldLeaders === 'function') {
+            miRenderFieldLeaders();
+          } else if (typeof miClearFieldLeaders === 'function') {
+            miClearFieldLeaders();
+          }
+
           if (statusEl) {
             if (count > 0) {
               statusEl.className = 'status ok';
@@ -12811,6 +13787,10 @@ function setupEventListeners() {
 
           if (preMatchup) {
             preMatchup.classList.remove('csv-loaded');
+          }
+
+          if (typeof miClearFieldLeaders === 'function') {
+            miClearFieldLeaders();
           }
 
           syncNextHalo();
@@ -13807,7 +14787,7 @@ function miInitInstallPromptUI() {
 // Build Version — must match service-worker.js and index.html
 // =========================================================
 
-const MI_BUILD = '42';
+const MI_BUILD = '43';
 
 function bootMadnessIndex() {
   console.log("[MI] bootMadnessIndex fired");

@@ -71,9 +71,9 @@
   }
 
   #mcRow3.matchup-step.mc-row.is-primary-entry {
-    min-height: 110px !important;
+    min-height: 90px !important;
 
-    height: 110px !important;
+    height: 90px !important;
   }
 
   #preSetupRow.pre-setup-row .controls-card.is-primary-entry {
@@ -311,7 +311,8 @@
   #preSetupRow #compareBtn {
     width: 100% !important;
     max-width: 200px !important;
-    max-height: 24px !important;
+    max-height: 30px !important;
+
   }
 
   /* ── Helper text under Step 3 ── */
@@ -629,7 +630,8 @@
     flex-direction: column !important;
     align-items: center !important;
     justify-content: flex-start !important;
-    gap: 6px !important;
+    column-gap: 6px !important;
+    row-gap: 2px !important;
 
     width: 100% !important;
     max-width: 100% !important;
@@ -2712,7 +2714,7 @@
   }
 
   #verdictShell {
-    margin-top: 6px !important;
+    margin-top: 2px !important;
   }
 }
 
@@ -3170,7 +3172,7 @@
   }
 
   .mi-verdict-shell {
-    margin-bottom: 0 !important;
+    margin-bottom: 12px !important;
   }
 
   #verdictShell #miVerdictMetricsTile .tile-face.tile-front{
@@ -3326,10 +3328,7 @@
     color: var(--mi-text-muted) !important;
   }
 
-  #mcRow2.matchup-step.mc-row {
-    margin-bottom: 6px !important;
-    margin-top: 6px !important;
-  }
+
 
   .mi-team-dd-item {
     padding: 4px !important;
@@ -4414,8 +4413,8 @@
    ========================================================= */
 @media (max-width: 720px) {
   #analysisShell{
-    margin-top: 6px !important;
-    padding-top: 7px !important;
+    margin-top: 0 !important;
+    padding-top: 0 !important;
   }
 
   #analysisShell::before{
@@ -6051,8 +6050,13 @@
     color: #FDF9D8 !important;
     font-size: 20px !important;
     min-height: 0 !important;
-    max-height: 120px !important;
+
   }
+
+  #preSetupRow .matchup-actions-row {
+    min-height: 30px !important;
+    height: auto !important;
+  } 
 
   /* Same idea for post-matchup action surfaces near the bottom */
   #matchupBar,
@@ -6061,6 +6065,10 @@
   #summarySectionMobile {
     scroll-margin-bottom: 0 !important;
   }
+
+  .pre-setup-row > .card {
+    max-height: 82px !important;
+  }  
 
   /* Keep the collapsed glossary handle from visually eating the last row */
   .mi-glossary {
@@ -6094,6 +6102,7 @@
     z-index: 10040 !important;
     transition: filter 160ms ease !important;
     opacity: 1 !important;
+    margin-top: 12px;
   }
 
   .hero-tagline {
@@ -6183,7 +6192,7 @@
   }
 
   #preMatchup {
-    min-height: 0 !important;
+    min-height: 100dvh !important;
     height: 100% !important;
     overflow-y: auto;
     overflow-x: hidden; 
@@ -6196,6 +6205,11 @@
   html,
   body {
     overflow-x: hidden! important;
+  }
+
+  #preSetupRow.pre-setup-row > .card.controls-card {
+    height: auto;
+    max-height: 5000px;
   }
 
   .mi-team-dd-btn .mi-label {
@@ -6798,7 +6812,7 @@
   #verdictShell .mi-verdict-grid{
     grid-template-columns: 1fr !important;
     column-gap: 16px !important;
-    row-gap: 2px !important;
+    row-gap: 1px !important;
   }
 
   #verdictShell .mi-verdict-rail{
@@ -6919,8 +6933,9 @@
   }
 
   #postMatchupTop {
-    min-height: 0 !important;
+    min-height: 100dvh !important;
     height: 100% !important;
+
 
     overflow-y: visible !important;
     overscroll-behavior-y: auto !important;
@@ -6934,10 +6949,11 @@
   #preSetupRow.pre-setup-row > .card.controls-card,
   #matchupSetupCard .mc-row.is-primary-entry,
   #matchupSetupCard .mc-row {
-    min-height: 110px !important;
+    min-height: 90px !important;
     align-items: stretch !important;
-    align-self: stretch !important;
+    align-self: center !important;
     justify-content: center !important;
+    margin: 8px 0;
   }
 
   #preMatchup #compareBtn.btn.primary.compare-btn-enabled.is-ready {
@@ -6977,5 +6993,10 @@
         rgba(0,0,0,0.28)
       ),
       url("assets/img/background/plain-background-1.png") center center / cover no-repeat !important;
+  }
+
+  #fieldLeadersShell,
+  #preMatchup .mi-field-leaders-toggle {
+    display: none;
   }
 }

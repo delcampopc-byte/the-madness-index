@@ -11,12 +11,12 @@
   <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
 
   <!-- Core styles -->
-  <link rel="stylesheet" href="styles2.css?v=42" />
-  <link rel="stylesheet" href="mobile.css?v=42" />
+  <link rel="stylesheet" href="styles2.css?v=43" />
+  <link rel="stylesheet" href="mobile.css?v=43" />
   <link rel="icon" type="image/png" href="assets/img/logos/madness-index-app-logo.PNG" />
 
   <!-- PWA manifest -->
-  <link rel="manifest" href="manifest.json?v=42" />
+  <link rel="manifest" href="manifest.json?v=43" />
 </head>
 <body>
 
@@ -314,6 +314,41 @@
         </div>
       </div>
     </section>
+
+        <!-- ========== FIELD LEADERS (PRE-MATCHUP DATASET SNAPSHOT) ========== -->
+    <section
+      id="fieldLeadersShell"
+      class="mi-field-leaders"
+      hidden
+      aria-label="Field Leaders"
+    >
+      <button
+        id="fieldLeadersToggle"
+        class="mi-field-leaders-toggle"
+        type="button"
+        aria-expanded="false"
+        aria-controls="fieldLeadersGrid"
+      >
+        <span class="mi-field-leaders-title-wrap">
+          <span class="mi-field-leaders-kicker">Selected Dataset</span>
+          <strong class="mi-field-leaders-title">Field Leaders</strong>
+          <span class="mi-field-leaders-subtitle">
+            Dataset-wide identity standouts
+          </span>
+        </span>
+
+        <span class="mi-field-leaders-toggle-meta">
+          <span class="mi-field-leaders-toggle-text">View</span>
+          <span class="mi-field-leaders-chevron" aria-hidden="true">▾</span>
+        </span>
+      </button>
+
+      <div
+        id="fieldLeadersGrid"
+        class="mi-field-leaders-grid"
+        aria-live="polite"
+      ></div>
+    </section>
 </div>
 
 <div id="postMatchup" class="hidden">
@@ -379,7 +414,7 @@
             ></div>
 
             <div class="matchup-quick-actions" aria-hidden="true">
-              <button id="matchupQuickRun" class="btn primary matchup-quick-run" type="button">Run</button>
+              <button id="matchupQuickRun" class="btn primary matchup-quick-run" type="button">Compare Teams</button>
               <button id="matchupQuickCancel" class="btn ghost matchup-quick-cancel" type="button">Cancel</button>
             </div>
           </div>
@@ -1577,7 +1612,7 @@
     </div>
 </footer>
 
-<script src="madness_index.js?v=42"></script>
+<script src="madness_index.js?v=43"></script>
 
 <script>
 (function () {

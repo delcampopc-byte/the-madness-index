@@ -39,14 +39,14 @@
   "patch_notes": {
     "title": "Patch Notes",
     "hint": "Click for Patch Notes",
-    "badge": "Ver. 5.2 (Build 42)",
+    "badge": "Ver. 5.3 (Build 43)",
     "max_items": 10,
     "items": [
       {
-        "build": "Build 42",
-        "date": "2026-04-25",
+        "build": "Build 43",
+        "date": "2026-04-29",
         "bullets": [
-          "Datasets 2016 - 2026 are live.",
+          "Added a new feature on desktop called Field Leaders, which shows the top 3 teams per tournament in 6 identified categories. Working on mobile refinements.",
           "Mobile is now fully optimized. Strongly recommended adding to homescreen for better visibility."
         ]
       }
