@@ -1566,7 +1566,9 @@ body{
 .btn.subtle:hover { background: rgba(15, 23, 42, 0.98); color: var(--mi-text-muted); }
 
 .sandbox-toggle {
-  display: inline-flex;
+  justify-content: center;
+  display: flex;
+  position: relative;
   align-items: center;
   gap: 6px;
   font-size: 15px;
@@ -5754,10 +5756,10 @@ explain-table td:first-child{
 }
 
 .pre-setup-row #matchupSetupCard .mc-row{
-  background: rgba(2, 8, 23, 0.10);
+  background: var(--mi-sheen), var(--mi-surface-card);
 }
 .pre-setup-row #matchupSetupCard .mc-row:nth-child(odd){
-  background: rgba(2, 8, 23, 0.16);
+  background: var(--mi-sheen), var(--mi-surface-card);
 }
 
 /* ================================
@@ -5815,15 +5817,15 @@ button,
 
 .sandbox-toggle,
 .enhanced-sandbox {
-  height: var(--mi-control-height);
+  height: auto;
   border-radius: var(--mi-control-radius);
   padding: 0 var(--mi-control-padding-x);
-  display: inline-flex;
+
   align-items: center;
 }
 
 .sandbox-toggle input {
-  margin-right: 10px;
+  margin: 2px;
 }
 
 .enhanced-sandbox {
@@ -6142,17 +6144,7 @@ button,
   padding: 10px 12px 8px 10px;
   border-radius: var(--field-leader-card-radius);
 
-  background:
-    radial-gradient(
-      170px 90px at 8% 0%,
-      rgba(var(--leader-ambient-rgb), 0.20),
-      transparent 68%
-    ),
-    linear-gradient(
-      180deg,
-      rgba(15, 23, 42, 0.76),
-      rgba(2, 6, 23, 0.72)
-    );
+  background: var(--mi-sheen), var(--mi-surface-card);
 
   border: 1px solid rgba(148, 163, 184, 0.16);
 
@@ -11425,7 +11417,7 @@ body{
 #preSetupRow.pre-setup-row {
   display: grid !important;
   grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-  gap: 18px !important;
+  gap: 10px !important;
 
   /* prevent viewport-driven stretching */
   height: auto !important;
@@ -20082,7 +20074,7 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
 
 #preMatchupHub .pre-hub-steps{
   grid-template-columns: 1fr !important;
-  gap: 24px !important;
+  gap: 20px !important;
   height: auto;
 }
 
@@ -20091,9 +20083,12 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
   grid-template-columns: 28px minmax(0, 1fr) auto !important;
   grid-template-areas: "num copy status" !important;
   align-items: center !important;
-  gap: 12px !important;
+  gap: 1px !important;
   padding: 6px 6px !important;
-  min-height: 60px;
+  min-height: 0;
+  height: auto !important;
+  max-height: 75px;
+  min-height: 70px;
 }
 
 #preMatchupHub .pre-step-num{
@@ -20106,6 +20101,7 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
   display: flex;
   flex-direction: column;
   gap: 4px;
+  text-align: center;
 }
 
 #preMatchupHub .pre-step-label{
@@ -20143,6 +20139,7 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
   border: 1px solid rgba(148, 163, 184, 0.24);
   background: rgba(2, 6, 23, 0.35);
   color: rgba(226, 232, 240, 0.82);
+  height: auto;
 }
 
 #preMatchupHub .pre-step.is-done .pre-step-status{
@@ -20202,6 +20199,7 @@ section.profile-section.flip-tile.flipped > .flip-tile-inner > .tile-face.tile-b
 
 .pre-step.is-next {
   transform: translateY(0);
+  max-height: 100px !important;
 }
 
 .pre-step.is-locked {
@@ -24456,10 +24454,11 @@ section.profile-section.flip-tile .subtotal-row.profile-subtotal-row {
 #preStep2.pre-step.pre-step--status.is-done,
 #preStep3.pre-step.pre-step--status.is-done {
   font-size: 20px;
-  row-gap: 1px !important;
+  row-gap: 0 !important;
   column-gap: 10px !important;
-  min-height: 0 !important;
+  min-height: 60px !important;
   height: auto;
+  max-height: 60px !important;
 }
 
 .pre-hub-steps.pre-hub-status-grid {

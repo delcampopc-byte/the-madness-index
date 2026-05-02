@@ -12561,7 +12561,7 @@ function updatePreMatchupHubProgress() {
   // Row 2 — Teams
   if (els.t2) {
     if (!csvLoaded) {
-      els.t2.textContent = 'Locked until dataset is loaded';
+      els.t2.textContent = 'Locked until dataset loaded';
     } else if (!hasA) {
       els.t2.textContent = 'Waiting for Team A';
     } else if (!hasB) {
@@ -12586,7 +12586,7 @@ function updatePreMatchupHubProgress() {
   // Row 3 — Round + Run
   if (els.t3) {
     if (!csvLoaded || !teamsOk) {
-      els.t3.textContent = 'Locked until matchup inputs are complete';
+      els.t3.textContent = 'Locked until matchup is chosen';
     } else if (!roundChosen) {
       els.t3.textContent = (copy && copy.step3_pending) || 'Round not selected';
     } else {
@@ -14960,7 +14960,7 @@ function miInitInstallPromptUI() {
 // Build Version — must match service-worker.js and index.html
 // =========================================================
 
-const MI_BUILD = '44';
+const MI_BUILD = '45';
 
 function bootMadnessIndex() {
   console.log("[MI] bootMadnessIndex fired");

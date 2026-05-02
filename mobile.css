@@ -235,7 +235,8 @@
     justify-content: center !important;
     gap: 10px !important;
     width: 100% !important;
-    margin-bottom: 0 !important;
+    margin-bottom: 12px !important;
+    height: 34px;
   }
 
   #preSetupRow .select-wrap {
@@ -1398,7 +1399,11 @@
   }
 
   #interactionsSection {
-    margin-bottom: 4px !important;
+    margin: 4px !important;
+  }
+
+  .result-layout {
+    margin: 4px !important;
   }
 
   /* pull the gauge upward */
@@ -3269,8 +3274,7 @@
   }
 
   #mcRow1.matchup-step.mc-row.is-primary-entry {
-    margin: 8px 0 !important;
-
+    margin-top: 0 !important;
   }
 
   #mcRow3.matchup-step.mc-row.is-primary-entry {
@@ -3379,6 +3383,7 @@
 
   #preMatchupHub.card.pre-matchup-hub {
     padding-top: 1px !important;
+    padding-bottom: 24px !important;
   }
 
   .pre-status-label {
@@ -4061,7 +4066,9 @@
   }
 
   #preMatchupHub .pre-hub-inner {
-    gap: 2px !important;
+    position: relative;
+    gap: 0 !important;
+    min-height: 75px !important;
   }
 
   /* Header stays prominent, but tighter */
@@ -4075,12 +4082,12 @@
 
   .mi-dataset-dd-panel.round-dropdown {
     top: calc(100% + 6px) !important;
-    left: 48px;
+    left: 70px;
     opacity: 1 !important;
     height: 100% !important;
     min-height: 365px;
-    width: auto; 
-    max-width: 300px;
+    width: 100%; 
+    max-width: 250px;
   }
 
   .mi-dataset-dd-option.round-option {
@@ -4119,7 +4126,7 @@
     padding: 6px 6px 6px !important;
     border-radius: 10px !important;
 
-    background: rgba(15, 23, 42, 0.34) !important;
+    background: var(--mi-sheen), var(--mi-surface-card);
     border: 1px solid rgba(148, 163, 184, 0.12) !important;
     box-shadow: none !important;
   }
@@ -4152,6 +4159,20 @@
     justify-content: flex-start !important;
     gap: 2px !important;
     min-width: 0 !important;
+  }
+
+  #preStep1.pre-step.pre-step--status.is-done,
+  #preStep2.pre-step.pre-step--status.is-done,
+  #preStep3.pre-step.pre-step--status.is-done {
+    font-size: 20px;
+    row-gap: 0 !important;
+    column-gap: 10px !important;
+    min-height: 60px !important;
+    max-height: 60px !important;
+    text-align: center; 
+    align-items: center;
+    justify-self: center;
+    border-color: var(--mi-border-strong) !important;
   }
 
   #preMatchupHub .pre-step-label {
@@ -4195,7 +4216,7 @@
 
   #preMatchupHub .pre-step {
     min-height: 0 !important;
-    height: auto! important;
+    height: 100%! important;
   }
 }
 
@@ -4421,7 +4442,7 @@
    ========================================================= */
 @media (max-width: 720px) {
   #analysisShell{
-    margin-top: 0 !important;
+    margin-top: 24px !important;
     padding-top: 0 !important;
   }
 
@@ -4514,6 +4535,15 @@
   #preMatchupHub[data-mobile-step="2"] #preStep2,
   #preMatchupHub[data-mobile-step="3"] #preStep3 {
     display: grid !important;
+    padding: 12px !important;
+  }
+  
+  #preStep3.pre-step.pre-step--status.is-done, 
+  #preMatchupHub[data-mobile-step="3"] #preStep3 {
+    display: inline-grid !important; 
+    position: relative;
+    height: 48.75px !important;
+    min-height: 0 !important;
   }
 
   #datasetCard .round-step-label {
@@ -4685,9 +4715,10 @@
     right: 0 !important;
     width: 100% !important;
     min-width: 0 !important;
-    max-width: none !important;
+    max-width: 250px !important;
     z-index: 10050 !important;
     overflow: auto !important;
+    justify-self: center;
   }
 
   /* Keep the center dataset row above sibling rows when open */
@@ -6075,7 +6106,7 @@
   }
 
   .pre-setup-row > .card {
-    max-height: 82px !important;
+    max-height: 83px !important;
   }  
 
   /* Keep the collapsed glossary handle from visually eating the last row */
@@ -6944,7 +6975,7 @@
     min-height: 90dvh !important;
     height: auto !important;
     max-height: 575px !important;
-
+    padding-bottom: 120px !important;
 
     overflow-y: visible !important;
     overscroll-behavior-y: auto !important;
@@ -7276,8 +7307,9 @@
     padding: 10px 12px 8px 10px !important;
 
     border-radius: var(--field-leader-card-radius, 16px) !important;
-
+    color: var(--mi-brand-blue-800);
     background:
+      var(--mi-brand-blue-800),
       radial-gradient(
         170px 90px at 8% 0%,
         rgba(var(--leader-ambient-rgb), 0.20),
@@ -7360,6 +7392,11 @@
 
   #preMatchup .mi-field-leader-slide[hidden] {
     display: none !important;
+  }
+
+  #verdictShell #miVerdictMetricsTile #miScorebugTeamA,
+  #verdictShell #miVerdictMetricsTile #miScorebugTeamB{
+    text-shadow: none !important;
   }
 
   /* ---------------------------------------------
@@ -7716,6 +7753,22 @@
 
   #miEvidenceToggle.mi-evidence-toggle {
     max-height: 36px !important;
+  }
+
+  .controls-card.is-primary-entry,
+  .matchup-step.is-primary-entry {
+    box-shadow: none !important;
+    border-color: rgba(56,189,248,.65) !important;
+  }
+
+  .pre-hub-steps.pre-hub-status-grid {
+
+    min-height: 0 !important;
+  }
+
+
+  .mi-team-dd-item {
+    text-align: center !important;
   }
 }
 
